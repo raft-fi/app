@@ -1,0 +1,25 @@
+$placeholder-width: 32px;
+$placeholder-height: 20px;
+$placeholder-body-height: 16px;
+
+.raft__loading-toggle-switch-placeholder {
+  width: $placeholder-width;
+  height: $placeholder-height;
+  position: relative;
+
+  .raft__loading-toggle-switch-placeholder__body {
+    width: $placeholder-width;
+    height: $placeholder-body-height;
+    position: absolute;
+    top: calc(($placeholder-height - $placeholder-body-height) / 2);
+    left: 0;
+    box-shadow: var(--downWeakShadow);
+    border-radius: 5px;
+  }
+
+  .raft__loading-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

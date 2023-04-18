@@ -1,0 +1,79 @@
+@use 'sass:map';
+
+$placeholder-circle-sizes: (
+  'small': 20px,
+  'medium': 32px,
+);
+
+$placeholder-widths: (
+  'tiny': 40px,
+  'small': 60px,
+  'medium': 72px,
+  'large': 90px,
+);
+
+$placeholder-heights: (
+  'small': 12px,
+  'medium': 24px,
+);
+
+$spacing: 8px;
+$animation-duration: 2s;
+
+.raft__loading-placeholder {
+  display: flex;
+
+  @each $variant, $width in $placeholder-widths {
+    &.raft__loading-placeholder__width-#{$variant} {
+      .raft__loading-placeholder__bar {
+        width: $width;
+      }
+    }
+  }
+
+  @each $variant, $height in $placeholder-heights {
+    &.raft__loading-placeholder__height-#{$variant} {
+      .raft__loading-placeholder__bar {
+        height: $height;
+        border-radius: calc($height / 2);
+      }
+    }
+  }
+
+  @each $variant, $size in $placeholder-circle-sizes {
+    &.raft__loading-placeholder__circle-#{$variant} {
+      .raft__loading-placeholder__bar {
+        width: $size;
+        height: $size;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .raft__loading-placeholder__bar {
+    animation: shine-loading-placeholder-bar $animation-duration infinite linear;
+  }
+
+  .raft__loading-placeholder__bar {
+    background: linear-gradient(var(--loadingPlaceholderOverlay), var(--loadingPlaceholderOverlay)),
+      linear-gradient(
+        120deg,
+        var(--loadingPlaceholderBase) 0%,
+        var(--loadingPlaceholderBase) 5%,
+        var(--loadingPlaceholderShine) 50%,
+        var(--loadingPlaceholderBase) 95%,
+        var(--loadingPlaceholderBase) 100%
+      );
+    background-size: 2 * map.get($placeholder-widths, 'large');
+  }
+}
+
+@keyframes shine-loading-placeholder-bar {
+  0% {
+    background-position: -1 * map.get($placeholder-widths, 'large');
+  }
+
+  100% {
+    background-position: map.get($placeholder-widths, 'large');
+  }
+}

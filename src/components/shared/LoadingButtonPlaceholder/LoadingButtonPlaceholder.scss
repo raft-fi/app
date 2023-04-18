@@ -1,0 +1,9 @@
+.raft__loading-button-placeholder {
+  padding: 10px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--loadingButtonPlaceholderBackground);
+  box-shadow: var(--downWeakShadow);
+  border-radius: 5px;
+}
