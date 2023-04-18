@@ -60,8 +60,8 @@ const typographyVariantMap: TypographyVariantMap = {
   },
   'body-primary': {
     fontStyle: 'normal',
-    fontSize: '18px',
-    lineHeight: '24px',
+    fontSize: '16px',
+    lineHeight: '18px',
   },
   'body-secondary': {
     fontStyle: 'normal',
@@ -70,7 +70,7 @@ const typographyVariantMap: TypographyVariantMap = {
   },
   'body-tertiary': {
     fontStyle: 'normal',
-    fontSize: '10px',
+    fontSize: '12px',
     lineHeight: '16px',
   },
 };
@@ -83,8 +83,7 @@ const typographyWeightMap: TypographyWeightMap = {
 };
 
 const typographyTypeMap: TypographyTypeMap = {
-  regular: 'BioRhyme, sans-serif',
-  mono: 'Work Sans, sans-serif',
+  primary: 'Work Sans, sans-serif',
 };
 
 export interface TypographyProps
