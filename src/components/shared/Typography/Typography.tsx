@@ -83,7 +83,7 @@ const typographyWeightMap: TypographyWeightMap = {
 };
 
 const typographyTypeMap: TypographyTypeMap = {
-  primary: 'Work Sans, sans-serif',
+  regular: 'Work Sans, sans-serif',
 };
 
 export interface TypographyProps
