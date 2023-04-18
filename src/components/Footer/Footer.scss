@@ -1,0 +1,45 @@
+.ra__footer {
+  width: 100%;
+  background-color: #002229;
+  display: flex;
+  justify-content: center;
+
+  .ra__footer__container {
+    display: flex;
+    justify-content: space-between;
+    width: 1366px;
+    min-height: 211px;
+    box-sizing: border-box;
+    padding: 72px 0px;
+  }
+}
+
+.ra__footer__logo {
+  margin-bottom: 48px;
+
+  --raftLogoTextColor: #ffffff;
+}
+
+.ra__footer__links-container {
+  display: grid;
+  grid-template-columns: 214px 214px 214px;
+
+  .ra__footer__links-column {
+    display: flex;
+    flex-direction: column;
+
+    .ra__footer__link-container {
+      margin: 0px;
+      margin-bottom: 16px;
+      height: 25px;
+    }
+
+    .ra__footer__link {
+      cursor: pointer;
+
+      > div:hover {
+        color: #f76329 !important;
+      }
+    }
+  }
+}
