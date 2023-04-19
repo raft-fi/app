@@ -4,12 +4,14 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Background from './components/Background';
 
 import './index.scss';
 
 ReactDOM.render(
   <React.StrictMode>
     <Header />
+    <Background />
     <App />
     <Footer />
   </React.StrictMode>,

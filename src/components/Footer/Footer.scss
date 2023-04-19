@@ -1,8 +1,10 @@
 .raft__footer {
+  position: relative;
   width: 100%;
   background-color: #002229;
   display: flex;
   justify-content: center;
+  z-index: 1;
 
   .raft__footer__container {
     display: flex;

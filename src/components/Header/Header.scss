@@ -1,8 +1,10 @@
 .common-ui__header {
   --headerLogoWidthMobile: initial;
 
+  position: relative;
   padding: 0 32px;
   box-sizing: border-box;
+  z-index: 1;
 
   .raft__header__link-active {
     --textPrimary: #3f5559;
