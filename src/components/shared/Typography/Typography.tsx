@@ -98,4 +98,4 @@ const Typography: FC<TypographyProps> = props => (
   />
 );
 
-export default memo(Typography);
+export default memo(Typography) as FC<TypographyProps>;

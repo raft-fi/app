@@ -1,0 +1,42 @@
+.common-ui__header {
+  --headerLogoWidthMobile: initial;
+
+  padding: 0 32px;
+  box-sizing: border-box;
+
+  .raft__header__logo-text {
+    color: #34464a !important;
+
+    @media screen and (max-width: 768px) {
+      font-size: 24px !important;
+    }
+  }
+
+  .raft__header__link-active {
+    color: #3f5559 !important;
+  }
+
+  .raft__header__link-inactive {
+    color: #6e898c !important;
+
+    &:hover {
+      color: #3f5559 !important;
+    }
+  }
+
+  .raft__header__menu-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+
+    > div {
+      color: #707b7e !important;
+    }
+
+    &.common-ui__btn {
+      justify-content: space-between;
+    }
+  }
+}
