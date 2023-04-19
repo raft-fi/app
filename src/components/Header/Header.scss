@@ -4,39 +4,119 @@
   padding: 0 32px;
   box-sizing: border-box;
 
-  .raft__header__logo-text {
-    color: #34464a !important;
-
-    @media screen and (max-width: 768px) {
-      font-size: 24px !important;
-    }
-  }
-
   .raft__header__link-active {
-    color: #3f5559 !important;
+    --textPrimary: #3f5559;
   }
 
   .raft__header__link-inactive {
-    color: #6e898c !important;
+    --textPrimary: #6e898c;
 
     &:hover {
-      color: #3f5559 !important;
+      --textPrimary: #3f5559;
     }
   }
 
   .raft__header__menu-link {
+    --textPrimary: #707b7e;
+
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 72px;
 
-    > div {
-      color: #707b7e !important;
+    .raft__header__menu-link-label {
+      display: flex;
+      align-items: center;
+
+      > * {
+        margin-right: 8px;
+      }
     }
 
     &.common-ui__btn {
       justify-content: space-between;
+    }
+  }
+
+  .raft__locale-switcher {
+    margin-right: 44px;
+    position: relative;
+
+    .raft__locale-switcher__button {
+      --chevronDownColor: #6e898c;
+      --globeColor: #6e898c;
+      --textPrimary: #6e898c;
+
+      &:hover {
+        --chevronDownColor: #3f5559;
+        --globeColor: #3f5559;
+        --textPrimary: #3f5559;
+      }
+    }
+
+    > button {
+      > :not(:first-child) {
+        margin-left: 8px;
+      }
+
+      > :last-child {
+        margin-left: 4px;
+      }
+    }
+
+    .raft__locale-switcher__backdrop {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      cursor: default;
+    }
+
+    .raft__locale-switcher__menu {
+      position: absolute;
+      background: #f5fdff;
+      width: 180px;
+      top: 50px;
+      left: 0;
+      border-radius: 8px;
+      box-shadow: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
+      z-index: 11;
+
+      ul {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        list-style: none;
+
+        li {
+          button {
+            --textPrimary: #6e898c;
+
+            padding: 28px 16px;
+            position: relative;
+          }
+
+          &:hover {
+            background: #e1f8ff;
+          }
+
+          &:first-of-type {
+            border-radius: 8px 8px 0 0;
+          }
+
+          &:last-of-type {
+            border-radius: 0 0 8px 8px;
+          }
+        }
+      }
+
+      button {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
   }
 }
