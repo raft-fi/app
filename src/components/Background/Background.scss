@@ -1,9 +1,23 @@
 .raft__background {
-  position: fixed;
-  background: url(./background.png) center center/cover no-repeat;
+  position: absolute;
+  background-color: #c8ebf7;
   width: 100%;
   height: 100%;
   left: 0;
   top: 0;
-  opacity: 0.5;
+
+  img {
+    width: 100%;
+    opacity: 0.5;
+  }
+
+  &::after {
+    content: ' ';
+    position: relative;
+    display: block;
+    background: linear-gradient(180deg, rgba(200, 235, 247, 0) 0%, #c8ebf7 89.06%, #c8ebf7 100%);
+    width: 100%;
+    height: 100px;
+    bottom: 100px;
+  }
 }
