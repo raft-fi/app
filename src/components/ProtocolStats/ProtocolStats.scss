@@ -1,0 +1,99 @@
+.raft__protocol-stats {
+  background: #e1f8ff;
+  box-shadow: 0px 4px 16px rgba(22, 22, 22, 0.1);
+  border-radius: 8px;
+  padding: 24px;
+  width: 800px;
+
+  .raft__protocol-stats__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .raft__protocol-stats__body {
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+
+    .raft__protocol-stats__stat {
+      margin-top: 16px;
+      background: #f5fdff;
+      border-radius: 8px;
+    }
+
+    .raft__protocol-stats__stat-token {
+      display: flex;
+
+      .raft__protocol-stats__stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex: 1 50%;
+        margin: 16px 8px 0 8px;
+        padding: 0 16px;
+        height: 80px;
+
+        .raft__protocol-stats__stat__separator {
+          height: 56px;
+          border-left: 1px solid #ffc5ae;
+          margin: 0 16px;
+        }
+
+        .common-ui__logo {
+          border-radius: 50%;
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .raft__protocol-stats__stat__data {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          white-space: nowrap;
+
+          .raft__protocol-stats__stat__data__title {
+            text-transform: uppercase;
+          }
+          .raft__protocol-stats__stat__data__value {
+            margin-top: 4px;
+          }
+        }
+
+        &:first-child {
+          margin-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+    > .raft__protocol-stats__stat {
+      padding: 16px;
+
+      .raft__protocol-stats__stat__data {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+
+        &:first-child {
+          padding-top: 0;
+        }
+
+        &:last-child {
+          padding-bottom: 0;
+        }
+
+        &:not(:last-child) {
+          border-bottom: 1px dashed #c4c4c4;
+        }
+      }
+    }
+
+    &.raft__protocol-stats-expanded {
+      max-height: 400px;
+    }
+  }
+}

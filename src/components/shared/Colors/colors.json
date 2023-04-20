@@ -1,9 +1,5 @@
 {
-  "textPrimary": "#222222",
-  "textPrimaryAccent": "#000000",
-  "textPrimaryInverted": "#FFFFFF",
-  "textPrimaryInvertedSemiTransparent": "255, 255, 255, 0.5",
-  "textSecondary": "#374151",
-  "textHighlight": "#FF6B00",
-  "textSuccess": "#4BB543"
+  "textPrimary": "#171717",
+  "textPrimaryInverted": "#F5FDFF",
+  "textSecondary": "#F76329"
 }
