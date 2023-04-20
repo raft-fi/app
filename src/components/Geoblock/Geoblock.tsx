@@ -9,9 +9,12 @@ const Geoblock = () => {
 
   useEffect(() => {
     const getLocation = async () => {
-      // TODO - Get paid version of API in order to use https
+      if (!process.env.REACT_APP_IP_API_URL) {
+        return;
+      }
+
       try {
-        const response = await axios.get('http://ip-api.com/json');
+        const response = await axios.get(process.env.REACT_APP_IP_API_URL);
 
         setCountryCode(response.data.countryCode);
       } catch (error) {
