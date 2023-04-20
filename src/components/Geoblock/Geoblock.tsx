@@ -10,9 +10,16 @@ const Geoblock = () => {
   useEffect(() => {
     const getLocation = async () => {
       // TODO - Get paid version of API in order to use https
-      const response = await axios.get('http://ip-api.com/json');
+      try {
+        const response = await axios.get('http://ip-api.com/json');
 
-      setCountryCode(response.data.countryCode);
+        setCountryCode(response.data.countryCode);
+      } catch (error) {
+        console.error(error);
+
+        // Retry after 1 second
+        setTimeout(getLocation, 1000);
+      }
     };
     getLocation();
   }, []);
