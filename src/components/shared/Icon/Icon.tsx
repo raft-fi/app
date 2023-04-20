@@ -15,6 +15,7 @@ import Error from './Error';
 import Success from './Success';
 import ArrowDown from './ArrowDown';
 import Globe from './Globe';
+import Geoblock from './Geoblock';
 
 type IconVariant =
   | 'discord'
@@ -31,7 +32,8 @@ type IconVariant =
   | 'external-link'
   | 'arrow-right'
   | 'arrow-down'
-  | 'globe';
+  | 'globe'
+  | 'geoblock';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -49,6 +51,7 @@ const ICON_MAP: IconMap = {
   'arrow-right': ArrowRight,
   'arrow-down': ArrowDown,
   globe: Globe,
+  geoblock: Geoblock,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;

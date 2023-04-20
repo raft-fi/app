@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Background from './components/Background';
 import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
+import Geoblock from './components/Geoblock';
 
 import './index.scss';
 
@@ -22,6 +23,7 @@ ReactDOM.render(
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         <Footer />
+        <Geoblock />
       </div>
     </BrowserRouter>
   </React.StrictMode>,
