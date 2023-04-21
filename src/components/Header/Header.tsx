@@ -3,6 +3,7 @@ import { ButtonWrapper, Header as HeaderBase, Link } from 'tempus-ui';
 import { Icon, Typography } from '../shared';
 import { Locale, LOCALE_CODE, useLocale } from '../../hooks';
 import RaftLogo from '../Logo/RaftLogo';
+import Wallet from '../Wallet';
 import LocaleSwitcher from './LocaleSwitcher';
 
 import './Header.scss';
@@ -71,11 +72,7 @@ const Header = () => {
         </Typography>
       </Link>,
       <LocaleSwitcher key="navitem-locale" />,
-      <ButtonWrapper key="navitem-connect" disabled={true}>
-        <Typography variant="body-primary" weight="medium">
-          Connect
-        </Typography>
-      </ButtonWrapper>,
+      <Wallet />,
     ],
     [currentPage],
   );
