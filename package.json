@@ -42,7 +42,7 @@
     "rxjs": "^7.5.6",
     "sass": "^1.54.0",
     "sass-loader": "^10.0.5",
-    "tempus-ui": "github:tempusfinance/tempus-ui#393cf842bf90e7e971ca8cf4befed3f7b225017c",
+    "tempus-ui": "github:tempusfinance/tempus-ui#5b202d0b445056adb113b12d6861c463f3681ab8",
     "typescript": "^4.9.5",
     "url-loader": "4.1.1",
     "web-vitals": "^2.1.4"
