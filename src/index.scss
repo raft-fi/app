@@ -2,6 +2,13 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --w3o-background-color: #f5fdff;
+  --w3o-foreground-color: #e1f8ff;
+  --w3o-text-color: #171717;
+  --w3o-action-color: #ff8012;
+  --w3o-border-radius: 8px;
+  --w3o-font-family: 'Work Sans', sans-serif;
 }
 
 .raft__app__root {

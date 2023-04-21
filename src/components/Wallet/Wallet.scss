@@ -1,0 +1,18 @@
+.raft__wallet {
+  .raft__wallet__disconnected {
+    .raft__buttonPrimary {
+      width: 161px;
+    }
+  }
+  .raft__wallet__connected {
+    --textPrimary: #3f5559;
+
+    .raft__buttonPrimary {
+      background-color: #ffd7ba;
+    }
+
+    .raft__icon__profile {
+      margin-right: 8px;
+    }
+  }
+}
