@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { Icon, Typography, CurrencyInput } from '../shared';
+import { Icon, Typography } from '../shared';
 
 import './ProtocolStats.scss';
 
@@ -8,8 +8,6 @@ const ProtocolStats = () => {
   const [expanded, setExpanded] = useState<boolean>(true);
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
-
-  const [value, setValue] = useState<string>('');
 
   return (
     <div className="raft__protocol-stats">
@@ -127,18 +125,6 @@ const ProtocolStats = () => {
           </div>
         </div>
       </div>
-      <CurrencyInput
-        label="Collateral"
-        fiatValue="$100.20"
-        maxAmount="20.00 stETH"
-        precision={4}
-        value={value}
-        showMaxAmountIcon={true}
-        selectedToken="stETH"
-        tokens={['ETH', 'stETH', 'wstETH']}
-        onValueUpdate={setValue}
-        disabled={true}
-      />
     </div>
   );
 };

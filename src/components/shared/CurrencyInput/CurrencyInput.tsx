@@ -1,11 +1,11 @@
 import { createRef, FC, memo, useCallback, useState } from 'react';
+import { TokenLogo } from 'tempus-ui';
 import BaseInput from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
+import Menu from '../Menu';
 
 import './CurrencyInput.scss';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import Menu from '../Menu';
 
 export interface CurrencyInputProps {
   label: string;

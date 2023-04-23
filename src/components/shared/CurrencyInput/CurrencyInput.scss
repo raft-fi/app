@@ -5,7 +5,6 @@
   background: #f5fdff;
   border-radius: 8px;
   box-sizing: border-box;
-  opacity: 0.5;
 
   margin-top: 10px; // REMOVE BEFORE PR
 
@@ -28,8 +27,8 @@
         display: flex;
         align-items: center;
 
-        div {
-          margin-left: 8px;
+        svg {
+          margin-right: 8px;
         }
       }
     }
@@ -47,6 +46,98 @@
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
+
+      .raft__currencyInput__amountContainer {
+        width: 100%;
+        min-width: 0px;
+        margin-right: 8px;
+
+        .raft__currencyInput__amount {
+          .raft__baseInput {
+            width: 100%;
+            padding: 0px;
+            color: inherit;
+            font: inherit;
+            background-color: transparent;
+            border: none;
+
+            &:focus {
+              outline: none;
+            }
+
+            &::placeholder {
+              opacity: 1;
+              color: var(--textPrimary);
+            }
+          }
+        }
+      }
+
+      .raft__currencyInput__tokenSelectorContainer {
+        position: relative;
+
+        .raft__currencyInput__tokenSelector {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+
+          --chevronDownColor: #222222;
+
+          .raft__currencyInput__tokenLabel {
+            padding-right: 8px;
+          }
+
+          .raft__currencyInput__tokenLogoContainer {
+            width: 24px;
+            height: 24px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+            border-radius: 50%;
+          }
+        }
+
+        .raft__currencyInput__dropdownContainer {
+          background-color: #f5fdff;
+          border-radius: 4px;
+
+          .raft__currencyInput__dropdownItem {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            box-sizing: border-box;
+            cursor: pointer;
+
+            --textPrimary: #374151;
+
+            .raft__currencyInput__dropdownTokenLogoContainer {
+              width: 24px;
+              height: 24px;
+              box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+              background: #ffffff;
+              border-radius: 50%;
+              margin-right: 12px;
+            }
+
+            svg {
+              margin-right: 12px;
+            }
+
+            &:hover {
+              background-color: #e1f8ff;
+            }
+
+            &:first-child {
+              border-top-left-radius: 4px;
+              border-top-right-radius: 4px;
+            }
+
+            &:last-child {
+              border-bottom-left-radius: 4px;
+              border-bottom-right-radius: 4px;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -54,112 +145,9 @@
     border-color: #c81e1e;
   }
 
-  .raft__currencyInput__amountContainer {
-    width: 100%;
-    min-width: 0px; // forces the container to shrink if the content is too long
-    margin-right: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    .raft__typography {
-      overflow: hidden;
-    }
-
-    > .raft__loading-placeholder:first-child {
-      margin-bottom: 8px;
-    }
-  }
-
-  .raft__currencyInput__amount {
-    .raft__baseInput {
-      width: 100%;
-      padding: 0;
-      color: inherit;
-      font: inherit;
-      background-color: transparent;
-      border: none;
-
-      &:focus {
-        outline: none;
-      }
-
-      &::placeholder {
-        opacity: 1;
-        color: var(--textPrimary);
-      }
-    }
-  }
-
   .raft__currencyInput__fiatAmount {
     display: flex;
     margin-top: 8px;
-  }
-
-  .raft__currencyInput__tokenSelectorContainer {
-    position: relative;
-
-    .raft__currencyInput__tokenSelector {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-
-      --chevronDownColor: #222222;
-
-      .raft__currencyInput__tokenLabel {
-        padding-right: 8px;
-      }
-
-      .raft__currencyInput__tokenLogoContainer {
-        width: 24px;
-        height: 24px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-        background: #ffffff;
-        border-radius: 50%;
-      }
-    }
-
-    .raft__currencyInput__dropdownContainer {
-      background-color: #f5fdff;
-      border-radius: 4px;
-
-      .raft__currencyInput__dropdownItem {
-        display: flex;
-        align-items: center;
-        padding: 12px;
-        box-sizing: border-box;
-        cursor: pointer;
-
-        --textPrimary: #374151;
-
-        .raft__currencyInput__dropdownTokenLogoContainer {
-          width: 24px;
-          height: 24px;
-          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-          background: #ffffff;
-          border-radius: 50%;
-          margin-right: 12px;
-        }
-
-        svg {
-          margin-right: 12px;
-        }
-
-        &:hover {
-          background-color: #e1f8ff;
-        }
-
-        &:first-child {
-          border-top-left-radius: 4px;
-          border-top-right-radius: 4px;
-        }
-
-        &:last-child {
-          border-bottom-left-radius: 4px;
-          border-bottom-right-radius: 4px;
-        }
-      }
-    }
   }
 
   .raft__currencyInput__disabledOverlay {
