@@ -1,0 +1,141 @@
+.raft__currencyInput {
+  width: 100%;
+
+  .raft__currencyInput__maxAmount {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .raft__currencyInput__maxAmountValue {
+    display: flex;
+    align-items: center;
+
+    div {
+      margin-left: 8px;
+    }
+  }
+
+  .raft__currencyInput__fieldContainer {
+    display: flex;
+    height: 48px;
+    border-bottom: 1px solid #bfc0c0;
+    box-sizing: border-box;
+  }
+
+  .raft__currencyInput__fieldContainerError {
+    border-color: #c81e1e;
+  }
+
+  .raft__currencyInput__fieldContainerDisabled {
+    border-color: #c4c4c4;
+  }
+
+  .raft__currencyInput__fieldContainerFocused {
+    border-color: #bfc0c0;
+  }
+
+  .raft__currencyInput__inputContainer {
+    width: 100%;
+    padding: 0px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+
+  .raft__currencyInput__inputContainerDisabled {
+    background-color: yellow;
+  }
+
+  .raft__currencyInput__amountContainer {
+    width: 100%;
+    min-width: 0px; // forces the container to shrink if the content is too long
+    margin-right: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .raft__typography {
+      overflow: hidden;
+    }
+
+    > .raft__loading-placeholder:first-child {
+      margin-bottom: 8px;
+    }
+  }
+
+  .raft__currencyInput__amount {
+    .nostra__base-input {
+      width: 100%;
+      padding: 0;
+      color: inherit;
+      font: inherit;
+      background-color: transparent;
+      border: none;
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        opacity: 1;
+        color: var(--textPrimary);
+      }
+    }
+  }
+
+  .nostra__currency-input__fiat-amount {
+    display: flex;
+  }
+
+  .nostra__currency-input__fiat-amount-currency {
+    padding-left: 4px;
+  }
+
+  .nostra__currency-input__token {
+    display: flex;
+    align-items: center;
+
+    .nostra__currency-input__token-label {
+      padding-right: 10px;
+      align-self: center;
+    }
+  }
+
+  .nostra__currency-input__error {
+    margin-top: 8px;
+
+    .nostra__link {
+      text-decoration: underline;
+    }
+  }
+
+  .nostra__currency-input__percentage-buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+
+    .nostra__currency-input__percentage-button {
+      margin-left: 8px;
+      width: 70px;
+      background-color: var(--currencyInputBackground);
+      border: 1px solid var(--currencyInputBorder);
+      border-radius: 5px;
+      height: 32px;
+      cursor: pointer;
+
+      &[data-disabled='true'] {
+        border: 1px solid var(--currencyInputDisabledBorder);
+        cursor: default;
+      }
+    }
+  }
+
+  .nostra__loading-button-placeholder {
+    &:not(:last-child) {
+      margin-right: 8px;
+    }
+  }
+}

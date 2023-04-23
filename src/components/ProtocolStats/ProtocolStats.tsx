@@ -3,6 +3,7 @@ import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Icon, Typography } from '../shared';
 
 import './ProtocolStats.scss';
+import CurrencyInput from '../shared/CurrencyInput';
 
 const ProtocolStats = () => {
   const [expanded, setExpanded] = useState<boolean>(true);
@@ -125,6 +126,15 @@ const ProtocolStats = () => {
           </div>
         </div>
       </div>
+      <CurrencyInput
+        label="Collateral"
+        fiatValue="$100.20"
+        maxAmount="20.00 stETH"
+        maxAmountLabel=""
+        precision={4}
+        value="0.2345"
+        showMaxAmountIcon={true}
+      />
     </div>
   );
 };
