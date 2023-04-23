@@ -2,7 +2,6 @@ import { createRef, FC, memo, useCallback, useState } from 'react';
 import BaseInput from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
-import LoadingPlaceholder from '../LoadingPlaceholder';
 
 import './CurrencyInput.scss';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
@@ -12,12 +11,11 @@ export interface CurrencyInputProps {
   label: string;
   value: string;
   precision: number;
-  maxAmount: string;
-  maxAmountLabel: string;
   fiatValue: string;
+  maxAmount?: string;
+  maxAmountLabel?: string;
   disabled?: boolean;
-  error?: string;
-  warning?: string;
+  error?: boolean;
   autoFocus?: boolean;
   showMaxAmountIcon?: boolean;
   tokens: string[];
@@ -31,13 +29,12 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   const {
     label,
     value,
-    maxAmount,
+    precision,
+    maxAmount = '',
     maxAmountLabel = '',
     fiatValue,
-    precision,
     disabled,
-    error,
-    warning,
+    error = false,
     autoFocus,
     showMaxAmountIcon = true,
     selectedToken,
@@ -96,7 +93,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   );
 
   return (
-    <div className="raft__currencyInput">
+    <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>
       <div className="raft__currencyInput__header">
         <div className="raft__currencyInput__title">
           <Typography variant="body-primary" weight="semi-bold">
@@ -105,20 +102,17 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         </div>
 
         <div className="raft__currencyInput__maxAmount">
-          {!maxAmount && <LoadingPlaceholder shape={{ width: 'large', height: 'small' }} />}
           {maxAmount && (
-            <ButtonWrapper className="raft__currencyInput__maxAmountValue">
+            <div className="raft__currencyInput__maxAmountValue">
               {showMaxAmountIcon && <Icon variant="wallet" size="tiny" />}
               {maxAmountLabel && <Typography variant="body-tertiary">{maxAmountLabel}</Typography>}
               <Typography variant="body-tertiary">{maxAmount}</Typography>
-            </ButtonWrapper>
+            </div>
           )}
         </div>
       </div>
       <div
         className={`raft__currencyInput__fieldContainer
-          ${disabled ? ' raft__currencyInput__fieldContainerDisabled' : ''}
-          ${!disabled && focused ? ' raft__currencyInput__fieldContainerFocused' : ''}
           ${error ? ' raft__currencyInput__fieldContainerError' : ''}
         `}
       >
@@ -128,51 +122,43 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           `}
         >
           <div className="raft__currencyInput__amountContainer" onClick={focusInput}>
-            {value ? (
-              <Typography
-                className="raft__currencyInput__amount"
-                variant="subtitle"
-                color={disabled ? 'text-tertiary' : 'text-primary'}
-                weight="bold"
-              >
-                <BaseInput
-                  ref={inputRef}
-                  value={value}
-                  placeholder="0"
-                  pattern={`[0-9]*[.]?[0-9]{0,${precision}}`}
-                  disabled={disabled}
-                  debounce
-                  autoFocus={Boolean(value) && autoFocus}
-                  onChange={handleValueChange}
-                  onDebounceChange={handleDebounceValueChange}
-                  onFocus={handleInputFocus}
-                  onBlur={handleInputBlur}
-                />
-              </Typography>
-            ) : (
-              <LoadingPlaceholder shape={{ width: 'large', height: 'small' }} />
-            )}
-            {(!value || !fiatValue) && <LoadingPlaceholder shape={{ width: 'small', height: 'small' }} />}
+            <Typography
+              className="raft__currencyInput__amount"
+              variant="subtitle"
+              color={disabled ? 'text-tertiary' : 'text-primary'}
+              weight="bold"
+            >
+              <BaseInput
+                ref={inputRef}
+                value={value}
+                placeholder="0"
+                pattern={`[0-9]*[.]?[0-9]{0,${precision}}`}
+                disabled={disabled}
+                debounce
+                autoFocus={Boolean(value) && autoFocus}
+                onChange={handleValueChange}
+                onDebounceChange={handleDebounceValueChange}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
+              />
+            </Typography>
           </div>
           <div className="raft__currencyInput__tokenSelectorContainer">
-            {value ? (
-              <div className="raft__currencyInput__tokenSelector" onClick={onOpenDropdown}>
-                <Icon variant="chevron-down" size={24} />
-                <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
-                  {selectedToken}
-                </Typography>
-                <div className="raft__currencyInput__tokenLogoContainer">
-                  <TokenLogo type={`token-${selectedToken}`} size="small" />
-                </div>
+            <div className="raft__currencyInput__tokenSelector" onClick={onOpenDropdown}>
+              <Icon variant="chevron-down" size={24} />
+              <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
+                {selectedToken}
+              </Typography>
+              <div className="raft__currencyInput__tokenLogoContainer">
+                <TokenLogo type={`token-${selectedToken}`} size="small" />
               </div>
-            ) : (
-              <LoadingPlaceholder shape={{ circle: 'medium' }} />
-            )}
+            </div>
             <Menu open={dropdownOpen} onClose={onCloseDropdown}>
               <div className="raft__currencyInput__dropdownContainer">
                 {tokens.map(token => {
                   return (
                     <div
+                      key={token}
                       className="raft__currencyInput__dropdownItem"
                       onClick={() => {
                         handleTokenUpdate(token);
@@ -192,13 +178,14 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </div>
         </div>
       </div>
-      {value && fiatValue && (
+      {fiatValue && (
         <span className="raft__currencyInput__fiatAmount">
           <Typography variant="body-tertiary" color={!disabled ? 'text-primary' : 'text-tertiary'}>
             {fiatValue}
           </Typography>
         </span>
       )}
+      {disabled && <div className="raft__currencyInput__disabledOverlay"></div>}
     </div>
   );
 };
