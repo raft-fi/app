@@ -134,6 +134,8 @@ const ProtocolStats = () => {
         precision={4}
         value="0.2345"
         showMaxAmountIcon={true}
+        selectedToken="stETH"
+        tokens={['stETH', 'ETH', 'wstETH']}
       />
     </div>
   );

@@ -1,11 +1,27 @@
 .raft__currencyInput {
   width: 100%;
+  padding: 16px;
+  background: #f5fdff;
+  border-radius: 8px;
+  box-sizing: border-box;
 
-  .raft__currencyInput__maxAmount {
-    margin-bottom: 8px;
+  margin-top: 10px; // REMOVE BEFORE PR
+
+  .raft__currencyInput__header {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
+    margin-bottom: 8px;
+
+    .raft__currencyInput__title {
+      display: flex;
+      align-items: center;
+    }
+
+    .raft__currencyInput__maxAmount {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .raft__currencyInput__maxAmountValue {
@@ -22,6 +38,14 @@
     height: 48px;
     border-bottom: 1px solid #bfc0c0;
     box-sizing: border-box;
+
+    .raft__currencyInput__inputContainer {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
   }
 
   .raft__currencyInput__fieldContainerError {
@@ -34,15 +58,6 @@
 
   .raft__currencyInput__fieldContainerFocused {
     border-color: #bfc0c0;
-  }
-
-  .raft__currencyInput__inputContainer {
-    width: 100%;
-    padding: 0px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
   }
 
   .raft__currencyInput__inputContainerDisabled {
@@ -67,7 +82,7 @@
   }
 
   .raft__currencyInput__amount {
-    .nostra__base-input {
+    .raft__baseInput {
       width: 100%;
       padding: 0;
       color: inherit;
@@ -86,56 +101,74 @@
     }
   }
 
-  .nostra__currency-input__fiat-amount {
+  .raft__currencyInput__fiatAmount {
     display: flex;
-  }
-
-  .nostra__currency-input__fiat-amount-currency {
-    padding-left: 4px;
-  }
-
-  .nostra__currency-input__token {
-    display: flex;
-    align-items: center;
-
-    .nostra__currency-input__token-label {
-      padding-right: 10px;
-      align-self: center;
-    }
-  }
-
-  .nostra__currency-input__error {
     margin-top: 8px;
-
-    .nostra__link {
-      text-decoration: underline;
-    }
   }
 
-  .nostra__currency-input__percentage-buttons {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 8px;
+  .raft__currencyInput__tokenSelectorContainer {
+    position: relative;
 
-    .nostra__currency-input__percentage-button {
-      margin-left: 8px;
-      width: 70px;
-      background-color: var(--currencyInputBackground);
-      border: 1px solid var(--currencyInputBorder);
-      border-radius: 5px;
-      height: 32px;
+    .raft__currencyInput__tokenSelector {
+      display: flex;
+      align-items: center;
       cursor: pointer;
 
-      &[data-disabled='true'] {
-        border: 1px solid var(--currencyInputDisabledBorder);
-        cursor: default;
+      --chevronDownColor: #222222;
+
+      .raft__currencyInput__tokenLabel {
+        padding-right: 8px;
+      }
+
+      .raft__currencyInput__tokenLogoContainer {
+        width: 24px;
+        height: 24px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+        background: #ffffff;
+        border-radius: 50%;
       }
     }
-  }
 
-  .nostra__loading-button-placeholder {
-    &:not(:last-child) {
-      margin-right: 8px;
+    .raft__currencyInput__dropdownContainer {
+      background-color: #f5fdff;
+      border-radius: 4px;
+
+      .raft__currencyInput__dropdownItem {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        --textPrimary: #374151;
+
+        .raft__currencyInput__dropdownTokenLogoContainer {
+          width: 24px;
+          height: 24px;
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+          background: #ffffff;
+          border-radius: 50%;
+          margin-right: 12px;
+        }
+
+        svg {
+          margin-right: 12px;
+        }
+
+        &:hover {
+          background-color: #e1f8ff;
+        }
+
+        &:first-child {
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+        }
+
+        &:last-child {
+          border-bottom-left-radius: 4px;
+          border-bottom-right-radius: 4px;
+        }
+      }
     }
   }
 }

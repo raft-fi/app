@@ -97,7 +97,7 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>((props, ref) => {
   return (
     <input
       ref={ref}
-      className="nostra__base-input"
+      className="raft__baseInput"
       id={id}
       type="text"
       value={value}
