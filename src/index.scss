@@ -14,3 +14,15 @@ body {
 .raft__app__root {
   position: relative;
 }
+
+@mixin sectionBox {
+  background: #e1f8ff;
+  box-shadow: 0px 4px 16px rgba(22, 22, 22, 0.1);
+  border-radius: 8px;
+  padding: 24px;
+  width: 800px;
+
+  &:not(:first-child) {
+    margin-top: 32px;
+  }
+}

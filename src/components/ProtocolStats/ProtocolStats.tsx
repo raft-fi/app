@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { Icon, Typography } from '../shared';
+import { Icon, Typography, ValuesBox } from '../shared';
 
 import './ProtocolStats.scss';
 
@@ -104,26 +104,22 @@ const ProtocolStats = () => {
             </div>
           </div>
         </div>
-        <div className="raft__protocol-stats__stat">
-          <div className="raft__protocol-stats__stat__data">
-            <Typography variant="body-primary">Protocol collateralization ratio</Typography>
-            <Typography variant="body-tertiary" weight="medium">
-              262%
-            </Typography>
-          </div>
-          <div className="raft__protocol-stats__stat__data">
-            <Typography variant="body-primary">Open positions</Typography>
-            <Typography variant="body-tertiary" weight="medium">
-              50,000
-            </Typography>
-          </div>
-          <div className="raft__protocol-stats__stat__data">
-            <Typography variant="body-primary">Borrowing fee</Typography>
-            <Typography variant="body-tertiary" weight="medium">
-              0.00%
-            </Typography>
-          </div>
-        </div>
+        <ValuesBox
+          values={[
+            {
+              label: 'Protocol collateralization ratio',
+              value: '262%',
+            },
+            {
+              label: 'Open positions',
+              value: '50,000',
+            },
+            {
+              label: 'Borrowing fee',
+              value: '0.00%',
+            },
+          ]}
+        />
       </div>
     </div>
   );

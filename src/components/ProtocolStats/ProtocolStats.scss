@@ -1,9 +1,7 @@
+@import '../../index.scss';
+
 .raft__protocol-stats {
-  background: #e1f8ff;
-  box-shadow: 0px 4px 16px rgba(22, 22, 22, 0.1);
-  border-radius: 8px;
-  padding: 24px;
-  width: 800px;
+  @include sectionBox;
 
   .raft__protocol-stats__header {
     display: flex;
@@ -69,27 +67,8 @@
       }
     }
 
-    > .raft__protocol-stats__stat {
-      padding: 16px;
-
-      .raft__protocol-stats__stat__data {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-
-        &:first-child {
-          padding-top: 0;
-        }
-
-        &:last-child {
-          padding-bottom: 0;
-        }
-
-        &:not(:last-child) {
-          border-bottom: 1px dashed #c4c4c4;
-        }
-      }
+    .raft__valuesBox {
+      margin-top: 16px;
     }
 
     &.raft__protocol-stats-expanded {

@@ -1,0 +1,34 @@
+@import '../../index.scss';
+
+.raft__openPosition {
+  @include sectionBox;
+
+  .raft__openPosition__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .raft__openPosition__input {
+    display: flex;
+
+    .raft__currencyInput {
+      &:not(:first-child) {
+        margin-left: 16px;
+      }
+    }
+  }
+
+  .raft__openPosition__data {
+    margin-top: 16px;
+  }
+
+  .raft__openPosition__action {
+    margin-top: 16px;
+
+    .raft__buttonPrimary {
+      width: 100%;
+    }
+  }
+}
