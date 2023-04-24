@@ -2,13 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
+import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { Typography, ButtonPrimary, Icon } from '../shared';
+import { Typography, ButtonPrimary, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
-import ModalWrapper from '../shared/ModalWrapper';
-import { ButtonWrapper } from 'tempus-ui';
 
 const injected = injectedModule();
 const ledger = ledgerModule();
