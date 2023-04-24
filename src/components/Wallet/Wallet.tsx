@@ -181,7 +181,7 @@ const Wallet = () => {
               </Typography>
             </ButtonWrapper>
             <ButtonWrapper className="raft__wallet__popupAction" onClick={onCopyAddress}>
-              <Icon variant="external-link" size={16} />
+              <Icon variant="copy" size={16} />
               <Typography variant="body-primary" weight="medium">
                 Copy address
               </Typography>
