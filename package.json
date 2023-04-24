@@ -1,85 +1,37 @@
 {
   "name": "raft-app",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "@react-rxjs/core": "^0.9.8",
+    "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^12.1.4",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.4.1",
-    "@types/node": "^16.11.26",
-    "@types/react": "^17.0.42",
-    "@types/react-dom": "^17.0.14",
-    "@web3-onboard/core": "^2.16.2",
-    "@web3-onboard/injected-wallets": "^2.8.4",
+    "@web3-onboard/injected-wallets": "^2.8.5",
     "@web3-onboard/ledger": "^2.4.4",
-    "@web3-onboard/react": "^2.7.2",
+    "@web3-onboard/react": "^2.8.0",
     "axios": "^1.3.6",
-    "css-loader": "4.3.0",
-    "date-fns": "^2.28.0",
-    "date-fns-tz": "^2.0.0",
-    "eslint": "^7.11.0",
-    "eslint-config-react-app": "^6.0.0",
-    "eslint-plugin-flowtype": "^5.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.1.0",
-    "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-testing-library": "^3.9.2",
-    "eslint-webpack-plugin": "^2.5.2",
-    "ethers": "^5.4.6",
-    "file-loader": "6.1.1",
-    "i18next": "^21.8.16",
-    "i18next-browser-languagedetector": "^6.1.4",
-    "mini-css-extract-plugin": "0.11.3",
-    "postcss-loader": "3.0.0",
-    "react": "^17.0.2",
-    "react-app-polyfill": "^2.0.0",
-    "react-dom": "^17.0.2",
-    "react-i18next": "^11.18.3",
-    "react-router-dom": "^6.0.2",
-    "react-scripts": "5.0.1",
-    "rxjs": "^7.5.6",
-    "sass": "^1.54.0",
-    "sass-loader": "^10.0.5",
-    "tempus-ui": "github:tempusfinance/tempus-ui#5b202d0b445056adb113b12d6861c463f3681ab8",
-    "typescript": "^4.9.5",
-    "url-loader": "4.1.1",
-    "web-vitals": "^2.1.4"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0",
+    "sass": "^1.62.0",
+    "tempus-ui": "github:tempusfinance/tempus-ui#4abc749653a54a039962f35e03cd3546168b43ac"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.18.6",
-    "@babel/plugin-proposal-optional-chaining": "^7.18.9",
-    "@types/bn.js": "^5.1.0",
-    "@types/react-collapse": "^5.0.1",
-    "i18next-parser": "^6.5.0"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-react": "^4.0.0-beta.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.0"
   }
 }

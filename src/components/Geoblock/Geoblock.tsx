@@ -9,12 +9,12 @@ const Geoblock = () => {
 
   useEffect(() => {
     const getLocation = async () => {
-      if (!process.env.REACT_APP_IP_API_URL) {
+      if (!import.meta.env.VITE_IP_API_URL) {
         return;
       }
 
       try {
-        const response = await axios.get(process.env.REACT_APP_IP_API_URL);
+        const response = await axios.get(import.meta.env.VITE_IP_API_URL);
 
         setCountryCode(response.data.countryCode);
       } catch (error) {

@@ -19,7 +19,7 @@ init({
       id: '0x1',
       token: 'ETH',
       label: 'Ethereum Mainnet',
-      rpcUrl: process.env.REACT_APP_RPC_URL,
+      rpcUrl: import.meta.env.VITE_RPC_URL,
     },
   ],
   accountCenter: {
