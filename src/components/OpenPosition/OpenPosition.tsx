@@ -1,5 +1,4 @@
-import { Typography } from 'tempus-ui';
-import { ButtonPrimary, CurrencyInput, ValuesBox } from '../shared';
+import { ButtonPrimary, CurrencyInput, ValuesBox, Typography } from '../shared';
 
 import './OpenPosition.scss';
 
