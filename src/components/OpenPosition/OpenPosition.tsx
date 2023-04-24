@@ -1,5 +1,4 @@
-import { Typography } from 'tempus-ui';
-import { ButtonPrimary, CurrencyInput, ValuesBox } from '../shared';
+import { ButtonPrimary, CurrencyInput, ValuesBox, Typography } from '../shared';
 
 import './OpenPosition.scss';
 
@@ -55,7 +54,7 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__action">
-        {/* TODO - If wallet is connected show 'Borrow' button */}
+        {/* TODO - If wallet is connected change button label & callback to 'Borrow' */}
         <ButtonPrimary onClick={() => {}}>
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             Connect wallet

@@ -15,7 +15,7 @@ const ValuesBox: FC<ValuesBoxProps> = ({ values }) => {
     <div className="raft__valuesBox">
       {values.map(({ label, value }) => {
         return (
-          <div className="raft__valuesBox__item">
+          <div key={label} className="raft__valuesBox__item">
             <Typography variant="body-primary">{label}</Typography>
             <Typography variant="body-tertiary" weight="medium">
               {value}
