@@ -6,6 +6,7 @@ import LoadingToggleSwitchPlaceholder from './LoadingToggleSwitchPlaceholder';
 import LoadingButtonPlaceholder from './LoadingButtonPlaceholder';
 import ButtonPrimary from './ButtonPrimary';
 import CurrencyInput from './CurrencyInput';
+import ValuesBox from './ValuesBox';
 
 export {
   Icon,
@@ -16,6 +17,7 @@ export {
   Typography,
   ButtonPrimary,
   CurrencyInput,
+  ValuesBox,
 };
 
 export { colors } from './Colors';
