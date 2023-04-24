@@ -18,6 +18,7 @@ import Globe from './Globe';
 import Geoblock from './Geoblock';
 import Profile from './Profile';
 import Wallet from './Wallet';
+import Close from './Close';
 
 type IconVariant =
   | 'discord'
@@ -37,7 +38,8 @@ type IconVariant =
   | 'globe'
   | 'geoblock'
   | 'profile'
-  | 'wallet';
+  | 'wallet'
+  | 'close';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -58,6 +60,7 @@ const ICON_MAP: IconMap = {
   geoblock: Geoblock,
   profile: Profile,
   wallet: Wallet,
+  close: Close,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;

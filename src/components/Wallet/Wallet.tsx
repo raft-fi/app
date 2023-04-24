@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
@@ -7,6 +7,8 @@ import { Typography, ButtonPrimary, Icon } from '../shared';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
+import ModalWrapper from '../shared/ModalWrapper';
+import { ButtonWrapper } from 'tempus-ui';
 
 const injected = injectedModule();
 const ledger = ledgerModule();
@@ -48,6 +50,8 @@ const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
 const Wallet = () => {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
+
+  const [popupOpen, setPopupOpen] = useState(false);
 
   /**
    * Every time list of connected wallets changes, we want to store labels of those wallets in local storage.
@@ -101,6 +105,22 @@ const Wallet = () => {
     return shortenAddress(wallet.accounts[0].address);
   }, [wallet]);
 
+  const shortenedAddressPopup = useMemo(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    return shortenAddress(wallet.accounts[0].address, 10, 8);
+  }, [wallet]);
+
+  const handlePopupOpen = useCallback(() => {
+    setPopupOpen(true);
+  }, []);
+
+  const handlePopupClose = useCallback(() => {
+    setPopupOpen(false);
+  }, []);
+
   return (
     <div className="raft__wallet">
       {!wallet && (
@@ -115,8 +135,7 @@ const Wallet = () => {
 
       {wallet && (
         <div className="raft__wallet__connected">
-          {/* TODO - Show wallet modal popup on click */}
-          <ButtonPrimary onClick={() => {}}>
+          <ButtonPrimary onClick={handlePopupOpen}>
             <Icon variant="profile" />
             <Typography variant="subtitle" weight="medium">
               {shortenedAddress}
@@ -124,6 +143,30 @@ const Wallet = () => {
           </ButtonPrimary>
         </div>
       )}
+
+      <ModalWrapper open={popupOpen} onClose={handlePopupClose}>
+        <div className="raft__wallet__popup">
+          <div className="raft__wallet__popupHeader">
+            <ButtonWrapper className="raft__wallet__popupClose" onClick={handlePopupClose}>
+              <Icon variant="close" size="tiny" />
+            </ButtonWrapper>
+          </div>
+          <div className="raft__wallet__popupAddress">
+            <Icon variant="profile" size={20} />
+            <Typography variant="subtitle" weight="semi-bold">
+              {shortenedAddressPopup}
+            </Typography>
+          </div>
+          <div className="raft__wallet__popupActions">
+            <div className="raft__wallet__popupAction">
+              <Icon variant="external-link" />
+              <Typography variant="body-primary" weight="medium">
+                View on Etherscan
+              </Typography>
+            </div>
+          </div>
+        </div>
+      </ModalWrapper>
     </div>
   );
 };

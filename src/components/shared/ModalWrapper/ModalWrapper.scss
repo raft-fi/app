@@ -1,0 +1,29 @@
+@mixin overlay {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.raft__modalWrapper__backdrop {
+  @include overlay;
+  background-color: rgba(23, 23, 23, 0.5);
+  z-index: 99998;
+}
+
+.raft__modalWrapper__container {
+  @include overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 99999;
+
+  .raft__modalWrapper {
+    position: relative;
+    pointer-events: all;
+    background-color: #e1f8ff;
+    border-radius: 8px;
+  }
+}
