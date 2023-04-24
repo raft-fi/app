@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
+import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { Typography, ButtonPrimary, Icon } from '../shared';
+import { Typography, ButtonPrimary, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
@@ -49,6 +50,8 @@ const Wallet = () => {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
 
+  const [popupOpen, setPopupOpen] = useState(false);
+
   /**
    * Every time list of connected wallets changes, we want to store labels of those wallets in local storage.
    * Next time user opens the app, we will use this data to auto-connect wallet for the user.
@@ -93,12 +96,53 @@ const Wallet = () => {
     connect();
   }, [connect]);
 
+  const onDisconnect = useCallback(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    disconnect(wallet);
+    setPopupOpen(false);
+  }, [wallet, disconnect]);
+
   const shortenedAddress = useMemo(() => {
     if (!wallet) {
       return null;
     }
 
     return shortenAddress(wallet.accounts[0].address);
+  }, [wallet]);
+
+  const shortenedAddressPopup = useMemo(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    return shortenAddress(wallet.accounts[0].address, 10, 8);
+  }, [wallet]);
+
+  const handlePopupOpen = useCallback(() => {
+    setPopupOpen(true);
+  }, []);
+
+  const handlePopupClose = useCallback(() => {
+    setPopupOpen(false);
+  }, []);
+
+  const onViewOnEtherscanClick = useCallback(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    window.open(`https://etherscan.io/address/${wallet.accounts[0].address}`, '_blank', 'noopener,noreferrer');
+  }, [wallet]);
+
+  const onCopyAddress = useCallback(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    navigator.clipboard.writeText(wallet.accounts[0].address);
   }, [wallet]);
 
   return (
@@ -115,8 +159,7 @@ const Wallet = () => {
 
       {wallet && (
         <div className="raft__wallet__connected">
-          {/* TODO - Show wallet modal popup on click */}
-          <ButtonPrimary onClick={() => {}}>
+          <ButtonPrimary onClick={handlePopupOpen}>
             <Icon variant="profile" />
             <Typography variant="subtitle" weight="medium">
               {shortenedAddress}
@@ -124,6 +167,58 @@ const Wallet = () => {
           </ButtonPrimary>
         </div>
       )}
+
+      <ModalWrapper open={popupOpen} onClose={handlePopupClose}>
+        <div className="raft__wallet__popup">
+          <div className="raft__wallet__popupHeader">
+            <ButtonWrapper className="raft__wallet__popupClose" onClick={handlePopupClose}>
+              <Icon variant="close" size="tiny" />
+            </ButtonWrapper>
+          </div>
+          <div className="raft__wallet__popupAddress">
+            <Icon variant="profile" size={20} />
+            <Typography variant="subtitle" weight="semi-bold">
+              {shortenedAddressPopup}
+            </Typography>
+          </div>
+          <div className="raft__wallet__popupActions">
+            <ButtonWrapper className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
+              <Icon variant="external-link" size={16} />
+              <Typography variant="body-primary" weight="medium">
+                View on Etherscan
+              </Typography>
+            </ButtonWrapper>
+            <ButtonWrapper className="raft__wallet__popupAction" onClick={onCopyAddress}>
+              <Icon variant="copy" size={16} />
+              <Typography variant="body-primary" weight="medium">
+                Copy address
+              </Typography>
+            </ButtonWrapper>
+          </div>
+          <div className="raft__wallet_popupTransactions">
+            {/* Load list of transaction and show it here as as list */}
+            <div className="raft__wallet__popupTransaction">
+              <Typography variant="body-secondary">Repayment 20,000 R</Typography>
+            </div>
+            <div className="raft__wallet__popupTransaction">
+              <Typography variant="body-secondary">Repayment 10,000 R</Typography>
+            </div>
+            <div className="raft__wallet__popupTransaction">
+              <Typography variant="body-secondary">Repayment 40,000 R</Typography>
+            </div>
+          </div>
+          <div className="raft__wallet__popupActions">
+            <ButtonWrapper
+              className="raft__wallet__popupAction raft__wallet__popupActionMaxWidth"
+              onClick={onDisconnect}
+            >
+              <Typography variant="body-primary" weight="medium">
+                Disconnect wallet
+              </Typography>
+            </ButtonWrapper>
+          </div>
+        </div>
+      </ModalWrapper>
     </div>
   );
 };

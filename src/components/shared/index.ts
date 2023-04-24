@@ -7,6 +7,7 @@ import LoadingButtonPlaceholder from './LoadingButtonPlaceholder';
 import ButtonPrimary from './ButtonPrimary';
 import CurrencyInput from './CurrencyInput';
 import ValuesBox from './ValuesBox';
+import ModalWrapper from './ModalWrapper';
 
 export {
   Icon,
@@ -18,6 +19,7 @@ export {
   ButtonPrimary,
   CurrencyInput,
   ValuesBox,
+  ModalWrapper,
 };
 
 export { colors } from './Colors';

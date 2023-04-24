@@ -15,4 +15,99 @@
       margin-right: 8px;
     }
   }
+
+  .raft__wallet__popup {
+    padding: 24px;
+    box-sizing: border-box;
+
+    .raft__wallet__popupHeader {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+
+      .raft__wallet__popupClose {
+        background: #f5fdff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .raft__wallet__popupAddress {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 16px;
+
+      --textPrimary: #344649;
+
+      .raft__icon__profile {
+        margin-right: 8px;
+      }
+    }
+
+    .raft__wallet__popupActions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+
+      --externalLinkColor: #979797;
+
+      .raft__wallet__popupAction {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5fdff;
+        border: 1px solid #bfc0c0;
+        border-radius: 6px;
+        padding: 14px 20px;
+        width: 210px;
+        white-space: nowrap;
+
+        .raft__icon {
+          margin-right: 8px;
+        }
+
+        --textPrimary: #344649;
+
+        &:not(:first-child) {
+          margin-left: 16px;
+        }
+      }
+
+      .raft__wallet__popupActionMaxWidth {
+        width: 100%;
+      }
+    }
+
+    .raft__wallet_popupTransactions {
+      margin-top: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+      background-color: #f5fdff;
+      border: 1px solid #bfc0c0;
+      border-radius: 8px;
+
+      .raft__wallet__popupTransaction {
+        display: flex;
+        align-items: center;
+        padding: 12px 0px;
+
+        &:first-child {
+          padding-top: 0px;
+        }
+
+        &:last-child {
+          padding-bottom: 0px;
+        }
+
+        &:not(:last-child) {
+          border-bottom: 1px dashed #c4c4c4;
+        }
+      }
+    }
+  }
 }
