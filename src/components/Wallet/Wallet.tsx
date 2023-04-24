@@ -159,7 +159,7 @@ const Wallet = () => {
           </div>
           <div className="raft__wallet__popupActions">
             <div className="raft__wallet__popupAction">
-              <Icon variant="external-link" />
+              <Icon variant="external-link" size={16} />
               <Typography variant="body-primary" weight="medium">
                 View on Etherscan
               </Typography>
