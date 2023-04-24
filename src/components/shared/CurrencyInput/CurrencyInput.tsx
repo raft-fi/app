@@ -145,36 +145,42 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </div>
           <div className="raft__currencyInput__tokenSelectorContainer">
             <div className="raft__currencyInput__tokenSelector" onClick={onOpenDropdown}>
-              <Icon variant="chevron-down" size={24} />
-              <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
-                {selectedToken}
-              </Typography>
+              {tokens.length > 1 && (
+                <>
+                  <Icon variant="chevron-down" size={24} />
+                  <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
+                    {selectedToken}
+                  </Typography>
+                </>
+              )}
               <div className="raft__currencyInput__tokenLogoContainer">
                 <TokenLogo type={`token-${selectedToken}`} size="small" />
               </div>
             </div>
-            <Menu open={dropdownOpen} onClose={onCloseDropdown}>
-              <div className="raft__currencyInput__dropdownContainer">
-                {tokens.map(token => {
-                  return (
-                    <div
-                      key={token}
-                      className="raft__currencyInput__dropdownItem"
-                      onClick={() => {
-                        handleTokenUpdate(token);
-                      }}
-                    >
-                      <div className="raft__currencyInput__dropdownTokenLogoContainer">
-                        <TokenLogo type={`token-${token}`} size="small" />
+            {tokens.length > 1 && (
+              <Menu open={dropdownOpen} onClose={onCloseDropdown}>
+                <div className="raft__currencyInput__dropdownContainer">
+                  {tokens.map(token => {
+                    return (
+                      <div
+                        key={token}
+                        className="raft__currencyInput__dropdownItem"
+                        onClick={() => {
+                          handleTokenUpdate(token);
+                        }}
+                      >
+                        <div className="raft__currencyInput__dropdownTokenLogoContainer">
+                          <TokenLogo type={`token-${token}`} size="small" />
+                        </div>
+                        <Typography variant="body-primary" weight="medium">
+                          {token}
+                        </Typography>
                       </div>
-                      <Typography variant="body-primary" weight="medium">
-                        {token}
-                      </Typography>
-                    </div>
-                  );
-                })}
-              </div>
-            </Menu>
+                    );
+                  })}
+                </div>
+              </Menu>
+            )}
           </div>
         </div>
       </div>
