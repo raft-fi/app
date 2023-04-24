@@ -81,6 +81,10 @@
           align-items: center;
           cursor: pointer;
 
+          &.raft__currencyInput__tokenSelector__single {
+            cursor: default;
+          }
+
           --chevronDownColor: #222222;
 
           .raft__currencyInput__tokenLabel {

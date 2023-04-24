@@ -144,7 +144,12 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             </Typography>
           </div>
           <div className="raft__currencyInput__tokenSelectorContainer">
-            <div className="raft__currencyInput__tokenSelector" onClick={onOpenDropdown}>
+            <div
+              className={`raft__currencyInput__tokenSelector ${
+                tokens.length === 1 ? 'raft__currencyInput__tokenSelector__single' : ''
+              }`}
+              onClick={onOpenDropdown}
+            >
               {tokens.length > 1 && (
                 <>
                   <Icon variant="chevron-down" size={24} />
