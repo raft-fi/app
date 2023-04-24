@@ -121,6 +121,22 @@ const Wallet = () => {
     setPopupOpen(false);
   }, []);
 
+  const onViewOnEtherscanClick = useCallback(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    window.open(`https://etherscan.io/address/${wallet.accounts[0].address}`, '_blank', 'noopener,noreferrer');
+  }, [wallet]);
+
+  const onCopyAddress = useCallback(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    navigator.clipboard.writeText(wallet.accounts[0].address);
+  }, [wallet]);
+
   return (
     <div className="raft__wallet">
       {!wallet && (
@@ -158,12 +174,18 @@ const Wallet = () => {
             </Typography>
           </div>
           <div className="raft__wallet__popupActions">
-            <div className="raft__wallet__popupAction">
+            <ButtonWrapper className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
               <Icon variant="external-link" size={16} />
               <Typography variant="body-primary" weight="medium">
                 View on Etherscan
               </Typography>
-            </div>
+            </ButtonWrapper>
+            <ButtonWrapper className="raft__wallet__popupAction" onClick={onCopyAddress}>
+              <Icon variant="external-link" size={16} />
+              <Typography variant="body-primary" weight="medium">
+                Copy address
+              </Typography>
+            </ButtonWrapper>
           </div>
         </div>
       </ModalWrapper>
