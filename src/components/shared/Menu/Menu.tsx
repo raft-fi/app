@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 
 import './Menu.scss';
 
@@ -7,7 +7,7 @@ interface MenuProps {
   onClose: () => void;
 }
 
-const Menu: FC<MenuProps> = ({ open, onClose, children }) => {
+const Menu: FC<PropsWithChildren<MenuProps>> = ({ open, onClose, children }) => {
   if (!open) {
     return null;
   }

@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, PropsWithChildren, useEffect } from 'react';
 
 import './ModalWrapper.scss';
 
@@ -11,7 +11,7 @@ interface ModalWrapperProps {
  * Base modal that contains modal container and backdrop for closing the modal.
  * Pass children to populate the content of the modal.
  */
-const ModalWrapper: FC<ModalWrapperProps> = ({ open, children, onClose }) => {
+const ModalWrapper: FC<PropsWithChildren<ModalWrapperProps>> = ({ open, children, onClose }) => {
   const onBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
 

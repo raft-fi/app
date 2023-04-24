@@ -34,7 +34,7 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>((props, ref) => {
     onKeyUp,
     onKeyDown,
   } = props;
-  const time = useRef<NodeJS.Timeout>();
+  const time = useRef<number>();
   const valueToBeUpdated = useRef<string>();
 
   const debounceInterval: number = useMemo(() => {
