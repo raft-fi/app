@@ -97,6 +97,15 @@ const Wallet = () => {
     connect();
   }, [connect]);
 
+  const onDisconnect = useCallback(() => {
+    if (!wallet) {
+      return null;
+    }
+
+    disconnect(wallet);
+    setPopupOpen(false);
+  }, [wallet, disconnect]);
+
   const shortenedAddress = useMemo(() => {
     if (!wallet) {
       return null;
@@ -184,6 +193,28 @@ const Wallet = () => {
               <Icon variant="copy" size={16} />
               <Typography variant="body-primary" weight="medium">
                 Copy address
+              </Typography>
+            </ButtonWrapper>
+          </div>
+          <div className="raft__wallet_popupTransactions">
+            {/* Load list of transaction and show it here as as list */}
+            <div className="raft__wallet__popupTransaction">
+              <Typography variant="body-secondary">Repayment 20,000 R</Typography>
+            </div>
+            <div className="raft__wallet__popupTransaction">
+              <Typography variant="body-secondary">Repayment 10,000 R</Typography>
+            </div>
+            <div className="raft__wallet__popupTransaction">
+              <Typography variant="body-secondary">Repayment 40,000 R</Typography>
+            </div>
+          </div>
+          <div className="raft__wallet__popupActions">
+            <ButtonWrapper
+              className="raft__wallet__popupAction raft__wallet__popupActionMaxWidth"
+              onClick={onDisconnect}
+            >
+              <Typography variant="body-primary" weight="medium">
+                Disconnect wallet
               </Typography>
             </ButtonWrapper>
           </div>
