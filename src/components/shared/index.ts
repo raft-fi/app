@@ -5,6 +5,7 @@ import Typography from './Typography';
 import LoadingToggleSwitchPlaceholder from './LoadingToggleSwitchPlaceholder';
 import LoadingButtonPlaceholder from './LoadingButtonPlaceholder';
 import ButtonPrimary from './ButtonPrimary';
+import CurrencyInput from './CurrencyInput';
 
 export {
   Icon,
@@ -14,6 +15,7 @@ export {
   LoadingToggleSwitchPlaceholder,
   Typography,
   ButtonPrimary,
+  CurrencyInput,
 };
 
 export { colors } from './Colors';
