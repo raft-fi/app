@@ -1,0 +1,11 @@
+.raft__buttonTertiary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: var(--colorSurfaceHighlight);
+  height: 48px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  box-shadow: var(--shadowPrimary);
+}
