@@ -1,8 +1,27 @@
+import { useCallback, useMemo } from 'react';
+import { useConnectWallet } from '@web3-onboard/react';
+import { useWallet } from '../../hooks';
 import { ButtonPrimary, CurrencyInput, ValuesBox, Typography } from '../shared';
 
 import './OpenPosition.scss';
 
 const OpenPosition = () => {
+  const [, connect] = useConnectWallet();
+
+  const wallet = useWallet();
+
+  const walletConnected = useMemo(() => {
+    return Boolean(wallet);
+  }, [wallet]);
+
+  const onConnectWallet = useCallback(() => {
+    connect();
+  }, [connect]);
+
+  const onBorrow = useCallback(() => {
+    // TODO - Implement borrow functionality
+  }, []);
+
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
@@ -55,9 +74,9 @@ const OpenPosition = () => {
       </div>
       <div className="raft__openPosition__action">
         {/* TODO - If wallet is connected change button label & callback to 'Borrow' */}
-        <ButtonPrimary onClick={() => {}}>
+        <ButtonPrimary onClick={walletConnected ? onBorrow : onConnectWallet}>
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            Connect wallet
+            {walletConnected ? 'Borrow' : 'Connect wallet'}
           </Typography>
         </ButtonPrimary>
       </div>
