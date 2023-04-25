@@ -1,13 +1,13 @@
 .raft__wallet {
   .raft__wallet__disconnected {
-    .raft__buttonPrimary {
+    .raft__button-primary {
       width: 161px;
     }
   }
   .raft__wallet__connected {
     --textPrimary: #3f5559;
 
-    .raft__buttonPrimary {
+    .raft__button-primary {
       background-color: #ffd7ba;
     }
 

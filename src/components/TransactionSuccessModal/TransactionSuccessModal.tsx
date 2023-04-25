@@ -1,6 +1,6 @@
 import { FC, useCallback, useState } from 'react';
 import { ButtonWrapper, Link } from 'tempus-ui';
-import { ButtonPrimary, ButtonTertiary, Icon, ModalWrapper, Typography, ValuesBox } from '../shared';
+import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../shared';
 
 import './TransactionSuccessModal.scss';
 
@@ -73,18 +73,18 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
-            <ButtonTertiary onClick={onAddRToWallet}>
+            <Button variant="tertiary" onClick={onAddRToWallet}>
               <Typography variant="body-primary" weight="medium">
                 Add R to wallet
               </Typography>
-            </ButtonTertiary>
+            </Button>
           </div>
           <div className="raft__transactionSuccessModal__action">
-            <ButtonPrimary onClick={onClose}>
+            <Button variant="primary" onClick={onClose}>
               <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
                 Continue
               </Typography>
-            </ButtonPrimary>
+            </Button>
           </div>
         </div>
       </div>

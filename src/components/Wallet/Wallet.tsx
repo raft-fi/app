@@ -6,7 +6,7 @@ import ledgerModule from '@web3-onboard/ledger';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
 import { updateWallet } from '../../hooks';
-import { Typography, ButtonPrimary, Icon, ModalWrapper } from '../shared';
+import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
@@ -164,22 +164,22 @@ const Wallet = () => {
     <div className="raft__wallet">
       {!wallet && (
         <div className="raft__wallet__disconnected">
-          <ButtonPrimary onClick={onConnect}>
+          <Button variant="primary" onClick={onConnect}>
             <Typography variant="subtitle" weight="medium" color="text-primary-inverted">
               Connect
             </Typography>
-          </ButtonPrimary>
+          </Button>
         </div>
       )}
 
       {wallet && (
         <div className="raft__wallet__connected">
-          <ButtonPrimary onClick={handlePopupOpen}>
+          <Button variant="primary" onClick={handlePopupOpen}>
             <Icon variant="profile" />
             <Typography variant="subtitle" weight="medium">
               {shortenedAddress}
             </Typography>
-          </ButtonPrimary>
+          </Button>
         </div>
       )}
 
