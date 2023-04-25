@@ -1,6 +1,6 @@
 import { FC, useCallback, useState } from 'react';
 import { ButtonWrapper } from 'tempus-ui';
-import { ButtonPrimary, ButtonSecondary, Icon, ModalWrapper, Typography } from '../shared';
+import { Button, Icon, ModalWrapper, Typography } from '../shared';
 
 import './TransactionFailedModal.scss';
 
@@ -47,18 +47,18 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
         )}
         <div className="raft__transactionFailedModal__actions">
           <div className="raft__transactionFailedModal__action">
-            <ButtonSecondary onClick={onClose}>
+            <Button variant="secondary" onClick={onClose}>
               <Typography variant="body-primary" weight="medium">
                 Close
               </Typography>
-            </ButtonSecondary>
+            </Button>
           </div>
           <div className="raft__transactionFailedModal__action">
-            <ButtonPrimary onClick={onTryAgain}>
+            <Button variant="primary" onClick={onTryAgain}>
               <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
                 Try again
               </Typography>
-            </ButtonPrimary>
+            </Button>
           </div>
         </div>
       </div>
