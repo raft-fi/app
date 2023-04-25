@@ -21,7 +21,9 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
           </Typography>
         </div>
       );
-    } else if (value.endsWith('R')) {
+    }
+
+    if (value.endsWith('R')) {
       return (
         <div className="raft__valueLabel">
           <Typography variant="body-primary" weight="medium">
@@ -32,7 +34,9 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
           </Typography>
         </div>
       );
-    } else if (value.endsWith('%')) {
+    }
+
+    if (value.endsWith('%')) {
       return (
         <div className="raft__valueLabel">
           <Typography variant="body-primary" weight="medium">
@@ -43,7 +47,9 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
           </Typography>
         </div>
       );
-    } else if (value.indexOf(' ') !== -1) {
+    }
+
+    if (value.indexOf(' ') !== -1) {
       return (
         <div className="raft__valueLabel">
           <Typography variant="body-primary" weight="medium">
@@ -54,13 +60,13 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
           </Typography>
         </div>
       );
-    } else {
-      return (
-        <Typography variant="body-primary" weight="medium">
-          {value}
-        </Typography>
-      );
     }
+
+    return (
+      <Typography variant="body-primary" weight="medium">
+        {value}
+      </Typography>
+    );
   }, [value]);
 
   return valueElement;
