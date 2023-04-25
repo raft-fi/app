@@ -11,6 +11,11 @@ body {
   --w3o-font-family: 'Work Sans', sans-serif;
 
   overflow-y: scroll;
+
+  --colorPrimary: #f76329;
+  --colorSurface: #e1f8ff;
+  --colorBorder: #bfc0c0;
+  --colorSurfaceHighlight: #f5fdff;
 }
 
 // Prevent page scroll when modal is open
