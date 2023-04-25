@@ -3,6 +3,7 @@ import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Icon, Typography, ValuesBox } from '../shared';
 
 import './ProtocolStats.scss';
+import ValueLabel from '../shared/ValueLabel';
 
 const ProtocolStats = () => {
   const [expanded, setExpanded] = useState<boolean>(true);
@@ -30,9 +31,9 @@ const ProtocolStats = () => {
               >
                 Total supply
               </Typography>
-              <Typography className="raft__protocol-stats__stat__data__value" variant="body-tertiary" weight="medium">
-                1.62M stETH
-              </Typography>
+              <div className="raft__protocol-stats__stat__data__value">
+                <ValueLabel value="1.62M stETH" />
+              </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
@@ -43,9 +44,9 @@ const ProtocolStats = () => {
               >
                 Total value
               </Typography>
-              <Typography className="raft__protocol-stats__stat__data__value" variant="body-tertiary" weight="medium">
-                $300.2M
-              </Typography>
+              <div className="raft__protocol-stats__stat__data__value">
+                <ValueLabel value="$300.2M" />
+              </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
@@ -56,9 +57,9 @@ const ProtocolStats = () => {
               >
                 Price
               </Typography>
-              <Typography className="raft__protocol-stats__stat__data__value" variant="body-tertiary" weight="medium">
-                $1800.00
-              </Typography>
+              <div className="raft__protocol-stats__stat__data__value">
+                <ValueLabel value="$1800.00" />
+              </div>
             </div>
           </div>
           <div className="raft__protocol-stats__stat">
@@ -72,9 +73,9 @@ const ProtocolStats = () => {
               >
                 Total supply
               </Typography>
-              <Typography className="raft__protocol-stats__stat__data__value" variant="body-tertiary" weight="medium">
-                215.2M R
-              </Typography>
+              <div className="raft__protocol-stats__stat__data__value">
+                <ValueLabel value="215.2M R" />
+              </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
@@ -85,9 +86,9 @@ const ProtocolStats = () => {
               >
                 Total value
               </Typography>
-              <Typography className="raft__protocol-stats__stat__data__value" variant="body-tertiary" weight="medium">
-                $215.2M
-              </Typography>
+              <div className="raft__protocol-stats__stat__data__value">
+                <ValueLabel value="$215.2M" />
+              </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
@@ -98,9 +99,9 @@ const ProtocolStats = () => {
               >
                 Price
               </Typography>
-              <Typography className="raft__protocol-stats__stat__data__value" variant="body-tertiary" weight="medium">
-                $1.00
-              </Typography>
+              <div className="raft__protocol-stats__stat__data__value">
+                <ValueLabel value="$1.00" />
+              </div>
             </div>
           </div>
         </div>

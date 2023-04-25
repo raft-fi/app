@@ -2,6 +2,7 @@ import { FC } from 'react';
 import Typography from '../Typography';
 
 import './ValuesBox.scss';
+import ValueLabel from '../ValueLabel';
 
 interface ValuesBoxProps {
   values: {
@@ -17,9 +18,7 @@ const ValuesBox: FC<ValuesBoxProps> = ({ values }) => {
         return (
           <div key={label} className="raft__valuesBox__item">
             <Typography variant="body-primary">{label}</Typography>
-            <Typography variant="body-primary" weight="medium">
-              {value}
-            </Typography>
+            <ValueLabel value={value} />
           </div>
         );
       })}

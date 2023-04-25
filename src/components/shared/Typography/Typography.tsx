@@ -84,6 +84,7 @@ const typographyWeightMap: TypographyWeightMap = {
 
 const typographyTypeMap: TypographyTypeMap = {
   regular: 'Work Sans, sans-serif',
+  mono: 'BioRhyme, serif',
 };
 
 export interface TypographyProps

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet } from '../../hooks';
-import { ButtonPrimary, CurrencyInput, ValuesBox, Typography } from '../shared';
+import { Button, CurrencyInput, ValuesBox, Typography } from '../shared';
 
 import './OpenPosition.scss';
 
@@ -74,11 +74,11 @@ const OpenPosition = () => {
       </div>
       <div className="raft__openPosition__action">
         {/* TODO - If wallet is connected change button label & callback to 'Borrow' */}
-        <ButtonPrimary onClick={walletConnected ? onBorrow : onConnectWallet}>
+        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet}>
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {walletConnected ? 'Borrow' : 'Connect wallet'}
           </Typography>
-        </ButtonPrimary>
+        </Button>
       </div>
     </div>
   );
