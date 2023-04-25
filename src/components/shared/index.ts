@@ -8,6 +8,7 @@ import ButtonPrimary from './ButtonPrimary';
 import CurrencyInput from './CurrencyInput';
 import ValuesBox from './ValuesBox';
 import ModalWrapper from './ModalWrapper';
+import ButtonSecondary from './ButtonSecondary';
 
 export {
   Icon,
@@ -20,6 +21,7 @@ export {
   CurrencyInput,
   ValuesBox,
   ModalWrapper,
+  ButtonSecondary,
 };
 
 export { colors } from './Colors';
