@@ -1,8 +1,8 @@
 import { FC } from 'react';
 import Typography from '../Typography';
+import ValueLabel from '../ValueLabel';
 
 import './ValuesBox.scss';
-import ValueLabel from '../ValueLabel';
 
 interface ValuesBoxProps {
   values: {

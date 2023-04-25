@@ -73,7 +73,6 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__action">
-        {/* TODO - If wallet is connected change button label & callback to 'Borrow' */}
         <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet}>
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {walletConnected ? 'Borrow' : 'Connect wallet'}

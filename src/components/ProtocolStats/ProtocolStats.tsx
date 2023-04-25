@@ -1,9 +1,8 @@
 import { memo, useCallback, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { Icon, Typography, ValuesBox } from '../shared';
+import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
-import ValueLabel from '../shared/ValueLabel';
 
 const ProtocolStats = () => {
   const [expanded, setExpanded] = useState<boolean>(true);
