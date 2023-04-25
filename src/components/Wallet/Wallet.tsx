@@ -1,9 +1,11 @@
+import { ethers } from 'ethers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
+import { updateWallet } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
@@ -51,6 +53,19 @@ const Wallet = () => {
   const connectedWallets = useWallets();
 
   const [popupOpen, setPopupOpen] = useState(false);
+
+  /**
+   * Update wallet hook every time user changes wallet
+   */
+  useEffect(() => {
+    if (!wallet) {
+      updateWallet(null);
+      return;
+    }
+
+    const walletProvider = new ethers.BrowserProvider(wallet.provider);
+    updateWallet(walletProvider);
+  }, [wallet]);
 
   /**
    * Every time list of connected wallets changes, we want to store labels of those wallets in local storage.
