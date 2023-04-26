@@ -54,19 +54,37 @@ const OpenPosition = () => {
         <ValuesBox
           values={[
             {
+              id: 'collateral',
               label: 'Total collateral',
               value: '0.00 stETH',
             },
             {
-              label: 'Total debt (Min 3,000 R)',
+              id: 'debt',
+              label: (
+                <>
+                  <Typography variant="body-primary">Total debt&nbsp;</Typography>
+                  <Typography variant="body-tertiary">{'(Min. 3,000'}&nbsp;</Typography>
+                  <Typography variant="body-tertiary" type="mono">
+                    R
+                  </Typography>
+                  <Typography variant="body-tertiary">{')'}</Typography>
+                </>
+              ),
               value: '0.00 R',
             },
             {
+              id: 'liquidationPrice',
               label: 'Collateral liquidation price',
               value: '$0.00',
             },
             {
-              label: 'Collateralization ratio (Min. 110%)',
+              id: 'collateralizationRatio',
+              label: (
+                <>
+                  <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
+                  <Typography variant="body-tertiary">{'(Min. 110%)'}</Typography>
+                </>
+              ),
               value: 'N/A',
             },
           ]}
