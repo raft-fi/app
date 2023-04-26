@@ -55,7 +55,7 @@ const Header = () => {
   const logo = useMemo(() => <RaftLogo />, []);
   const navItems = useMemo(
     () => [
-      <div className="raft__header__navItem">
+      <div className="raft__header__nav-item">
         <Link key="navitem-dashboard" to="/">
           <Typography
             variant="subtitle"
@@ -66,7 +66,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <div className="raft__header__navItem">
+      <div className="raft__header__nav-item">
         <Link key="navitem-redeem" to="/redeem">
           <Typography
             variant="subtitle"
@@ -127,13 +127,17 @@ const Header = () => {
   }, [handleLinkClick, handleLocaleClick, locale, onSelectLocale, openedSubmenu]);
 
   return (
-    <HeaderBase
-      logo={logo}
-      navItems={navItems}
-      menuItems={menuItems}
-      menuOpened={menuOpened}
-      setMenuOpened={setMenuOpened}
-    />
+    <div className="raft__header">
+      <div className="raft__header__container">
+        <HeaderBase
+          logo={logo}
+          navItems={navItems}
+          menuItems={menuItems}
+          menuOpened={menuOpened}
+          setMenuOpened={setMenuOpened}
+        />
+      </div>
+    </div>
   );
 };
 
