@@ -112,14 +112,14 @@
           box-shadow: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
           z-index: 11;
 
-          ul {
+          > ul {
             margin: 0;
             padding: 0;
             overflow: hidden;
             list-style: none;
 
-            li {
-              button {
+            > li {
+              > button {
                 --textPrimary: #6e898c;
 
                 padding: 28px 16px;
