@@ -150,17 +150,17 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
               }`}
               onClick={onOpenDropdown}
             >
-              {tokens.length > 1 && (
-                <>
-                  <Icon variant="chevron-down" size={24} />
-                  <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
-                    {selectedToken}
-                  </Typography>
-                </>
-              )}
               <div className="raft__currencyInput__tokenLogoContainer">
                 <TokenLogo type={`token-${selectedToken}`} size="small" />
               </div>
+              {tokens.length > 1 && (
+                <>
+                  <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
+                    {selectedToken}
+                  </Typography>
+                  <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={24} />
+                </>
+              )}
             </div>
             {tokens.length > 1 && (
               <Menu open={dropdownOpen} onClose={onCloseDropdown}>

@@ -3,9 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
+import WalletConnectModule from '@web3-onboard/walletconnect';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { updateWallet } from '../../hooks';
+import { updateWallet, useENS } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
@@ -13,9 +14,10 @@ import './Wallet.scss';
 
 const injected = injectedModule();
 const ledger = ledgerModule();
+const walletConnect = WalletConnectModule();
 
 init({
-  wallets: [injected, ledger],
+  wallets: [injected, ledger, walletConnect],
   chains: [
     {
       id: '0x1',
@@ -51,6 +53,7 @@ const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
 const Wallet = () => {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
+  const ens = useENS();
 
   const [popupOpen, setPopupOpen] = useState(false);
 
@@ -133,8 +136,8 @@ const Wallet = () => {
       return null;
     }
 
-    return shortenAddress(wallet.accounts[0].address, 10, 8);
-  }, [wallet]);
+    return ens.name ?? shortenAddress(wallet.accounts[0].address, 10, 8);
+  }, [ens.name, wallet]);
 
   const handlePopupOpen = useCallback(() => {
     setPopupOpen(true);
@@ -191,7 +194,7 @@ const Wallet = () => {
             </ButtonWrapper>
           </div>
           <div className="raft__wallet__popupAddress">
-            <Icon variant="profile" size={20} />
+            {ens.avatar ? <img src={ens.avatar} /> : <Icon variant="profile" size={20} />}
             <Typography variant="subtitle" weight="semi-bold">
               {shortenedAddressPopup}
             </Typography>

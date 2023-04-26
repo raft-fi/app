@@ -55,8 +55,8 @@ const Header = () => {
   const logo = useMemo(() => <RaftLogo />, []);
   const navItems = useMemo(
     () => [
-      <div className="raft__header__nav-item">
-        <Link key="navitem-dashboard" to="/">
+      <div key="navitem-dashboard" className="raft__header__nav-item">
+        <Link to="/">
           <Typography
             variant="subtitle"
             weight="medium"
@@ -66,8 +66,8 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <div className="raft__header__nav-item">
-        <Link key="navitem-redeem" to="/redeem">
+      <div key="navitem-redeem" className="raft__header__nav-item">
+        <Link to="/redeem">
           <Typography
             variant="subtitle"
             weight="medium"
@@ -78,7 +78,7 @@ const Header = () => {
         </Link>
       </div>,
       <LocaleSwitcher key="navitem-locale" />,
-      <Wallet />,
+      <Wallet key="navitem-wallet" />,
     ],
     [currentPage],
   );
