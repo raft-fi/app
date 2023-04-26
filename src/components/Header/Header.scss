@@ -6,6 +6,12 @@
   box-sizing: border-box;
   z-index: 3;
 
+  .raft__header__navItem {
+    a {
+      text-decoration: none;
+    }
+  }
+
   .raft__header__link-active {
     --textPrimary: #3f5559;
   }
