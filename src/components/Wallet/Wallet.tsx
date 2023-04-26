@@ -165,7 +165,7 @@ const Wallet = () => {
       {!wallet && (
         <div className="raft__wallet__disconnected">
           <Button variant="primary" onClick={onConnect}>
-            <Typography variant="subtitle" weight="medium" color="text-primary-inverted">
+            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
               Connect
             </Typography>
           </Button>
