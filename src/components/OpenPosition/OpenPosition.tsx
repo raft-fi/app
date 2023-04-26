@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet } from '../../hooks';
+import { CollateralToken, isCollateralToken } from '../../interfaces';
 import { Button, CurrencyInput, ValuesBox, Typography } from '../shared';
 
 import './OpenPosition.scss';
@@ -9,6 +10,8 @@ const OpenPosition = () => {
   const [, connect] = useConnectWallet();
 
   const wallet = useWallet();
+
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
@@ -20,6 +23,12 @@ const OpenPosition = () => {
 
   const onBorrow = useCallback(() => {
     // TODO - Implement borrow functionality
+  }, []);
+
+  const handleCollateralTokenChange = useCallback((token: string) => {
+    if (isCollateralToken(token)) {
+      setSelectedCollateralToken(token);
+    }
   }, []);
 
   return (
@@ -35,9 +44,10 @@ const OpenPosition = () => {
           label="Collateral"
           precision={18}
           fiatValue="$100.00"
-          selectedToken="stETH"
+          selectedToken={selectedCollateralToken}
           tokens={['ETH', 'stETH', 'wstETH']}
           value="0.05"
+          onTokenUpdate={handleCollateralTokenChange}
         />
         {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
