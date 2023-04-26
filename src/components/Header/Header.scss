@@ -47,13 +47,19 @@
 
     .raft__locale-switcher__button {
       --chevronDownColor: #6e898c;
+      --chevronUpColor: #6e898c;
       --globeColor: #6e898c;
       --textPrimary: #6e898c;
 
       &:hover {
         --chevronDownColor: #3f5559;
+        --chevronUpColor: #3f5559;
         --globeColor: #3f5559;
         --textPrimary: #3f5559;
+
+        .raft__header__link-inactive {
+          --textPrimary: #3f5559;
+        }
       }
     }
 

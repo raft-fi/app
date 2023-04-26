@@ -23,7 +23,7 @@ const LocaleSwitcher = () => {
         <Typography variant="subtitle" weight="medium" className="raft__header__link-inactive">
           {LOCALE_CODE[locale]}
         </Typography>
-        <Icon variant={menuOpened ? 'chevron-up' : 'chevron-down'} color="#6e898c" />
+        <Icon variant={menuOpened ? 'chevron-up' : 'chevron-down'} />
       </ButtonWrapper>
       {menuOpened && (
         <>
