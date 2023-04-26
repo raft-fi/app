@@ -8,6 +8,7 @@ import Background from './components/Background';
 import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
 import Geoblock from './components/Geoblock';
+import HookSubscriber from './components/HookSubscriber';
 
 import './index.scss';
 
@@ -15,6 +16,7 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <div className="raft__app__root">
+        <HookSubscriber />
         <Background />
         <Header />
         <Routes>
