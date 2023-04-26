@@ -9,7 +9,7 @@ interface TransactionSuccessModalProps {
   title: string;
   subtitle: string;
   infoHeader: string;
-  infoEntries: { label: string; value: string }[];
+  infoEntries: { id: string; label: string; value: string }[];
   onClose: () => void;
 }
 

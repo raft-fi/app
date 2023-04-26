@@ -20,5 +20,10 @@
     &:not(:last-child) {
       border-bottom: 1px dashed #c4c4c4;
     }
+
+    .raft__valuesBox__itemValueNode {
+      display: flex;
+      align-items: flex-end;
+    }
   }
 }

@@ -107,14 +107,17 @@ const ProtocolStats = () => {
         <ValuesBox
           values={[
             {
+              id: 'collateralizationRatio',
               label: 'Protocol collateralization ratio',
               value: '262%',
             },
             {
+              id: 'openPositions',
               label: 'Open positions',
               value: '50,000',
             },
             {
+              id: 'borrowingFee',
               label: 'Borrowing fee',
               value: '0.00%',
             },

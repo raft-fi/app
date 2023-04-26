@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import Typography from '../Typography';
 import ValueLabel from '../ValueLabel';
 
@@ -6,7 +6,8 @@ import './ValuesBox.scss';
 
 interface ValuesBoxProps {
   values: {
-    label: string;
+    id: string;
+    label: string | ReactNode;
     value: string;
   }[];
 }
@@ -14,10 +15,14 @@ interface ValuesBoxProps {
 const ValuesBox: FC<ValuesBoxProps> = ({ values }) => {
   return (
     <div className="raft__valuesBox">
-      {values.map(({ label, value }) => {
+      {values.map(({ id, label, value }) => {
         return (
-          <div key={label} className="raft__valuesBox__item">
-            <Typography variant="body-primary">{label}</Typography>
+          <div key={id} className="raft__valuesBox__item">
+            {typeof label === 'string' ? (
+              <Typography variant="body-primary">{label}</Typography>
+            ) : (
+              <div className="raft__valuesBox__itemValueNode">{label}</div>
+            )}
             <ValueLabel value={value} />
           </div>
         );
