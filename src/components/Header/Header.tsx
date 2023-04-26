@@ -101,13 +101,13 @@ const Header = () => {
         ];
       default:
         return [
-          <Link key="menu-item-dashboard" className="raft__header__menu-link" href="/" onClick={handleLinkClick}>
+          <Link key="menu-item-dashboard" className="raft__header__menu-link" to="/" onClick={handleLinkClick}>
             <Typography variant="body-primary" weight="medium">
               Dashboard
             </Typography>
             <Icon variant="arrow-right" />
           </Link>,
-          <Link key="menu-item-redeem" className="raft__header__menu-link" href="/redeem" onClick={handleLinkClick}>
+          <Link key="menu-item-redeem" className="raft__header__menu-link" to="/redeem" onClick={handleLinkClick}>
             <Typography variant="body-primary" weight="medium">
               Redeem
             </Typography>
