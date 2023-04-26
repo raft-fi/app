@@ -1,135 +1,150 @@
-.common-ui__header {
-  --headerLogoWidthMobile: initial;
-
+.raft__header {
   position: relative;
-  padding: 0 32px;
+  width: 100%;
+  padding: var(--app-padding);
   box-sizing: border-box;
+  display: flex;
+  justify-content: center;
   z-index: 3;
 
-  .raft__header__navItem {
-    a {
-      text-decoration: none;
-    }
+  .raft__header__nav-item a,
+  .raft__header__menu-link {
+    text-decoration: none;
   }
 
   .raft__header__link-active {
     --textPrimary: #3f5559;
   }
 
-  .raft__header__link-inactive {
-    --textPrimary: #6e898c;
+  .raft__header__container {
+    width: var(--app-width);
 
-    &:hover {
-      --textPrimary: #3f5559;
-    }
-  }
+    .common-ui__header {
+      --headerLogoWidthMobile: initial;
 
-  .raft__header__menu-link {
-    --textPrimary: #707b7e;
+      position: relative;
+      z-index: 3;
 
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 72px;
-
-    .raft__header__menu-link-label {
-      display: flex;
-      align-items: center;
-
-      > * {
-        margin-right: 8px;
-      }
-    }
-
-    &.common-ui__btn {
-      justify-content: space-between;
-    }
-  }
-
-  .raft__locale-switcher {
-    margin-right: 44px;
-    position: relative;
-
-    .raft__locale-switcher__button {
-      --chevronDownColor: #6e898c;
-      --chevronUpColor: #6e898c;
-      --globeColor: #6e898c;
-      --textPrimary: #6e898c;
-
-      &:hover {
-        --chevronDownColor: #3f5559;
-        --chevronUpColor: #3f5559;
-        --globeColor: #3f5559;
+      .raft__header__link-active {
         --textPrimary: #3f5559;
+      }
 
-        .raft__header__link-inactive {
+      .raft__header__link-inactive {
+        --textPrimary: #6e898c;
+
+        &:hover {
           --textPrimary: #3f5559;
         }
       }
-    }
 
-    > button {
-      > :not(:first-child) {
-        margin-left: 8px;
-      }
+      .raft__header__menu-link {
+        --textPrimary: #707b7e;
 
-      > :last-child {
-        margin-left: 4px;
-      }
-    }
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 72px;
 
-    .raft__locale-switcher__backdrop {
-      position: fixed;
-      width: 100vw;
-      height: 100vh;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      cursor: default;
-    }
+        .raft__header__menu-link-label {
+          display: flex;
+          align-items: center;
 
-    .raft__locale-switcher__menu {
-      position: absolute;
-      background: #f5fdff;
-      width: 180px;
-      top: 50px;
-      left: 0;
-      border-radius: 8px;
-      box-shadow: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
-      z-index: 11;
-
-      ul {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        list-style: none;
-
-        li {
-          button {
-            --textPrimary: #6e898c;
-
-            padding: 28px 16px;
-            position: relative;
+          > * {
+            margin-right: 8px;
           }
+        }
 
-          &:hover {
-            background: #e1f8ff;
-          }
-
-          &:first-of-type {
-            border-radius: 8px 8px 0 0;
-          }
-
-          &:last-of-type {
-            border-radius: 0 0 8px 8px;
-          }
+        &.common-ui__btn {
+          justify-content: space-between;
         }
       }
 
-      button {
-        width: 100%;
-        justify-content: flex-start;
+      .raft__locale-switcher {
+        margin-right: 44px;
+        position: relative;
+
+        .raft__locale-switcher__button {
+          --chevronDownColor: #6e898c;
+          --chevronUpColor: #6e898c;
+          --globeColor: #6e898c;
+          --textPrimary: #6e898c;
+
+          &:hover {
+            --chevronDownColor: #3f5559;
+            --chevronUpColor: #3f5559;
+            --globeColor: #3f5559;
+            --textPrimary: #3f5559;
+
+            .raft__header__link-inactive {
+              --textPrimary: #3f5559;
+            }
+          }
+        }
+
+        > button {
+          > :not(:first-child) {
+            margin-left: 8px;
+          }
+
+          > :last-child {
+            margin-left: 4px;
+          }
+        }
+
+        .raft__locale-switcher__backdrop {
+          position: fixed;
+          width: 100vw;
+          height: 100vh;
+          top: 0;
+          left: 0;
+          z-index: 10;
+          cursor: default;
+        }
+
+        .raft__locale-switcher__menu {
+          position: absolute;
+          background: #f5fdff;
+          width: 180px;
+          top: 50px;
+          left: 0;
+          border-radius: 8px;
+          box-shadow: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
+          z-index: 11;
+
+          > ul {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            list-style: none;
+
+            > li {
+              > button {
+                --textPrimary: #6e898c;
+
+                padding: 28px 16px;
+                position: relative;
+              }
+
+              &:hover {
+                background: #e1f8ff;
+              }
+
+              &:first-of-type {
+                border-radius: 8px 8px 0 0;
+              }
+
+              &:last-of-type {
+                border-radius: 0 0 8px 8px;
+              }
+            }
+          }
+
+          button {
+            width: 100%;
+            justify-content: flex-start;
+          }
+        }
       }
     }
   }
