@@ -128,8 +128,8 @@ const Wallet = () => {
       return null;
     }
 
-    return shortenAddress(wallet.accounts[0].address);
-  }, [wallet]);
+    return ens.name ?? shortenAddress(wallet.accounts[0].address);
+  }, [ens.name, wallet]);
 
   const shortenedAddressPopup = useMemo(() => {
     if (!wallet) {
@@ -178,7 +178,11 @@ const Wallet = () => {
       {wallet && (
         <div className="raft__wallet__connected">
           <Button variant="primary" onClick={handlePopupOpen}>
-            <Icon variant="profile" />
+            {ens.avatar ? (
+              <img className="raft__wallet__connected__avatar" src={ens.avatar} />
+            ) : (
+              <Icon variant="profile" />
+            )}
             <Typography variant="subtitle" weight="medium">
               {shortenedAddress}
             </Typography>
@@ -194,7 +198,11 @@ const Wallet = () => {
             </ButtonWrapper>
           </div>
           <div className="raft__wallet__popupAddress">
-            {ens.avatar ? <img src={ens.avatar} /> : <Icon variant="profile" size={20} />}
+            {ens.avatar ? (
+              <img className="raft__wallet__popupAddress__avatar" src={ens.avatar} />
+            ) : (
+              <Icon variant="profile" size={20} />
+            )}
             <Typography variant="subtitle" weight="semi-bold">
               {shortenedAddressPopup}
             </Typography>

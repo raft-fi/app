@@ -14,6 +14,13 @@
     .raft__icon__profile {
       margin-right: 8px;
     }
+
+    .raft__wallet__connected__avatar {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      border-radius: 50%;
+    }
   }
 
   .raft__wallet__popup {
@@ -44,9 +51,11 @@
 
       --textPrimary: #344649;
 
-      > img {
+      .raft__wallet__popupAddress__avatar {
         width: 20px;
         height: 20px;
+        margin-right: 8px;
+        border-radius: 50%;
       }
 
       .raft__icon__profile {
