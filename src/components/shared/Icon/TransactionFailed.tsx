@@ -30,4 +30,4 @@ const TransactionFailed: FC<InnerIconProps> = ({ size }) => (
   </svg>
 );
 
-export const TransactionFailedIcon = withIcon(TransactionFailed);
+export default withIcon(TransactionFailed);

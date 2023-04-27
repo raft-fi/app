@@ -20,8 +20,9 @@ import Profile from './Profile';
 import Wallet from './Wallet';
 import Close from './Close';
 import Copy from './Copy';
-import { TransactionFailedIcon } from './TransactionFailed';
-import { TransactionSuccessIcon } from './TransactionSuccess';
+import Info from './Info';
+import TransactionFailed from './TransactionFailed';
+import TransactionSuccess from './TransactionSuccess';
 
 type IconVariant =
   | 'discord'
@@ -44,6 +45,7 @@ type IconVariant =
   | 'wallet'
   | 'close'
   | 'copy'
+  | 'info'
   | 'transaction-failed'
   | 'transaction-success';
 
@@ -68,8 +70,9 @@ const ICON_MAP: IconMap = {
   wallet: Wallet,
   close: Close,
   copy: Copy,
-  'transaction-failed': TransactionFailedIcon,
-  'transaction-success': TransactionSuccessIcon,
+  info: Info,
+  'transaction-failed': TransactionFailed,
+  'transaction-success': TransactionSuccess,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;
