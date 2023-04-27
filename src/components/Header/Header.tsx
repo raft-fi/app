@@ -1,8 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ButtonWrapper, Header as HeaderBase } from 'tempus-ui';
+import { SupportedLocale, SUPPORTED_LOCALES } from '../../i18n';
 import { Icon, Typography } from '../shared';
-import { Locale, LOCALE_CODE, useLocale } from '../../hooks';
+import { useLocale } from '../../hooks';
 import RaftLogo from '../Logo/RaftLogo';
 import Wallet from '../Wallet';
 import LocaleSwitcher from './LocaleSwitcher';
@@ -11,6 +13,7 @@ import './Header.scss';
 
 const Header = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const [locale, setLocale] = useLocale();
   const [currentPage, setCurrentPage] = useState<string | null>(null);
   const [menuOpened, setMenuOpened] = useState(false);
@@ -45,12 +48,13 @@ const Header = () => {
   }, []);
 
   const onSelectLocale = useCallback(
-    (locale: Locale) => {
+    (locale: SupportedLocale) => {
       setMenuOpened(false);
       setLocale(locale);
     },
     [setLocale],
   );
+  console.log('locale', locale, SUPPORTED_LOCALES);
 
   const logo = useMemo(() => <RaftLogo />, []);
   const navItems = useMemo(
@@ -80,25 +84,20 @@ const Header = () => {
       <LocaleSwitcher key="navitem-locale" />,
       <Wallet key="navitem-wallet" />,
     ],
-    [currentPage],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentPage, locale],
   );
   const menuItems = useMemo(() => {
     switch (openedSubmenu) {
       case 'locale':
-        return [
-          <ButtonWrapper key="menu-item-en" className="raft__header__menu-link" onClick={() => onSelectLocale('en')}>
+        return SUPPORTED_LOCALES.map(l => (
+          <ButtonWrapper key={`menu-item-${l}`} className="raft__header__menu-link" onClick={() => onSelectLocale(l)}>
             <Typography variant="body-primary" weight="medium">
-              English
+              {t('LocaleSwitcher.localeLabel', { lng: l })}
             </Typography>
             <Icon variant="arrow-right" />
-          </ButtonWrapper>,
-          <ButtonWrapper key="menu-item-zh" className="raft__header__menu-link" onClick={() => onSelectLocale('zh')}>
-            <Typography variant="body-primary" weight="medium">
-              中文
-            </Typography>
-            <Icon variant="arrow-right" />
-          </ButtonWrapper>,
-        ];
+          </ButtonWrapper>
+        ));
       default:
         return [
           <Link key="menu-item-dashboard" className="raft__header__menu-link" to="/" onClick={handleLinkClick}>
@@ -117,14 +116,15 @@ const Header = () => {
             <div className="raft__header__menu-link-label">
               <Icon variant="globe" size={20} />
               <Typography variant="body-primary" weight="medium">
-                {LOCALE_CODE[locale]}
+                {t('LocaleSwitcher.localeLabel')}
               </Typography>
             </div>
             <Icon variant="arrow-right" />
           </ButtonWrapper>,
         ];
     }
-  }, [handleLinkClick, handleLocaleClick, locale, onSelectLocale, openedSubmenu]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleLinkClick, handleLocaleClick, locale, onSelectLocale, openedSubmenu, t]);
 
   return (
     <div className="raft__header">

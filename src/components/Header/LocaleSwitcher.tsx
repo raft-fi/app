@@ -1,14 +1,17 @@
 import { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ButtonWrapper } from 'tempus-ui';
-import { Locale, LOCALE_CODE, useLocale } from '../../hooks';
+import { useLocale } from '../../hooks';
+import { SupportedLocale, SUPPORTED_LOCALES } from '../../i18n';
 import { Icon, Typography } from '../shared';
 
 const LocaleSwitcher = () => {
-  const [locale, setLocale] = useLocale();
+  const { t } = useTranslation();
+  const [, setLocale] = useLocale();
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
 
   const onSelect = useCallback(
-    (locale: Locale) => {
+    (locale: SupportedLocale) => {
       setMenuOpened(false);
       setLocale(locale);
     },
@@ -21,7 +24,7 @@ const LocaleSwitcher = () => {
       <ButtonWrapper className="raft__locale-switcher__button" onClick={onToggleMenu}>
         <Icon variant="globe" size={20} />
         <Typography variant="subtitle" weight="medium" className="raft__header__link-inactive">
-          {LOCALE_CODE[locale]}
+          {t('LocaleSwitcher.localeCode')}
         </Typography>
         <Icon variant={menuOpened ? 'chevron-up' : 'chevron-down'} />
       </ButtonWrapper>
@@ -30,20 +33,15 @@ const LocaleSwitcher = () => {
           <div className="raft__locale-switcher__backdrop" onClick={onToggleMenu} />
           <div className="raft__locale-switcher__menu">
             <ul>
-              <li>
-                <ButtonWrapper onClick={() => onSelect('en')}>
-                  <Typography variant="subtitle" weight="medium">
-                    English
-                  </Typography>
-                </ButtonWrapper>
-              </li>
-              <li>
-                <ButtonWrapper onClick={() => onSelect('zh')}>
-                  <Typography variant="subtitle" weight="medium">
-                    中文
-                  </Typography>
-                </ButtonWrapper>
-              </li>
+              {SUPPORTED_LOCALES.map(locale => (
+                <li key={`locale-switcher-item-${locale}`}>
+                  <ButtonWrapper onClick={() => onSelect(locale)}>
+                    <Typography variant="subtitle" weight="medium">
+                      {t('LocaleSwitcher.localeLabel', { lng: locale })}
+                    </Typography>
+                  </ButtonWrapper>
+                </li>
+              ))}
             </ul>
           </div>
         </>
