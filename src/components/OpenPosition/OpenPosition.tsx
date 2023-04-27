@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet } from '../../hooks';
 import { CollateralToken, isCollateralToken } from '../../interfaces';
-import { Button, CurrencyInput, ValuesBox, Typography } from '../shared';
+import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
 
 import './OpenPosition.scss';
 
@@ -43,7 +43,7 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Collateral"
           precision={18}
-          fiatValue="$100.00"
+          fiatValue="~$100.00"
           selectedToken={selectedCollateralToken}
           tokens={['ETH', 'stETH', 'wstETH']}
           value="0.05"
@@ -53,7 +53,7 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Borrow"
           precision={18}
-          fiatValue="$100.00"
+          fiatValue="~$100.00"
           selectedToken="R"
           tokens={['R']}
           value="0.05"
@@ -65,13 +65,19 @@ const OpenPosition = () => {
           values={[
             {
               id: 'collateral',
-              label: 'Total collateral',
+              label: (
+                <>
+                  <Icon variant="info" size="small" />
+                  <Typography variant="body-primary">Total collateral&nbsp;</Typography>
+                </>
+              ),
               value: '0.00 stETH',
             },
             {
               id: 'debt',
               label: (
                 <>
+                  <Icon variant="info" size="small" />
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
                   <Typography variant="body-tertiary">{'(Min. 3,000'}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
@@ -84,13 +90,19 @@ const OpenPosition = () => {
             },
             {
               id: 'liquidationPrice',
-              label: 'Collateral liquidation price',
+              label: (
+                <>
+                  <Icon variant="info" size="small" />
+                  <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
+                </>
+              ),
               value: '$0.00',
             },
             {
               id: 'collateralizationRatio',
               label: (
                 <>
+                  <Icon variant="info" size="small" />
                   <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
                   <Typography variant="body-tertiary">{'(Min. 110%)'}</Typography>
                 </>
