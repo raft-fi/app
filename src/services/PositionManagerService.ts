@@ -1,4 +1,4 @@
-import { Contract, ContractTransaction, JsonRpcSigner, ethers } from 'ethers';
+import { Contract, ContractTransactionResponse, JsonRpcSigner, ethers } from 'ethers';
 import Decimal from 'decimal';
 import erc20PermitAbi from './abi/ERC20PermitABI.json';
 import positionManagerABI from './abi/PositionManagerABI.json';
@@ -34,7 +34,7 @@ class PositionManagerService {
     collateralChange: Decimal,
     debtChange: Decimal,
     maxFeePercentage: Decimal = Decimal.ONE,
-  ): Promise<ContractTransaction> {
+  ): Promise<ContractTransactionResponse> {
     if (collateralChange.gt(Decimal.ZERO)) {
       const allowance = await this.collateralTokenContract.allowance(this.signer.address, this.config.positionManager);
 
@@ -58,8 +58,19 @@ class PositionManagerService {
     collateralAmount: Decimal,
     debtAmount: Decimal,
     maxFeePercentage: Decimal = Decimal.ONE,
-  ): Promise<ContractTransaction> {
+  ): Promise<ContractTransactionResponse> {
     return this.manage(collateralAmount, debtAmount, maxFeePercentage);
+  }
+
+  async close(
+    currentCollateral: Decimal,
+    currentDebt: Decimal,
+    maxFeePercentage: Decimal = Decimal.ONE,
+  ): Promise<ContractTransactionResponse> {
+    const collateralChange = currentCollateral.mul(-1);
+    const debtChange = currentDebt.mul(-1);
+
+    return this.manage(collateralChange, debtChange, maxFeePercentage);
   }
 
   private async signCollateralTokenPermit(amount: Decimal) {

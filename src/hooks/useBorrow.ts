@@ -60,7 +60,7 @@ const borrowStatus$ = new BehaviorSubject<Nullable<BorrowStatus>>(null);
 const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
   concatMap<[BorrowRequest, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<BorrowResponse>>(
     ([request, walletProvider, walletSigner]) => {
-      const { txnId, collateralToken, collateralAmount, debtAmount } = request;
+      const { txnId, currentUserCollateral, currentUserDebt, collateralToken, collateralAmount, debtAmount } = request;
 
       try {
         if (!walletProvider || !walletSigner) {
@@ -71,11 +71,17 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
           });
         }
 
-        const userPosition = new PositionManagerService(walletSigner, collateralToken);
+        const positionManagerService = new PositionManagerService(walletSigner, collateralToken);
 
         borrowStatus$.next({ pending: true, txnId, request });
 
-        const result$ = from(userPosition.open(collateralAmount, debtAmount));
+        let result$: Observable<ethers.ContractTransactionResponse>;
+        if (collateralAmount.equals(0) && debtAmount.equals(0)) {
+          result$ = from(positionManagerService.close(currentUserCollateral, currentUserDebt));
+        } else {
+          result$ = from(positionManagerService.open(collateralAmount, debtAmount));
+        }
+
         const waitForTxReceipt$ = result$.pipe(
           switchMap(result => {
             if (result) {

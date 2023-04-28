@@ -1,14 +1,24 @@
-import { useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import Decimal from 'decimal';
-import { Button, CurrencyInput, Icon, Typography, ValuesBox } from '../shared';
+import { v4 as uuid } from 'uuid';
 import { CollateralToken, isCollateralToken } from '../../interfaces';
+import { useBorrow } from '../../hooks';
+import { Button, CurrencyInput, Icon, Typography, ValuesBox } from '../shared';
 
 import './AdjustPosition.scss';
 
-const AdjustPosition = () => {
+interface AdjustPositionProps {
+  collateralBalance: Decimal;
+  debtBalance: Decimal;
+}
+
+const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
+  const { borrow } = useBorrow();
+
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
-  const [collateralAmount, setCollateralAmount] = useState<string>('');
-  const [borrowAmount, setBorrowAmount] = useState<string>('');
+  const [collateralAmount, setCollateralAmount] = useState<string>(collateralBalance.toString());
+  const [borrowAmount, setBorrowAmount] = useState<string>(debtBalance.toString());
+  const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -16,9 +26,17 @@ const AdjustPosition = () => {
     }
   }, []);
 
-  const onClosePosition = useCallback(() => {
-    // TODO - Implement close position
-  }, []);
+  const onToggleClosePosition = useCallback(() => {
+    if (!closePositionActive) {
+      setCollateralAmount('0');
+      setBorrowAmount('0');
+    } else if (collateralBalance && debtBalance) {
+      setCollateralAmount(collateralBalance.toString());
+      setBorrowAmount(debtBalance.toString());
+    }
+
+    setClosePositionActive(prevState => !prevState);
+  }, [closePositionActive, collateralBalance, debtBalance]);
 
   const onMaxSafeBorrow = useCallback(() => {
     // TODO - Implement max safe borrow
@@ -61,8 +79,26 @@ const AdjustPosition = () => {
   }, []);
 
   const onAdjust = useCallback(() => {
-    // TODO - Implement adjust position action
-  }, []);
+    if (!collateralBalance || !debtBalance) {
+      return null;
+    }
+
+    borrow({
+      collateralAmount: new Decimal(collateralAmount),
+      debtAmount: new Decimal(borrowAmount),
+      collateralToken: selectedCollateralToken,
+      currentUserCollateral: collateralBalance,
+      currentUserDebt: debtBalance,
+      txnId: uuid(),
+    });
+  }, [borrow, borrowAmount, collateralAmount, collateralBalance, debtBalance, selectedCollateralToken]);
+
+  const actionLabel = useMemo(() => {
+    if (collateralAmount === '0' && borrowAmount === '0') {
+      return 'Close position';
+    }
+    return 'Execute';
+  }, [borrowAmount, collateralAmount]);
 
   return (
     <div className="raft__adjustPosition">
@@ -71,7 +107,7 @@ const AdjustPosition = () => {
           Adjust position
         </Typography>
         <div className="raft__adjustPosition__actions">
-          <Button variant="tertiary" onClick={onClosePosition}>
+          <Button variant="tertiary" onClick={onToggleClosePosition} selected={closePositionActive}>
             <Typography variant="body-primary" weight="medium">
               Close position
             </Typography>
@@ -97,6 +133,7 @@ const AdjustPosition = () => {
           step={0.1}
           onIncrementAmount={handleCollateralIncrement}
           onDecrementAmount={handleCollateralDecrement}
+          disabled={closePositionActive}
         />
         {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
@@ -110,6 +147,7 @@ const AdjustPosition = () => {
           step={100}
           onIncrementAmount={handleBorrowIncrement}
           onDecrementAmount={handleBorrowDecrement}
+          disabled={closePositionActive}
         />
       </div>
       <div className="raft__adjustPosition__data">
@@ -168,7 +206,7 @@ const AdjustPosition = () => {
       <div className="raft__adjustPosition__action">
         <Button variant="primary" onClick={onAdjust}>
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            Execute
+            {actionLabel}
           </Typography>
         </Button>
       </div>

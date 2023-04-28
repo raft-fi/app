@@ -3,3 +3,4 @@ export * from './useWallet';
 export * from './useENS';
 export * from './useBorrow';
 export * from './useCollateralBalance';
+export * from './useDebtBalance';

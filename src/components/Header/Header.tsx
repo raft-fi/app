@@ -54,7 +54,6 @@ const Header = () => {
     },
     [setLocale],
   );
-  console.log('locale', locale, SUPPORTED_LOCALES);
 
   const logo = useMemo(() => <RaftLogo />, []);
   const navItems = useMemo(

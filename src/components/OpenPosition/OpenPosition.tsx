@@ -31,8 +31,8 @@ const OpenPosition = () => {
       collateralAmount: new Decimal(collateralAmount),
       debtAmount: new Decimal(borrowAmount),
       collateralToken: selectedCollateralToken,
-      currentUserCollateral: new Decimal(0), // TODO - Fetch current user collateral
-      currentUserDebt: new Decimal(0), // TODO - Fetch current user debt
+      currentUserCollateral: new Decimal(0), // Always zero when user is 'Opening' a position
+      currentUserDebt: new Decimal(0), // Always zero when user is 'Opening' a position
       txnId: uuid(),
     });
   }, [borrow, borrowAmount, collateralAmount, selectedCollateralToken]);
