@@ -2,8 +2,9 @@ import { Config } from '../interfaces';
 
 const config: Config = {
   ethereum: {
-    positionManager: {
-      address: '0x0feded544f10661fa11a85f6bd5381153d04ea73',
+    positionManager: '0x0feded544f10661fa11a85f6bd5381153d04ea73',
+    collateralTokens: {
+      wstETH: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
     },
     publicNetworkUrl: '',
     privateNetworkUrl: '',

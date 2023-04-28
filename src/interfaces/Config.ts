@@ -1,5 +1,6 @@
 export interface ChainConfig {
-  positionManager: unknown; // TODO
+  positionManager: string;
+  collateralTokens: { [tokenName: string]: string };
   publicNetworkUrl: string;
   privateNetworkUrl: string;
   networkName: string;

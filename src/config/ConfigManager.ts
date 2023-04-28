@@ -1,4 +1,5 @@
 import { Chain, Config } from '../interfaces';
+import { ChainConfig } from '../interfaces/Config';
 import config from './config';
 
 export interface TokenListItem {
@@ -9,8 +10,8 @@ export interface TokenListItem {
 class ConfigManager {
   private config: Config = config;
 
-  getConfig(): Config {
-    return this.config;
+  getConfig(): ChainConfig {
+    return this.config['ethereum'];
   }
 }
 
