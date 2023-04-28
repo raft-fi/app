@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
+import Decimal from 'decimal';
+import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { useWallet } from '../../hooks';
+import { useWallet, useBorrow } from '../../hooks';
 import { CollateralToken, isCollateralToken } from '../../interfaces';
 import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
 
@@ -10,8 +12,11 @@ const OpenPosition = () => {
   const [, connect] = useConnectWallet();
 
   const wallet = useWallet();
+  const { borrow } = useBorrow();
 
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
+  const [collateralAmount, setCollateralAmount] = useState<string>('');
+  const [borrowAmount, setBorrowAmount] = useState<string>('');
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
@@ -22,8 +27,15 @@ const OpenPosition = () => {
   }, [connect]);
 
   const onBorrow = useCallback(() => {
-    // TODO - Implement borrow functionality
-  }, []);
+    borrow({
+      collateralAmount: new Decimal(collateralAmount),
+      debtAmount: new Decimal(borrowAmount),
+      collateralToken: selectedCollateralToken,
+      currentUserCollateral: new Decimal(0), // TODO - Fetch current user collateral
+      currentUserDebt: new Decimal(0), // TODO - Fetch current user debt
+      txnId: uuid(),
+    });
+  }, [borrow, borrowAmount, collateralAmount, selectedCollateralToken]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -46,8 +58,9 @@ const OpenPosition = () => {
           fiatValue="~$100.00"
           selectedToken={selectedCollateralToken}
           tokens={['ETH', 'stETH', 'wstETH']}
-          value="0.05"
+          value={collateralAmount}
           onTokenUpdate={handleCollateralTokenChange}
+          onValueUpdate={setCollateralAmount}
         />
         {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
@@ -56,7 +69,8 @@ const OpenPosition = () => {
           fiatValue="~$100.00"
           selectedToken="R"
           tokens={['R']}
-          value="0.05"
+          value={borrowAmount}
+          onValueUpdate={setBorrowAmount}
         />
       </div>
       <div className="raft__openPosition__data">
