@@ -1,6 +1,7 @@
 export interface ChainConfig {
   positionManager: string;
   collateralTokens: { [tokenName: string]: string };
+  raftCollateralToken: string;
   publicNetworkUrl: string;
   privateNetworkUrl: string;
   networkName: string;
