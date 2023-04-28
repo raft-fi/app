@@ -25,7 +25,7 @@ const debtBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 // Stream that fetches debt balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletSigner$.pipe(
   filter((walletSigner): walletSigner is JsonRpcSigner => Boolean(walletSigner)),
-  concatMap<JsonRpcSigner, Observable<Decimal | null>>(walletSigner => {
+  concatMap<JsonRpcSigner, Observable<Nullable<Decimal>>>(walletSigner => {
     try {
       const raftSDebtTokenService = new RaftDebtTokenService(walletSigner);
 
