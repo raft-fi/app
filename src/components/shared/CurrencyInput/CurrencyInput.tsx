@@ -98,6 +98,22 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     [onCloseDropdown, onTokenUpdate],
   );
 
+  const handleIncrementAmount = useCallback(() => {
+    if (!onIncrementAmount || !step) {
+      return;
+    }
+
+    onIncrementAmount(step);
+  }, [onIncrementAmount, step]);
+
+  const handleDecrementAmount = useCallback(() => {
+    if (!onDecrementAmount || !step) {
+      return;
+    }
+
+    onDecrementAmount(step);
+  }, [onDecrementAmount, step]);
+
   return (
     <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>
       <div className="raft__currencyInput__header">
@@ -123,7 +139,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         `}
       >
         {onDecrementAmount && step && (
-          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={() => onDecrementAmount(step)}>
+          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={handleDecrementAmount}>
             <Typography variant="subtitle">-</Typography>
           </ButtonWrapper>
         )}
@@ -200,7 +216,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </div>
         </div>
         {onIncrementAmount && step && (
-          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={() => onIncrementAmount(step)}>
+          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={handleIncrementAmount}>
             <Typography variant="subtitle">+</Typography>
           </ButtonWrapper>
         )}
