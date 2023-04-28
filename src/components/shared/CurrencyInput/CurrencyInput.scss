@@ -36,11 +36,13 @@
 
   .raft__currencyInput__fieldContainer {
     display: flex;
+    align-items: center;
     height: 48px;
-    border-bottom: 1px solid #bfc0c0;
     box-sizing: border-box;
 
     .raft__currencyInput__inputContainer {
+      border-bottom: 1px solid #bfc0c0;
+      height: 48px;
       width: 100%;
       display: flex;
       align-items: center;
@@ -143,6 +145,26 @@
         }
       }
     }
+
+    .raft__currencyInput__adjustAmountButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      box-shadow: var(--shadowPrimary);
+      background-color: var(--colorSurfaceHighlight);
+
+      &:first-child {
+        margin-right: 20px;
+      }
+
+      &:last-child {
+        margin-left: 20px;
+      }
+    }
   }
 
   .raft__currencyInput__fieldContainerError {
@@ -152,6 +174,10 @@
   .raft__currencyInput__fiatAmount {
     display: flex;
     margin-top: 8px;
+  }
+
+  .raft__currencyInput__fiatAmountOffset {
+    margin-left: 60px;
   }
 
   .raft__currencyInput__disabledOverlay {

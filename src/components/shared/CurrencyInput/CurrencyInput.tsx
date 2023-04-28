@@ -1,5 +1,5 @@
 import { createRef, FC, memo, useCallback, useState } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
@@ -20,9 +20,12 @@ export interface CurrencyInputProps extends BaseInputProps {
   showMaxAmountIcon?: boolean;
   tokens: string[];
   selectedToken: string;
+  step?: number;
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
+  onIncrementAmount?: (amount: number) => void;
+  onDecrementAmount?: (amount: number) => void;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
@@ -39,9 +42,12 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     showMaxAmountIcon = true,
     selectedToken,
     tokens,
+    step,
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
+    onDecrementAmount,
+    onIncrementAmount,
   } = props;
   const inputRef = createRef<HTMLInputElement>();
 
@@ -116,6 +122,11 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           ${error ? ' raft__currencyInput__fieldContainerError' : ''}
         `}
       >
+        {onDecrementAmount && step && (
+          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={() => onDecrementAmount(step)}>
+            <Typography variant="subtitle">-</Typography>
+          </ButtonWrapper>
+        )}
         <div
           className={`raft__currencyInput__inputContainer
             ${disabled ? ' raft__currencyInput__inputContainerDisabled' : ''}
@@ -188,9 +199,14 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             )}
           </div>
         </div>
+        {onIncrementAmount && step && (
+          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={() => onIncrementAmount(step)}>
+            <Typography variant="subtitle">+</Typography>
+          </ButtonWrapper>
+        )}
       </div>
       {fiatValue && (
-        <span className="raft__currencyInput__fiatAmount">
+        <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
           <Typography variant="body-tertiary" color={!disabled ? 'text-primary' : 'text-tertiary'}>
             {fiatValue}
           </Typography>
