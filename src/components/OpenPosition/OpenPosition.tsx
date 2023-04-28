@@ -17,7 +17,7 @@ const OpenPosition = () => {
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
-  const [state, setState] = useState<string>('');
+  const [state, setState] = useState<string>('default');
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
