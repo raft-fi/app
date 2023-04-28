@@ -17,9 +17,10 @@ import Decimal from 'decimal';
 import { JsonRpcSigner } from 'ethers';
 import { RaftDebtTokenService } from '../services';
 import { DEBOUNCE_IN_MS } from '../constants';
+import { Nullable } from '../interfaces';
 import { walletSigner$ } from './useWalletSigner';
 
-const debtBalance$ = new BehaviorSubject<Decimal | null>(null);
+const debtBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
 // Stream that fetches debt balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletSigner$.pipe(
