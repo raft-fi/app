@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Decimal from 'decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet, useBorrow } from '../../hooks';
 import { CollateralToken, isCollateralToken } from '../../interfaces';
-import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
+import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading } from '../shared';
 
 import './OpenPosition.scss';
 
@@ -12,11 +12,12 @@ const OpenPosition = () => {
   const [, connect] = useConnectWallet();
 
   const wallet = useWallet();
-  const { borrow } = useBorrow();
+  const { borrow, borrowStatus } = useBorrow();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
+  const [state, setState] = useState<string>('');
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
@@ -42,6 +43,24 @@ const OpenPosition = () => {
       setSelectedCollateralToken(token);
     }
   }, []);
+
+  /**
+   * Update action button state based on current borrow request status
+   */
+  useEffect(() => {
+    if (!borrowStatus) {
+      return;
+    }
+
+    if (borrowStatus.pending) {
+      setState('loading');
+    } else if (borrowStatus.success) {
+      // TODO - Open success modal with tx info
+      setState('success');
+    } else {
+      setState('default');
+    }
+  }, [borrowStatus]);
 
   return (
     <div className="raft__openPosition">
@@ -127,7 +146,8 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__action">
-        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet}>
+        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={state === 'loading'}>
+          {state === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {walletConnected ? 'Borrow' : 'Connect wallet'}
           </Typography>
