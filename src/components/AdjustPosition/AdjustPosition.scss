@@ -1,0 +1,49 @@
+@import '../../index.scss';
+
+.raft__adjustPosition {
+  @include sectionBox;
+
+  .raft__adjustPosition__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    .raft__adjustPosition__actions {
+      display: flex;
+      align-items: center;
+
+      .raft__button {
+        &:not(:last-child) {
+          margin-right: 16px;
+        }
+      }
+    }
+  }
+
+  .raft__adjustPosition__input {
+    display: flex;
+
+    .raft__currencyInput {
+      &:not(:first-child) {
+        margin-left: 16px;
+      }
+    }
+  }
+
+  .raft__adjustPosition__data {
+    margin-top: 16px;
+
+    .raft__icon__info {
+      margin-right: 8px;
+    }
+  }
+
+  .raft__adjustPosition__action {
+    margin-top: 16px;
+
+    .raft__button {
+      width: 100%;
+    }
+  }
+}
