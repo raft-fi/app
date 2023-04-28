@@ -4,6 +4,7 @@ import erc20PermitAbi from './abi/ERC20PermitABI.json';
 import positionManagerABI from './abi/PositionManagerABI.json';
 import { getConfigManager } from '../config';
 import { CollateralToken } from '../interfaces';
+import { ChainConfig } from '../interfaces/Config';
 
 const PERMIT_DEADLINE_SHIFT = 30 * 60; // 30 minutes
 
@@ -12,11 +13,13 @@ class PositionManagerService {
   private collateralToken: CollateralToken;
   private collateralTokenContract: Contract;
   private positionManagerContract: Contract;
-  private config = getConfigManager().getConfig();
+  private config: ChainConfig;
 
   constructor(signer: JsonRpcSigner, collateralToken: CollateralToken) {
     this.signer = signer;
     this.collateralToken = collateralToken;
+
+    this.config = getConfigManager().getConfig();
 
     this.collateralTokenContract = new Contract(
       this.config.collateralTokens[collateralToken],
@@ -27,7 +30,11 @@ class PositionManagerService {
     this.positionManagerContract = new Contract(this.config.positionManager, positionManagerABI, this.signer);
   }
 
-  private async manage(collateralChange: Decimal, debtChange: Decimal, maxFeePercentage: Decimal = Decimal.ONE) {
+  private async manage(
+    collateralChange: Decimal,
+    debtChange: Decimal,
+    maxFeePercentage: Decimal = Decimal.ONE,
+  ): Promise<ContractTransaction> {
     if (collateralChange.gt(Decimal.ZERO)) {
       const allowance = await this.collateralTokenContract.allowance(this.signer.address, this.config.positionManager);
 

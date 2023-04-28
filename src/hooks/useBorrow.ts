@@ -44,8 +44,8 @@ interface BorrowStatus {
 
 interface BorrowResponse {
   request: BorrowRequest;
-  contractTransaction?: ethers.ContractTransaction | void;
-  transactionReceipt?: ethers.TransactionReceipt | void;
+  contractTransaction?: ethers.ContractTransaction;
+  transactionReceipt?: ethers.TransactionReceipt;
   transactionData?: {
     borrowedAmount: Decimal;
     gasFee: Decimal;
@@ -55,7 +55,7 @@ interface BorrowResponse {
 }
 
 const [borrow$, borrow] = createSignal<BorrowRequest>();
-const borrowStatus$ = new BehaviorSubject<BorrowStatus | null>(null);
+const borrowStatus$ = new BehaviorSubject<Nullable<BorrowStatus>>(null);
 
 const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
   concatMap<[BorrowRequest, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<BorrowResponse>>(
@@ -153,10 +153,10 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
   }),
 );
 
-const [borrowStatus] = bind<BorrowStatus | null>(borrowStatus$, null);
+const [borrowStatus] = bind<Nullable<BorrowStatus>>(borrowStatus$, null);
 
 export const useBorrow = (): {
-  borrowStatus: BorrowStatus | null;
+  borrowStatus: Nullable<BorrowStatus>;
   borrow: (payload: BorrowRequest) => void;
 } => ({
   borrowStatus: borrowStatus(),
