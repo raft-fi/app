@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import 'tempus-ui/dist/index.css';
 import Header from './components/Header';
@@ -12,7 +12,8 @@ import HookSubscriber from './components/HookSubscriber';
 
 import './index.scss';
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root') as HTMLDivElement);
+root.render(
   <React.StrictMode>
     <BrowserRouter>
       <div className="raft__app__root">
@@ -29,5 +30,4 @@ ReactDOM.render(
       </div>
     </BrowserRouter>
   </React.StrictMode>,
-  document.getElementById('root'),
 );

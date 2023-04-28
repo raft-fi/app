@@ -7,7 +7,7 @@
   box-sizing: border-box;
   border-radius: 8px;
   border-width: 1px;
-  border-style: solid;  
+  border-style: solid;
   border-color: transparent;
 
   &.raft__button-primary {
@@ -18,13 +18,19 @@
     background-color: var(--colorSurfaceHighlight);
     border-color: var(--colorBorder);
   }
-  
+
   &.raft__button-tertiary {
     background-color: var(--colorSurfaceHighlight);
     box-shadow: var(--shadowPrimary);
   }
 
-  &[data-disabled="true"] {
-    background-color: #FFF8F1;
+  &[data-disabled='true'] {
+    background-color: #fff8f1;
+  }
+
+  &[data-selected='true'] {
+    background-color: var(--selectedSurface);
+
+    --textPrimary: var(--colorPrimary);
   }
 }

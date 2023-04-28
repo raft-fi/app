@@ -5,6 +5,7 @@ import { ButtonWrapper, Header as HeaderBase } from 'tempus-ui';
 import { SupportedLocale, SUPPORTED_LOCALES } from '../../i18n';
 import { Icon, Typography } from '../shared';
 import { useLocale } from '../../hooks';
+import { Nullable } from '../../interfaces';
 import RaftLogo from '../Logo/RaftLogo';
 import Wallet from '../Wallet';
 import LocaleSwitcher from './LocaleSwitcher';
@@ -15,7 +16,7 @@ const Header = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const [locale, setLocale] = useLocale();
-  const [currentPage, setCurrentPage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<Nullable<string>>(null);
   const [menuOpened, setMenuOpened] = useState(false);
   const [openedSubmenu, setOpenedSubmenu] = useState<string>('');
 
@@ -54,7 +55,6 @@ const Header = () => {
     },
     [setLocale],
   );
-  console.log('locale', locale, SUPPORTED_LOCALES);
 
   const logo = useMemo(() => <RaftLogo />, []);
   const navItems = useMemo(

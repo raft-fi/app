@@ -17,14 +17,15 @@ import Decimal from 'decimal';
 import { JsonRpcSigner } from 'ethers';
 import { RaftCollateralTokenService } from '../services';
 import { DEBOUNCE_IN_MS } from '../constants';
+import { Nullable } from '../interfaces';
 import { walletSigner$ } from './useWalletSigner';
 
-const collateralBalance$ = new BehaviorSubject<Decimal | null>(null);
+const collateralBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
 // Stream that fetches collateral balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletSigner$.pipe(
   filter((walletSigner): walletSigner is JsonRpcSigner => Boolean(walletSigner)),
-  concatMap<JsonRpcSigner, Observable<Decimal | null>>(walletSigner => {
+  concatMap<JsonRpcSigner, Observable<Nullable<Decimal>>>(walletSigner => {
     try {
       const raftCollateralCollateralService = new RaftCollateralTokenService(walletSigner);
 

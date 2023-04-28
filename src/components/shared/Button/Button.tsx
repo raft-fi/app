@@ -13,9 +13,14 @@ type ButtonProps = ButtonWrapperProps & {
 
 const getButtonClass = (variant: ButtonVariant): string => `raft__button-${variant}`;
 
-const Button: FC<PropsWithChildren<ButtonProps>> = ({ children, variant, disabled, onClick }) => {
+const Button: FC<PropsWithChildren<ButtonProps>> = ({ children, variant, disabled, selected, onClick }) => {
   return (
-    <ButtonWrapper className={`raft__button ${getButtonClass(variant)}`} disabled={disabled} onClick={onClick}>
+    <ButtonWrapper
+      className={`raft__button ${getButtonClass(variant)}`}
+      disabled={disabled}
+      selected={selected}
+      onClick={onClick}
+    >
       {children}
     </ButtonWrapper>
   );
