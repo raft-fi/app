@@ -6,6 +6,7 @@ const config: Config = {
     collateralTokens: {
       wstETH: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
     },
+    raftCollateralToken: '0x3E579280498709835045c10f981fb0E78F45D086',
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: '',
