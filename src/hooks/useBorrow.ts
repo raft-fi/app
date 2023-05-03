@@ -84,8 +84,8 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
 
         const waitForTxReceipt$ = result$.pipe(
           switchMap(result => {
-            if (result) {
-              return of(true);
+            if (result.hash) {
+              return from(walletProvider.waitForTransaction(result.hash));
             }
             return of(null);
           }),

@@ -1,9 +1,9 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import Decimal from 'decimal';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, isCollateralToken } from '../../interfaces';
 import { useBorrow } from '../../hooks';
-import { Button, CurrencyInput, Icon, Typography, ValuesBox } from '../shared';
+import { Button, CurrencyInput, Icon, Loading, Typography, ValuesBox } from '../shared';
 
 import './AdjustPosition.scss';
 
@@ -13,12 +13,13 @@ interface AdjustPositionProps {
 }
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
-  const { borrow } = useBorrow();
+  const { borrow, borrowStatus } = useBorrow();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
   const [collateralAmount, setCollateralAmount] = useState<string>(collateralBalance.toString());
   const [borrowAmount, setBorrowAmount] = useState<string>(debtBalance.toString());
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
+  const [transactionState, setTransactionState] = useState<string>('default');
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -99,6 +100,24 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
     return 'Execute';
   }, [borrowAmount, collateralAmount]);
+
+  /**
+   * Update action button state based on current borrow request status
+   */
+  useEffect(() => {
+    if (!borrowStatus) {
+      return;
+    }
+
+    if (borrowStatus.pending) {
+      setTransactionState('loading');
+    } else if (borrowStatus.success) {
+      // TODO - Open success modal with tx info
+      setTransactionState('success');
+    } else {
+      setTransactionState('default');
+    }
+  }, [borrowStatus]);
 
   return (
     <div className="raft__adjustPosition">
@@ -204,7 +223,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <div className="raft__adjustPosition__action">
-        <Button variant="primary" onClick={onAdjust}>
+        <Button variant="primary" onClick={onAdjust} disabled={transactionState === 'loading'}>
+          {transactionState === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {actionLabel}
           </Typography>

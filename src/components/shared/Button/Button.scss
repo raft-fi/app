@@ -12,6 +12,10 @@
 
   &.raft__button-primary {
     background-color: var(--colorPrimary);
+
+    &[data-disabled='true'] {
+      background-color: var(--colorPrimaryDisabled);
+    }
   }
 
   &.raft__button-secondary {
@@ -25,11 +29,11 @@
   }
 
   &[data-disabled='true'] {
-    background-color: #fff8f1;
+    cursor: default;
   }
 
   &[data-selected='true'] {
-    background-color: var(--selectedSurface);
+    background-color: var(--colorSelectedSurface);
 
     --textPrimary: var(--colorPrimary);
   }

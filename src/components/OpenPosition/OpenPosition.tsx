@@ -1,10 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Decimal, { DecimalFormat } from 'decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet, useBorrow, useTokenPrices } from '../../hooks';
 import { CollateralToken, COLLATERAL_TOKENS, isCollateralToken, RAFT_TOKEN } from '../../interfaces';
 import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
+
 
 import './OpenPosition.scss';
 import { LIQUIDATION_UPPER_RATIO, MIN_BORROW_AMOUNT } from '../../constants';
@@ -14,11 +15,12 @@ const OpenPosition = () => {
 
   const tokenPriceMap = useTokenPrices();
   const wallet = useWallet();
-  const { borrow } = useBorrow();
+  const { borrow, borrowStatus } = useBorrow();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
+  const [state, setState] = useState<string>('default');
 
   const collateralTokenPrice = useMemo(
     () => tokenPriceMap[selectedCollateralToken],
@@ -128,6 +130,24 @@ const OpenPosition = () => {
     }
   }, []);
 
+  /**
+   * Update action button state based on current borrow request status
+   */
+  useEffect(() => {
+    if (!borrowStatus) {
+      return;
+    }
+
+    if (borrowStatus.pending) {
+      setState('loading');
+    } else if (borrowStatus.success) {
+      // TODO - Open success modal with tx info
+      setState('success');
+    } else {
+      setState('default');
+    }
+  }, [borrowStatus]);
+
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
@@ -212,7 +232,8 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__action">
-        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet}>
+        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={state === 'loading'}>
+          {state === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {walletConnected ? 'Borrow' : 'Connect wallet'}
           </Typography>
