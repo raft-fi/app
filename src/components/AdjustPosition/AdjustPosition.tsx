@@ -1,5 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import Decimal from 'decimal';
+import { Decimal } from 'tempus-decimal';
+import { CollateralTokenType } from 'raft-sdk';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, isCollateralToken } from '../../interfaces';
 import { useBorrow } from '../../hooks';
@@ -84,10 +85,26 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
+    let collateralTokenType: CollateralTokenType;
+    switch (selectedCollateralToken) {
+      // TODO - Once support for ETH and stETH collateral is added, uncomment the following lines
+      /* case 'ETH':
+        collateralTokenType = CollateralTokenType.ETH;
+        break;
+      case 'stETH':
+        collateralTokenType = CollateralTokenType.STETH;
+        break; */
+      case 'wstETH':
+        collateralTokenType = CollateralTokenType.WSTETH;
+        break;
+      default:
+        throw new Error(`Unsupported collateral token type selected: ${selectedCollateralToken}`);
+    }
+
     borrow({
       collateralAmount: new Decimal(collateralAmount),
       debtAmount: new Decimal(borrowAmount),
-      collateralToken: selectedCollateralToken,
+      collateralToken: collateralTokenType,
       currentUserCollateral: collateralBalance,
       currentUserDebt: debtBalance,
       txnId: uuid(),

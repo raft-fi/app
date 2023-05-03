@@ -13,7 +13,7 @@ import {
   concatMap,
   BehaviorSubject,
 } from 'rxjs';
-import Decimal from 'decimal';
+import { Decimal } from 'tempus-decimal';
 import { JsonRpcSigner } from 'ethers';
 import { RaftCollateralTokenService } from '../services';
 import { DEBOUNCE_IN_MS } from '../constants';
