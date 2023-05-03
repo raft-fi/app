@@ -19,7 +19,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [collateralAmount, setCollateralAmount] = useState<string>(collateralBalance.toString());
   const [borrowAmount, setBorrowAmount] = useState<string>(debtBalance.toString());
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
-  const [state, setState] = useState<string>('default');
+  const [transactionState, setTransactionState] = useState<string>('default');
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -110,12 +110,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     if (borrowStatus.pending) {
-      setState('loading');
+      setTransactionState('loading');
     } else if (borrowStatus.success) {
       // TODO - Open success modal with tx info
-      setState('success');
+      setTransactionState('success');
     } else {
-      setState('default');
+      setTransactionState('default');
     }
   }, [borrowStatus]);
 
@@ -223,8 +223,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <div className="raft__adjustPosition__action">
-        <Button variant="primary" onClick={onAdjust} disabled={state === 'loading'}>
-          {state === 'loading' && <Loading />}
+        <Button variant="primary" onClick={onAdjust} disabled={transactionState === 'loading'}>
+          {transactionState === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {actionLabel}
           </Typography>
