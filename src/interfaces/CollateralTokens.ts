@@ -1,4 +1,4 @@
-const COLLATERAL_TOKENS = ['ETH', 'stETH', 'wstETH'] as const;
+export const COLLATERAL_TOKENS = ['ETH', 'stETH', 'wstETH'] as const;
 
 export type CollateralToken = (typeof COLLATERAL_TOKENS)[number];
 

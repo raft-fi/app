@@ -3,3 +3,7 @@ export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
 export const GITHUB_URL = 'https://github.com/raft-fi';
 export const GITBOOK_URL = 'https://docs.raft.fi/';
 export const DEBOUNCE_IN_MS = 500;
+export const POLLING_INTERVAL_IN_MS = 2 * 60 * 1000;
+export const MIN_BORROW_AMOUNT = 3000;
+export const LIQUIDATION_UPPER_RATIO = 1.1;
+export const LIQUIDATION_LOWER_RATIO = 1;
