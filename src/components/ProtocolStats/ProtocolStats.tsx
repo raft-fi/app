@@ -1,4 +1,4 @@
-import { DecimalFormat } from 'decimal';
+import { DecimalFormat } from 'tempus-decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { useTokenPrices } from '../../hooks';
