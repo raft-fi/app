@@ -4,3 +4,6 @@ export * from './useENS';
 export * from './useBorrow';
 export * from './useCollateralBalance';
 export * from './useDebtBalance';
+export * from './useProvider';
+export * from './usePriceFeed';
+export * from './useTokenPrices';

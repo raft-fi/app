@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
-import Decimal from 'decimal';
+import Decimal, { DecimalFormat } from 'decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { useWallet, useBorrow } from '../../hooks';
-import { CollateralToken, isCollateralToken } from '../../interfaces';
+import { useWallet, useBorrow, useTokenPrices } from '../../hooks';
+import { CollateralToken, COLLATERAL_TOKENS, isCollateralToken, RAFT_TOKEN } from '../../interfaces';
 import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
 
 import './OpenPosition.scss';
@@ -11,12 +11,42 @@ import './OpenPosition.scss';
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
 
+  const tokenPriceMap = useTokenPrices();
   const wallet = useWallet();
   const { borrow } = useBorrow();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
+
+  const collateralTokenPrice = useMemo(
+    () => tokenPriceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenPriceMap],
+  );
+  const collateralTokenValue = useMemo(
+    () => (collateralTokenPrice ? new Decimal(collateralAmount || 0).mul(collateralTokenPrice) : null),
+    [collateralAmount, collateralTokenPrice],
+  );
+  const collateralTokenValueFormatted = useMemo(
+    () =>
+      collateralTokenValue
+        ? `~${DecimalFormat.format(collateralTokenValue, { style: 'currency', currency: '$', fractionDigits: 2 })}`
+        : null,
+    [collateralTokenValue],
+  );
+
+  const borrowTokenPrice = useMemo(() => tokenPriceMap[RAFT_TOKEN], [tokenPriceMap]);
+  const borrowTokenValue = useMemo(
+    () => (borrowTokenPrice ? new Decimal(borrowAmount || 0).mul(borrowTokenPrice) : null),
+    [borrowAmount, borrowTokenPrice],
+  );
+  const borrowTokenValueFormatted = useMemo(
+    () =>
+      borrowTokenValue
+        ? `~${DecimalFormat.format(borrowTokenValue, { style: 'currency', currency: '$', fractionDigits: 2 })}`
+        : null,
+    [borrowTokenValue],
+  );
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
@@ -55,9 +85,9 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Collateral"
           precision={18}
-          fiatValue="~$100.00"
+          fiatValue={collateralTokenValueFormatted}
           selectedToken={selectedCollateralToken}
-          tokens={['ETH', 'stETH', 'wstETH']}
+          tokens={[...COLLATERAL_TOKENS]}
           value={collateralAmount}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
@@ -66,9 +96,9 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Borrow"
           precision={18}
-          fiatValue="~$100.00"
-          selectedToken="R"
-          tokens={['R']}
+          fiatValue={borrowTokenValueFormatted}
+          selectedToken={RAFT_TOKEN}
+          tokens={[RAFT_TOKEN]}
           value={borrowAmount}
           onValueUpdate={setBorrowAmount}
         />
