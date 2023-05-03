@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Decimal, { DecimalFormat } from 'decimal';
+import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { v4 as uuid } from 'uuid';
+import { CollateralTokenType } from 'raft-sdk';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet, useBorrow, useTokenPrices } from '../../hooks';
 import { CollateralToken, COLLATERAL_TOKENS, isCollateralToken, RAFT_TOKEN } from '../../interfaces';
-import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
-
+import { LIQUIDATION_UPPER_RATIO, MIN_BORROW_AMOUNT } from '../../constants';
+import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading } from '../shared';
 
 import './OpenPosition.scss';
-import { LIQUIDATION_UPPER_RATIO, MIN_BORROW_AMOUNT } from '../../constants';
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -114,10 +114,26 @@ const OpenPosition = () => {
   }, [connect]);
 
   const onBorrow = useCallback(() => {
+    let collateralTokenType: CollateralTokenType;
+    switch (selectedCollateralToken) {
+      // TODO - Once support for ETH and stETH collateral is added, uncomment the following lines
+      /* case 'ETH':
+        collateralTokenType = CollateralTokenType.ETH;
+        break;
+      case 'stETH':
+        collateralTokenType = CollateralTokenType.STETH;
+        break; */
+      case 'wstETH':
+        collateralTokenType = CollateralTokenType.WSTETH;
+        break;
+      default:
+        throw new Error(`Unsupported collateral token type selected: ${selectedCollateralToken}`);
+    }
+
     borrow({
       collateralAmount: new Decimal(collateralAmount),
       debtAmount: new Decimal(borrowAmount),
-      collateralToken: selectedCollateralToken,
+      collateralToken: collateralTokenType,
       currentUserCollateral: new Decimal(0), // Always zero when user is 'Opening' a position
       currentUserDebt: new Decimal(0), // Always zero when user is 'Opening' a position
       txnId: uuid(),

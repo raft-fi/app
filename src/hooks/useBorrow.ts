@@ -1,7 +1,8 @@
 import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
-import Decimal from 'decimal';
+import { Decimal } from 'tempus-decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
+import { CollateralTokenType, UserPosition } from 'raft-sdk';
 import {
   concatMap,
   map,
@@ -16,13 +17,12 @@ import {
   Observable,
 } from 'rxjs';
 import { wallet$ } from './useWallet';
-import { CollateralToken, Nullable } from '../interfaces';
+import { Nullable } from '../interfaces';
 import { walletSigner$ } from './useWalletSigner';
-import PositionManagerService from '../services/PositionManagerService';
 
 interface BorrowRequest {
   txnId: string;
-  collateralToken: CollateralToken;
+  collateralToken: CollateralTokenType;
   collateralAmount: Decimal;
   debtAmount: Decimal;
   currentUserCollateral: Decimal;
@@ -71,15 +71,15 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
           });
         }
 
-        const positionManagerService = new PositionManagerService(walletSigner, collateralToken);
+        const userPosition = new UserPosition(walletSigner, collateralToken, currentUserCollateral, currentUserDebt);
 
         borrowStatus$.next({ pending: true, txnId, request });
 
         let result$: Observable<ethers.ContractTransactionResponse>;
         if (collateralAmount.equals(0) && debtAmount.equals(0)) {
-          result$ = from(positionManagerService.close(currentUserCollateral, currentUserDebt));
+          result$ = from(userPosition.close());
         } else {
-          result$ = from(positionManagerService.open(collateralAmount, debtAmount));
+          result$ = from(userPosition.open(collateralAmount, debtAmount));
         }
 
         const waitForTxReceipt$ = result$.pipe(

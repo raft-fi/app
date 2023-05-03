@@ -1,5 +1,5 @@
 import { Contract, JsonRpcSigner } from 'ethers';
-import Decimal from 'decimal';
+import { Decimal } from 'tempus-decimal';
 import { getConfigManager } from '../config';
 import { ChainConfig } from '../interfaces';
 import erc20IndexableABI from './abi/ERC20IndexableABI.json';
