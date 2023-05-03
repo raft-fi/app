@@ -1,5 +1,6 @@
 import { createRef, FC, memo, useCallback, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
@@ -11,7 +12,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   label: string;
   value: string;
   precision: number;
-  fiatValue: string;
+  fiatValue: Nullable<string>;
   maxAmount?: string;
   maxAmountLabel?: string;
   disabled?: boolean;

@@ -104,7 +104,7 @@
 
         .raft__locale-switcher__menu {
           position: absolute;
-          background: #f5fdff;
+          background: #ffffff;
           width: 180px;
           top: 50px;
           left: 0;
@@ -127,7 +127,7 @@
               }
 
               &:hover {
-                background: #e1f8ff;
+                background: #ebf8fb;
               }
 
               &:first-of-type {
@@ -136,6 +136,10 @@
 
               &:last-of-type {
                 border-radius: 0 0 8px 8px;
+              }
+
+              &:not(:last-child) {
+                border-bottom: 1px solid #e9f0f6;
               }
             }
           }
