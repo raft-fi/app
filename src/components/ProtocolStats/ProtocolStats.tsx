@@ -1,11 +1,29 @@
-import { memo, useCallback, useState } from 'react';
+import { DecimalFormat } from 'decimal';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { useTokenPrices } from '../../hooks';
 import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
 
 const ProtocolStats = () => {
+  const tokenPriceMap = useTokenPrices();
   const [expanded, setExpanded] = useState<boolean>(true);
+
+  const stETHPriceFormatted = useMemo(
+    () =>
+      tokenPriceMap.stETH
+        ? DecimalFormat.format(tokenPriceMap.stETH, { style: 'currency', currency: '$', fractionDigits: 2 })
+        : '---',
+    [tokenPriceMap.stETH],
+  );
+  const rPriceFormatted = useMemo(
+    () =>
+      tokenPriceMap.R
+        ? DecimalFormat.format(tokenPriceMap.R, { style: 'currency', currency: '$', fractionDigits: 2 })
+        : '---',
+    [tokenPriceMap.R],
+  );
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
 
@@ -57,7 +75,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value="$1800.00" />
+                <ValueLabel value={stETHPriceFormatted} />
               </div>
             </div>
           </div>
@@ -99,7 +117,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value="$1.00" />
+                <ValueLabel value={rPriceFormatted} />
               </div>
             </div>
           </div>
