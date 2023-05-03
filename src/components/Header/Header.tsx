@@ -81,7 +81,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <LocaleSwitcher key="navitem-locale" />,
+      // <LocaleSwitcher key="navitem-locale" />,
       <Wallet key="navitem-wallet" />,
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,6 +112,7 @@ const Header = () => {
             </Typography>
             <Icon variant="arrow-right" />
           </Link>,
+          /*
           <ButtonWrapper key="menu-item-locale" className="raft__header__menu-link" onClick={handleLocaleClick}>
             <div className="raft__header__menu-link-label">
               <Icon variant="globe" size={20} />
@@ -121,6 +122,7 @@ const Header = () => {
             </div>
             <Icon variant="arrow-right" />
           </ButtonWrapper>,
+          */
         ];
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
