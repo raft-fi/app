@@ -2,6 +2,7 @@ import { DecimalFormat } from 'tempus-decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { useTokenPrices } from '../../hooks';
+import { DISPLAY_BASE_TOKEN, RAFT_TOKEN } from '../../interfaces';
 import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
@@ -10,19 +11,23 @@ const ProtocolStats = () => {
   const tokenPriceMap = useTokenPrices();
   const [expanded, setExpanded] = useState<boolean>(true);
 
-  const stETHPriceFormatted = useMemo(
+  const displayBaseTokenPriceFormatted = useMemo(
     () =>
-      tokenPriceMap.stETH
-        ? DecimalFormat.format(tokenPriceMap.stETH, { style: 'currency', currency: '$', fractionDigits: 2 })
+      tokenPriceMap[DISPLAY_BASE_TOKEN]
+        ? DecimalFormat.format(tokenPriceMap[DISPLAY_BASE_TOKEN], {
+            style: 'currency',
+            currency: '$',
+            fractionDigits: 2,
+          })
         : '---',
-    [tokenPriceMap.stETH],
+    [tokenPriceMap],
   );
-  const rPriceFormatted = useMemo(
+  const raftTokenPriceFormatted = useMemo(
     () =>
-      tokenPriceMap.R
-        ? DecimalFormat.format(tokenPriceMap.R, { style: 'currency', currency: '$', fractionDigits: 2 })
+      tokenPriceMap[RAFT_TOKEN]
+        ? DecimalFormat.format(tokenPriceMap[RAFT_TOKEN], { style: 'currency', currency: '$', fractionDigits: 2 })
         : '---',
-    [tokenPriceMap.R],
+    [tokenPriceMap],
   );
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
@@ -38,7 +43,7 @@ const ProtocolStats = () => {
       <div className={`raft__protocol-stats__body ${expanded ? 'raft__protocol-stats-expanded' : ''}`}>
         <div className="raft__protocol-stats__stat-token">
           <div className="raft__protocol-stats__stat">
-            <TokenLogo type="token-stETH" />
+            <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} />
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
               <Typography
@@ -49,7 +54,7 @@ const ProtocolStats = () => {
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value="1.62M stETH" />
+                <ValueLabel value={`1.62M ${DISPLAY_BASE_TOKEN}`} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -75,12 +80,12 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={stETHPriceFormatted} />
+                <ValueLabel value={displayBaseTokenPriceFormatted} />
               </div>
             </div>
           </div>
           <div className="raft__protocol-stats__stat">
-            <TokenLogo type="token-R" />
+            <TokenLogo type={`token-${RAFT_TOKEN}`} />
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
               <Typography
@@ -91,7 +96,7 @@ const ProtocolStats = () => {
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value="215.2M R" />
+                <ValueLabel value={`215.2M ${RAFT_TOKEN}`} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -117,7 +122,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={rPriceFormatted} />
+                <ValueLabel value={raftTokenPriceFormatted} />
               </div>
             </div>
           </div>

@@ -4,7 +4,13 @@ import { v4 as uuid } from 'uuid';
 import { CollateralTokenType } from 'raft-sdk';
 import { useConnectWallet } from '@web3-onboard/react';
 import { useWallet, useBorrow, useTokenPrices } from '../../hooks';
-import { CollateralToken, COLLATERAL_TOKENS, isCollateralToken, RAFT_TOKEN } from '../../interfaces';
+import {
+  CollateralToken,
+  COLLATERAL_TOKENS,
+  DISPLAY_BASE_TOKEN,
+  isCollateralToken,
+  RAFT_TOKEN,
+} from '../../interfaces';
 import { LIQUIDATION_UPPER_RATIO, MIN_BORROW_AMOUNT } from '../../constants';
 import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading } from '../shared';
 
@@ -29,10 +35,6 @@ const OpenPosition = () => {
   const collateralTokenValue = useMemo(
     () => (collateralTokenPrice ? new Decimal(collateralAmount || 0).mul(collateralTokenPrice) : null),
     [collateralAmount, collateralTokenPrice],
-  );
-  const collateralTokenAmountFormatted = useMemo(
-    () => DecimalFormat.format(collateralAmount || 0, { style: 'decimal', fractionDigits: 2 }),
-    [collateralAmount],
   );
   const collateralTokenValueFormatted = useMemo(
     () =>
@@ -59,8 +61,34 @@ const OpenPosition = () => {
     [borrowTokenValue],
   );
 
+  const baseTokenPrice = useMemo(() => tokenPriceMap[DISPLAY_BASE_TOKEN], [tokenPriceMap]);
+  const baseTokenAmount = useMemo(() => {
+    if (!collateralAmount) {
+      return new Decimal(0);
+    }
+
+    const collateralAmountDecimal = new Decimal(collateralAmount);
+
+    switch (selectedCollateralToken) {
+      case 'ETH':
+      case 'stETH':
+      default:
+        return collateralAmountDecimal;
+      case 'wstETH':
+        if (!collateralTokenPrice || !baseTokenPrice || baseTokenPrice.isZero()) {
+          return null;
+        }
+
+        return collateralTokenPrice.mul(collateralAmountDecimal).div(baseTokenPrice);
+    }
+  }, [baseTokenPrice, collateralAmount, collateralTokenPrice, selectedCollateralToken]);
+  const baseTokenAmountFormatted = useMemo(
+    () => (baseTokenAmount ? DecimalFormat.format(baseTokenAmount, { style: 'decimal', fractionDigits: 4 }) : 'N/A'),
+    [baseTokenAmount],
+  );
+
   const liquidationPrice = useMemo(() => {
-    if (!collateralAmount || !borrowAmount) {
+    if (!baseTokenAmount || !borrowAmount || baseTokenAmount.isZero()) {
       return null;
     }
 
@@ -69,8 +97,8 @@ const OpenPosition = () => {
       return null;
     }
 
-    return borrowAmountDecimal.mul(LIQUIDATION_UPPER_RATIO).div(collateralAmount);
-  }, [borrowAmount, collateralAmount]);
+    return borrowAmountDecimal.mul(LIQUIDATION_UPPER_RATIO).div(baseTokenAmount);
+  }, [baseTokenAmount, borrowAmount]);
   const liquidationPriceFormatted = useMemo(
     () =>
       liquidationPrice
@@ -206,7 +234,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Total collateral&nbsp;</Typography>
                 </>
               ),
-              value: `${collateralTokenAmountFormatted} ${selectedCollateralToken}`,
+              value: `${baseTokenAmountFormatted} ${DISPLAY_BASE_TOKEN}`,
             },
             {
               id: 'debt',
@@ -216,7 +244,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
                   <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
-                    R
+                    {RAFT_TOKEN}
                   </Typography>
                   <Typography variant="body-tertiary">{')'}</Typography>
                 </>
