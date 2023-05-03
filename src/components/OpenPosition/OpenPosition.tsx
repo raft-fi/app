@@ -62,7 +62,7 @@ const OpenPosition = () => {
       return null;
     }
 
-    const borrowAmountDecimal = new Decimal(borrowAmount);
+    const borrowAmountDecimal = new Decimal(borrowAmount || 0);
     if (borrowAmountDecimal.lt(MIN_BORROW_AMOUNT)) {
       return null;
     }
@@ -82,7 +82,7 @@ const OpenPosition = () => {
       return null;
     }
 
-    const borrowAmountDecimal = new Decimal(borrowAmount);
+    const borrowAmountDecimal = new Decimal(borrowAmount || 0);
     if (borrowAmountDecimal.lt(MIN_BORROW_AMOUNT)) {
       return null;
     }
