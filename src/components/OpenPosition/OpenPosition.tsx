@@ -7,6 +7,7 @@ import { CollateralToken, COLLATERAL_TOKENS, isCollateralToken, RAFT_TOKEN } fro
 import { Button, CurrencyInput, ValuesBox, Typography, Icon } from '../shared';
 
 import './OpenPosition.scss';
+import { LIQUIDATION_UPPER_RATIO, MIN_BORROW_AMOUNT } from '../../constants';
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -27,6 +28,10 @@ const OpenPosition = () => {
     () => (collateralTokenPrice ? new Decimal(collateralAmount || 0).mul(collateralTokenPrice) : null),
     [collateralAmount, collateralTokenPrice],
   );
+  const collateralTokenAmountFormatted = useMemo(
+    () => DecimalFormat.format(collateralAmount || 0, { style: 'decimal', fractionDigits: 2 }),
+    [collateralAmount],
+  );
   const collateralTokenValueFormatted = useMemo(
     () =>
       collateralTokenValue
@@ -40,6 +45,10 @@ const OpenPosition = () => {
     () => (borrowTokenPrice ? new Decimal(borrowAmount || 0).mul(borrowTokenPrice) : null),
     [borrowAmount, borrowTokenPrice],
   );
+  const borrowTokenAmountFormatted = useMemo(
+    () => DecimalFormat.format(borrowAmount || 0, { style: 'decimal', fractionDigits: 2 }),
+    [borrowAmount],
+  );
   const borrowTokenValueFormatted = useMemo(
     () =>
       borrowTokenValue
@@ -47,6 +56,52 @@ const OpenPosition = () => {
         : null,
     [borrowTokenValue],
   );
+
+  const liquidationPrice = useMemo(() => {
+    if (!collateralAmount || !borrowAmount) {
+      return null;
+    }
+
+    const borrowAmountDecimal = new Decimal(borrowAmount);
+    if (borrowAmountDecimal.lt(MIN_BORROW_AMOUNT)) {
+      return null;
+    }
+
+    return borrowAmountDecimal.mul(LIQUIDATION_UPPER_RATIO).div(collateralAmount);
+  }, [borrowAmount, collateralAmount]);
+  const liquidationPriceFormatted = useMemo(
+    () =>
+      liquidationPrice
+        ? `~${DecimalFormat.format(liquidationPrice, { style: 'currency', currency: '$', fractionDigits: 2 })}`
+        : 'N/A',
+    [liquidationPrice],
+  );
+
+  const collateralizationRatio = useMemo(() => {
+    if (collateralTokenValue === null || borrowTokenValue === null) {
+      return null;
+    }
+
+    const borrowAmountDecimal = new Decimal(borrowAmount);
+    if (borrowAmountDecimal.lt(MIN_BORROW_AMOUNT)) {
+      return null;
+    }
+
+    return collateralTokenValue.div(borrowTokenValue);
+  }, [borrowAmount, borrowTokenValue, collateralTokenValue]);
+  const collateralizationRatioFormatted = useMemo(
+    () =>
+      collateralizationRatio
+        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2 })
+        : 'N/A',
+    [collateralizationRatio],
+  );
+
+  const minBorrowFormatted = useMemo(
+    () => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'currency', currency: '$' }),
+    [],
+  );
+  const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
@@ -115,7 +170,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Total collateral&nbsp;</Typography>
                 </>
               ),
-              value: '0.00 stETH',
+              value: `${collateralTokenAmountFormatted} ${selectedCollateralToken}`,
             },
             {
               id: 'debt',
@@ -123,14 +178,14 @@ const OpenPosition = () => {
                 <>
                   <Icon variant="info" size="small" />
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{'(Min. 3,000'}&nbsp;</Typography>
+                  <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
                     R
                   </Typography>
                   <Typography variant="body-tertiary">{')'}</Typography>
                 </>
               ),
-              value: '0.00 R',
+              value: `${borrowTokenAmountFormatted} ${RAFT_TOKEN}`,
             },
             {
               id: 'liquidationPrice',
@@ -140,7 +195,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
-              value: '$0.00',
+              value: liquidationPriceFormatted,
             },
             {
               id: 'collateralizationRatio',
@@ -148,10 +203,10 @@ const OpenPosition = () => {
                 <>
                   <Icon variant="info" size="small" />
                   <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{'(Min. 110%)'}</Typography>
+                  <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
-              value: 'N/A',
+              value: collateralizationRatioFormatted,
             },
           ]}
         />
