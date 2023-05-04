@@ -8,3 +8,4 @@ export * from './useProvider';
 export * from './usePriceFeed';
 export * from './useTokenPrices';
 export * from './useTokenBalances';
+export * from './useProtocolStats';

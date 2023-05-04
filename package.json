@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --host --force",
     "start": "vite --host",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -14,7 +14,7 @@
     "pseudo-translation": "./scripts/pseudo-translation.sh"
   },
   "dependencies": {
-    "@raft-fi/sdk": "^0.0.3",
+    "@raft-fi/sdk": "^0.0.4",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
     "@web3-onboard/injected-wallets": "^2.8.5",
