@@ -9,3 +9,4 @@ export const LIQUIDATION_UPPER_RATIO = 1.1;
 export const LIQUIDATION_LOWER_RATIO = 1;
 export const COLLATERAL_TOKEN_UI_PRECISION = 4;
 export const R_TOKEN_UI_PRECISION = 2;
+export const USD_PRECISION = 2;
