@@ -1,3 +1,4 @@
 import { shortenAddress } from './shortenAddress';
+import { getTokenValues } from './tokenValues';
 
-export { shortenAddress };
+export { shortenAddress, getTokenValues };
