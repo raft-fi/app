@@ -16,7 +16,7 @@ import {
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
-  USD_PRECISION,
+  USD_UI_PRECISION,
 } from '../../constants';
 import { getTokenValues } from '../../utils';
 import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading } from '../shared';
@@ -99,7 +99,7 @@ const OpenPosition = () => {
         ? `~${DecimalFormat.format(liquidationPrice, {
             style: 'currency',
             currency: '$',
-            fractionDigits: USD_PRECISION,
+            fractionDigits: USD_UI_PRECISION,
           })}`
         : 'N/A',
     [liquidationPrice],

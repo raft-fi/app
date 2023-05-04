@@ -1,5 +1,10 @@
 import { Numberish, Decimal, DecimalFormat } from 'tempus-decimal';
-import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION, USD_PRECISION } from '../constants';
+import {
+  COLLATERAL_TOKEN_UI_PRECISION,
+  MULTIPLIER_UI_PRECISION,
+  R_TOKEN_UI_PRECISION,
+  USD_UI_PRECISION,
+} from '../constants';
 import { Nullable, Token } from '../interfaces';
 
 type TokenValues = {
@@ -7,9 +12,17 @@ type TokenValues = {
   price: Nullable<Decimal>;
   value: Nullable<Decimal>;
   amountFormatted: Nullable<string>;
+  amountFormattedMultiplier: Nullable<string>;
   priceFormatted: Nullable<string>;
   valueFormatted: Nullable<string>;
 };
+
+const formatCurrency = (value: Decimal) =>
+  DecimalFormat.format(value, {
+    style: 'currency',
+    currency: '$',
+    fractionDigits: USD_UI_PRECISION,
+  });
 
 export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, token: Token): TokenValues => {
   if (!amount && amount !== 0) {
@@ -18,6 +31,7 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
       price: null,
       value: null,
       amountFormatted: null,
+      amountFormattedMultiplier: null,
       priceFormatted: null,
       valueFormatted: null,
     };
@@ -33,20 +47,13 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
         price,
         value: tokenValue,
         amountFormatted: DecimalFormat.format(tokenAmount, { style: 'decimal', fractionDigits: R_TOKEN_UI_PRECISION }),
-        priceFormatted: price
-          ? `~${DecimalFormat.format(price, {
-              style: 'currency',
-              currency: '$',
-              fractionDigits: USD_PRECISION,
-            })}`
-          : null,
-        valueFormatted: tokenValue
-          ? `~${DecimalFormat.format(tokenValue, {
-              style: 'currency',
-              currency: '$',
-              fractionDigits: USD_PRECISION,
-            })}`
-          : null,
+        amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
+          style: 'multiplier',
+          fractionDigits: R_TOKEN_UI_PRECISION,
+          noMultiplierFractionDigits: MULTIPLIER_UI_PRECISION,
+        }),
+        priceFormatted: price ? `~${formatCurrency(price)}` : null,
+        valueFormatted: tokenValue ? `~${formatCurrency(tokenValue)}` : null,
       };
     case 'ETH':
     case 'stETH':
@@ -59,20 +66,13 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
           style: 'decimal',
           fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         }),
-        priceFormatted: price
-          ? `~${DecimalFormat.format(price, {
-              style: 'currency',
-              currency: '$',
-              fractionDigits: USD_PRECISION,
-            })}`
-          : null,
-        valueFormatted: tokenValue
-          ? `~${DecimalFormat.format(tokenValue, {
-              style: 'currency',
-              currency: '$',
-              fractionDigits: USD_PRECISION,
-            })}`
-          : null,
+        amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
+          style: 'multiplier',
+          fractionDigits: R_TOKEN_UI_PRECISION,
+          noMultiplierFractionDigits: MULTIPLIER_UI_PRECISION,
+        }),
+        priceFormatted: price ? `~${formatCurrency(price)}` : null,
+        valueFormatted: tokenValue ? `~${formatCurrency(tokenValue)}` : null,
       };
   }
 };
