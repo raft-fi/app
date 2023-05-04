@@ -17,6 +17,10 @@
       &:not(:first-child) {
         margin-left: 16px;
       }
+
+      .raft__currencyInput__fieldContainer {
+        border-radius: 8px 8px 0px 0px;
+      }
     }
   }
 
@@ -36,6 +40,17 @@
     }
 
     .raft__loading__container {
+      margin-right: 8px;
+    }
+  }
+
+  .raft__openPosition__error {
+    --textPrimary: var(--colorError);
+
+    display: flex;
+    align-items: center;
+
+    .raft__valueLabel {
       margin-right: 8px;
     }
   }
