@@ -1,137 +1,53 @@
-import { DecimalFormat } from 'tempus-decimal';
+import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
 import { DISPLAY_BASE_TOKEN, RAFT_TOKEN, COLLATERAL_BASE_TOKEN } from '../../interfaces';
+import { getTokenValues } from '../../utils';
 import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
-import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../constants';
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const [expanded, setExpanded] = useState<boolean>(true);
 
-  const displayBaseTokenPrice = useMemo(() => tokenPriceMap[DISPLAY_BASE_TOKEN], [tokenPriceMap]);
+  const displayBaseTokenValues = useMemo(() => {
+    return getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+  }, [tokenPriceMap]);
 
-  const displayBaseTokenPriceFormatted = useMemo(
-    () =>
-      displayBaseTokenPrice
-        ? DecimalFormat.format(displayBaseTokenPrice, {
-            style: 'currency',
-            currency: '$',
-            fractionDigits: 2,
-          })
-        : '---',
-    [displayBaseTokenPrice],
-  );
+  const raftTokenValues = useMemo(() => {
+    return getTokenValues(Decimal.ONE, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN);
+  }, [tokenPriceMap]);
 
-  const raftTokenPrice = useMemo(() => tokenPriceMap[RAFT_TOKEN], [tokenPriceMap]);
-
-  const raftTokenPriceFormatted = useMemo(
-    () =>
-      raftTokenPrice
-        ? DecimalFormat.format(raftTokenPrice, {
-            style: 'currency',
-            currency: '$',
-            fractionDigits: R_TOKEN_UI_PRECISION,
-          })
-        : '---',
-    [raftTokenPrice],
-  );
-
-  const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
-
-  const baseCollateralTokenPrice = useMemo(() => tokenPriceMap[COLLATERAL_BASE_TOKEN], [tokenPriceMap]);
-
-  const totalSupply = useMemo(() => {
-    if (!baseCollateralTokenPrice || !protocolStats || !displayBaseTokenPrice) {
+  const collateralTotalSupplyValues = useMemo(() => {
+    if (!protocolStats || !displayBaseTokenValues.price || !tokenPriceMap[COLLATERAL_BASE_TOKEN]) {
       return null;
     }
 
-    return baseCollateralTokenPrice.mul(protocolStats.collateralSupply).div(displayBaseTokenPrice);
-  }, [baseCollateralTokenPrice, displayBaseTokenPrice, protocolStats]);
+    const amount = tokenPriceMap[COLLATERAL_BASE_TOKEN].mul(protocolStats.collateralSupply).div(
+      displayBaseTokenValues.price,
+    );
 
-  const totalSupplyFormatted = useMemo(() => {
-    if (!totalSupply) {
-      return null;
-    }
+    return getTokenValues(amount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+  }, [displayBaseTokenValues?.price, protocolStats, tokenPriceMap]);
 
-    return DecimalFormat.format(totalSupply, {
-      style: 'multiplier',
-      currency: DISPLAY_BASE_TOKEN,
-      fractionDigits: 2,
-      noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [totalSupply]);
-
-  const totalCollateralValue = useMemo(() => {
-    if (!baseCollateralTokenPrice || !protocolStats) {
-      return null;
-    }
-
-    return baseCollateralTokenPrice.mul(protocolStats.collateralSupply);
-  }, [baseCollateralTokenPrice, protocolStats]);
-
-  const totalCollateralValueFormatted = useMemo(() => {
-    if (!totalCollateralValue) {
-      return null;
-    }
-
-    return DecimalFormat.format(totalCollateralValue, {
-      style: 'multiplier',
-      currency: '$',
-      fractionDigits: 2,
-      noMultiplierFractionDigits: 2,
-      lessThanFormat: true,
-    });
-  }, [totalCollateralValue]);
-
-  const totalDebtFormatted = useMemo(() => {
+  const debtTotalSupplyValues = useMemo(() => {
     if (!protocolStats) {
       return null;
     }
 
-    return DecimalFormat.format(protocolStats.debtSupply, {
-      style: 'multiplier',
-      currency: RAFT_TOKEN,
-      fractionDigits: 2,
-      noMultiplierFractionDigits: 2,
-      lessThanFormat: true,
-    });
-  }, [protocolStats]);
-
-  const totalDebtValue = useMemo(() => {
-    if (!raftTokenPrice || !protocolStats) {
-      return null;
-    }
-
-    return raftTokenPrice.mul(protocolStats.debtSupply);
-  }, [protocolStats, raftTokenPrice]);
-
-  const totalDebtValueFormatted = useMemo(() => {
-    if (!totalDebtValue) {
-      return null;
-    }
-
-    return DecimalFormat.format(totalDebtValue, {
-      style: 'multiplier',
-      currency: '$',
-      fractionDigits: 2,
-      noMultiplierFractionDigits: 2,
-      lessThanFormat: true,
-    });
-  }, [totalDebtValue]);
+    return getTokenValues(protocolStats.debtSupply, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN);
+  }, [protocolStats, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
-    if (!totalCollateralValue || !totalDebtValue) {
+    if (!collateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
       return null;
     }
 
-    return totalCollateralValue.div(totalDebtValue);
-  }, [totalCollateralValue, totalDebtValue]);
+    return collateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
+  }, [collateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
 
   const collateralizationRatioFormatted = useMemo(() => {
     if (!collateralizationRatio) {
@@ -157,6 +73,8 @@ const ProtocolStats = () => {
     });
   }, [protocolStats]);
 
+  const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
+
   return (
     <div className="raft__protocol-stats">
       <div className="raft__protocol-stats__header">
@@ -179,7 +97,7 @@ const ProtocolStats = () => {
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={totalSupplyFormatted || '---'} />
+                <ValueLabel value={collateralTotalSupplyValues?.amountFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -192,7 +110,7 @@ const ProtocolStats = () => {
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={totalCollateralValueFormatted || '---'} />
+                <ValueLabel value={collateralTotalSupplyValues?.valueFormatted || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -205,7 +123,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={displayBaseTokenPriceFormatted} />
+                <ValueLabel value={displayBaseTokenValues.priceFormatted || '---'} />
               </div>
             </div>
           </div>
@@ -221,7 +139,7 @@ const ProtocolStats = () => {
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={totalDebtFormatted || '---'} />
+                <ValueLabel value={debtTotalSupplyValues?.amountFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -234,7 +152,7 @@ const ProtocolStats = () => {
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={totalDebtValueFormatted || '---'} />
+                <ValueLabel value={debtTotalSupplyValues?.valueFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -247,7 +165,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={raftTokenPriceFormatted} />
+                <ValueLabel value={raftTokenValues.priceFormatted || '---'} />
               </div>
             </div>
           </div>
