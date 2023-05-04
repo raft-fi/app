@@ -7,3 +7,5 @@ export const POLLING_INTERVAL_IN_MS = 2 * 60 * 1000;
 export const MIN_BORROW_AMOUNT = 3000;
 export const LIQUIDATION_UPPER_RATIO = 1.1;
 export const LIQUIDATION_LOWER_RATIO = 1;
+export const COLLATERAL_TOKEN_UI_PRECISION = 4;
+export const R_TOKEN_UI_PRECISION = 2;

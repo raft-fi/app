@@ -2,7 +2,7 @@ import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
 import { Decimal } from 'tempus-decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
-import { CollateralTokenType, UserPosition } from 'raft-sdk';
+import { CollateralTokenType, UserPosition } from '@raft-fi/sdk';
 import {
   concatMap,
   map,
