@@ -1,34 +1,77 @@
-import { DecimalFormat } from 'tempus-decimal';
+import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { useTokenPrices } from '../../hooks';
-import { DISPLAY_BASE_TOKEN, RAFT_TOKEN } from '../../interfaces';
+import { useProtocolStats, useTokenPrices } from '../../hooks';
+import { DISPLAY_BASE_TOKEN, RAFT_TOKEN, COLLATERAL_BASE_TOKEN } from '../../interfaces';
+import { getTokenValues } from '../../utils';
 import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
 
 const ProtocolStats = () => {
+  const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const [expanded, setExpanded] = useState<boolean>(true);
 
-  const displayBaseTokenPriceFormatted = useMemo(
-    () =>
-      tokenPriceMap[DISPLAY_BASE_TOKEN]
-        ? DecimalFormat.format(tokenPriceMap[DISPLAY_BASE_TOKEN], {
-            style: 'currency',
-            currency: '$',
-            fractionDigits: 2,
-          })
-        : '---',
-    [tokenPriceMap],
-  );
-  const raftTokenPriceFormatted = useMemo(
-    () =>
-      tokenPriceMap[RAFT_TOKEN]
-        ? DecimalFormat.format(tokenPriceMap[RAFT_TOKEN], { style: 'currency', currency: '$', fractionDigits: 2 })
-        : '---',
-    [tokenPriceMap],
-  );
+  const displayBaseTokenValues = useMemo(() => {
+    return getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+  }, [tokenPriceMap]);
+
+  const raftTokenValues = useMemo(() => {
+    return getTokenValues(Decimal.ONE, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN);
+  }, [tokenPriceMap]);
+
+  const collateralTotalSupplyValues = useMemo(() => {
+    if (!protocolStats || !displayBaseTokenValues.price || !tokenPriceMap[COLLATERAL_BASE_TOKEN]) {
+      return null;
+    }
+
+    const amount = tokenPriceMap[COLLATERAL_BASE_TOKEN].mul(protocolStats.collateralSupply).div(
+      displayBaseTokenValues.price,
+    );
+
+    return getTokenValues(amount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+  }, [displayBaseTokenValues?.price, protocolStats, tokenPriceMap]);
+
+  const debtTotalSupplyValues = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return getTokenValues(protocolStats.debtSupply, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN);
+  }, [protocolStats, tokenPriceMap]);
+
+  const collateralizationRatio = useMemo(() => {
+    if (!collateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
+      return null;
+    }
+
+    return collateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
+  }, [collateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
+
+  const collateralizationRatioFormatted = useMemo(() => {
+    if (!collateralizationRatio) {
+      return null;
+    }
+
+    return DecimalFormat.format(collateralizationRatio, {
+      style: 'percentage',
+      fractionDigits: 2,
+      pad: true,
+    });
+  }, [collateralizationRatio]);
+
+  const borrowingFeeFormatted = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return DecimalFormat.format(protocolStats.borrowingRate, {
+      style: 'percentage',
+      fractionDigits: 2,
+      pad: true,
+    });
+  }, [protocolStats]);
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
 
@@ -54,7 +97,7 @@ const ProtocolStats = () => {
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={`1.62M ${DISPLAY_BASE_TOKEN}`} />
+                <ValueLabel value={collateralTotalSupplyValues?.amountFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -67,7 +110,7 @@ const ProtocolStats = () => {
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value="$300.2M" />
+                <ValueLabel value={collateralTotalSupplyValues?.valueFormatted || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -80,7 +123,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={displayBaseTokenPriceFormatted} />
+                <ValueLabel value={displayBaseTokenValues.priceFormatted || '---'} />
               </div>
             </div>
           </div>
@@ -96,7 +139,7 @@ const ProtocolStats = () => {
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={`215.2M ${RAFT_TOKEN}`} />
+                <ValueLabel value={debtTotalSupplyValues?.amountFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -109,7 +152,7 @@ const ProtocolStats = () => {
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value="$215.2M" />
+                <ValueLabel value={debtTotalSupplyValues?.valueFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -122,7 +165,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={raftTokenPriceFormatted} />
+                <ValueLabel value={raftTokenValues.priceFormatted || '---'} />
               </div>
             </div>
           </div>
@@ -132,7 +175,7 @@ const ProtocolStats = () => {
             {
               id: 'collateralizationRatio',
               label: 'Protocol collateralization ratio',
-              value: '262%',
+              value: collateralizationRatioFormatted || '---',
             },
             {
               id: 'openPositions',
@@ -140,9 +183,9 @@ const ProtocolStats = () => {
               value: '50,000',
             },
             {
-              id: 'borrowingFee',
-              label: 'Borrowing fee',
-              value: '0.00%',
+              id: 'borrowingRate',
+              label: 'Borrowing rate',
+              value: borrowingFeeFormatted || '---',
             },
           ]}
         />
