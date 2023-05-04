@@ -6,6 +6,7 @@ import { DISPLAY_BASE_TOKEN, RAFT_TOKEN, COLLATERAL_BASE_TOKEN } from '../../int
 import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
+import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../constants';
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
@@ -31,7 +32,11 @@ const ProtocolStats = () => {
   const raftTokenPriceFormatted = useMemo(
     () =>
       raftTokenPrice
-        ? DecimalFormat.format(raftTokenPrice, { style: 'currency', currency: '$', fractionDigits: 4 })
+        ? DecimalFormat.format(raftTokenPrice, {
+            style: 'currency',
+            currency: '$',
+            fractionDigits: R_TOKEN_UI_PRECISION,
+          })
         : '---',
     [raftTokenPrice],
   );
@@ -57,7 +62,7 @@ const ProtocolStats = () => {
       style: 'multiplier',
       currency: DISPLAY_BASE_TOKEN,
       fractionDigits: 2,
-      noMultiplierFractionDigits: 4,
+      noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
   }, [totalSupply]);
