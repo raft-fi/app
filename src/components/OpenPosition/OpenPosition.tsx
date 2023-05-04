@@ -198,9 +198,10 @@ const OpenPosition = () => {
     }
   }, [borrowStatus]);
 
-  const selectedCollateralTokenBalance = useMemo(() => {
-    return tokenBalanceMap[selectedCollateralToken];
-  }, [selectedCollateralToken, tokenBalanceMap]);
+  const selectedCollateralTokenBalance = useMemo(
+    () => tokenBalanceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenBalanceMap],
+  );
 
   const selectedCollateralTokenBalanceFormatted = useMemo(() => {
     if (!selectedCollateralTokenBalance) {
@@ -215,9 +216,7 @@ const OpenPosition = () => {
     });
   }, [selectedCollateralToken, selectedCollateralTokenBalance]);
 
-  const rTokenBalance = useMemo(() => {
-    return tokenBalanceMap[RAFT_TOKEN];
-  }, [tokenBalanceMap]);
+  const rTokenBalance = useMemo(() => tokenBalanceMap[RAFT_TOKEN], [tokenBalanceMap]);
 
   const rTokenBalanceFormatted = useMemo(() => {
     if (!rTokenBalance) {
