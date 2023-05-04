@@ -14,6 +14,7 @@
     "pseudo-translation": "./scripts/pseudo-translation.sh"
   },
   "dependencies": {
+    "@raft-fi/sdk": "^0.0.3",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
     "@web3-onboard/injected-wallets": "^2.8.5",
@@ -24,7 +25,6 @@
     "ethers": "^6.3.0",
     "i18next": "^22.4.15",
     "i18next-browser-languagedetector": "^7.0.1",
-    "raft-sdk": "^0.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^12.2.2",

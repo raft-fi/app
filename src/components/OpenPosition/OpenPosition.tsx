@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { v4 as uuid } from 'uuid';
-import { CollateralTokenType } from 'raft-sdk';
+import { CollateralTokenType } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
-import { useWallet, useBorrow, useTokenPrices } from '../../hooks';
+import { useWallet, useBorrow, useTokenPrices, useTokenBalances } from '../../hooks';
 import {
   CollateralToken,
   COLLATERAL_TOKENS,
@@ -11,7 +11,12 @@ import {
   isCollateralToken,
   RAFT_TOKEN,
 } from '../../interfaces';
-import { LIQUIDATION_UPPER_RATIO, MIN_BORROW_AMOUNT } from '../../constants';
+import {
+  COLLATERAL_TOKEN_UI_PRECISION,
+  LIQUIDATION_UPPER_RATIO,
+  MIN_BORROW_AMOUNT,
+  R_TOKEN_UI_PRECISION,
+} from '../../constants';
 import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading } from '../shared';
 
 import './OpenPosition.scss';
@@ -20,6 +25,7 @@ const OpenPosition = () => {
   const [, connect] = useConnectWallet();
 
   const tokenPriceMap = useTokenPrices();
+  const tokenBalanceMap = useTokenBalances();
   const wallet = useWallet();
   const { borrow, borrowStatus } = useBorrow();
 
@@ -192,6 +198,40 @@ const OpenPosition = () => {
     }
   }, [borrowStatus]);
 
+  const selectedCollateralTokenBalance = useMemo(() => {
+    return tokenBalanceMap[selectedCollateralToken];
+  }, [selectedCollateralToken, tokenBalanceMap]);
+
+  const selectedCollateralTokenBalanceFormatted = useMemo(() => {
+    if (!selectedCollateralTokenBalance) {
+      return '';
+    }
+
+    return DecimalFormat.format(selectedCollateralTokenBalance, {
+      style: 'currency',
+      currency: selectedCollateralToken,
+      fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+    });
+  }, [selectedCollateralToken, selectedCollateralTokenBalance]);
+
+  const rTokenBalance = useMemo(() => {
+    return tokenBalanceMap[RAFT_TOKEN];
+  }, [tokenBalanceMap]);
+
+  const rTokenBalanceFormatted = useMemo(() => {
+    if (!rTokenBalance) {
+      return '';
+    }
+
+    return DecimalFormat.format(rTokenBalance, {
+      style: 'currency',
+      currency: RAFT_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+    });
+  }, [rTokenBalance]);
+
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
@@ -208,6 +248,7 @@ const OpenPosition = () => {
           selectedToken={selectedCollateralToken}
           tokens={[...COLLATERAL_TOKENS]}
           value={collateralAmount}
+          maxAmount={selectedCollateralTokenBalanceFormatted}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
         />
@@ -219,6 +260,7 @@ const OpenPosition = () => {
           selectedToken={RAFT_TOKEN}
           tokens={[RAFT_TOKEN]}
           value={borrowAmount}
+          maxAmount={rTokenBalanceFormatted}
           onValueUpdate={setBorrowAmount}
         />
       </div>
