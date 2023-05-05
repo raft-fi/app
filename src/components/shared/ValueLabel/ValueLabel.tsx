@@ -1,6 +1,5 @@
 import { FC, useMemo } from 'react';
 import Typography from '../Typography';
-import Icon from '../Icon';
 
 import './ValueLabel.scss';
 

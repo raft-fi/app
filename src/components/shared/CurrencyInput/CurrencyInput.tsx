@@ -11,6 +11,7 @@ import './CurrencyInput.scss';
 export interface CurrencyInputProps extends BaseInputProps {
   label: string;
   value: string;
+  placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
   maxAmount?: string;
@@ -27,12 +28,15 @@ export interface CurrencyInputProps extends BaseInputProps {
   onTokenUpdate?: (token: string) => void;
   onIncrementAmount?: (amount: number) => void;
   onDecrementAmount?: (amount: number) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
   const {
     label,
     value,
+    placeholder = '0',
     precision,
     maxAmount = '',
     maxAmountLabel = '',
@@ -49,10 +53,12 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onTokenUpdate,
     onDecrementAmount,
     onIncrementAmount,
+    onFocus,
+    onBlur,
   } = props;
   const inputRef = createRef<HTMLInputElement>();
 
-  const [focused, setFocused] = useState<boolean>(false);
+  const [, setFocused] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const handleValueChange = useCallback(
@@ -79,9 +85,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     if (!disabled) {
       setFocused(true);
     }
-  }, [disabled]);
+    onFocus?.();
+  }, [disabled, onFocus]);
 
-  const handleInputBlur = useCallback(() => setFocused(false), []);
+  const handleInputBlur = useCallback(() => {
+    setFocused(false);
+    onBlur?.();
+  }, [onBlur]);
 
   const onOpenDropdown = useCallback(() => {
     setDropdownOpen(true);
@@ -159,7 +169,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
               <BaseInput
                 ref={inputRef}
                 value={value}
-                placeholder="0"
+                placeholder={placeholder}
                 pattern={`[0-9]*[.]?[0-9]{0,${precision}}`}
                 disabled={disabled}
                 debounce
