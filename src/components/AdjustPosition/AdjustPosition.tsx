@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from 'tempus-decimal';
 import { CollateralTokenType } from '@raft-fi/sdk';
 import { v4 as uuid } from 'uuid';
@@ -134,6 +134,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
   }, [borrowStatus]);
 
+  const actionDisabled = useMemo(() => {
+    const transactionInProgress = transactionState === 'loading';
+    const unchangedPositionAmounts =
+      collateralAmount === collateralBalance.toString() && borrowAmount === debtBalance.toString();
+
+    return transactionInProgress || unchangedPositionAmounts;
+  }, [borrowAmount, collateralAmount, collateralBalance, debtBalance, transactionState]);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
@@ -238,7 +246,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <div className="raft__adjustPosition__action">
-        <Button variant="primary" onClick={onAdjust} disabled={transactionState === 'loading'}>
+        <Button variant="primary" onClick={onAdjust} disabled={actionDisabled}>
           {transactionState === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             Execute
