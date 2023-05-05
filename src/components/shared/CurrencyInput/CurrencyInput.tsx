@@ -14,7 +14,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
-  maxAmount?: string;
+  maxAmount?: Nullable<string>;
   maxAmountLabel?: string;
   disabled?: boolean;
   error?: boolean;
