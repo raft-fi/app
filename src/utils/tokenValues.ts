@@ -51,6 +51,7 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
         amountFormatted: DecimalFormat.format(tokenAmount, { style: 'decimal', fractionDigits: R_TOKEN_UI_PRECISION }),
         amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
           style: 'multiplier',
+          currency: token,
           fractionDigits: MULTIPLIER_UI_PRECISION,
           noMultiplierFractionDigits: R_TOKEN_UI_PRECISION,
         }),

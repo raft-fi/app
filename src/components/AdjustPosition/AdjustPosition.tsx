@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { Decimal } from 'tempus-decimal';
 import { CollateralTokenType } from '@raft-fi/sdk';
 import { v4 as uuid } from 'uuid';
