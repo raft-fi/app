@@ -19,9 +19,10 @@ import {
   USD_UI_PRECISION,
 } from '../../constants';
 import { getTokenValues } from '../../utils';
-import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading } from '../shared';
+import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading, ValueLabel } from '../shared';
 
 import './OpenPosition.scss';
+import { ButtonWrapper } from 'tempus-ui';
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -125,18 +126,97 @@ const OpenPosition = () => {
     [collateralizationRatio],
   );
 
+  const selectedCollateralTokenBalance = useMemo(
+    () => tokenBalanceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenBalanceMap],
+  );
+  const selectedCollateralTokenBalanceFormatted = useMemo(() => {
+    if (!selectedCollateralTokenBalance) {
+      return '';
+    }
+
+    return DecimalFormat.format(selectedCollateralTokenBalance, {
+      style: 'currency',
+      currency: selectedCollateralToken,
+      fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+    });
+  }, [selectedCollateralToken, selectedCollateralTokenBalance]);
+
+  const rTokenBalance = useMemo(() => tokenBalanceMap[RAFT_TOKEN], [tokenBalanceMap]);
+  const rTokenBalanceFormatted = useMemo(() => {
+    if (!rTokenBalance) {
+      return '';
+    }
+
+    return DecimalFormat.format(rTokenBalance, {
+      style: 'currency',
+      currency: RAFT_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+    });
+  }, [rTokenBalance]);
+
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
   const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
+
+  const hasInputFilled = useMemo(
+    () => collateralTokenValues.amount && borrowTokenValues.amount,
+    [borrowTokenValues.amount, collateralTokenValues.amount],
+  );
+  const hasEnoughCollateralTokenBalance = useMemo(
+    () =>
+      !collateralTokenValues.amount ||
+      Boolean(selectedCollateralTokenBalance && collateralTokenValues.amount.lte(selectedCollateralTokenBalance)),
+    [collateralTokenValues.amount, selectedCollateralTokenBalance],
+  );
+  const hasMinBorrow = useMemo(
+    () => !borrowTokenValues.amount || Boolean(borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT)),
+    [borrowTokenValues.amount],
+  );
+  const hasMinRatio = useMemo(
+    () => !collateralizationRatio || Boolean(collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO)),
+    [collateralizationRatio],
+  );
+  const canBorrow = useMemo(
+    () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
+    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio],
+  );
+  console.log('hasMinRatio', hasMinRatio);
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
   }, [wallet]);
+
+  const buttonLabel = useMemo(() => {
+    if (!walletConnected) {
+      return 'Connect wallet';
+    }
+
+    if (!hasEnoughCollateralTokenBalance) {
+      return 'Insufficient wallet balance';
+    }
+
+    if (!hasMinBorrow) {
+      return 'Total debt below minimum';
+    }
+
+    if (!hasMinRatio) {
+      return 'Collateralization ratio too low';
+    }
+
+    return 'Borrow';
+  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio, walletConnected]);
 
   const onConnectWallet = useCallback(() => {
     connect();
   }, [connect]);
 
   const onBorrow = useCallback(() => {
+    if (!canBorrow) {
+      return;
+    }
+
     let collateralTokenType: CollateralTokenType;
     switch (selectedCollateralToken) {
       // TODO - Once support for ETH and stETH collateral is added, uncomment the following lines
@@ -161,7 +241,7 @@ const OpenPosition = () => {
       currentUserDebt: new Decimal(0), // Always zero when user is 'Opening' a position
       txnId: uuid(),
     });
-  }, [borrow, borrowAmount, collateralAmount, selectedCollateralToken]);
+  }, [borrow, borrowAmount, canBorrow, collateralAmount, selectedCollateralToken]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -187,39 +267,6 @@ const OpenPosition = () => {
     }
   }, [borrowStatus]);
 
-  const selectedCollateralTokenBalance = useMemo(
-    () => tokenBalanceMap[selectedCollateralToken],
-    [selectedCollateralToken, tokenBalanceMap],
-  );
-
-  const selectedCollateralTokenBalanceFormatted = useMemo(() => {
-    if (!selectedCollateralTokenBalance) {
-      return '';
-    }
-
-    return DecimalFormat.format(selectedCollateralTokenBalance, {
-      style: 'currency',
-      currency: selectedCollateralToken,
-      fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [selectedCollateralToken, selectedCollateralTokenBalance]);
-
-  const rTokenBalance = useMemo(() => tokenBalanceMap[RAFT_TOKEN], [tokenBalanceMap]);
-
-  const rTokenBalanceFormatted = useMemo(() => {
-    if (!rTokenBalance) {
-      return '';
-    }
-
-    return DecimalFormat.format(rTokenBalance, {
-      style: 'currency',
-      currency: RAFT_TOKEN,
-      fractionDigits: R_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [rTokenBalance]);
-
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
@@ -228,7 +275,6 @@ const OpenPosition = () => {
         </Typography>
       </div>
       <div className="raft__openPosition__input">
-        {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
           label="Collateral"
           precision={18}
@@ -239,8 +285,8 @@ const OpenPosition = () => {
           maxAmount={selectedCollateralTokenBalanceFormatted}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
+          error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
         />
-        {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
           label="Borrow"
           precision={18}
@@ -250,10 +296,10 @@ const OpenPosition = () => {
           value={borrowAmount}
           maxAmount={rTokenBalanceFormatted}
           onValueUpdate={setBorrowAmount}
+          error={!hasMinBorrow || !hasMinRatio}
         />
       </div>
       <div className="raft__openPosition__data">
-        {/* TODO - Replace hardcoded values with values from contracts */}
         <ValuesBox
           values={[
             {
@@ -279,7 +325,14 @@ const OpenPosition = () => {
                   <Typography variant="body-tertiary">{')'}</Typography>
                 </>
               ),
-              value: `${borrowTokenValues.amountFormatted ?? 0} ${RAFT_TOKEN}`,
+              value: hasMinBorrow ? (
+                `${borrowTokenValues.amountFormatted ?? 0} ${RAFT_TOKEN}`
+              ) : (
+                <ButtonWrapper className="raft__openPosition__error">
+                  <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0} ${RAFT_TOKEN}`} />
+                  <Icon variant="error" size="small" />
+                </ButtonWrapper>
+              ),
             },
             {
               id: 'liquidationPrice',
@@ -300,16 +353,28 @@ const OpenPosition = () => {
                   <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
-              value: collateralizationRatioFormatted,
+              value:
+                hasMinRatio || collateralizationRatioFormatted === 'N/A' ? (
+                  collateralizationRatioFormatted
+                ) : (
+                  <ButtonWrapper className="raft__openPosition__error">
+                    <ValueLabel value={collateralizationRatioFormatted} />
+                    <Icon variant="error" size="small" />
+                  </ButtonWrapper>
+                ),
             },
           ]}
         />
       </div>
       <div className="raft__openPosition__action">
-        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={state === 'loading'}>
+        <Button
+          variant="primary"
+          onClick={walletConnected ? onBorrow : onConnectWallet}
+          disabled={state === 'loading' || !canBorrow}
+        >
           {state === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            {walletConnected ? 'Borrow' : 'Connect wallet'}
+            {buttonLabel}
           </Typography>
         </Button>
       </div>

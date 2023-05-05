@@ -39,9 +39,11 @@
     align-items: center;
     height: 48px;
     box-sizing: border-box;
+    border-radius: 8px 8px 0px 0px;
+    padding: 0px 8px;
+    border-bottom: 1px solid #bfc0c0;
 
     .raft__currencyInput__inputContainer {
-      border-bottom: 1px solid #bfc0c0;
       height: 48px;
       width: 100%;
       display: flex;
@@ -169,6 +171,7 @@
 
   .raft__currencyInput__fieldContainerError {
     border-color: #c81e1e;
+    background: #fde8e8;
   }
 
   .raft__currencyInput__fiatAmount {

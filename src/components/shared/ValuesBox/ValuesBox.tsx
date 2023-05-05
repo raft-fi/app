@@ -8,7 +8,7 @@ interface ValuesBoxProps {
   values: {
     id: string;
     label: string | ReactNode;
-    value: string;
+    value: string | ReactNode;
   }[];
 }
 
@@ -23,7 +23,7 @@ const ValuesBox: FC<ValuesBoxProps> = ({ values }) => {
             ) : (
               <div className="raft__valuesBox__itemValueNode">{label}</div>
             )}
-            <ValueLabel value={value} />
+            {typeof value === 'string' ? <ValueLabel value={value} /> : value}
           </div>
         );
       })}
