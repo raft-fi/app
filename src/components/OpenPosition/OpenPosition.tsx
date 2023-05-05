@@ -161,9 +161,7 @@ const OpenPosition = () => {
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
   const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
-  const walletConnected = useMemo(() => {
-    return Boolean(wallet);
-  }, [wallet]);
+  const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
   const hasInputFilled = useMemo(
     () => collateralTokenValues.amount && borrowTokenValues.amount,
@@ -208,6 +206,11 @@ const OpenPosition = () => {
 
     return 'Borrow';
   }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio, walletConnected]);
+
+  const buttonDisabled = useMemo(
+    () => state === 'loading' || (walletConnected && !canBorrow),
+    [canBorrow, state, walletConnected],
+  );
 
   const onConnectWallet = useCallback(() => {
     connect();
@@ -406,11 +409,7 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__action">
-        <Button
-          variant="primary"
-          onClick={walletConnected ? onBorrow : onConnectWallet}
-          disabled={state === 'loading' || (walletConnected && !canBorrow)}
-        >
+        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={buttonDisabled}>
           {state === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {buttonLabel}

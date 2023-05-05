@@ -1,4 +1,4 @@
-import { createRef, FC, memo, useCallback, useState } from 'react';
+import { createRef, FC, memo, useCallback, useState, FocusEvent } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
@@ -28,8 +28,6 @@ export interface CurrencyInputProps extends BaseInputProps {
   onTokenUpdate?: (token: string) => void;
   onIncrementAmount?: (amount: number) => void;
   onDecrementAmount?: (amount: number) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
@@ -81,17 +79,23 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     }
   }, [disabled, inputRef]);
 
-  const handleInputFocus = useCallback(() => {
-    if (!disabled) {
-      setFocused(true);
-    }
-    onFocus?.();
-  }, [disabled, onFocus]);
+  const handleInputFocus = useCallback(
+    (ev: FocusEvent<HTMLInputElement, Element>) => {
+      if (!disabled) {
+        setFocused(true);
+      }
+      onFocus?.(ev);
+    },
+    [disabled, onFocus],
+  );
 
-  const handleInputBlur = useCallback(() => {
-    setFocused(false);
-    onBlur?.();
-  }, [onBlur]);
+  const handleInputBlur = useCallback(
+    (ev: FocusEvent<HTMLInputElement, Element>) => {
+      setFocused(false);
+      onBlur?.(ev);
+    },
+    [onBlur],
+  );
 
   const onOpenDropdown = useCallback(() => {
     setDropdownOpen(true);
