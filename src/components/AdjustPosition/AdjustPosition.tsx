@@ -111,13 +111,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     });
   }, [borrow, borrowAmount, collateralAmount, collateralBalance, debtBalance, selectedCollateralToken]);
 
-  const actionLabel = useMemo(() => {
-    if (collateralAmount === '0' && borrowAmount === '0') {
-      return 'Close position';
-    }
-    return 'Execute';
-  }, [borrowAmount, collateralAmount]);
-
   /**
    * Update action button state based on current borrow request status
    */
@@ -243,7 +236,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <Button variant="primary" onClick={onAdjust} disabled={transactionState === 'loading'}>
           {transactionState === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            {actionLabel}
+            Execute
           </Typography>
         </Button>
       </div>
