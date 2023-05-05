@@ -1,5 +1,12 @@
 import { FC, useEffect } from 'react';
-import { subscribeENS, subscribeProtocolStats, subscribeTakenBalances, subscribeTakenPrices } from '../../hooks';
+import {
+  subscribeCollateralBalances,
+  subscribeDebtBalances,
+  subscribeENS,
+  subscribeProtocolStats,
+  subscribeTakenBalances,
+  subscribeTakenPrices,
+} from '../../hooks';
 
 const HookSubscriber: FC = () => {
   // to keep at least one subscriber of the stream insides the state hooks
@@ -10,6 +17,8 @@ const HookSubscriber: FC = () => {
     subscribeTakenPrices();
     subscribeTakenBalances();
     subscribeProtocolStats();
+    subscribeCollateralBalances();
+    subscribeDebtBalances();
   }, []);
 
   return null;

@@ -21,44 +21,53 @@ import {
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable, ProtocolStats } from '../interfaces';
 import { provider$ } from './useProvider';
+import { appEvent$ } from './useAppEvent';
 
 const protocolStats$ = new BehaviorSubject<Nullable<ProtocolStats>>(null);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
+const fetchData = (provider: JsonRpcProvider) => {
+  try {
+    const stats = Stats.getInstance(provider);
+
+    return from(stats.fetch()).pipe(
+      map(() => {
+        if (!stats.collateralSupply || !stats.debtSupply || !stats.borrowingRate) {
+          return null;
+        }
+
+        return {
+          collateralSupply: stats.collateralSupply,
+          debtSupply: stats.debtSupply,
+          borrowingRate: stats.borrowingRate,
+        };
+      }),
+      catchError(error => {
+        console.error('useProtocolStats - failed to fetch protocol stats', error);
+        return of(null);
+      }),
+    );
+  } catch (error) {
+    console.error('useProtocolStats - failed to fetch protocol stats', error);
+    return of(null);
+  }
+};
+
 // Stream that fetches protocol stats periodically
 const intervalStream$ = intervalBeat$.pipe(
   withLatestFrom(provider$),
-  concatMap<[number, JsonRpcProvider], Observable<Nullable<ProtocolStats>>>(([, provider]) => {
-    try {
-      const stats = Stats.getInstance(provider);
+  concatMap<[number, JsonRpcProvider], Observable<Nullable<ProtocolStats>>>(([, provider]) => fetchData(provider)),
+);
 
-      return from(stats.fetch()).pipe(
-        map(() => {
-          if (!stats.collateralSupply || !stats.debtSupply || !stats.borrowingRate) {
-            return null;
-          }
-
-          return {
-            collateralSupply: stats.collateralSupply,
-            debtSupply: stats.debtSupply,
-            borrowingRate: stats.borrowingRate,
-          };
-        }),
-        catchError(error => {
-          console.error('useProtocolStats - failed to fetch protocol stats', error);
-          return of(null);
-        }),
-      );
-    } catch (error) {
-      console.error('useProtocolStats - failed to fetch protocol stats', error);
-      return of(null);
-    }
-  }),
+// fetch when app event fire
+const appEventsStream$ = appEvent$.pipe(
+  withLatestFrom(provider$),
+  concatMap(([, provider]) => fetchData(provider)),
 );
 
 // merge all stream$ into one if there are multiple
-const stream$ = merge(intervalStream$).pipe(
+const stream$ = merge(intervalStream$, appEventsStream$).pipe(
   filter((protocolStats): protocolStats is ProtocolStats => Boolean(protocolStats)),
   debounce<ProtocolStats>(() => interval(DEBOUNCE_IN_MS)),
   tap(protocolStats => {

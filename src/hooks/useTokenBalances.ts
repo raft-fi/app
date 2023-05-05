@@ -23,6 +23,7 @@ import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable, Token, TOKENS } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
+import { AppEvent, appEvent$ } from './useAppEvent';
 
 export type TokenBalanceMap = {
   [token in Token]: Nullable<Decimal>;
@@ -93,8 +94,25 @@ const periodicStream$: Observable<TokenBalanceMap> = combineLatest([intervalBeat
   }),
 );
 
+// fetch when app event fire
+const appEventsStream$ = appEvent$.pipe(
+  withLatestFrom(walletAddress$, provider$),
+  filter((value): value is [AppEvent, string, JsonRpcProvider] => {
+    const [, walletAddress] = value;
+
+    return Boolean(walletAddress);
+  }),
+  mergeMap(([, walletAddress, provider]) => {
+    const tokenBalanceMaps = TOKENS.map(token =>
+      from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
+    );
+
+    return merge(...tokenBalanceMaps);
+  }),
+);
+
 // merge all stream$ into one, use merge() for multiple
-const stream$ = merge(periodicStream$, walletChangeStream$).pipe(
+const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
   scan(
     (allBalances, tokenBalances) => ({
       ...allBalances,

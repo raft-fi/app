@@ -19,6 +19,7 @@ import {
 import { wallet$ } from './useWallet';
 import { Nullable } from '../interfaces';
 import { walletSigner$ } from './useWalletSigner';
+import { emitAppEvent } from './useAppEvent';
 
 interface BorrowRequest {
   txnId: string;
@@ -34,7 +35,7 @@ interface BorrowStatus {
   request: BorrowRequest;
   success?: boolean;
   error?: Error;
-  contractTransaction?: ethers.ContractTransaction;
+  contractTransaction?: ethers.ContractTransactionResponse;
   transactionData?: {
     borrowedAmount: Decimal;
     gasFee: Decimal;
@@ -44,7 +45,7 @@ interface BorrowStatus {
 
 interface BorrowResponse {
   request: BorrowRequest;
-  contractTransaction?: ethers.ContractTransaction;
+  contractTransaction?: ethers.ContractTransactionResponse;
   transactionReceipt?: ethers.TransactionReceipt;
   transactionData?: {
     borrowedAmount: Decimal;
@@ -155,6 +156,12 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
     }
   }),
   tap(status => {
+    emitAppEvent({
+      eventType: 'manage-position',
+      timestamp: Date.now(),
+      txnHash: status.contractTransaction?.hash,
+    });
+
     borrowStatus$.next(status);
   }),
 );
