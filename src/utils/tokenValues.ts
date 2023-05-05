@@ -20,10 +20,10 @@ type TokenValues = {
   valueFormattedMultiplier: Nullable<string>;
 };
 
-const formatCurrency = (value: Decimal, precision = USD_UI_PRECISION) =>
+const formatCurrency = (value: Decimal, currency = '$', precision = USD_UI_PRECISION) =>
   DecimalFormat.format(value, {
     style: 'currency',
-    currency: '$',
+    currency: currency,
     fractionDigits: precision,
   });
 
@@ -35,7 +35,7 @@ const formatCurrencyMultiplier = (value: Decimal) =>
     noMultiplierFractionDigits: USD_UI_PRECISION,
   });
 
-export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, token: Token): TokenValues => {
+export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Decimal>, token: Token): TokenValues => {
   if (!amount && amount !== 0) {
     return {
       amount: null,
@@ -59,7 +59,7 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
         amount: tokenAmount,
         price,
         value: tokenValue,
-        amountFormatted: DecimalFormat.format(tokenAmount, { style: 'decimal', fractionDigits: R_TOKEN_UI_PRECISION }),
+        amountFormatted: formatCurrency(tokenAmount, token, R_TOKEN_UI_PRECISION),
         amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
           style: 'multiplier',
           currency: token,
@@ -67,8 +67,8 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
           noMultiplierFractionDigits: R_TOKEN_UI_PRECISION,
         }),
         // only for R price we want to format it in 4 decimal places
-        priceFormatted: price ? formatCurrency(price, R_PRICE_UI_PRECISION) : null,
-        priceFormattedIntegral: price ? formatCurrency(price, 0) : null,
+        priceFormatted: price ? formatCurrency(price, '$', R_PRICE_UI_PRECISION) : null,
+        priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
         valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
       };
@@ -79,10 +79,7 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
         amount: tokenAmount,
         price,
         value: tokenValue,
-        amountFormatted: DecimalFormat.format(tokenAmount, {
-          style: 'decimal',
-          fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-        }),
+        amountFormatted: formatCurrency(tokenAmount, token, COLLATERAL_TOKEN_UI_PRECISION),
         amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
           style: 'multiplier',
           currency: token,
@@ -90,7 +87,7 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
           noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         }),
         priceFormatted: price ? formatCurrency(price) : null,
-        priceFormattedIntegral: price ? formatCurrency(price, 0) : null,
+        priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
         valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
       };

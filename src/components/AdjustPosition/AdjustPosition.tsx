@@ -2,9 +2,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from 'tempus-decimal';
 import { CollateralTokenType } from '@raft-fi/sdk';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, isCollateralToken } from '../../interfaces';
-import { useBorrow } from '../../hooks';
+import { CollateralToken, RAFT_TOKEN, isCollateralToken } from '../../interfaces';
+import { useBorrow, useTokenBalances, useTokenPrices } from '../../hooks';
 import { Button, CurrencyInput, Icon, Loading, Typography, ValuesBox } from '../shared';
+import { getTokenValues } from '../../utils';
 
 import './AdjustPosition.scss';
 
@@ -15,6 +16,8 @@ interface AdjustPositionProps {
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
+  const tokenBalanceMap = useTokenBalances();
+  const tokensPriceMap = useTokenPrices();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
   const [collateralAmount, setCollateralAmount] = useState<string>(collateralBalance.toString());
@@ -142,6 +145,47 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return transactionInProgress || unchangedPositionAmounts;
   }, [borrowAmount, collateralAmount, collateralBalance, debtBalance, transactionState]);
 
+  const collateralTokenBalanceValues = useMemo(
+    () =>
+      getTokenValues(
+        tokenBalanceMap[selectedCollateralToken],
+        tokensPriceMap[selectedCollateralToken],
+        selectedCollateralToken,
+      ),
+    [selectedCollateralToken, tokenBalanceMap, tokensPriceMap],
+  );
+
+  const debtTokenBalanceValues = useMemo(
+    () => getTokenValues(tokenBalanceMap[RAFT_TOKEN], tokensPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    [tokenBalanceMap, tokensPriceMap],
+  );
+
+  const collateralTokenInputValues = useMemo(
+    () => getTokenValues(collateralAmount, tokensPriceMap[selectedCollateralToken], selectedCollateralToken),
+    [collateralAmount, selectedCollateralToken, tokensPriceMap],
+  );
+
+  const borrowTokenInputValues = useMemo(
+    () => getTokenValues(borrowAmount, tokensPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    [borrowAmount, tokensPriceMap],
+  );
+
+  const collateralInputFiatValue = useMemo(() => {
+    if (!collateralTokenInputValues.valueFormatted || new Decimal(collateralAmount).isZero()) {
+      return '$0.00';
+    }
+
+    return `~${collateralTokenInputValues.valueFormatted}`;
+  }, [collateralTokenInputValues.valueFormatted, collateralAmount]);
+
+  const borrowInputFiatValue = useMemo(() => {
+    if (!borrowTokenInputValues.valueFormatted || new Decimal(borrowAmount).isZero()) {
+      return '$0.00';
+    }
+
+    return `~${borrowTokenInputValues.valueFormatted}`;
+  }, [borrowTokenInputValues.valueFormatted, borrowAmount]);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
@@ -166,10 +210,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <CurrencyInput
           label="Collateral"
           precision={18}
-          fiatValue="~$100.00"
+          fiatValue={collateralInputFiatValue}
           selectedToken={selectedCollateralToken}
           tokens={['ETH', 'stETH', 'wstETH']}
           value={collateralAmount}
+          maxAmount={collateralTokenBalanceValues?.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
           step={0.1}
@@ -181,10 +226,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <CurrencyInput
           label="Borrow"
           precision={18}
-          fiatValue="~$100.00"
+          fiatValue={borrowInputFiatValue}
           selectedToken="R"
           tokens={['R']}
           value={borrowAmount}
+          maxAmount={debtTokenBalanceValues?.amountFormatted}
           onValueUpdate={setBorrowAmount}
           step={100}
           onIncrementAmount={handleBorrowIncrement}

@@ -307,6 +307,22 @@ const OpenPosition = () => {
     }
   }, [borrowStatus]);
 
+  const collateralInputFiatValue = useMemo(() => {
+    if (!collateralTokenValues.valueFormatted || new Decimal(collateralAmount).isZero()) {
+      return '$0.00';
+    }
+
+    return `~${collateralTokenValues.valueFormatted}`;
+  }, [collateralTokenValues.valueFormatted, collateralAmount]);
+
+  const borrowInputFiatValue = useMemo(() => {
+    if (!borrowTokenValues.valueFormatted || new Decimal(borrowAmount).isZero()) {
+      return '$0.00';
+    }
+
+    return `~${borrowTokenValues.valueFormatted}`;
+  }, [borrowTokenValues.valueFormatted, borrowAmount]);
+
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
@@ -318,7 +334,7 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Collateral"
           precision={18}
-          fiatValue={collateralTokenValues.valueFormatted ? `~${collateralTokenValues.valueFormatted}` : null}
+          fiatValue={collateralInputFiatValue}
           selectedToken={selectedCollateralToken}
           tokens={[...COLLATERAL_TOKENS]}
           value={collateralAmount}
@@ -331,7 +347,7 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Borrow"
           precision={18}
-          fiatValue={borrowTokenValues.valueFormatted ? `~${borrowTokenValues.valueFormatted}` : null}
+          fiatValue={borrowInputFiatValue}
           selectedToken={RAFT_TOKEN}
           tokens={[RAFT_TOKEN]}
           value={borrowAmount}
@@ -368,10 +384,10 @@ const OpenPosition = () => {
                 </>
               ),
               value: hasMinBorrow ? (
-                `${borrowTokenValues.amountFormatted ?? 0} ${RAFT_TOKEN}`
+                `${borrowTokenValues.amountFormatted ?? 0}`
               ) : (
                 <ButtonWrapper className="raft__openPosition__error">
-                  <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0} ${RAFT_TOKEN}`} />
+                  <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0}`} />
                   <Icon variant="error" size="small" />
                 </ButtonWrapper>
               ),
