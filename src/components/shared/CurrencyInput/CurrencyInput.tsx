@@ -1,4 +1,4 @@
-import { createRef, FC, memo, useCallback, useState } from 'react';
+import { createRef, FC, memo, useCallback, useState, FocusEvent } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
@@ -11,6 +11,7 @@ import './CurrencyInput.scss';
 export interface CurrencyInputProps extends BaseInputProps {
   label: string;
   value: string;
+  placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
   maxAmount?: string;
@@ -33,6 +34,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   const {
     label,
     value,
+    placeholder = '0',
     precision,
     maxAmount = '',
     maxAmountLabel = '',
@@ -49,10 +51,12 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onTokenUpdate,
     onDecrementAmount,
     onIncrementAmount,
+    onFocus,
+    onBlur,
   } = props;
   const inputRef = createRef<HTMLInputElement>();
 
-  const [focused, setFocused] = useState<boolean>(false);
+  const [, setFocused] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const handleValueChange = useCallback(
@@ -75,13 +79,23 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     }
   }, [disabled, inputRef]);
 
-  const handleInputFocus = useCallback(() => {
-    if (!disabled) {
-      setFocused(true);
-    }
-  }, [disabled]);
+  const handleInputFocus = useCallback(
+    (ev: FocusEvent<HTMLInputElement, Element>) => {
+      if (!disabled) {
+        setFocused(true);
+      }
+      onFocus?.(ev);
+    },
+    [disabled, onFocus],
+  );
 
-  const handleInputBlur = useCallback(() => setFocused(false), []);
+  const handleInputBlur = useCallback(
+    (ev: FocusEvent<HTMLInputElement, Element>) => {
+      setFocused(false);
+      onBlur?.(ev);
+    },
+    [onBlur],
+  );
 
   const onOpenDropdown = useCallback(() => {
     setDropdownOpen(true);
@@ -159,7 +173,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
               <BaseInput
                 ref={inputRef}
                 value={value}
-                placeholder="0"
+                placeholder={placeholder}
                 pattern={`[0-9]*[.]?[0-9]{0,${precision}}`}
                 disabled={disabled}
                 debounce

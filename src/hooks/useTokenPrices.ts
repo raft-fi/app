@@ -54,10 +54,8 @@ export const tokenPrices$ = rawTokenPrices$.pipe(
 
 const fetchData = async (feed: PriceFeed, token: Token): Promise<Nullable<Decimal>> => {
   try {
-    // TODO: throw Error for now
     // TODO: SDK should support multiple token price fetch, update later
-    throw new Error();
-    //return feed.getPrice(token);
+    return feed.getPrice(token);
   } catch (error) {
     return fetchFallbackData(token);
   }
