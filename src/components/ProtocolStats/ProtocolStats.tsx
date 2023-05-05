@@ -46,6 +46,10 @@ const ProtocolStats = () => {
       return null;
     }
 
+    if (collateralTotalSupplyValues.value.isZero()) {
+      return Decimal.ZERO;
+    }
+
     return collateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
   }, [collateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
 

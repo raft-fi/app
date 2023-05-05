@@ -182,7 +182,6 @@ const OpenPosition = () => {
     () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
     [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio],
   );
-  console.log('hasMinRatio', hasMinRatio);
 
   const walletConnected = useMemo(() => {
     return Boolean(wallet);
