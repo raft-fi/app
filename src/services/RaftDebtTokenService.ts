@@ -1,24 +1,24 @@
-import { JsonRpcSigner } from 'ethers';
+import { JsonRpcProvider } from 'ethers';
 import { Decimal } from 'tempus-decimal';
 import { getConfigManager } from '../config';
 import { ChainConfig } from '../interfaces';
 import { ERC20Indexable, ERC20Indexable__factory } from './typechain';
 
 class RaftDebtTokenService {
-  private signer: JsonRpcSigner;
+  private provider: JsonRpcProvider;
   private raftDebtTokenContract: ERC20Indexable;
   private config: ChainConfig;
 
-  constructor(signer: JsonRpcSigner) {
-    this.signer = signer;
+  constructor(provider: JsonRpcProvider) {
+    this.provider = provider;
 
     this.config = getConfigManager().getConfig();
 
-    this.raftDebtTokenContract = ERC20Indexable__factory.connect(this.config.raftDebtToken, this.signer);
+    this.raftDebtTokenContract = ERC20Indexable__factory.connect(this.config.raftDebtToken, this.provider);
   }
 
-  async balance(): Promise<Decimal> {
-    const balance: bigint = await this.raftDebtTokenContract.balanceOf(this.signer.address);
+  async balanceOf(walletAddress: string): Promise<Decimal> {
+    const balance: bigint = await this.raftDebtTokenContract.balanceOf(walletAddress);
 
     return new Decimal(balance, 18);
   }

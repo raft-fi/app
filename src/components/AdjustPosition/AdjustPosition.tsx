@@ -22,6 +22,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
 
+  useEffect(() => {
+    setCollateralAmount(collateralBalance.toString());
+    setBorrowAmount(debtBalance.toString());
+  }, [collateralBalance, debtBalance]);
+
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
       setSelectedCollateralToken(token);
