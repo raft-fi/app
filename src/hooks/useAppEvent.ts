@@ -1,5 +1,6 @@
 import { state, useStateObservable } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
+import { Nullable } from '../interfaces';
 
 export type AppEventType = 'manage-position';
 
@@ -14,7 +15,7 @@ const stateAppEvent$ = state(appEvent$, null);
 
 export const emitAppEvent = setAppEvent;
 
-export function useAppEvent(): [AppEvent | null, (value: AppEvent) => void] {
+export function useAppEvent(): [Nullable<AppEvent>, (value: AppEvent) => void] {
   const appEvent = useStateObservable(stateAppEvent$);
   return [appEvent, emitAppEvent];
 }
