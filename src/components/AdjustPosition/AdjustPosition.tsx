@@ -145,63 +145,46 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return transactionInProgress || unchangedPositionAmounts;
   }, [borrowAmount, collateralAmount, collateralBalance, debtBalance, transactionState]);
 
-  const collateralTokenBalanceValues = useMemo(() => {
-    const balance = tokenBalanceMap[selectedCollateralToken];
-    const price = tokensPriceMap[selectedCollateralToken];
+  const collateralTokenBalanceValues = useMemo(
+    () =>
+      getTokenValues(
+        tokenBalanceMap[selectedCollateralToken],
+        tokensPriceMap[selectedCollateralToken],
+        selectedCollateralToken,
+      ),
+    [selectedCollateralToken, tokenBalanceMap, tokensPriceMap],
+  );
 
-    if (!balance || !price) {
-      return null;
-    }
+  const debtTokenBalanceValues = useMemo(
+    () => getTokenValues(tokenBalanceMap[RAFT_TOKEN], tokensPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    [tokenBalanceMap, tokensPriceMap],
+  );
 
-    return getTokenValues(balance, price, selectedCollateralToken);
-  }, [selectedCollateralToken, tokenBalanceMap, tokensPriceMap]);
+  const collateralTokenInputValues = useMemo(
+    () => getTokenValues(collateralAmount, tokensPriceMap[selectedCollateralToken], selectedCollateralToken),
+    [collateralAmount, selectedCollateralToken, tokensPriceMap],
+  );
 
-  const debtTokenBalanceValues = useMemo(() => {
-    const balance = tokenBalanceMap[RAFT_TOKEN];
-    const price = tokensPriceMap[RAFT_TOKEN];
-
-    if (!balance || !price) {
-      return null;
-    }
-
-    return getTokenValues(balance, price, RAFT_TOKEN);
-  }, [tokenBalanceMap, tokensPriceMap]);
-
-  const collateralTokenInputValues = useMemo(() => {
-    const price = tokensPriceMap[selectedCollateralToken];
-
-    if (!collateralAmount || !price) {
-      return null;
-    }
-
-    return getTokenValues(collateralAmount, price, selectedCollateralToken);
-  }, [collateralAmount, selectedCollateralToken, tokensPriceMap]);
-
-  const borrowTokenInputValues = useMemo(() => {
-    const price = tokensPriceMap[RAFT_TOKEN];
-
-    if (!borrowAmount || !price) {
-      return null;
-    }
-
-    return getTokenValues(borrowAmount, price, RAFT_TOKEN);
-  }, [borrowAmount, tokensPriceMap]);
+  const borrowTokenInputValues = useMemo(
+    () => getTokenValues(borrowAmount, tokensPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    [borrowAmount, tokensPriceMap],
+  );
 
   const collateralInputFiatValue = useMemo(() => {
-    if (!collateralTokenInputValues || new Decimal(collateralAmount).isZero()) {
+    if (!collateralTokenInputValues.valueFormatted || new Decimal(collateralAmount).isZero()) {
       return '$0.00';
     }
 
     return `~${collateralTokenInputValues.valueFormatted}`;
-  }, [collateralTokenInputValues, collateralAmount]);
+  }, [collateralTokenInputValues.valueFormatted, collateralAmount]);
 
   const borrowInputFiatValue = useMemo(() => {
-    if (!borrowTokenInputValues || new Decimal(borrowAmount).isZero()) {
+    if (!borrowTokenInputValues.valueFormatted || new Decimal(borrowAmount).isZero()) {
       return '$0.00';
     }
 
     return `~${borrowTokenInputValues.valueFormatted}`;
-  }, [borrowTokenInputValues, borrowAmount]);
+  }, [borrowTokenInputValues.valueFormatted, borrowAmount]);
 
   return (
     <div className="raft__adjustPosition">

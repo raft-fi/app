@@ -35,7 +35,7 @@ const formatCurrencyMultiplier = (value: Decimal) =>
     noMultiplierFractionDigits: USD_UI_PRECISION,
   });
 
-export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, token: Token): TokenValues => {
+export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Decimal>, token: Token): TokenValues => {
   if (!amount && amount !== 0) {
     return {
       amount: null,
