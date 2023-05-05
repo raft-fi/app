@@ -55,3 +55,7 @@
     }
   }
 }
+
+.raft__openPosition__tooltip__error {
+  --textPrimary: var(--colorError);
+}

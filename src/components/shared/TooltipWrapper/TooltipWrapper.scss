@@ -1,0 +1,143 @@
+@use 'sass:map';
+@use 'sass:math';
+
+$arrowWidth: 16px;
+$arrow-path: (
+  'left': '70% 50%, 0% 0%, 0% 100%',
+  'right': '30% 50%, 100% 100%, 100% 0%',
+  'top': '50% 70%, 0% 0%, 100% 0%',
+  'bottom': '50% 30%, 0% 100%, 100% 100%',
+);
+
+@mixin arrow-clip-path($position) {
+  $path: #{map.get($arrow-path, $position)};
+  -webkit-clip-path: polygon($path);
+  clip-path: polygon($path);
+}
+
+.raft__tooltip-wrapper {
+  position: relative;
+}
+
+body > .MuiTooltip-popper {
+  z-index: 99999;
+}
+
+.MuiTooltip-popper {
+  --tooltipBorder: #bfc0c0;
+  --tooltipDefaultBackground: #ffffff;
+
+  .raft__tooltip-content.MuiTooltip-tooltip {
+    border-radius: 8px;
+    box-shadow: var(--downWeakShadow);
+    border: 1px solid var(--tooltipBorder);
+    background: var(--tooltipDefaultBackground);
+    max-width: initial;
+    z-index: 99998;
+    padding: 0;
+    margin: 0;
+
+    .MuiTooltip-arrow {
+      background: var(--tooltipBorder);
+      width: $arrowWidth;
+      height: $arrowWidth;
+
+      &::before {
+        position: absolute;
+        background: var(--tooltipDefaultBackground);
+        width: calc($arrowWidth - 2px);
+        height: calc($arrowWidth - 2px);
+        transform: initial;
+      }
+    }
+  }
+
+  &[data-popper-placement*='bottom'] {
+    .raft__tooltip-content.MuiTooltip-tooltip {
+      margin-top: 16px;
+
+      .MuiTooltip-arrow {
+        @include arrow-clip-path('bottom');
+        margin-top: -$arrowWidth;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+
+        &::before {
+          margin-top: -$arrowWidth;
+          @include arrow-clip-path('bottom');
+        }
+      }
+    }
+  }
+
+  &[data-popper-placement*='top'] {
+    .raft__tooltip-content.MuiTooltip-tooltip {
+      margin-bottom: 16px;
+
+      .MuiTooltip-arrow {
+        @include arrow-clip-path('top');
+        margin-bottom: -$arrowWidth;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+
+        &::before {
+          margin-bottom: -$arrowWidth;
+          @include arrow-clip-path('top');
+        }
+      }
+    }
+  }
+
+  &[data-popper-placement*='left'] {
+    .raft__tooltip-content.MuiTooltip-tooltip {
+      margin-right: 16px;
+
+      .MuiTooltip-arrow {
+        @include arrow-clip-path('left');
+        margin-right: -$arrowWidth;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        &::before {
+          margin-right: 2px;
+          @include arrow-clip-path('left');
+        }
+      }
+    }
+  }
+
+  &[data-popper-placement*='right'] {
+    .raft__tooltip-content.MuiTooltip-tooltip {
+      margin-left: 16px;
+
+      .MuiTooltip-arrow {
+        @include arrow-clip-path('right');
+        margin-left: -$arrowWidth;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        &::before {
+          margin-left: 2px;
+          @include arrow-clip-path('right');
+        }
+      }
+    }
+  }
+}
+
+.raft__tooltip-wrapper-anchor {
+  position: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  cursor: pointer;
+
+  &.raft__tooltip-wrapper-anchor__open {
+    z-index: 99998;
+  }
+}
