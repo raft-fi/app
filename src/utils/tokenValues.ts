@@ -15,8 +15,9 @@ type TokenValues = {
   amountFormatted: Nullable<string>;
   amountFormattedMultiplier: Nullable<string>;
   priceFormatted: Nullable<string>;
+  priceFormattedIntegral: Nullable<string>;
   valueFormatted: Nullable<string>;
-  valueFormattedMultiplier?: Nullable<string>;
+  valueFormattedMultiplier: Nullable<string>;
 };
 
 const formatCurrency = (value: Decimal, precision = USD_UI_PRECISION) =>
@@ -24,6 +25,14 @@ const formatCurrency = (value: Decimal, precision = USD_UI_PRECISION) =>
     style: 'currency',
     currency: '$',
     fractionDigits: precision,
+  });
+
+const formatCurrencyMultiplier = (value: Decimal) =>
+  DecimalFormat.format(value, {
+    style: 'multiplier',
+    currency: '$',
+    fractionDigits: MULTIPLIER_UI_PRECISION,
+    noMultiplierFractionDigits: USD_UI_PRECISION,
   });
 
 export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, token: Token): TokenValues => {
@@ -35,7 +44,9 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
       amountFormatted: null,
       amountFormattedMultiplier: null,
       priceFormatted: null,
+      priceFormattedIntegral: null,
       valueFormatted: null,
+      valueFormattedMultiplier: null,
     };
   }
 
@@ -55,16 +66,11 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
           fractionDigits: MULTIPLIER_UI_PRECISION,
           noMultiplierFractionDigits: R_TOKEN_UI_PRECISION,
         }),
-        priceFormatted: price ? `${formatCurrency(price, R_PRICE_UI_PRECISION)}` : null,
-        valueFormatted: tokenValue ? `${formatCurrency(tokenValue)}` : null,
-        valueFormattedMultiplier: tokenValue
-          ? DecimalFormat.format(tokenValue, {
-              style: 'multiplier',
-              currency: '$',
-              fractionDigits: MULTIPLIER_UI_PRECISION,
-              noMultiplierFractionDigits: R_TOKEN_UI_PRECISION,
-            })
-          : null,
+        // only for R price we want to format it in 4 decimal places
+        priceFormatted: price ? formatCurrency(price, R_PRICE_UI_PRECISION) : null,
+        priceFormattedIntegral: price ? formatCurrency(price, 0) : null,
+        valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
+        valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
       };
     case 'ETH':
     case 'stETH':
@@ -83,16 +89,10 @@ export const getTokenValues = (amount: Numberish, price: Nullable<Decimal>, toke
           fractionDigits: MULTIPLIER_UI_PRECISION,
           noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         }),
-        priceFormatted: price ? `${formatCurrency(price)}` : null,
-        valueFormatted: tokenValue ? `${formatCurrency(tokenValue)}` : null,
-        valueFormattedMultiplier: tokenValue
-          ? DecimalFormat.format(tokenValue, {
-              style: 'multiplier',
-              currency: '$',
-              fractionDigits: MULTIPLIER_UI_PRECISION,
-              noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-            })
-          : null,
+        priceFormatted: price ? formatCurrency(price) : null,
+        priceFormattedIntegral: price ? formatCurrency(price, 0) : null,
+        valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
+        valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
       };
   }
 };

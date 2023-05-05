@@ -318,7 +318,7 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Collateral"
           precision={18}
-          fiatValue={collateralTokenValues.valueFormatted}
+          fiatValue={collateralTokenValues.valueFormatted ? `~${collateralTokenValues.valueFormatted}` : null}
           selectedToken={selectedCollateralToken}
           tokens={[...COLLATERAL_TOKENS]}
           value={collateralAmount}
@@ -331,7 +331,7 @@ const OpenPosition = () => {
         <CurrencyInput
           label="Borrow"
           precision={18}
-          fiatValue={borrowTokenValues.valueFormatted}
+          fiatValue={borrowTokenValues.valueFormatted ? `~${borrowTokenValues.valueFormatted}` : null}
           selectedToken={RAFT_TOKEN}
           tokens={[RAFT_TOKEN]}
           value={borrowAmount}

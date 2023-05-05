@@ -114,7 +114,7 @@ const ProtocolStats = () => {
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={collateralTotalSupplyValues?.valueFormatted || '---'} />
+                <ValueLabel value={collateralTotalSupplyValues?.valueFormattedMultiplier || '---'} />
               </div>
             </div>
             <div className="raft__protocol-stats__stat__separator" />
@@ -127,7 +127,7 @@ const ProtocolStats = () => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={displayBaseTokenValues.priceFormatted || '---'} />
+                <ValueLabel value={displayBaseTokenValues.priceFormattedIntegral ?? '---'} />
               </div>
             </div>
           </div>
