@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from 'tempus-decimal';
+import { ButtonWrapper, Link } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { CollateralTokenType } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
@@ -13,6 +14,7 @@ import {
 } from '../../interfaces';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
+  GITBOOK_URL,
   HEALTHY_RATIO,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
@@ -366,6 +368,19 @@ const OpenPosition = () => {
           error={!hasMinBorrow || !hasMinRatio}
         />
       </div>
+      {selectedCollateralToken === 'ETH' && (
+        <div className="raft__openPosition__warning">
+          <Icon variant="error" size="small" />
+          <Typography variant="body-tertiary">
+            ETH is converted to stETH and withdrawals are available in stETH or wstETH. You can read more about
+            withdrawals&nbsp;
+            <Link href={`${GITBOOK_URL}/how-it-works/position`}>
+              in Docs
+              <Icon variant="external-link" size="tiny" />
+            </Link>
+          </Typography>
+        </div>
+      )}
       <div className="raft__openPosition__data">
         <ValuesBox
           values={[
