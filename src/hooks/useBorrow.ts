@@ -16,8 +16,9 @@ import {
   switchMap,
   Observable,
 } from 'rxjs';
-import { wallet$ } from './useWallet';
 import { Nullable } from '../interfaces';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
 
@@ -84,9 +85,9 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
         }
 
         const waitForTxReceipt$ = result$.pipe(
-          switchMap(result => {
+          concatMap(result => {
             if (result.hash) {
-              return from(walletProvider.waitForTransaction(result.hash));
+              return from(walletProvider.waitForTransaction(result.hash, NUMBER_OF_CONFIRMATIONS_FOR_TX));
             }
             return of(null);
           }),
@@ -94,7 +95,7 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
 
         return combineLatest([result$, waitForTxReceipt$]).pipe(
           switchMap(async ([contractTransaction, transactionReceipt]) => {
-            if (contractTransaction) {
+            if (contractTransaction && transactionReceipt) {
               return {
                 transactionReceipt,
                 contractTransaction,
@@ -105,7 +106,7 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
             result =>
               ({
                 contractTransaction: result?.contractTransaction,
-                getTransactionReceipt: result?.transactionReceipt,
+                transactionReceipt: result?.transactionReceipt,
                 request,
                 txnId,
               } as BorrowResponse),
@@ -130,7 +131,7 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
     },
   ),
   map<BorrowResponse, BorrowStatus>(response => {
-    const { contractTransaction: contractTransaction, transactionReceipt, request, error, txnId } = response;
+    const { contractTransaction, transactionReceipt, request, error, txnId } = response;
 
     if (!contractTransaction) {
       const userRejectError = new Error('Rejected by user.');

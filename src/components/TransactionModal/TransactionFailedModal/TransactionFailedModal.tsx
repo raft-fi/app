@@ -1,6 +1,6 @@
 import { FC, useCallback, useState } from 'react';
 import { ButtonWrapper } from 'tempus-ui';
-import { Button, Icon, ModalWrapper, Typography } from '../shared';
+import { Button, Icon, ModalWrapper, Typography } from '../../shared';
 
 import './TransactionFailedModal.scss';
 
@@ -12,7 +12,7 @@ interface TransactionFailedModalProps {
 }
 
 const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, onClose, onTryAgain }) => {
-  const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
+  const [detailsOpen, setDetailsOpen] = useState<boolean>(true);
 
   const toggleDetails = useCallback(() => {
     setDetailsOpen(prevState => !prevState);

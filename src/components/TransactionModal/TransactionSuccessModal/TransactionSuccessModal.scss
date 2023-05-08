@@ -14,6 +14,13 @@
 
   .raft__transactionSuccessModal__title {
     margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .raft__valueLabel:not(:last-child) {
+      margin-bottom: 8px;
+    }
   }
 
   .raft__transactionSuccessModal__subtitle {

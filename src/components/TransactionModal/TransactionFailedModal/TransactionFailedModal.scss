@@ -34,6 +34,8 @@
     border-radius: 8px;
     padding: 16px;
     box-sizing: border-box;
+    overflow-wrap: break-word;
+    max-width: 100%;
   }
 
   .raft__transactionFailedModal__actions {

@@ -1,23 +1,36 @@
 import { FC, useMemo } from 'react';
-import Typography from '../Typography';
+import Typography, { TypographyVariant } from '../Typography';
 
 import './ValueLabel.scss';
 
 interface ValueLabelProps {
   value: string;
+  label?: string;
+  valueSize?: TypographyVariant;
+  tickerSize?: TypographyVariant;
 }
 
-const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
+const ValueLabel: FC<ValueLabelProps> = ({
+  value,
+  label = '',
+  valueSize = 'body-primary',
+  tickerSize = 'body-tertiary',
+}) => {
   const valueElement = useMemo(() => {
     if (value.startsWith('$')) {
       return (
         <div className="raft__valueLabel">
-          <Typography variant="body-tertiary" weight="medium">
+          <Typography variant={tickerSize} weight="medium">
             $
           </Typography>
-          <Typography variant="body-primary" weight="medium">
+          <Typography variant={valueSize} weight="medium">
             {value.split('$')[1]}
           </Typography>
+          {label && (
+            <Typography variant={valueSize} weight="regular">
+              &nbsp;{label}
+            </Typography>
+          )}
         </div>
       );
     }
@@ -25,12 +38,17 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
     if (value.endsWith('R')) {
       return (
         <div className="raft__valueLabel">
-          <Typography variant="body-primary" weight="medium">
+          <Typography variant={valueSize} weight="medium">
             {value.split(' ')[0]}
           </Typography>
-          <Typography variant="body-tertiary" type="mono">
+          <Typography variant={tickerSize} type="mono">
             &nbsp;R
           </Typography>
+          {label && (
+            <Typography variant={valueSize} weight="regular">
+              &nbsp;{label}
+            </Typography>
+          )}
         </div>
       );
     }
@@ -38,12 +56,17 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
     if (value.endsWith('%')) {
       return (
         <div className="raft__valueLabel">
-          <Typography variant="body-primary" weight="medium">
+          <Typography variant={valueSize} weight="medium">
             {value.split('%')[0]}
           </Typography>
-          <Typography variant="body-tertiary" weight="medium">
+          <Typography variant={tickerSize} weight="medium">
             %
           </Typography>
+          {label && (
+            <Typography variant={valueSize} weight="regular">
+              &nbsp;{label}
+            </Typography>
+          )}
         </div>
       );
     }
@@ -51,22 +74,27 @@ const ValueLabel: FC<ValueLabelProps> = ({ value }) => {
     if (value.indexOf(' ') !== -1) {
       return (
         <div className="raft__valueLabel">
-          <Typography variant="body-primary" weight="medium">
+          <Typography variant={valueSize} weight="medium">
             {value.split(' ')[0]}
           </Typography>
-          <Typography variant="body-tertiary" weight="medium">
+          <Typography variant={tickerSize} weight="medium">
             &nbsp;{value.split(' ')[1]}
           </Typography>
+          {label && (
+            <Typography variant={valueSize} weight="regular">
+              &nbsp;{label}
+            </Typography>
+          )}
         </div>
       );
     }
 
     return (
-      <Typography variant="body-primary" weight="medium">
-        {value}
+      <Typography variant={valueSize} weight="medium">
+        {value}&nbsp;{label}
       </Typography>
     );
-  }, [value]);
+  }, [label, tickerSize, value, valueSize]);
 
   return valueElement;
 };

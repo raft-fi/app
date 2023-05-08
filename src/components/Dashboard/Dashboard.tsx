@@ -3,6 +3,7 @@ import { useCollateralBalance, useDebtBalance } from '../../hooks';
 import ProtocolStats from '../ProtocolStats';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
+import TransactionModal from '../TransactionModal';
 
 import './Dashboard.scss';
 
@@ -22,6 +23,7 @@ const Dashboard = () => {
       ) : (
         <OpenPosition />
       )}
+      <TransactionModal />
     </div>
   );
 };

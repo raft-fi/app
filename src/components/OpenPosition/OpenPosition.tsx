@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from 'tempus-decimal';
-import { ButtonWrapper, Link } from 'tempus-ui';
+import { Link } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { CollateralTokenType } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
