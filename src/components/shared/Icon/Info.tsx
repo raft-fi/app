@@ -13,10 +13,10 @@ const Close: FC<InnerIconProps> = ({ size }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_1497_94058)">
+      <g clipPath="url(#clip0_1497_94058)">
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M8.125 15.5C11.991 15.5 15.125 12.366 15.125 8.5C15.125 4.63401 11.991 1.5 8.125 1.5C4.25901 1.5 1.125 4.63401 1.125 8.5C1.125 12.366 4.25901 15.5 8.125 15.5ZM8.125 16.5C12.5433 16.5 16.125 12.9183 16.125 8.5C16.125 4.08172 12.5433 0.5 8.125 0.5C3.70672 0.5 0.125 4.08172 0.125 8.5C0.125 12.9183 3.70672 16.5 8.125 16.5Z"
           fill={color}
         />

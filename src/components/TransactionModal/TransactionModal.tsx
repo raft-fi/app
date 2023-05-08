@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { R_TOKEN } from '@raft-fi/sdk';
 import { resetBorrowStatus, useBorrow, useTokenPrices } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { ValueLabel } from '../shared';
-import { COLLATERAL_BASE_TOKEN, CollateralToken, DISPLAY_BASE_TOKEN, RAFT_TOKEN } from '../../interfaces';
-import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../constants';
-import { CollateralTokenType } from '@raft-fi/sdk';
+import {
+  COLLATERAL_TOKEN_UI_PRECISION,
+  R_TOKEN_UI_PRECISION,
+  COLLATERAL_BASE_TOKEN,
+  DISPLAY_BASE_TOKEN,
+} from '../../constants';
 
 const TransactionModal = () => {
   const { borrowStatus } = useBorrow();
@@ -50,33 +54,6 @@ const TransactionModal = () => {
     return borrowStatus.request.debtAmount.sub(borrowStatus.request.currentUserDebt);
   }, [borrowStatus]);
 
-  /**
-   *  TODO - Remove this token type conversion when SDK types are in sync with app types
-   */
-  const collateralToken = useMemo(() => {
-    if (!borrowStatus) {
-      return null;
-    }
-
-    let collateralToken: CollateralToken;
-    switch (borrowStatus.request.collateralToken) {
-      // TODO - Once support for ETH and stETH collateral is added, uncomment the following lines
-      /* case 'ETH':
-              collateralTokenType = CollateralTokenType.ETH;
-              break;
-            case 'stETH':
-              collateralTokenType = CollateralTokenType.STETH;
-              break; */
-      case CollateralTokenType.WSTETH:
-        collateralToken = 'wstETH';
-        break;
-      default:
-        throw new Error(`Unsupported collateral token type: ${borrowStatus.request.collateralToken}`);
-    }
-
-    return collateralToken;
-  }, [borrowStatus]);
-
   const collateralChange = useMemo(() => {
     if (!borrowStatus) {
       return null;
@@ -89,7 +66,7 @@ const TransactionModal = () => {
    * Generate success modal title based on borrow request params
    */
   const successModalTitle = useMemo(() => {
-    if (!borrowStatus || !debtChange || !collateralChange || !collateralToken) {
+    if (!borrowStatus || !debtChange || !collateralChange) {
       return '';
     }
 
@@ -110,7 +87,7 @@ const TransactionModal = () => {
 
     const debtValueFormatted = DecimalFormat.format(debtChange.abs(), {
       style: 'currency',
-      currency: RAFT_TOKEN,
+      currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
@@ -129,7 +106,7 @@ const TransactionModal = () => {
 
     const collateralValueFormatted = DecimalFormat.format(collateralInDisplayToken, {
       style: 'currency',
-      currency: collateralToken,
+      currency: borrowStatus.request.collateralToken,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
@@ -154,7 +131,7 @@ const TransactionModal = () => {
         )}
       </>
     );
-  }, [borrowStatus, collateralChange, collateralToken, debtChange, tokenPriceMap]);
+  }, [borrowStatus, collateralChange, debtChange, tokenPriceMap]);
 
   /**
    * Generate success modal subtitle based on borrow request params
@@ -181,7 +158,7 @@ const TransactionModal = () => {
   }, [borrowStatus, collateralChange, debtChange]);
 
   const collateralAfterTx = useMemo(() => {
-    if (!borrowStatus || !collateralToken) {
+    if (!borrowStatus) {
       return null;
     }
 
@@ -199,27 +176,27 @@ const TransactionModal = () => {
 
     return DecimalFormat.format(amount, {
       style: 'currency',
-      currency: collateralToken,
+      currency: borrowStatus.request.collateralToken,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
-  }, [borrowStatus, collateralToken, tokenPriceMap]);
+  }, [borrowStatus, tokenPriceMap]);
 
   const debtAfterTx = useMemo(() => {
-    if (!borrowStatus || !collateralToken) {
+    if (!borrowStatus) {
       return null;
     }
 
     return DecimalFormat.format(borrowStatus.request.debtAmount, {
       style: 'currency',
-      currency: RAFT_TOKEN,
+      currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
-  }, [borrowStatus, collateralToken]);
+  }, [borrowStatus]);
 
   const collateralizationRatio = useMemo(() => {
-    if (!borrowStatus || !collateralToken) {
+    if (!borrowStatus) {
       return null;
     }
 
@@ -227,8 +204,8 @@ const TransactionModal = () => {
       return null;
     }
 
-    const collateralPrice = tokenPriceMap[collateralToken];
-    const rPrice = tokenPriceMap[RAFT_TOKEN];
+    const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
+    const rPrice = tokenPriceMap[R_TOKEN];
 
     if (!collateralPrice || !rPrice) {
       return null;
@@ -238,7 +215,7 @@ const TransactionModal = () => {
     const debtValue = borrowStatus.request.debtAmount.mul(rPrice);
 
     return collateralValue.div(debtValue);
-  }, [borrowStatus, collateralToken, tokenPriceMap]);
+  }, [borrowStatus, tokenPriceMap]);
 
   const collateralizationRatioFormatted = useMemo(() => {
     if (!collateralizationRatio) {

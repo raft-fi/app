@@ -6,7 +6,8 @@ import {
   R_TOKEN_UI_PRECISION,
   USD_UI_PRECISION,
 } from '../constants';
-import { Nullable, Token } from '../interfaces';
+import { Nullable } from '../interfaces';
+import { Token } from '@raft-fi/sdk';
 
 type TokenValues = {
   amount: Nullable<Decimal>;

@@ -2,18 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { Link } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralTokenType } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
+import { COLLATERAL_TOKENS, CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import { useWallet, useBorrow, useTokenPrices, useTokenBalances } from '../../hooks';
 import {
-  CollateralToken,
-  COLLATERAL_TOKENS,
-  DISPLAY_BASE_TOKEN,
-  isCollateralToken,
-  RAFT_TOKEN,
-} from '../../interfaces';
-import {
   COLLATERAL_TOKEN_UI_PRECISION,
+  DISPLAY_BASE_TOKEN,
   GITBOOK_URL,
   HEALTHY_RATIO,
   LIQUIDATION_UPPER_RATIO,
@@ -21,7 +15,7 @@ import {
   R_TOKEN_UI_PRECISION,
   USD_UI_PRECISION,
 } from '../../constants';
-import { getTokenValues } from '../../utils';
+import { getTokenValues, isCollateralToken } from '../../utils';
 import {
   Button,
   CurrencyInput,
@@ -54,11 +48,11 @@ const OpenPosition = () => {
     [collateralAmount, selectedCollateralToken, tokenPriceMap],
   );
   const borrowTokenValues = useMemo(
-    () => getTokenValues(borrowAmount, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    () => getTokenValues(borrowAmount, tokenPriceMap[R_TOKEN], R_TOKEN),
     [borrowAmount, tokenPriceMap],
   );
   const baseTokenValues = useMemo(
-    () => getTokenValues(borrowAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], RAFT_TOKEN),
+    () => getTokenValues(borrowAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], R_TOKEN),
     [borrowAmount, tokenPriceMap],
   );
 
@@ -155,7 +149,7 @@ const OpenPosition = () => {
     });
   }, [selectedCollateralToken, selectedCollateralTokenBalance]);
 
-  const rTokenBalance = useMemo(() => tokenBalanceMap[RAFT_TOKEN], [tokenBalanceMap]);
+  const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
   const rTokenBalanceFormatted = useMemo(() => {
     if (!rTokenBalance) {
       return '';
@@ -163,7 +157,7 @@ const OpenPosition = () => {
 
     return DecimalFormat.format(rTokenBalance, {
       style: 'currency',
-      currency: RAFT_TOKEN,
+      currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
@@ -232,26 +226,10 @@ const OpenPosition = () => {
       return;
     }
 
-    let collateralTokenType: CollateralTokenType;
-    switch (selectedCollateralToken) {
-      // TODO - Once support for ETH and stETH collateral is added, uncomment the following lines
-      /* case 'ETH':
-        collateralTokenType = CollateralTokenType.ETH;
-        break;
-      case 'stETH':
-        collateralTokenType = CollateralTokenType.STETH;
-        break; */
-      case 'wstETH':
-        collateralTokenType = CollateralTokenType.WSTETH;
-        break;
-      default:
-        throw new Error(`Unsupported collateral token type selected: ${selectedCollateralToken}`);
-    }
-
     borrow({
       collateralAmount: new Decimal(collateralAmount),
       debtAmount: new Decimal(borrowAmount),
-      collateralToken: collateralTokenType,
+      collateralToken: selectedCollateralToken,
       currentUserCollateral: new Decimal(0), // Always zero when user is 'Opening' a position
       currentUserDebt: new Decimal(0), // Always zero when user is 'Opening' a position
       txnId: uuid(),
@@ -271,7 +249,7 @@ const OpenPosition = () => {
     }
 
     // if borrow input is null, borrowTokenValues.price will be null, so use the price map here
-    const borrowTokenPrice = tokenPriceMap[RAFT_TOKEN];
+    const borrowTokenPrice = tokenPriceMap[R_TOKEN];
 
     if (!collateralTokenValues.value || !borrowTokenPrice || borrowTokenPrice.isZero()) {
       return;
@@ -359,8 +337,8 @@ const OpenPosition = () => {
           label="Borrow"
           precision={18}
           fiatValue={borrowInputFiatValue}
-          selectedToken={RAFT_TOKEN}
-          tokens={[RAFT_TOKEN]}
+          selectedToken={R_TOKEN}
+          tokens={[R_TOKEN]}
           value={borrowAmount}
           maxAmount={rTokenBalanceFormatted}
           onValueUpdate={setBorrowAmount}
@@ -402,7 +380,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
                   <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
-                    {RAFT_TOKEN}
+                    {R_TOKEN}
                   </Typography>
                   <Typography variant="body-tertiary">{')'}</Typography>
                 </>
@@ -416,7 +394,7 @@ const OpenPosition = () => {
                     <Tooltip className="raft__openPosition__tooltip__error">
                       <Typography variant="body-tertiary">{`Debt under ${minBorrowFormatted}`}</Typography>
                       <Typography variant="body-tertiary" type="mono">
-                        &nbsp;{RAFT_TOKEN}
+                        &nbsp;{R_TOKEN}
                       </Typography>
                     </Tooltip>
                   }
