@@ -18,7 +18,6 @@ type TokenValues = {
   priceFormattedIntegral: Nullable<string>;
   valueFormatted: Nullable<string>;
   valueFormattedMultiplier: Nullable<string>;
-  valueFormattedPercentage: Nullable<string>;
 };
 
 const formatCurrency = (value: Decimal, currency = '$', precision = USD_UI_PRECISION) =>
@@ -36,14 +35,6 @@ const formatCurrencyMultiplier = (value: Decimal) =>
     noMultiplierFractionDigits: USD_UI_PRECISION,
   });
 
-const formatPercentage = (value: Decimal) =>
-  DecimalFormat.format(value, {
-    style: 'percentage',
-    fractionDigits: 2,
-    lessThanFormat: true,
-    pad: true,
-  });
-
 export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Decimal>, token: Token): TokenValues => {
   if (!amount && amount !== 0) {
     return {
@@ -56,7 +47,6 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
       priceFormattedIntegral: null,
       valueFormatted: null,
       valueFormattedMultiplier: null,
-      valueFormattedPercentage: null,
     };
   }
 
@@ -81,7 +71,6 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
         valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
-        valueFormattedPercentage: formatPercentage(tokenAmount),
       };
     case 'ETH':
     case 'stETH':
@@ -101,7 +90,6 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
         valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
-        valueFormattedPercentage: formatPercentage(tokenAmount),
       };
   }
 };

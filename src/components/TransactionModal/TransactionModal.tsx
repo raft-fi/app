@@ -96,13 +96,13 @@ const TransactionModal = () => {
     let debtLabel: string;
     let collateralLabel: string;
 
-    if (debtChange.lt(Decimal.ZERO)) {
+    if (debtChange.lt(0)) {
       debtLabel = 'repayment';
     } else {
       debtLabel = 'borrow';
     }
 
-    if (collateralChange.lt(Decimal.ZERO)) {
+    if (collateralChange.lt(0)) {
       collateralLabel = 'withdrawal';
     } else {
       collateralLabel = 'deposit';
@@ -164,16 +164,16 @@ const TransactionModal = () => {
       return '';
     }
 
-    if (collateralChange.lt(Decimal.ZERO) && debtChange.equals(Decimal.ZERO)) {
+    if (collateralChange.lt(0) && debtChange.equals(0)) {
       return 'Successful withdrawal';
     }
-    if (collateralChange.equals(Decimal.ZERO) && debtChange.lt(Decimal.ZERO)) {
+    if (collateralChange.equals(0) && debtChange.lt(0)) {
       return 'Successful repayment';
     }
-    if (collateralChange.gt(Decimal.ZERO) && debtChange.equals(Decimal.ZERO)) {
+    if (collateralChange.gt(0) && debtChange.equals(0)) {
       return 'Successful deposit';
     }
-    if (collateralChange.equals(Decimal.ZERO) && debtChange.gt(Decimal.ZERO)) {
+    if (collateralChange.equals(0) && debtChange.gt(0)) {
       return 'Successful borrow';
     }
 
@@ -293,12 +293,12 @@ const TransactionModal = () => {
           infoEntries={[
             {
               id: 'collateral',
-              label: collateralChange?.lt(Decimal.ZERO) ? 'Total collateral remaining' : 'Total collateral',
+              label: collateralChange?.lt(0) ? 'Total collateral remaining' : 'Total collateral',
               value: collateralAfterTx || 'N/A',
             },
             {
               id: 'debt',
-              label: debtChange?.lt(Decimal.ZERO) ? 'Total debt remaining' : 'Total debt',
+              label: debtChange?.lt(0) ? 'Total debt remaining' : 'Total debt',
               value: debtAfterTx || 'N/A',
             },
             {
