@@ -1,11 +1,10 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from 'tempus-decimal';
-import { CollateralTokenType } from '@raft-fi/sdk';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, RAFT_TOKEN, isCollateralToken } from '../../interfaces';
+import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import { useBorrow, useTokenBalances, useTokenPrices } from '../../hooks';
 import { Button, CurrencyInput, Icon, Loading, Typography, ValuesBox } from '../shared';
-import { getTokenValues } from '../../utils';
+import { getTokenValues, isCollateralToken } from '../../utils';
 
 import './AdjustPosition.scss';
 
@@ -93,26 +92,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
-    let collateralTokenType: CollateralTokenType;
-    switch (selectedCollateralToken) {
-      // TODO - Once support for ETH and stETH collateral is added, uncomment the following lines
-      /* case 'ETH':
-        collateralTokenType = CollateralTokenType.ETH;
-        break;
-      case 'stETH':
-        collateralTokenType = CollateralTokenType.STETH;
-        break; */
-      case 'wstETH':
-        collateralTokenType = CollateralTokenType.WSTETH;
-        break;
-      default:
-        throw new Error(`Unsupported collateral token type selected: ${selectedCollateralToken}`);
-    }
-
     borrow({
       collateralAmount: new Decimal(collateralAmount),
       debtAmount: new Decimal(borrowAmount),
-      collateralToken: collateralTokenType,
+      collateralToken: selectedCollateralToken,
       currentUserCollateral: collateralBalance,
       currentUserDebt: debtBalance,
       txnId: uuid(),
@@ -156,7 +139,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   const debtTokenBalanceValues = useMemo(
-    () => getTokenValues(tokenBalanceMap[RAFT_TOKEN], tokensPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    () => getTokenValues(tokenBalanceMap[R_TOKEN], tokensPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokensPriceMap],
   );
 
@@ -166,7 +149,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   const borrowTokenInputValues = useMemo(
-    () => getTokenValues(borrowAmount, tokensPriceMap[RAFT_TOKEN], RAFT_TOKEN),
+    () => getTokenValues(borrowAmount, tokensPriceMap[R_TOKEN], R_TOKEN),
     [borrowAmount, tokensPriceMap],
   );
 

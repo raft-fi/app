@@ -2,7 +2,7 @@ import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
 import { Decimal } from 'tempus-decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
-import { CollateralTokenType, UserPosition } from '@raft-fi/sdk';
+import { CollateralToken, UserPosition } from '@raft-fi/sdk';
 import {
   concatMap,
   map,
@@ -24,7 +24,7 @@ import { emitAppEvent } from './useAppEvent';
 
 interface BorrowRequest {
   txnId: string;
-  collateralToken: CollateralTokenType;
+  collateralToken: CollateralToken;
   collateralAmount: Decimal;
   debtAmount: Decimal;
   currentUserCollateral: Decimal;
@@ -62,7 +62,7 @@ const borrowStatus$ = new BehaviorSubject<Nullable<BorrowStatus>>(null);
 const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
   concatMap<[BorrowRequest, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<BorrowResponse>>(
     ([request, walletProvider, walletSigner]) => {
-      const { txnId, currentUserCollateral, currentUserDebt, collateralToken, collateralAmount, debtAmount } = request;
+      const { txnId, currentUserCollateral, currentUserDebt, collateralAmount, debtAmount } = request;
 
       try {
         if (!walletProvider || !walletSigner) {
@@ -73,15 +73,25 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
           });
         }
 
-        const userPosition = new UserPosition(walletSigner, collateralToken, currentUserCollateral, currentUserDebt);
+        const userPosition = new UserPosition(walletSigner, currentUserCollateral, currentUserDebt);
 
         borrowStatus$.next({ pending: true, txnId, request });
 
         let result$: Observable<ethers.ContractTransactionResponse>;
         if (collateralAmount.equals(0) && debtAmount.equals(0)) {
-          result$ = from(userPosition.close());
+          result$ = from(
+            userPosition.close({
+              collateralToken: request.collateralToken,
+              maxFeePercentage: new Decimal(0.01),
+            }),
+          );
         } else {
-          result$ = from(userPosition.open(collateralAmount, debtAmount));
+          result$ = from(
+            userPosition.open(collateralAmount, debtAmount, {
+              collateralToken: request.collateralToken,
+              maxFeePercentage: new Decimal(0.01),
+            }),
+          );
         }
 
         const waitForTxReceipt$ = result$.pipe(

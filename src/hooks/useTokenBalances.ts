@@ -17,10 +17,10 @@ import {
   withLatestFrom,
   filter,
 } from 'rxjs';
-import { Balance } from '@raft-fi/sdk';
+import { Balance, TOKENS, Token } from '@raft-fi/sdk';
 import { Decimal } from 'tempus-decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { Nullable, Token, TOKENS } from '../interfaces';
+import { Nullable } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';

@@ -16,10 +16,10 @@ import {
   Subscription,
 } from 'rxjs';
 import axios from 'axios';
-import { PriceFeed } from '@raft-fi/sdk';
+import { CollateralToken, PriceFeed, R_TOKEN, TOKENS, Token } from '@raft-fi/sdk';
 import { Decimal } from 'tempus-decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { CollateralToken, Nullable, RAFT_TOKEN, Token, TOKENS } from '../interfaces';
+import { Nullable } from '../interfaces';
 import { priceFeed$ } from './usePriceFeed';
 
 export type TokenPriceMap = {
@@ -63,7 +63,7 @@ const fetchData = async (feed: PriceFeed, token: Token): Promise<Nullable<Decima
 
 const fetchFallbackData = async (token: Token): Promise<Nullable<Decimal>> => {
   try {
-    if (token === RAFT_TOKEN) {
+    if (token === R_TOKEN) {
       return new Decimal(1);
     }
 

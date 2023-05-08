@@ -16,7 +16,7 @@
   "dependencies": {
     "@emotion/styled": "^11.10.6",
     "@mui/material": "^5.11.1",
-    "@raft-fi/sdk": "^0.0.5",
+    "@raft-fi/sdk": "^0.0.8",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
     "@web3-onboard/injected-wallets": "^2.8.5",
@@ -32,7 +32,7 @@
     "react-i18next": "^12.2.2",
     "react-router-dom": "^6.10.0",
     "sass": "^1.62.0",
-    "tempus-decimal": "^0.0.2",
+    "tempus-decimal": "^0.0.3",
     "tempus-ui": "github:tempusfinance/tempus-ui#4abc749653a54a039962f35e03cd3546168b43ac",
     "uuid": "^9.0.0"
   },

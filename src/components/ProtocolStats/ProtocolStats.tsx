@@ -2,11 +2,12 @@ import { Decimal, DecimalFormat } from 'tempus-decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
-import { DISPLAY_BASE_TOKEN, RAFT_TOKEN, COLLATERAL_BASE_TOKEN } from '../../interfaces';
 import { getTokenValues } from '../../utils';
+import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN } from '../../constants';
 import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
+import { R_TOKEN } from '@raft-fi/sdk';
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
@@ -18,7 +19,7 @@ const ProtocolStats = () => {
   }, [tokenPriceMap]);
 
   const raftTokenValues = useMemo(() => {
-    return getTokenValues(Decimal.ONE, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN);
+    return getTokenValues(Decimal.ONE, tokenPriceMap[R_TOKEN], R_TOKEN);
   }, [tokenPriceMap]);
 
   const collateralTotalSupplyValues = useMemo(() => {
@@ -38,7 +39,7 @@ const ProtocolStats = () => {
       return null;
     }
 
-    return getTokenValues(protocolStats.debtSupply, tokenPriceMap[RAFT_TOKEN], RAFT_TOKEN);
+    return getTokenValues(protocolStats.debtSupply, tokenPriceMap[R_TOKEN], R_TOKEN);
   }, [protocolStats, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
@@ -132,7 +133,7 @@ const ProtocolStats = () => {
             </div>
           </div>
           <div className="raft__protocol-stats__stat">
-            <TokenLogo type={`token-${RAFT_TOKEN}`} />
+            <TokenLogo type={`token-${R_TOKEN}`} />
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
               <Typography
