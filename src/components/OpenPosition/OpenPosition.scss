@@ -24,6 +24,39 @@
     }
   }
 
+  .raft__openPosition__warning {
+    --errorColor: var(--colorPrimary);
+    --externalLinkColor: var(--colorPrimary);
+
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background-color: var(--colorSelectedSurface);
+
+    > svg {
+      margin-right: 8px;
+    }
+
+    > div {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      flex-wrap: wrap;
+    }
+
+    .common-ui__link {
+      color: var(--colorPrimary);
+      text-decoration-line: underline;
+      display: flex;
+      align-items: center;
+
+      > svg {
+        margin-left: 6px;
+      }
+    }
+  }
+
   .raft__openPosition__data {
     margin-top: 16px;
 
