@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
 const Copy: FC<InnerIconProps> = ({ size }) => {
-  const color = 'var(--copyColor, #707b7e)';
+  const color = 'var(--copyColor, #C4C4C4)';
 
   return (
     <svg

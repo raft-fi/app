@@ -16,7 +16,8 @@
 
     .raft__protocol-stats__stat {
       margin-top: 16px;
-      background: #f5fdff;
+      background: var(--colorSurface);
+      border: 1px solid var(--colorBorder);
       border-radius: 8px;
     }
 
@@ -34,13 +35,13 @@
 
         .raft__protocol-stats__stat__separator {
           height: 56px;
-          border-left: 1px solid #ffc5ae;
+          border-left: 1px solid var(--raftWallet);
           margin: 0 16px;
         }
 
         .common-ui__logo {
           border-radius: 50%;
-          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+          filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.08));
         }
 
         .raft__protocol-stats__stat__data {

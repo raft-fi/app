@@ -208,18 +208,18 @@ const Wallet = () => {
             </Typography>
           </div>
           <div className="raft__wallet__popupActions">
-            <ButtonWrapper className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
+            <Button variant="secondary" className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
               <Icon variant="external-link" size={16} />
               <Typography variant="body-primary" weight="medium">
                 View on Etherscan
               </Typography>
-            </ButtonWrapper>
-            <ButtonWrapper className="raft__wallet__popupAction" onClick={onCopyAddress}>
+            </Button>
+            <Button variant="secondary" className="raft__wallet__popupAction" onClick={onCopyAddress}>
               <Icon variant="copy" size={16} />
               <Typography variant="body-primary" weight="medium">
                 Copy address
               </Typography>
-            </ButtonWrapper>
+            </Button>
           </div>
           <div className="raft__wallet_popupTransactions">
             {/* Load list of transaction and show it here as as list */}
@@ -234,14 +234,15 @@ const Wallet = () => {
             </div>
           </div>
           <div className="raft__wallet__popupActions">
-            <ButtonWrapper
+            <Button
+              variant="secondary"
               className="raft__wallet__popupAction raft__wallet__popupActionMaxWidth"
               onClick={onDisconnect}
             >
               <Typography variant="body-primary" weight="medium">
                 Disconnect wallet
               </Typography>
-            </ButtonWrapper>
+            </Button>
           </div>
         </div>
       </ModalWrapper>

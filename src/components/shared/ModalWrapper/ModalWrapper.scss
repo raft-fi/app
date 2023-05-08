@@ -23,7 +23,8 @@
   .raft__modalWrapper {
     position: relative;
     pointer-events: all;
-    background-color: #e1f8ff;
+    background-color: var(--raftBlue);
+    border: 1px solid var(--colorBorder);
     border-radius: 8px;
   }
 }

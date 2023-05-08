@@ -24,8 +24,8 @@ body > .MuiTooltip-popper {
 }
 
 .MuiTooltip-popper {
-  --tooltipBorder: #bfc0c0;
-  --tooltipDefaultBackground: #ffffff;
+  --tooltipBorder: var(--colorBorder);
+  --tooltipDefaultBackground: var(--colorSurface);
 
   .raft__tooltip-content.MuiTooltip-tooltip {
     border-radius: 8px;

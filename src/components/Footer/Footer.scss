@@ -3,7 +3,7 @@
   width: 100%;
   padding: var(--app-padding);
   box-sizing: border-box;
-  background-color: #002229;
+  background-color: var(--raftBlack);
   display: flex;
   justify-content: center;
   z-index: 1;
@@ -30,7 +30,7 @@
 }
 
 .raft__footer__logo {
-  --raftLogoTextColor: #ffffff;
+  --raftLogoTextColor: var(--raftWhite);
 
   display: flex;
   align-items: center;
@@ -88,7 +88,7 @@
       cursor: pointer;
 
       > div:hover {
-        --textPrimaryInverted: #f76329;
+        --textPrimaryInverted: var(--colorPrimary);
       }
     }
   }
