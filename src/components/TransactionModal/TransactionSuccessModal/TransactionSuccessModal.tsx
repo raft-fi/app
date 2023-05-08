@@ -1,12 +1,12 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, ReactNode, useCallback, useState } from 'react';
 import { ButtonWrapper, Link } from 'tempus-ui';
-import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../shared';
+import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../../shared';
 
 import './TransactionSuccessModal.scss';
 
 interface TransactionSuccessModalProps {
   open: boolean;
-  title: string;
+  title: ReactNode | string;
   subtitle: string;
   infoHeader: string;
   infoEntries: { id: string; label: string; value: string }[];
@@ -24,7 +24,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
   // TODO - Use actual wallet address from hook when hook is added
   const walletAddress = '0x0';
 
-  const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
+  const [detailsOpen, setDetailsOpen] = useState<boolean>(true);
 
   const toggleDetails = useCallback(() => {
     setDetailsOpen(prevState => !prevState);
@@ -41,9 +41,13 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <Icon variant="transaction-success" size={142} />
         </div>
         <div className="raft__transactionSuccessModal__title">
-          <Typography variant="subheader" weight="medium">
-            {title}
-          </Typography>
+          {typeof title === 'string' ? (
+            <Typography variant="subheader" weight="medium">
+              {title}
+            </Typography>
+          ) : (
+            title
+          )}
         </div>
         <div className="raft__transactionSuccessModal__subtitle">
           <Typography variant="subtitle" weight="medium">
