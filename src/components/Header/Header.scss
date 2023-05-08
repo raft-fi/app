@@ -1,4 +1,7 @@
 .raft__header {
+  --colorLinkActive: var(--colorPrimary);
+  --colorLinkInactive: var(--raftNavBlack);
+
   position: relative;
   width: 100%;
   padding: var(--app-padding);
@@ -13,7 +16,7 @@
   }
 
   .raft__header__link-active {
-    --textPrimary: #3f5559;
+    --textPrimary: var(--colorLinkActive);
   }
 
   .raft__header__container {
@@ -26,19 +29,19 @@
       z-index: 3;
 
       .raft__header__link-active {
-        --textPrimary: #3f5559;
+        --textPrimary: var(--colorLinkActive);
       }
 
       .raft__header__link-inactive {
-        --textPrimary: #6e898c;
+        --textPrimary: var(--colorLinkInactive);
 
         &:hover {
-          --textPrimary: #3f5559;
+          --textPrimary: var(--colorLinkActive);
         }
       }
 
       .raft__header__menu-link {
-        --textPrimary: #707b7e;
+        --textPrimary: var(--colorLinkInactive);
 
         width: 100%;
         display: flex;
@@ -65,19 +68,19 @@
         position: relative;
 
         .raft__locale-switcher__button {
-          --chevronDownColor: #6e898c;
-          --chevronUpColor: #6e898c;
-          --globeColor: #6e898c;
-          --textPrimary: #6e898c;
+          --chevronDownColor: var(--colorLinkInactive);
+          --chevronUpColor: var(--colorLinkInactive);
+          --globeColor: var(--colorLinkInactive);
+          --textPrimary: var(--colorLinkInactive);
 
           &:hover {
-            --chevronDownColor: #3f5559;
-            --chevronUpColor: #3f5559;
-            --globeColor: #3f5559;
-            --textPrimary: #3f5559;
+            --chevronDownColor: var(--colorLinkActive);
+            --chevronUpColor: var(--colorLinkActive);
+            --globeColor: var(--colorLinkActive);
+            --textPrimary: var(--colorLinkActive);
 
             .raft__header__link-inactive {
-              --textPrimary: #3f5559;
+              --textPrimary: var(--colorLinkActive);
             }
           }
         }
@@ -104,12 +107,12 @@
 
         .raft__locale-switcher__menu {
           position: absolute;
-          background: #ffffff;
+          background-color: var(--colorSurface);
+          box-shadow: var(--shadowMenu);
           width: 180px;
           top: 50px;
           left: 0;
           border-radius: 8px;
-          box-shadow: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
           z-index: 11;
 
           > ul {
@@ -120,14 +123,14 @@
 
             > li {
               > button {
-                --textPrimary: #6e898c;
+                --textPrimary: var(--raftBlack);
 
                 padding: 28px 16px;
                 position: relative;
               }
 
               &:hover {
-                background: #ebf8fb;
+                background-color: var(--raftBlue);
               }
 
               &:first-of-type {
@@ -139,7 +142,7 @@
               }
 
               &:not(:last-child) {
-                border-bottom: 1px solid #e9f0f6;
+                border-bottom: 1px solid var(--raftBackgroundBlue);
               }
             }
           }

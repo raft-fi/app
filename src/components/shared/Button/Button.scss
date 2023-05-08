@@ -16,16 +16,23 @@
     &[data-disabled='true'] {
       background-color: var(--colorPrimaryDisabled);
     }
+
+    &:not([data-disabled='true']):hover {
+      border: 1px solid var(--raftWhite);
+    }
   }
 
   &.raft__button-secondary {
-    background-color: var(--colorSurfaceHighlight);
+    background-color: var(--colorSurface);
     border-color: var(--colorBorder);
+
+    &:not([data-disabled='true']):hover {
+      border-color: var(--colorPrimary);
+    }
   }
 
   &.raft__button-tertiary {
-    background-color: var(--colorSurfaceHighlight);
-    box-shadow: var(--shadowPrimary);
+    background-color: var(--colorSurface);
   }
 
   &[data-disabled='true'] {

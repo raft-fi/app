@@ -81,7 +81,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      // <LocaleSwitcher key="navitem-locale" />,
+      //<LocaleSwitcher key="navitem-locale" />,
       <Wallet key="navitem-wallet" />,
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -12,15 +12,41 @@ body {
 
   overflow-y: scroll;
 
-  --colorPrimary: #f76329;
-  --colorSurface: #e1f8ff;
-  --colorBorder: #bfc0c0;
-  --colorSurfaceHighlight: #f5fdff;
-  --colorSelectedSurface: #fff8f1;
-  --colorPrimaryDisabled: #f69d7b;
-  --colorError: #c81e1e;
+  --raftStroke: #c4c4c4;
+  --raftBlack: #171717;
+  --raftNavBlack: #3f5559;
+  --raftFooter: #002229;
+  --raftGrey: #c4c4c4;
+  --raftWhite: #ffffff;
+  --raftLightPastelOrange: #fcf3ea;
+  --raftWallet: #ffd7ba;
+  --raftOrange: #f76329;
+  --raftLinearOrange: linear-gradient(131.8deg, #ff661e 14.82%, #ff9308 85.92%);
+  --raftLightPastelBlue: #f5fdff;
+  --raftBlue: #e1f8ff;
+  --raftBackgroundBlue: #c8ebf7;
+  --raftNegativeRed: #c81e1e;
+  --raftErrorBackgroundPastelRed: #fde8e8;
+  --raftPositiveGreen: #0c7b2d;
+  --raftSuccessBackgroundPastelGreen: #def3e5;
+  --raftErrorishYellowish: #fff8f1;
+  --raftScrollbarBackground: #ebebeb;
+  --raftAlertTextDarkGrey: #5d5b59;
+  --raftCTADisabled: rgba(247, 99, 41, 0.5);
+  --raftModalIconBackground: rgba(247, 99, 41, 0.25);
+  --raftModalBackground: rgba(23, 23, 23, 0.5);
+  --raftBackgroundBlueLinear: linear-gradient(180deg, rgba(200, 235, 247, 0) 0%, #c8ebf7 89.06%, #c8ebf7 100%);
 
-  --shadowPrimary: 0px 4px 16px rgba(22, 22, 22, 0.1);
+  --colorPrimary: var(--raftOrange);
+  --colorSurface: var(--raftLightPastelBlue);
+  --colorBorder: var(--raftStroke);
+  --colorSurfaceHighlight: var(--raftLightPastelBlue);
+  --colorSelectedSurface: var(--raftErrorishYellowish);
+  --colorPrimaryDisabled: var(--raftCTADisabled);
+  --colorError: var(--raftNegativeRed);
+
+  --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
 
   --app-width: 1366px;
   --app-padding: 0 32px;
@@ -38,8 +64,8 @@ body.modal-open {
 }
 
 @mixin sectionBox {
-  background: #e1f8ff;
-  box-shadow: 0px 4px 16px rgba(22, 22, 22, 0.1);
+  background: var(--raftBlue);
+  border: 1px solid var(--colorBorder);
   border-radius: 8px;
   padding: 24px;
   width: 800px;

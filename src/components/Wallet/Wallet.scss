@@ -4,11 +4,12 @@
       width: 161px;
     }
   }
+
   .raft__wallet__connected {
-    --textPrimary: #3f5559;
+    --textPrimary: var(--raftNavBlack);
 
     .raft__button {
-      background-color: #ffd7ba;
+      background-color: var(--raftWallet);
     }
 
     .raft__icon__profile {
@@ -33,7 +34,7 @@
       justify-content: flex-end;
 
       .raft__wallet__popupClose {
-        background: #f5fdff;
+        background: var(--colorSurface);
         width: 32px;
         height: 32px;
         border-radius: 50%;
@@ -44,12 +45,12 @@
     }
 
     .raft__wallet__popupAddress {
+      --textPrimary: var(--raftNavBlack);
+
       display: flex;
       align-items: center;
       justify-content: center;
       margin-top: 16px;
-
-      --textPrimary: #344649;
 
       .raft__wallet__popupAddress__avatar {
         width: 20px;
@@ -64,18 +65,17 @@
     }
 
     .raft__wallet__popupActions {
+      --textPrimary: var(--raftNavBlack);
+      --externalLinkColor: var(--raftGrey);
+
       margin-top: 16px;
       display: flex;
       justify-content: center;
-
-      --externalLinkColor: #979797;
 
       .raft__wallet__popupAction {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f5fdff;
-        border: 1px solid #bfc0c0;
         border-radius: 6px;
         padding: 14px 20px;
         width: 210px;
@@ -84,8 +84,6 @@
         .raft__icon {
           margin-right: 8px;
         }
-
-        --textPrimary: #344649;
 
         &:not(:first-child) {
           margin-left: 16px;
@@ -101,8 +99,8 @@
       margin-top: 16px;
       padding: 16px;
       box-sizing: border-box;
-      background-color: #f5fdff;
-      border: 1px solid #bfc0c0;
+      background: var(--colorSurface);
+      border: 1px solid var(--colorBorder);
       border-radius: 8px;
 
       .raft__wallet__popupTransaction {
@@ -119,7 +117,7 @@
         }
 
         &:not(:last-child) {
-          border-bottom: 1px dashed #c4c4c4;
+          border-bottom: 1px dashed var(--colorBorder);
         }
       }
     }
