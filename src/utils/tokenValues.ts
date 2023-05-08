@@ -51,7 +51,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
     };
   }
 
-  const tokenAmount = new Decimal(amount);
+  const tokenAmount = typeof amount === 'string' && isNaN(Number(amount)) ? Decimal.ZERO : new Decimal(amount);
   const tokenValue = price ? tokenAmount.mul(price) : null;
 
   switch (token) {
