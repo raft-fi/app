@@ -9,6 +9,8 @@ import CurrencyInput from './CurrencyInput';
 import ValuesBox from './ValuesBox';
 import ModalWrapper from './ModalWrapper';
 import ValueLabel from './ValueLabel';
+import TooltipWrapper from './TooltipWrapper';
+import Tooltip from './Tooltip';
 
 export {
   Button,
@@ -22,6 +24,8 @@ export {
   ValuesBox,
   ModalWrapper,
   ValueLabel,
+  TooltipWrapper,
+  Tooltip,
 };
 
 export { colors } from './Colors';

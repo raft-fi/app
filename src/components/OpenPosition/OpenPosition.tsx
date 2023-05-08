@@ -20,10 +20,19 @@ import {
   USD_UI_PRECISION,
 } from '../../constants';
 import { getTokenValues } from '../../utils';
-import { Button, CurrencyInput, ValuesBox, Typography, Icon, Loading, ValueLabel } from '../shared';
+import {
+  Button,
+  CurrencyInput,
+  ValuesBox,
+  Typography,
+  Icon,
+  Loading,
+  ValueLabel,
+  TooltipWrapper,
+  Tooltip,
+} from '../shared';
 
 import './OpenPosition.scss';
-import { ButtonWrapper } from 'tempus-ui';
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -386,10 +395,21 @@ const OpenPosition = () => {
               value: hasMinBorrow ? (
                 `${borrowTokenValues.amountFormatted ?? 0}`
               ) : (
-                <ButtonWrapper className="raft__openPosition__error">
+                <TooltipWrapper
+                  anchorClasses="raft__openPosition__error"
+                  tooltipContent={
+                    <Tooltip className="raft__openPosition__tooltip__error">
+                      <Typography variant="body-tertiary">{`Debt under ${minBorrowFormatted}`}</Typography>
+                      <Typography variant="body-tertiary" type="mono">
+                        &nbsp;{RAFT_TOKEN}
+                      </Typography>
+                    </Tooltip>
+                  }
+                  placement="right"
+                >
                   <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0}`} />
                   <Icon variant="error" size="small" />
-                </ButtonWrapper>
+                </TooltipWrapper>
               ),
             },
             {
@@ -415,10 +435,18 @@ const OpenPosition = () => {
                 hasMinRatio || collateralizationRatioFormatted === 'N/A' ? (
                   collateralizationRatioFormatted
                 ) : (
-                  <ButtonWrapper className="raft__openPosition__error">
+                  <TooltipWrapper
+                    anchorClasses="raft__openPosition__error"
+                    tooltipContent={
+                      <Tooltip className="raft__openPosition__tooltip__error">
+                        <Typography variant="body-tertiary">{`Collateral ratio lower than ${minRatioFormatted}`}</Typography>
+                      </Tooltip>
+                    }
+                    placement="right"
+                  >
                     <ValueLabel value={collateralizationRatioFormatted} />
                     <Icon variant="error" size="small" />
-                  </ButtonWrapper>
+                  </TooltipWrapper>
                 ),
             },
           ]}

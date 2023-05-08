@@ -14,6 +14,8 @@
     "pseudo-translation": "./scripts/pseudo-translation.sh"
   },
   "dependencies": {
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.11.1",
     "@raft-fi/sdk": "^0.0.5",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
