@@ -87,8 +87,7 @@ const typographyTypeMap: TypographyTypeMap = {
   mono: 'BioRhyme, serif',
 };
 
-export interface TypographyProps
-  extends TypographyBaseProps<TypographyVariant, TypographyColor, TypographyWeight, TypographyType> {}
+export type TypographyProps = TypographyBaseProps<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>;
 
 const Typography: FC<TypographyProps> = props => (
   <TypographyBase<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>

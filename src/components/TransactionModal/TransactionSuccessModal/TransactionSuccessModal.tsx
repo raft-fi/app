@@ -1,5 +1,6 @@
 import { FC, ReactNode, useCallback, useState } from 'react';
 import { ButtonWrapper, Link } from 'tempus-ui';
+import { useBorrow, useEIP1193Provider } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../../shared';
 
 import './TransactionSuccessModal.scss';
@@ -21,18 +22,31 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
   infoEntries,
   onClose,
 }) => {
-  // TODO - Use actual wallet address from hook when hook is added
-  const walletAddress = '0x0';
+  const { borrowStatus } = useBorrow();
+  const eip1193Provider = useEIP1193Provider();
+  const txHash = borrowStatus?.contractTransaction?.hash ?? '0x0';
 
   const [detailsOpen, setDetailsOpen] = useState<boolean>(true);
 
-  const toggleDetails = useCallback(() => {
-    setDetailsOpen(prevState => !prevState);
-  }, []);
+  const toggleDetails = useCallback(() => setDetailsOpen(prevState => !prevState), []);
 
   const onAddRToWallet = useCallback(() => {
-    // TODO - Add R to wallet logic
-  }, []);
+    if (eip1193Provider) {
+      // https://eips.ethereum.org/EIPS/eip-747
+      eip1193Provider.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: '0x69665394a7ee38bb4599B0D7EBC9802242e2bF87',
+            symbol: 'R',
+            decimals: 18,
+          },
+          // @web-onboard wrongly treats this as unknown[] but it should not
+        } as unknown as unknown[],
+      });
+    }
+  }, [eip1193Provider]);
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
@@ -67,7 +81,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         )}
         <div className="raft__transactionSuccessModal__explorerLink">
           <Typography variant="body-tertiary">View transaction history in&nbsp;</Typography>
-          <Link href={`https://etherscan.io/address/${walletAddress}`}>
+          <Link href={`https://etherscan.io/tx/${txHash}`}>
             <Typography variant="body-tertiary" color="text-secondary">
               Etherscan
             </Typography>
@@ -77,7 +91,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
-            <Button variant="tertiary" onClick={onAddRToWallet}>
+            <Button variant="secondary" onClick={onAddRToWallet}>
               <Typography variant="body-primary" weight="medium">
                 Add R to wallet
               </Typography>

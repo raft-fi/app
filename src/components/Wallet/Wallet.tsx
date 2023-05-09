@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
@@ -6,7 +5,7 @@ import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { updateWallet, useENS } from '../../hooks';
+import { updateWalletFromEIP1193Provider, useENS } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
@@ -62,12 +61,11 @@ const Wallet = () => {
    */
   useEffect(() => {
     if (!wallet) {
-      updateWallet(null);
+      updateWalletFromEIP1193Provider(null);
       return;
     }
 
-    const walletProvider = new ethers.BrowserProvider(wallet.provider);
-    updateWallet(walletProvider);
+    updateWalletFromEIP1193Provider(wallet.provider);
   }, [wallet]);
 
   /**
