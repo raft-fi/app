@@ -297,7 +297,11 @@ const OpenPosition = () => {
   }, [borrowStatus]);
 
   const collateralInputFiatValue = useMemo(() => {
-    if (!collateralTokenValues.valueFormatted || new Decimal(collateralAmount).isZero()) {
+    try {
+      if (!collateralTokenValues.valueFormatted || new Decimal(collateralAmount).isZero()) {
+        return '$0.00';
+      }
+    } catch (error) {
       return '$0.00';
     }
 
@@ -305,7 +309,11 @@ const OpenPosition = () => {
   }, [collateralTokenValues.valueFormatted, collateralAmount]);
 
   const borrowInputFiatValue = useMemo(() => {
-    if (!borrowTokenValues.valueFormatted || new Decimal(borrowAmount).isZero()) {
+    try {
+      if (!borrowTokenValues.valueFormatted || new Decimal(borrowAmount).isZero()) {
+        return '$0.00';
+      }
+    } catch (error) {
       return '$0.00';
     }
 

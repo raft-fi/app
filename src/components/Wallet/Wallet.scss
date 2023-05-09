@@ -6,11 +6,7 @@
   }
 
   .raft__wallet__connected {
-    --textPrimary: var(--raftNavBlack);
-
-    .raft__button {
-      background-color: var(--raftWallet);
-    }
+    --textPrimary: var(--raftHeaderTextDark);
 
     .raft__icon__profile {
       margin-right: 8px;
@@ -45,7 +41,7 @@
     }
 
     .raft__wallet__popupAddress {
-      --textPrimary: var(--raftNavBlack);
+      --textPrimary: var(--raftHeaderTextDark);
 
       display: flex;
       align-items: center;
@@ -65,7 +61,7 @@
     }
 
     .raft__wallet__popupActions {
-      --textPrimary: var(--raftNavBlack);
+      --textPrimary: var(--raftHeaderTextDark);
       --externalLinkColor: var(--raftGrey);
 
       margin-top: 16px;

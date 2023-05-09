@@ -177,7 +177,7 @@ const Wallet = () => {
 
       {wallet && (
         <div className="raft__wallet__connected">
-          <Button variant="primary" onClick={handlePopupOpen}>
+          <Button variant="tertiary" onClick={handlePopupOpen}>
             {ens.avatar ? (
               <img className="raft__wallet__connected__avatar" src={ens.avatar} />
             ) : (

@@ -83,7 +83,9 @@ const ProtocolStats = () => {
   return (
     <div className="raft__protocol-stats">
       <div className="raft__protocol-stats__header">
-        <Typography variant="subtitle">Protocol stats</Typography>
+        <Typography variant="subtitle" weight="medium">
+          Protocol stats
+        </Typography>
         <ButtonWrapper onClick={onToggleExpanded}>
           <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
         </ButtonWrapper>
@@ -97,6 +99,7 @@ const ProtocolStats = () => {
               <Typography
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
+                weight="semi-bold"
                 color="text-secondary"
               >
                 Total supply
@@ -110,6 +113,7 @@ const ProtocolStats = () => {
               <Typography
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
+                weight="semi-bold"
                 color="text-secondary"
               >
                 Total value
@@ -123,6 +127,7 @@ const ProtocolStats = () => {
               <Typography
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
+                weight="semi-bold"
                 color="text-secondary"
               >
                 Price
@@ -139,6 +144,7 @@ const ProtocolStats = () => {
               <Typography
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
+                weight="semi-bold"
                 color="text-secondary"
               >
                 Total supply
@@ -152,6 +158,7 @@ const ProtocolStats = () => {
               <Typography
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
+                weight="semi-bold"
                 color="text-secondary"
               >
                 Total value
@@ -165,6 +172,7 @@ const ProtocolStats = () => {
               <Typography
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
+                weight="semi-bold"
                 color="text-secondary"
               >
                 Price
@@ -189,7 +197,7 @@ const ProtocolStats = () => {
             },
             {
               id: 'borrowingRate',
-              label: 'Borrowing rate',
+              label: 'Borrowing fee',
               value: borrowingFeeFormatted || '---',
             },
           ]}
