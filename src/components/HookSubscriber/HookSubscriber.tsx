@@ -6,6 +6,7 @@ import {
   subscribeProtocolStats,
   subscribeTakenBalances,
   subscribeTakenPrices,
+  subscribeEIP1193Provider,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -19,6 +20,7 @@ const HookSubscriber: FC = () => {
     subscribeProtocolStats();
     subscribeCollateralBalances();
     subscribeDebtBalances();
+    subscribeEIP1193Provider();
   }, []);
 
   return null;

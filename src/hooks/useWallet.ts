@@ -1,16 +1,38 @@
+import { EIP1193Provider } from '@web3-onboard/common';
 import { BrowserProvider } from 'ethers';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, tap, Subscription } from 'rxjs';
 import { bind } from '@react-rxjs/core';
 import { Nullable } from '../interfaces';
 
 const DEFAULT_VALUE = null;
 
 const wallet$ = new BehaviorSubject<Nullable<BrowserProvider>>(DEFAULT_VALUE);
+const eip1193Provider$ = new BehaviorSubject<Nullable<EIP1193Provider>>(DEFAULT_VALUE);
 
-const updateWallet = (wallet: Nullable<BrowserProvider>) => {
-  wallet$.next(wallet);
+const updateWalletFromEIP1193Provider = (eip1193Provider: Nullable<EIP1193Provider>) => {
+  eip1193Provider$.next(eip1193Provider);
 };
 
-export const [useWallet] = bind(wallet$, DEFAULT_VALUE);
+const stream$ = eip1193Provider$.pipe(
+  tap(eip1193Provider => {
+    if (!eip1193Provider) {
+      wallet$.next(null);
+    } else {
+      wallet$.next(new BrowserProvider(eip1193Provider));
+    }
+  }),
+);
 
-export { wallet$, updateWallet };
+export const [useWallet] = bind(wallet$, DEFAULT_VALUE);
+export const [useEIP1193Provider] = bind(eip1193Provider$, DEFAULT_VALUE);
+
+export { wallet$, eip1193Provider$, updateWalletFromEIP1193Provider };
+
+let subscription: Subscription;
+
+export const subscribeEIP1193Provider = (): void => {
+  unsubscribeEIP1193Provider();
+  subscription = stream$.subscribe();
+};
+export const unsubscribeEIP1193Provider = (): void => subscription?.unsubscribe();
+export const resetEIP1193Provider = (): void => eip1193Provider$.next(DEFAULT_VALUE);
