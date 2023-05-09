@@ -23,6 +23,7 @@ import Copy from './Copy';
 import Info from './Info';
 import TransactionFailed from './TransactionFailed';
 import TransactionSuccess from './TransactionSuccess';
+import ArrowRightThin from './ArrowRightThin';
 
 type IconVariant =
   | 'discord'
@@ -47,7 +48,8 @@ type IconVariant =
   | 'copy'
   | 'info'
   | 'transaction-failed'
-  | 'transaction-success';
+  | 'transaction-success'
+  | 'arrow-right-thin';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -73,6 +75,7 @@ const ICON_MAP: IconMap = {
   info: Info,
   'transaction-failed': TransactionFailed,
   'transaction-success': TransactionSuccess,
+  'arrow-right-thin': ArrowRightThin,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;
