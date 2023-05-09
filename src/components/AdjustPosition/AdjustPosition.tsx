@@ -180,35 +180,28 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   /**
-   * Display token (stETH) values
+   * Display token (stETH) price
    */
-  const displayTokenTokenValues = useMemo(
-    () => getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN),
-    [tokenPriceMap],
-  );
+  const displayTokenTokenPrice = useMemo(() => tokenPriceMap[DISPLAY_BASE_TOKEN], [tokenPriceMap]);
 
   /**
    * Current user collateral denominated in display token (stETH)
    */
   const currentCollateralInDisplayToken = useMemo(() => {
-    if (!currentCollateralTokenValues.value || !displayTokenTokenValues.price) {
+    if (!currentCollateralTokenValues.value || !displayTokenTokenPrice) {
       return null;
     }
 
-    const value = currentCollateralTokenValues.value.div(displayTokenTokenValues.price);
+    const value = currentCollateralTokenValues.value.div(displayTokenTokenPrice);
 
-    return getTokenValues(value, displayTokenTokenValues.price, DISPLAY_BASE_TOKEN);
-  }, [displayTokenTokenValues.price, currentCollateralTokenValues.value]);
+    return getTokenValues(value, displayTokenTokenPrice, DISPLAY_BASE_TOKEN);
+  }, [displayTokenTokenPrice, currentCollateralTokenValues.value]);
 
   /**
    * New user collateral denominated in display token (stETH)
    */
   const newCollateralInDisplayToken = useMemo(() => {
-    if (
-      !collateralTokenInputValues.value ||
-      !displayTokenTokenValues.price ||
-      !currentCollateralInDisplayToken?.amount
-    ) {
+    if (!collateralTokenInputValues.value || !displayTokenTokenPrice || !currentCollateralInDisplayToken?.amount) {
       return null;
     }
 
@@ -219,7 +212,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         newValue = collateralTokenInputValues.amount;
         break;
       case 'wstETH':
-        newValue = collateralTokenInputValues.value.div(displayTokenTokenValues.price);
+        newValue = collateralTokenInputValues.value.div(displayTokenTokenPrice);
     }
 
     if (!newValue) {
@@ -233,7 +226,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return getTokenValues(newValue, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
   }, [
-    displayTokenTokenValues.price,
+    displayTokenTokenPrice,
     collateralTokenInputValues.amount,
     collateralTokenInputValues.value,
     currentCollateralInDisplayToken?.amount,
