@@ -1,6 +1,6 @@
 .raft__header {
-  --colorLinkActive: var(--colorPrimary);
-  --colorLinkInactive: var(--raftNavBlack);
+  --colorLinkActive: var(--raftHeaderTextDark);
+  --colorLinkInactive: var(--raftHeaderText);
 
   position: relative;
   width: 100%;

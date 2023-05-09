@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 const RaftLogo = () => {
-  const raftLogoTextColor = 'var(--raftLogoTextColor, #171717)';
+  const raftLogoTextColor = 'var(--raftLogoTextColor, var(--raftHeaderTextDark))';
 
   return (
     <svg width="148" height="43" viewBox="0 0 148 43" fill="none" xmlns="http://www.w3.org/2000/svg">
