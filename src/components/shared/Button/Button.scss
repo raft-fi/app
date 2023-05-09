@@ -46,6 +46,7 @@
 
   &[data-selected='true'] {
     background-color: var(--colorSelectedSurface);
+    border: 1px solid var(--colorPrimary);
 
     --textPrimary: var(--colorPrimary);
   }
