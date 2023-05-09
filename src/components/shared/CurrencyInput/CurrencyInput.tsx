@@ -1,10 +1,11 @@
-import { createRef, FC, memo, useCallback, useState, FocusEvent } from 'react';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo } from 'react';
+import { TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
 import Menu from '../Menu';
+import Button from '../Button';
 
 import './CurrencyInput.scss';
 
@@ -58,6 +59,8 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
 
   const [, setFocused] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+  const isSingleToken = useMemo(() => tokens.length === 1, [tokens.length]);
 
   const handleValueChange = useCallback(
     (value: string) => {
@@ -154,9 +157,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         `}
       >
         {onDecrementAmount && step && (
-          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={handleDecrementAmount}>
+          <Button
+            variant="secondary"
+            className="raft__currencyInput__adjustAmountButton"
+            onClick={handleDecrementAmount}
+          >
             <Typography variant="subtitle">-</Typography>
-          </ButtonWrapper>
+          </Button>
         )}
         <div
           className={`raft__currencyInput__inputContainer
@@ -185,17 +192,21 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
               />
             </Typography>
           </div>
-          <div className="raft__currencyInput__tokenSelectorContainer">
+          <div
+            className={`raft__currencyInput__tokenSelectorContainer ${
+              isSingleToken ? 'raft__currencyInput__tokenSelectorContainer__single' : ''
+            }`}
+          >
             <div
               className={`raft__currencyInput__tokenSelector ${
-                tokens.length === 1 ? 'raft__currencyInput__tokenSelector__single' : ''
+                isSingleToken ? 'raft__currencyInput__tokenSelector__single' : ''
               }`}
               onClick={onOpenDropdown}
             >
               <div className="raft__currencyInput__tokenLogoContainer">
                 <TokenLogo type={`token-${selectedToken}`} size="small" />
               </div>
-              {tokens.length > 1 && (
+              {!isSingleToken && (
                 <>
                   <Typography className="raft__currencyInput__tokenLabel" variant="body-tertiary">
                     {selectedToken}
@@ -204,7 +215,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
                 </>
               )}
             </div>
-            {tokens.length > 1 && (
+            {!isSingleToken && (
               <Menu open={dropdownOpen} onClose={onCloseDropdown}>
                 <div className="raft__currencyInput__dropdownContainer">
                   {tokens.map(token => {
@@ -231,9 +242,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </div>
         </div>
         {onIncrementAmount && step && (
-          <ButtonWrapper className="raft__currencyInput__adjustAmountButton" onClick={handleIncrementAmount}>
+          <Button
+            variant="secondary"
+            className="raft__currencyInput__adjustAmountButton"
+            onClick={handleIncrementAmount}
+          >
             <Typography variant="subtitle">+</Typography>
-          </ButtonWrapper>
+          </Button>
         )}
       </div>
       {fiatValue && (
