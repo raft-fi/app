@@ -2,12 +2,12 @@ import { Config } from '../interfaces';
 
 const config: Config = {
   ethereum: {
-    positionManager: '0x0feded544f10661fa11a85f6bd5381153d04ea73',
+    positionManager: '0xfFaAB9cb73844DE549d28B4fFe348f48eff267C9',
     collateralTokens: {
       wstETH: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
     },
-    raftCollateralToken: '0x3E579280498709835045c10f981fb0E78F45D086',
-    raftDebtToken: '0x0EcB7264d23c98d8b898d1C0638AF3C56650a12E',
+    raftCollateralToken: '0xEff7d350DDF490CB3b12A96Adc476F0ee5908efE',
+    raftDebtToken: '0x8f616D781e799fE8e150AE98F3e233722007e536',
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: '',
