@@ -41,8 +41,6 @@
     height: 48px;
     box-sizing: border-box;
     border-radius: 8px 8px 0px 0px;
-    padding: 0px 8px;
-    border-bottom: 1px solid var(--colorBorder);
 
     .raft__currencyInput__inputContainer {
       height: 48px;
@@ -51,6 +49,8 @@
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
+      padding: 0px 8px;
+      border-bottom: 1px solid var(--colorBorder);
 
       .raft__currencyInput__amountContainer {
         width: 100%;
@@ -80,6 +80,11 @@
 
       .raft__currencyInput__tokenSelectorContainer {
         position: relative;
+        margin-right: -6px;
+
+        &.raft__currencyInput__tokenSelectorContainer__single {
+          margin-right: initial;
+        }
 
         .raft__currencyInput__tokenSelector {
           display: flex;
