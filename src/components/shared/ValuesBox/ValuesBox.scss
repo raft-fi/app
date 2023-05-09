@@ -22,9 +22,29 @@
       border-bottom: 1px dashed var(--colorBorder);
     }
 
-    .raft__valuesBox__itemValueNode {
+    .raft__valuesBox__itemLabel {
       display: flex;
       align-items: flex-end;
+    }
+
+    .raft__valuesBox__itemValue {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .raft__valuesBox__itemValueMultiple {
+      .raft__valueLabel {
+        width: 130px;
+      }
+
+      .raft__valueLabel:not(:first-child) {
+        justify-content: flex-end;
+      }
+
+      .raft__icon__arrowRightThin {
+        margin: 0px 16px;
+      }
     }
   }
 }
