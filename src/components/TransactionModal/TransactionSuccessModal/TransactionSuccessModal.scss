@@ -1,5 +1,4 @@
 .raft__transactionSuccessModal {
-  background: var(--colorSurface);
   border-radius: 8px;
   padding: 48px 24px 24px 24px;
   display: flex;
@@ -38,6 +37,21 @@
   .raft__transactionSuccessModal__info {
     width: 100%;
     margin-bottom: 16px;
+    background: var(--colorSurface);
+    border: 1px solid var(--colorBorder);
+    border-radius: 8px;
+    padding: 16px;
+    box-sizing: border-box;
+
+    .raft__transactionSuccessModal__info__title {
+      margin-bottom: 16px;
+    }
+
+    .raft__valuesBox {
+      background: initial;
+      border: initial;
+      padding: 0;
+    }
   }
 
   .raft__transactionSuccessModal__explorerLink {

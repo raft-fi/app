@@ -1,5 +1,5 @@
-import { FC, ReactNode, useCallback, useState } from 'react';
-import { ButtonWrapper, Link } from 'tempus-ui';
+import { FC, ReactNode, useCallback } from 'react';
+import { Link } from 'tempus-ui';
 import { useBorrow, useEIP1193Provider } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../../shared';
 
@@ -25,10 +25,6 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
   const { borrowStatus } = useBorrow();
   const eip1193Provider = useEIP1193Provider();
   const txHash = borrowStatus?.contractTransaction?.hash ?? '0x0';
-
-  const [detailsOpen, setDetailsOpen] = useState<boolean>(true);
-
-  const toggleDetails = useCallback(() => setDetailsOpen(prevState => !prevState), []);
 
   const onAddRToWallet = useCallback(() => {
     if (eip1193Provider) {
@@ -68,17 +64,12 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
             {subtitle}
           </Typography>
         </div>
-        <ButtonWrapper className="raft__transactionSuccessModal__infoHeader" onClick={toggleDetails}>
-          <Typography variant="subtitle" weight="medium">
+        <div className="raft__transactionSuccessModal__info">
+          <Typography className="raft__transactionSuccessModal__info__title" variant="body-primary" weight="semi-bold">
             {infoHeader}
           </Typography>
-          <Icon variant={detailsOpen ? 'chevron-up' : 'chevron-down'} size={24} />
-        </ButtonWrapper>
-        {detailsOpen && (
-          <div className="raft__transactionSuccessModal__info">
-            <ValuesBox values={infoEntries} />
-          </div>
-        )}
+          <ValuesBox values={infoEntries} />
+        </div>
         <div className="raft__transactionSuccessModal__explorerLink">
           <Typography variant="body-tertiary">View transaction history in&nbsp;</Typography>
           <Link href={`https://etherscan.io/tx/${txHash}`}>
@@ -93,7 +84,13 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <div className="raft__transactionSuccessModal__action">
             <Button variant="secondary" onClick={onAddRToWallet}>
               <Typography variant="body-primary" weight="medium">
-                Add R to wallet
+                Add&nbsp;
+              </Typography>
+              <Typography variant="body-primary" weight="medium" type="mono">
+                R
+              </Typography>
+              <Typography variant="body-primary" weight="medium">
+                &nbsp;to wallet
               </Typography>
             </Button>
           </div>

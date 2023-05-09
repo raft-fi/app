@@ -1,5 +1,4 @@
 .raft__transactionFailedModal {
-  background: var(--colorSurface);
   border-radius: 8px;
   padding: 48px 24px 24px 24px;
   display: flex;
@@ -16,26 +15,24 @@
     margin-bottom: 36px;
   }
 
-  .raft__transactionFailedModal__errorHeader {
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
-
-  .raft__transactionFailedModal__errorHeaderDetailsOpen {
-    margin-bottom: 32px;
-  }
-
   .raft__transactionFailedModal__errorMessage {
     margin-bottom: 32px;
     background: var(--colorSurfaceHighlight);
+    border: 1px solid var(--colorBorder);
     border-radius: 8px;
     padding: 16px;
     box-sizing: border-box;
-    overflow-wrap: break-word;
     max-width: 100%;
+
+    .raft__transactionFailedModal__errorMessage__title {
+      margin-bottom: 16px;
+    }
+
+    .raft__transactionFailedModal__errorMessage__content {
+      overflow-wrap: break-word;
+      max-height: 320px;
+      overflow-y: auto;
+    }
   }
 
   .raft__transactionFailedModal__actions {
