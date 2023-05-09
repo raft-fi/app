@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useCallback } from 'react';
 import { ButtonWrapper, ButtonWrapperProps } from 'tempus-ui';
 
 import './Button.scss';
@@ -22,12 +22,19 @@ const Button: FC<PropsWithChildren<ButtonProps>> = ({
   selected,
   onClick,
 }) => {
+  // TODO - It seems that ButtonWrapper is clickable even if we pass in disabled, this is a workaround fix
+  const handleClick = useCallback(() => {
+    if (!disabled) {
+      onClick();
+    }
+  }, [disabled, onClick]);
+
   return (
     <ButtonWrapper
       className={`raft__button ${getButtonClass(variant)} ${className}`}
       disabled={disabled}
       selected={selected}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {children}
     </ButtonWrapper>

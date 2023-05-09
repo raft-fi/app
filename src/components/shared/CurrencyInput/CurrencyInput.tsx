@@ -24,6 +24,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   tokens: string[];
   selectedToken: string;
   step?: number;
+  allowNegativeNumbers?: boolean;
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
@@ -47,6 +48,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     selectedToken,
     tokens,
     step,
+    allowNegativeNumbers = false,
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
@@ -132,6 +134,10 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onDecrementAmount(step);
   }, [onDecrementAmount, step]);
 
+  const inputPattern = useMemo(() => {
+    return allowNegativeNumbers ? `-?[0-9]*[.]?[0-9]{0,${precision}}` : `[0-9]*[.]?[0-9]{0,${precision}}`;
+  }, [allowNegativeNumbers, precision]);
+
   return (
     <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>
       <div className="raft__currencyInput__header">
@@ -181,7 +187,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
                 ref={inputRef}
                 value={value}
                 placeholder={placeholder}
-                pattern={`[0-9]*[.]?[0-9]{0,${precision}}`}
+                pattern={inputPattern}
                 disabled={disabled}
                 debounce
                 autoFocus={Boolean(value) && autoFocus}
