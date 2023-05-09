@@ -77,6 +77,7 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
 
         borrowStatus$.next({ pending: true, txnId, request });
 
+        // TODO - maxFeePercentage should be same as borrowFee (should be added in SDK as default value)
         let result$: Observable<ethers.ContractTransactionResponse>;
         if (collateralAmount.equals(0) && debtAmount.equals(0)) {
           result$ = from(
@@ -85,9 +86,19 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
               maxFeePercentage: new Decimal(0.01),
             }),
           );
-        } else {
+        } else if (currentUserCollateral.isZero() && currentUserDebt.isZero()) {
           result$ = from(
             userPosition.open(collateralAmount, debtAmount, {
+              collateralToken: request.collateralToken,
+              maxFeePercentage: new Decimal(0.01),
+            }),
+          );
+        } else {
+          const collateralChange = collateralAmount.sub(currentUserCollateral);
+          const debtChange = debtAmount.sub(currentUserDebt);
+
+          result$ = from(
+            userPosition.manage(collateralChange, debtChange, {
               collateralToken: request.collateralToken,
               maxFeePercentage: new Decimal(0.01),
             }),
