@@ -18,7 +18,7 @@ import {
   filter,
 } from 'rxjs';
 import { Balance, TOKENS, Token } from '@raft-fi/sdk';
-import { Decimal } from 'tempus-decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';

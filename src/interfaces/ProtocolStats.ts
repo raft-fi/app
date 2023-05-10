@@ -1,4 +1,4 @@
-import { Decimal } from 'tempus-decimal';
+import { Decimal } from '@tempusfinance/decimal';
 
 export interface ProtocolStats {
   collateralSupply: Decimal;

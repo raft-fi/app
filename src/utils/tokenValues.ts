@@ -1,4 +1,4 @@
-import { Numberish, Decimal, DecimalFormat } from 'tempus-decimal';
+import { Numberish, Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   MULTIPLIER_UI_PRECISION,
@@ -51,8 +51,8 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
     };
   }
 
-  const tokenAmount = typeof amount === 'string' && isNaN(Number(amount)) ? Decimal.ZERO : new Decimal(amount);
-  const tokenValue = price ? tokenAmount.mul(price) : null;
+  const tokenAmount = Decimal.parse(amount, 0);
+  const tokenValue = price?.mul(tokenAmount) ?? null;
 
   switch (token) {
     case 'R':
