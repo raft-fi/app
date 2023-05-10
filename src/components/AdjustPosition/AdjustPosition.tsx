@@ -34,11 +34,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
+      setCollateralAmount(collateralBalance.mul(-1).toString());
+      setBorrowAmount(debtBalance.mul(-1).toString());
+    } else if (collateralBalance && debtBalance) {
       setCollateralAmount('0');
       setBorrowAmount('0');
-    } else if (collateralBalance && debtBalance) {
-      setCollateralAmount(collateralBalance.toString());
-      setBorrowAmount(debtBalance.toString());
     }
 
     setClosePositionActive(prevState => !prevState);
