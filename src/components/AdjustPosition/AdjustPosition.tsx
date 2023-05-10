@@ -297,6 +297,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
+    if (currentCollateralInDisplayToken.amount.isZero()) {
+      return null;
+    }
+
     return currentDebtTokenValues.amount.mul(LIQUIDATION_UPPER_RATIO).div(currentCollateralInDisplayToken.amount);
   }, [currentCollateralInDisplayToken?.amount, currentDebtTokenValues?.amount]);
 
@@ -366,6 +370,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    */
   const currentCollateralizationRatio = useMemo(() => {
     if (!currentCollateralInDisplayToken?.value || !currentDebtTokenValues.value) {
+      return null;
+    }
+
+    if (currentDebtTokenValues.value.isZero()) {
       return null;
     }
 
