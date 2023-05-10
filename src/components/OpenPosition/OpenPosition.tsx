@@ -41,7 +41,8 @@ const OpenPosition = () => {
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
-  const [state, setState] = useState<string>('default');
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
+  const [maxButtonDisabled, setMaxButtonDisabled] = useState<boolean>(false);
 
   const collateralTokenValues = useMemo(
     () => getTokenValues(collateralAmount, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
@@ -213,8 +214,8 @@ const OpenPosition = () => {
   }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio, walletConnected]);
 
   const buttonDisabled = useMemo(
-    () => state === 'loading' || (walletConnected && !canBorrow),
-    [canBorrow, state, walletConnected],
+    () => actionButtonState === 'loading' || (walletConnected && !canBorrow),
+    [canBorrow, actionButtonState, walletConnected],
   );
 
   const onConnectWallet = useCallback(() => {
@@ -287,12 +288,12 @@ const OpenPosition = () => {
     }
 
     if (borrowStatus.pending) {
-      setState('loading');
+      setActionButtonState('loading');
     } else if (borrowStatus.success) {
       // TODO - Open success modal with tx info
-      setState('success');
+      setActionButtonState('success');
     } else {
-      setState('default');
+      setActionButtonState('default');
     }
   }, [borrowStatus]);
 
@@ -312,12 +313,42 @@ const OpenPosition = () => {
     return `~${borrowTokenValues.valueFormatted}`;
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
+  const handleMaxButtonClick = useCallback(() => {
+    setMaxButtonDisabled(true);
+    if (selectedCollateralTokenBalance) {
+      setCollateralAmount(selectedCollateralTokenBalance.toString());
+    }
+  }, [selectedCollateralTokenBalance]);
+
+  const handleCollateralValueUpdate = useCallback((amount: string) => {
+    setMaxButtonDisabled(false);
+    setCollateralAmount(amount);
+  }, []);
+
+  useEffect(() => {
+    const borrowTokenPrice = tokenPriceMap[R_TOKEN];
+
+    if (maxButtonDisabled && borrowTokenPrice && collateralTokenValues) {
+      const defaultBorrowAmount = collateralTokenValues.value?.div(borrowTokenPrice).div(HEALTHY_RATIO).toTruncated(4);
+
+      if (defaultBorrowAmount) {
+        setBorrowAmount(defaultBorrowAmount);
+      }
+    }
+  }, [maxButtonDisabled, collateralTokenValues, tokenPriceMap]);
+
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
         <Typography variant="subtitle" weight="medium">
           Open position
         </Typography>
+
+        <Button variant="secondary" disabled={maxButtonDisabled} onClick={handleMaxButtonClick}>
+          <Typography variant="body-tertiary" color="text-tertiary">
+            Max safe borrow
+          </Typography>
+        </Button>
       </div>
       <div className="raft__openPosition__input">
         <CurrencyInput
@@ -329,7 +360,7 @@ const OpenPosition = () => {
           value={collateralAmount}
           maxAmount={selectedCollateralTokenBalanceFormatted}
           onTokenUpdate={handleCollateralTokenChange}
-          onValueUpdate={setCollateralAmount}
+          onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
           error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
         />
@@ -447,7 +478,7 @@ const OpenPosition = () => {
       </div>
       <div className="raft__openPosition__action">
         <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={buttonDisabled}>
-          {state === 'loading' && <Loading />}
+          {actionButtonState === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
             {buttonLabel}
           </Typography>

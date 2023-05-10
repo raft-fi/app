@@ -27,6 +27,11 @@
     background-color: var(--colorSurface);
     border-color: var(--colorBorder);
 
+    &[data-disabled='true'] {
+      color: var(--colorPrimary);
+      background-color: var(--colorSecondaryDisabled);
+    }
+
     &:not([data-disabled='true']):hover {
       border-color: var(--colorPrimary);
     }
