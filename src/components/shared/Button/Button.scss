@@ -21,6 +21,10 @@
       background-color: var(--raftDarkOrange);
       border: 1px solid var(--raftWhite);
     }
+
+    &:focus-visible {
+      outline: 1px solid var(--raftWhite);
+    }
   }
 
   &.raft__button-secondary {
@@ -34,6 +38,10 @@
 
     &:not([data-disabled='true']):hover {
       border-color: var(--colorPrimary);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--colorBorder);
     }
   }
 
