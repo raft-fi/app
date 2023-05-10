@@ -16,6 +16,7 @@ import {
   Subscription,
   withLatestFrom,
   filter,
+  of,
 } from 'rxjs';
 import { Balance, TOKENS, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
@@ -61,12 +62,11 @@ const fetchData = async (
 // Fetch new balance data every time wallet address changes
 const walletChangeStream$: Observable<TokenBalanceMap> = walletAddress$.pipe(
   withLatestFrom(provider$),
-  filter((value): value is [string, JsonRpcProvider] => {
-    const [walletAddress] = value;
+  mergeMap<[Nullable<string>, JsonRpcProvider], Observable<TokenBalanceMap>>(([walletAddress, provider]) => {
+    if (!walletAddress) {
+      return of(DEFAULT_VALUE);
+    }
 
-    return Boolean(walletAddress);
-  }),
-  mergeMap<[string, JsonRpcProvider], Observable<TokenBalanceMap>>(([walletAddress, provider]) => {
     const tokenBalanceMaps = TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
@@ -75,17 +75,16 @@ const walletChangeStream$: Observable<TokenBalanceMap> = walletAddress$.pipe(
   }),
 );
 
-type PeriodicStreamInput = [[number], string, JsonRpcProvider];
+type PeriodicStreamInput = [[number], Nullable<string>, JsonRpcProvider];
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<TokenBalanceMap> = combineLatest([intervalBeat$]).pipe(
   withLatestFrom(walletAddress$, provider$),
-  filter((value): value is PeriodicStreamInput => {
-    const [, walletAddress] = value;
-
-    return Boolean(walletAddress);
-  }),
   mergeMap<PeriodicStreamInput, Observable<TokenBalanceMap>>(([, walletAddress, provider]) => {
+    if (!walletAddress) {
+      return of(DEFAULT_VALUE);
+    }
+
     const tokenBalanceMaps = TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
