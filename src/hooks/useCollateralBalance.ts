@@ -25,7 +25,11 @@ import { provider$ } from './useProvider';
 
 const collateralBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
-const fetchData = (walletAddress: string, provider: JsonRpcProvider) => {
+const fetchData = (walletAddress: Nullable<string>, provider: JsonRpcProvider) => {
+  if (!walletAddress) {
+    return of(null);
+  }
+
   try {
     const raftCollateralCollateralService = new RaftCollateralTokenService(provider);
 
@@ -47,12 +51,7 @@ const fetchData = (walletAddress: string, provider: JsonRpcProvider) => {
 // Stream that fetches collateral balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletAddress$.pipe(
   withLatestFrom(provider$),
-  filter((value): value is [string, JsonRpcProvider] => {
-    const [wallet] = value;
-
-    return Boolean(wallet);
-  }),
-  concatMap<[string, JsonRpcProvider], Observable<Nullable<Decimal>>>(([walletAddress, provider]) =>
+  concatMap<[Nullable<string>, JsonRpcProvider], Observable<Nullable<Decimal>>>(([walletAddress, provider]) =>
     fetchData(walletAddress, provider),
   ),
 );
@@ -70,11 +69,8 @@ const appEventsStream$ = appEvent$.pipe(
 
 // merge all stream$ into one if there are multiple
 const stream$ = merge(walletStream$, appEventsStream$).pipe(
-  filter((balance): balance is Decimal => Boolean(balance)),
-  debounce<Decimal>(() => interval(DEBOUNCE_IN_MS)),
-  tap(balance => {
-    collateralBalance$.next(balance);
-  }),
+  debounce<Nullable<Decimal>>(() => interval(DEBOUNCE_IN_MS)),
+  tap(balance => collateralBalance$.next(balance)),
 );
 
 export const [useCollateralBalance] = bind(collateralBalance$, null);

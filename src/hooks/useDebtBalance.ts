@@ -67,8 +67,7 @@ const appEventsStream$ = appEvent$.pipe(
 
 // merge all stream$ into one if there are multiple
 const stream$ = merge(walletStream$, appEventsStream$).pipe(
-  filter((balance): balance is Decimal => Boolean(balance)),
-  debounce<Decimal>(() => interval(DEBOUNCE_IN_MS)),
+  debounce<Nullable<Decimal>>(() => interval(DEBOUNCE_IN_MS)),
   tap(balance => {
     debtBalance$.next(balance);
   }),
