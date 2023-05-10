@@ -25,7 +25,12 @@ import { provider$ } from './useProvider';
 
 const debtBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
-const fetchData = (walletAddress: string, provider: JsonRpcProvider) => {
+const fetchData = (walletAddress: Nullable<string>, provider: JsonRpcProvider) => {
+  // In case user disconnects the wallet we want to reset balance to null
+  if (!walletAddress) {
+    return of(null);
+  }
+
   try {
     const raftDebtService = new RaftDebtTokenService(provider);
 
@@ -44,12 +49,7 @@ const fetchData = (walletAddress: string, provider: JsonRpcProvider) => {
 // Stream that fetches debt balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletAddress$.pipe(
   withLatestFrom(provider$),
-  filter((value): value is [string, JsonRpcProvider] => {
-    const [wallet] = value;
-
-    return Boolean(wallet);
-  }),
-  concatMap<[string, JsonRpcProvider], Observable<Nullable<Decimal>>>(([walletAddress, provider]) =>
+  concatMap<[Nullable<string>, JsonRpcProvider], Observable<Nullable<Decimal>>>(([walletAddress, provider]) =>
     fetchData(walletAddress, provider),
   ),
 );
