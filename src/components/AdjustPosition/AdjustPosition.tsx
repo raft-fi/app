@@ -1,10 +1,10 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { Decimal } from '@tempusfinance/decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import { useBorrow, useTokenBalances, useTokenPrices } from '../../hooks';
 import { getTokenValues, isCollateralToken } from '../../utils';
-import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN } from '../../constants';
+import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN, LIQUIDATION_UPPER_RATIO, USD_UI_PRECISION } from '../../constants';
 import { Nullable } from '../../interfaces';
 import { Button, CurrencyInput, Icon, Loading, Typography, ValuesBox } from '../shared';
 
@@ -289,6 +289,78 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return getTokenValues(newValue, tokenPriceMap[R_TOKEN], R_TOKEN);
   }, [borrowAmountDecimal, debtBalance, tokenPriceMap]);
 
+  /**
+   * Current liquidation price
+   */
+  const currentLiquidationPrice = useMemo(() => {
+    if (!currentCollateralInDisplayToken?.amount || !currentDebtTokenValues?.amount) {
+      return null;
+    }
+
+    return currentDebtTokenValues.amount.mul(LIQUIDATION_UPPER_RATIO).div(currentCollateralInDisplayToken.amount);
+  }, [currentCollateralInDisplayToken?.amount, currentDebtTokenValues?.amount]);
+
+  /**
+   * Formatted current liquidation price
+   */
+  const currentLiquidationPriceFormatted = useMemo(
+    () =>
+      currentLiquidationPrice
+        ? `${DecimalFormat.format(currentLiquidationPrice, {
+            style: 'currency',
+            currency: '$',
+            fractionDigits: USD_UI_PRECISION,
+          })}`
+        : 'N/A',
+    [currentLiquidationPrice],
+  );
+
+  const newLiquidationPrice = useMemo(() => {
+    const collateralAmountInDisplayToken =
+      newCollateralInDisplayToken?.amount || currentCollateralInDisplayToken?.amount;
+    const debtAmount = newDebtTokenValues?.amount || currentDebtTokenValues?.amount;
+
+    if (!collateralAmountInDisplayToken || !debtAmount) {
+      return null;
+    }
+
+    if (collateralAmountInDisplayToken.equals(0) || debtAmount.equals(0)) {
+      return Decimal.ZERO;
+    }
+
+    const newValue = debtAmount.mul(LIQUIDATION_UPPER_RATIO).div(collateralAmountInDisplayToken);
+
+    // Do not show new liquidation price if it's same as current liquidation price
+    if (currentLiquidationPrice && newValue.equals(currentLiquidationPrice)) {
+      return null;
+    }
+
+    return newValue;
+  }, [
+    currentCollateralInDisplayToken?.amount,
+    currentDebtTokenValues?.amount,
+    currentLiquidationPrice,
+    newCollateralInDisplayToken?.amount,
+    newDebtTokenValues?.amount,
+  ]);
+
+  /**
+   * Formatted new liquidation price
+   */
+  const newLiquidationPriceFormatted = useMemo(() => {
+    if (newLiquidationPrice?.equals(0)) {
+      return 'N/A';
+    }
+
+    return newLiquidationPrice
+      ? `${DecimalFormat.format(newLiquidationPrice, {
+          style: 'currency',
+          currency: '$',
+          fractionDigits: USD_UI_PRECISION,
+        })}`
+      : null;
+  }, [newLiquidationPrice]);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
@@ -382,7 +454,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
-              value: '$0.00',
+              value: currentLiquidationPriceFormatted,
+              newValue: newLiquidationPriceFormatted,
             },
             {
               id: 'collateralizationRatio',

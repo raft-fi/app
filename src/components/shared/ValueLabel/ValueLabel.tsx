@@ -90,9 +90,11 @@ const ValueLabel: FC<ValueLabelProps> = ({
     }
 
     return (
-      <Typography variant={valueSize} weight="medium">
-        {value}&nbsp;{label}
-      </Typography>
+      <div className="raft__valueLabel">
+        <Typography variant={valueSize} weight="medium">
+          {value}&nbsp;{label}
+        </Typography>
+      </div>
     );
   }, [label, tickerSize, value, valueSize]);
 
