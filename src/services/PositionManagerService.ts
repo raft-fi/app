@@ -1,5 +1,5 @@
 import { Contract, ContractTransactionResponse, JsonRpcSigner, ethers } from 'ethers';
-import { Decimal } from 'tempus-decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { CollateralToken } from '@raft-fi/sdk';
 import erc20PermitAbi from './abi/ERC20PermitABI.json';
 import positionManagerABI from './abi/PositionManagerABI.json';

@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from 'ethers';
-import { Decimal } from 'tempus-decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { getConfigManager } from '../config';
 import { ChainConfig } from '../interfaces';
 import { ERC20Indexable, ERC20Indexable__factory } from './typechain';

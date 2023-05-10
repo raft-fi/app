@@ -14,7 +14,7 @@ import {
   BehaviorSubject,
   withLatestFrom,
 } from 'rxjs';
-import { Decimal } from 'tempus-decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { JsonRpcProvider } from 'ethers';
 import { RaftDebtTokenService } from '../services';
 import { DEBOUNCE_IN_MS } from '../constants';
