@@ -1,5 +1,5 @@
 import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
-import { Decimal } from 'tempus-decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { CollateralToken, UserPosition } from '@raft-fi/sdk';

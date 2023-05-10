@@ -3,7 +3,7 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { resetBorrowStatus, useBorrow, useTokenPrices } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
-import { Decimal, DecimalFormat } from 'tempus-decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ValueLabel } from '../shared';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,

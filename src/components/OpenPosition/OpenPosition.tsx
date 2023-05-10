@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Decimal, DecimalFormat } from 'tempus-decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { Link } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
@@ -297,11 +297,7 @@ const OpenPosition = () => {
   }, [borrowStatus]);
 
   const collateralInputFiatValue = useMemo(() => {
-    try {
-      if (!collateralTokenValues.valueFormatted || new Decimal(collateralAmount).isZero()) {
-        return '$0.00';
-      }
-    } catch (error) {
+    if (!collateralTokenValues.valueFormatted || Decimal.parse(collateralAmount, 0).isZero()) {
       return '$0.00';
     }
 
@@ -309,11 +305,7 @@ const OpenPosition = () => {
   }, [collateralTokenValues.valueFormatted, collateralAmount]);
 
   const borrowInputFiatValue = useMemo(() => {
-    try {
-      if (!borrowTokenValues.valueFormatted || new Decimal(borrowAmount).isZero()) {
-        return '$0.00';
-      }
-    } catch (error) {
+    if (!borrowTokenValues.valueFormatted || Decimal.parse(borrowAmount, 0).isZero()) {
       return '$0.00';
     }
 
