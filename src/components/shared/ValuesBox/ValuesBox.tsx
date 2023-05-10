@@ -29,7 +29,7 @@ const ValuesBox: FC<ValuesBoxProps> = ({ values }) => {
               {typeof value === 'string' ? <ValueLabel value={value} /> : value}
               {newValue && (
                 <>
-                  <Icon variant="arrow-right-thin" size={15} />
+                  <Icon variant="arrow-right-thin" size="small" />
                   {typeof newValue === 'string' ? <ValueLabel value={newValue} /> : newValue}
                 </>
               )}

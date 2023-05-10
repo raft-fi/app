@@ -4,9 +4,25 @@ import { v4 as uuid } from 'uuid';
 import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import { useBorrow, useTokenBalances, useTokenPrices } from '../../hooks';
 import { getTokenValues, isCollateralToken } from '../../utils';
-import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN, LIQUIDATION_UPPER_RATIO, USD_UI_PRECISION } from '../../constants';
+import {
+  COLLATERAL_BASE_TOKEN,
+  DISPLAY_BASE_TOKEN,
+  LIQUIDATION_UPPER_RATIO,
+  MIN_BORROW_AMOUNT,
+  USD_UI_PRECISION,
+} from '../../constants';
 import { Nullable } from '../../interfaces';
-import { Button, CurrencyInput, Icon, Loading, Typography, ValuesBox } from '../shared';
+import {
+  Button,
+  CurrencyInput,
+  Icon,
+  Loading,
+  Tooltip,
+  TooltipWrapper,
+  Typography,
+  ValueLabel,
+  ValuesBox,
+} from '../shared';
 
 import './AdjustPosition.scss';
 
@@ -20,11 +36,29 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
 
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
+
+  /**
+   * Update action button state based on current borrow request status
+   */
+  useEffect(() => {
+    if (!borrowStatus) {
+      return;
+    }
+
+    if (borrowStatus.pending) {
+      setTransactionState('loading');
+    } else if (borrowStatus.success) {
+      // TODO - Open success modal with tx info
+      setTransactionState('success');
+    } else {
+      setTransactionState('default');
+    }
+  }, [borrowStatus]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -48,81 +82,29 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     // TODO - Implement max safe borrow
   }, []);
 
-  const handleCollateralIncrement = useCallback((incrementAmount: number) => {
-    setCollateralAmount(prevAmount => {
-      const newAmount = Decimal.parse(prevAmount, 0).add(incrementAmount);
-      return newAmount.toString();
-    });
-  }, []);
+  const handleCollateralIncrement = useCallback(
+    (incrementAmount: number) =>
+      setCollateralAmount(prevAmount => Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
+    [],
+  );
+  const handleCollateralDecrement = useCallback(
+    (decrementAmount: number) =>
+      setCollateralAmount(prevAmount => Decimal.parse(prevAmount, 0).sub(decrementAmount).toString()),
+    [],
+  );
+  const handleBorrowIncrement = useCallback(
+    (incrementAmount: number) =>
+      setBorrowAmount(prevAmount => Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
+    [],
+  );
+  const handleBorrowDecrement = useCallback(
+    (decrementAmount: number) =>
+      setBorrowAmount(prevAmount => Decimal.parse(prevAmount, 0).sub(decrementAmount).toString()),
+    [],
+  );
 
-  const handleCollateralDecrement = useCallback((decrementAmount: number) => {
-    setCollateralAmount(prevAmount => {
-      const newAmount = Decimal.parse(prevAmount, 0).sub(decrementAmount);
-      return newAmount.toString();
-    });
-  }, []);
-
-  const handleBorrowIncrement = useCallback((incrementAmount: number) => {
-    setBorrowAmount(prevAmount => {
-      const newAmount = Decimal.parse(prevAmount, 0).add(incrementAmount);
-      return newAmount.toString();
-    });
-  }, []);
-
-  const handleBorrowDecrement = useCallback((decrementAmount: number) => {
-    setBorrowAmount(prevAmount => {
-      const newAmount = Decimal.parse(prevAmount, 0).sub(decrementAmount);
-      return newAmount.toString();
-    });
-  }, []);
-
-  const collateralAmountDecimal = useMemo(() => {
-    return Decimal.parse(collateralAmount, 0);
-  }, [collateralAmount]);
-
-  const borrowAmountDecimal = useMemo(() => {
-    return Decimal.parse(borrowAmount, 0);
-  }, [borrowAmount]);
-
-  const onAdjust = useCallback(() => {
-    if (!collateralBalance || !debtBalance) {
-      return null;
-    }
-
-    borrow({
-      collateralAmount: collateralBalance.add(collateralAmountDecimal),
-      debtAmount: debtBalance.add(borrowAmountDecimal),
-      collateralToken: selectedCollateralToken,
-      currentUserCollateral: collateralBalance,
-      currentUserDebt: debtBalance,
-      txnId: uuid(),
-    });
-  }, [borrow, borrowAmountDecimal, collateralAmountDecimal, collateralBalance, debtBalance, selectedCollateralToken]);
-
-  /**
-   * Update action button state based on current borrow request status
-   */
-  useEffect(() => {
-    if (!borrowStatus) {
-      return;
-    }
-
-    if (borrowStatus.pending) {
-      setTransactionState('loading');
-    } else if (borrowStatus.success) {
-      // TODO - Open success modal with tx info
-      setTransactionState('success');
-    } else {
-      setTransactionState('default');
-    }
-  }, [borrowStatus]);
-
-  const actionDisabled = useMemo(() => {
-    const transactionInProgress = transactionState === 'loading';
-    const emptyInputs = collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero();
-
-    return transactionInProgress || emptyInputs;
-  }, [borrowAmountDecimal, collateralAmountDecimal, transactionState]);
+  const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
+  const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
 
   const collateralTokenBalanceValues = useMemo(
     () =>
@@ -133,37 +115,32 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       ),
     [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
   );
-
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
   );
-
   const collateralTokenInputAbsoluteValues = useMemo(
     () =>
       getTokenValues(collateralAmountDecimal.abs(), tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
     [collateralAmountDecimal, selectedCollateralToken, tokenPriceMap],
   );
-
   const collateralTokenInputValues = useMemo(
     () => getTokenValues(collateralAmountDecimal, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
     [collateralAmountDecimal, selectedCollateralToken, tokenPriceMap],
   );
-
   const borrowTokenInputAbsoluteValues = useMemo(
     () => getTokenValues(borrowAmountDecimal.abs(), tokenPriceMap[R_TOKEN], R_TOKEN),
     [borrowAmountDecimal, tokenPriceMap],
   );
 
-  const collateralInputFiatValue = useMemo(() => {
+  const collateralInputFiatValueFormatted = useMemo(() => {
     if (!collateralTokenInputAbsoluteValues.valueFormatted || collateralAmountDecimal.isZero()) {
       return '$0.00';
     }
 
     return `~${collateralTokenInputAbsoluteValues.valueFormatted}`;
   }, [collateralTokenInputAbsoluteValues.valueFormatted, collateralAmountDecimal]);
-
-  const borrowInputFiatValue = useMemo(() => {
+  const borrowInputFiatValueFormatted = useMemo(() => {
     if (!borrowTokenInputAbsoluteValues.valueFormatted || borrowAmountDecimal.isZero()) {
       return '$0.00';
     }
@@ -180,6 +157,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   /**
+   * wallet balance for the selected collateral token
+   */
+  const selectedCollateralTokenBalance = useMemo(
+    () => tokenBalanceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenBalanceMap],
+  );
+
+  /**
    * Display token (stETH) price
    */
   const displayTokenTokenPrice = useMemo(() => tokenPriceMap[DISPLAY_BASE_TOKEN], [tokenPriceMap]);
@@ -188,7 +173,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Current user collateral denominated in display token (stETH)
    */
   const currentCollateralInDisplayToken = useMemo(() => {
-    if (!currentCollateralTokenValues.value || !displayTokenTokenPrice) {
+    if (!currentCollateralTokenValues.value || !displayTokenTokenPrice || displayTokenTokenPrice.isZero()) {
       return null;
     }
 
@@ -435,6 +420,78 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       : null;
   }, [newCollateralizationRatio]);
 
+  const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
+  const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
+
+  const isClosePosition = useMemo(
+    () => newDebtTokenValues?.amount?.isZero() && newCollateralInDisplayToken?.value?.isZero(),
+    [newCollateralInDisplayToken?.value, newDebtTokenValues?.amount],
+  );
+  const hasEnoughCollateralTokenBalance = useMemo(
+    () =>
+      !newCollateralInDisplayToken?.amount ||
+      (selectedCollateralTokenBalance && newCollateralInDisplayToken.amount.lte(selectedCollateralTokenBalance)),
+    [newCollateralInDisplayToken?.amount, selectedCollateralTokenBalance],
+  );
+  const hasMinBorrow = useMemo(
+    () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
+    [isClosePosition, newDebtTokenValues?.amount],
+  );
+  const hasMinRatio = useMemo(
+    () => !newCollateralizationRatio || newCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO) || isClosePosition,
+    [isClosePosition, newCollateralizationRatio],
+  );
+  const isInputNonEmpty = useMemo(
+    () => collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero(),
+    [borrowAmountDecimal, collateralAmountDecimal],
+  );
+
+  const canAdjust = useMemo(
+    () => isInputNonEmpty && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
+    [hasEnoughCollateralTokenBalance, isInputNonEmpty, hasMinBorrow, hasMinRatio],
+  );
+
+  const buttonLabel = useMemo(() => {
+    if (!hasEnoughCollateralTokenBalance) {
+      return 'Insufficient wallet balance';
+    }
+
+    if (!hasMinBorrow) {
+      return 'Total debt below minimum';
+    }
+
+    if (!hasMinRatio) {
+      return 'Collateralization ratio too low';
+    }
+
+    return 'Execute';
+  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio]);
+
+  const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
+
+  const onAdjust = useCallback(() => {
+    if (!collateralBalance || !debtBalance || !canAdjust) {
+      return null;
+    }
+
+    borrow({
+      collateralAmount: collateralBalance.add(collateralAmountDecimal),
+      debtAmount: debtBalance.add(borrowAmountDecimal),
+      collateralToken: selectedCollateralToken,
+      currentUserCollateral: collateralBalance,
+      currentUserDebt: debtBalance,
+      txnId: uuid(),
+    });
+  }, [
+    borrow,
+    borrowAmountDecimal,
+    canAdjust,
+    collateralAmountDecimal,
+    collateralBalance,
+    debtBalance,
+    selectedCollateralToken,
+  ]);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
@@ -455,13 +512,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         </div>
       </div>
       <div className="raft__adjustPosition__input">
-        {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
           label="Collateral"
           precision={18}
-          fiatValue={collateralInputFiatValue}
+          fiatValue={collateralInputFiatValueFormatted}
           selectedToken={selectedCollateralToken}
-          tokens={['ETH', 'stETH', 'wstETH']}
+          tokens={['stETH', 'wstETH']}
           value={collateralAmount}
           maxAmount={collateralTokenBalanceValues?.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
@@ -472,13 +528,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           disabled={closePositionActive}
           allowNegativeNumbers={true}
         />
-        {/* TODO - Replace hardcoded values with contract values */}
         <CurrencyInput
           label="Borrow"
           precision={18}
-          fiatValue={borrowInputFiatValue}
-          selectedToken="R"
-          tokens={['R']}
+          fiatValue={borrowInputFiatValueFormatted}
+          selectedToken={R_TOKEN}
+          tokens={[R_TOKEN]}
           value={borrowAmount}
           maxAmount={debtTokenBalanceValues?.amountFormatted}
           onValueUpdate={setBorrowAmount}
@@ -490,7 +545,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <div className="raft__adjustPosition__data">
-        {/* TODO - Replace hardcoded values with values from contracts */}
         <ValuesBox
           values={[
             {
@@ -510,7 +564,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 <>
                   <Icon variant="info" size="small" />
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{'(Min. 3,000'}&nbsp;</Typography>
+                  <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
                     R
                   </Typography>
@@ -518,7 +572,27 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: currentDebtTokenValues.amountFormatted || 'N/A',
-              newValue: newDebtTokenValues?.amountFormatted,
+              newValue:
+                newDebtTokenValues?.amountFormatted &&
+                (hasMinBorrow ? (
+                  `${newDebtTokenValues.amountFormatted || 'N/A'}`
+                ) : (
+                  <TooltipWrapper
+                    anchorClasses="raft__adjustPosition__error"
+                    tooltipContent={
+                      <Tooltip className="raft__adjustPosition__tooltip__error">
+                        <Typography variant="body-tertiary">{`Debt under ${minBorrowFormatted}`}</Typography>
+                        <Typography variant="body-tertiary" type="mono">
+                          &nbsp;{R_TOKEN}
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="right"
+                  >
+                    <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} />
+                    <Icon variant="error" size="small" />
+                  </TooltipWrapper>
+                )),
             },
             {
               id: 'liquidationPrice',
@@ -537,20 +611,35 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 <>
                   <Icon variant="info" size="small" />
                   <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{'(Min. 110%)'}</Typography>
+                  <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
               value: collateralizationRatioFormatted,
-              newValue: newCollateralizationRatioFormatted,
+              newValue: hasMinRatio ? (
+                newCollateralizationRatioFormatted
+              ) : (
+                <TooltipWrapper
+                  anchorClasses="raft__adjustPosition__error"
+                  tooltipContent={
+                    <Tooltip className="raft__adjustPosition__tooltip__error">
+                      <Typography variant="body-tertiary">{`Collateral ratio lower than ${minRatioFormatted}`}</Typography>
+                    </Tooltip>
+                  }
+                  placement="right"
+                >
+                  <ValueLabel value={newCollateralizationRatioFormatted as string} />
+                  <Icon variant="error" size="small" />
+                </TooltipWrapper>
+              ),
             },
           ]}
         />
       </div>
       <div className="raft__adjustPosition__action">
-        <Button variant="primary" onClick={onAdjust} disabled={actionDisabled}>
+        <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
           {transactionState === 'loading' && <Loading />}
           <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            Execute
+            {buttonLabel}
           </Typography>
         </Button>
       </div>

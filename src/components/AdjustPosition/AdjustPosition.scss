@@ -37,6 +37,20 @@
     .raft__icon__info {
       margin-right: 8px;
     }
+
+    .raft__adjustPosition__error {
+      --textPrimary: var(--colorError);
+
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: 130px;
+
+      .raft__valueLabel {
+        margin-right: 8px;
+        width: initial;
+      }
+    }
   }
 
   .raft__adjustPosition__action {
@@ -50,4 +64,8 @@
       margin-right: 8px;
     }
   }
+}
+
+.raft__adjustPosition__tooltip__error {
+  --textPrimary: var(--colorError);
 }
