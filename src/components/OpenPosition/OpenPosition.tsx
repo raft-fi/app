@@ -313,8 +313,8 @@ const OpenPosition = () => {
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
   const handleMaxButtonClick = useCallback(() => {
-    setMaxButtonDisabled(true);
-    if (selectedCollateralTokenBalance) {
+    if (selectedCollateralTokenBalance && selectedCollateralTokenBalance.gt(Decimal.ZERO)) {
+      setMaxButtonDisabled(true);
       setCollateralAmount(selectedCollateralTokenBalance.toString());
     }
   }, [selectedCollateralTokenBalance]);
@@ -343,11 +343,13 @@ const OpenPosition = () => {
           Open position
         </Typography>
 
-        <Button variant="secondary" disabled={maxButtonDisabled} onClick={handleMaxButtonClick}>
-          <Typography variant="body-tertiary" color="text-tertiary">
-            Max safe borrow
-          </Typography>
-        </Button>
+        {walletConnected && (
+          <Button variant="secondary" disabled={maxButtonDisabled} onClick={handleMaxButtonClick}>
+            <Typography variant="body-primary" weight="medium">
+              Max safe borrow
+            </Typography>
+          </Button>
+        )}
       </div>
       <div className="raft__openPosition__input">
         <CurrencyInput
