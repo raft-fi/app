@@ -361,6 +361,72 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       : null;
   }, [newLiquidationPrice]);
 
+  /**
+   * Current collateralization ratio
+   */
+  const currentCollateralizationRatio = useMemo(() => {
+    if (!currentCollateralInDisplayToken?.value || !currentDebtTokenValues.value) {
+      return null;
+    }
+
+    return currentCollateralInDisplayToken.value.div(currentDebtTokenValues.value);
+  }, [currentCollateralInDisplayToken?.value, currentDebtTokenValues.value]);
+
+  /**
+   * Current collateralization ratio formatted
+   */
+  const collateralizationRatioFormatted = useMemo(
+    () =>
+      currentCollateralizationRatio
+        ? DecimalFormat.format(currentCollateralizationRatio, { style: 'percentage', fractionDigits: 2 })
+        : 'N/A',
+    [currentCollateralizationRatio],
+  );
+
+  /**
+   * New collateralization ratio
+   */
+  const newCollateralizationRatio = useMemo(() => {
+    const collateralAmountInDisplayToken = newCollateralInDisplayToken?.value || currentCollateralInDisplayToken?.value;
+    const debtAmount = newDebtTokenValues?.value || currentDebtTokenValues?.value;
+
+    if (!collateralAmountInDisplayToken || !debtAmount) {
+      return null;
+    }
+
+    if (collateralAmountInDisplayToken.equals(0) || debtAmount.equals(0)) {
+      return Decimal.ZERO;
+    }
+
+    const newValue = collateralAmountInDisplayToken.div(debtAmount);
+
+    // Do not show new collateralization ratio if it's same as current collateralization ratio
+    if (currentCollateralizationRatio && newValue.equals(currentCollateralizationRatio)) {
+      return null;
+    }
+
+    return newValue;
+  }, [
+    currentCollateralInDisplayToken?.value,
+    currentDebtTokenValues?.value,
+    newCollateralInDisplayToken?.value,
+    newDebtTokenValues?.value,
+    currentCollateralizationRatio,
+  ]);
+
+  /**
+   * New collateralization ratio formatted
+   */
+  const newCollateralizationRatioFormatted = useMemo(() => {
+    if (newCollateralizationRatio?.isZero()) {
+      return 'N/A';
+    }
+
+    return newCollateralizationRatio
+      ? DecimalFormat.format(newCollateralizationRatio, { style: 'percentage', fractionDigits: 2 })
+      : null;
+  }, [newCollateralizationRatio]);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
@@ -466,7 +532,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-tertiary">{'(Min. 110%)'}</Typography>
                 </>
               ),
-              value: 'N/A',
+              value: collateralizationRatioFormatted,
+              newValue: newCollateralizationRatioFormatted,
             },
           ]}
         />
