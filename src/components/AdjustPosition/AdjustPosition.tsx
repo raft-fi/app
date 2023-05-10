@@ -41,6 +41,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
+  const [newCollateralInDisplayTokenValue, setNewCollateralInDisplayTokenValue] = useState<Nullable<Decimal>>(null);
 
   /**
    * Update action button state based on current borrow request status
@@ -53,7 +54,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (borrowStatus.pending) {
       setTransactionState('loading');
     } else if (borrowStatus.success) {
-      // TODO - Open success modal with tx info
       setTransactionState('success');
     } else {
       setTransactionState('default');
@@ -185,14 +185,16 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   /**
    * New user collateral denominated in display token (stETH)
    */
-  const newCollateralInDisplayToken = useMemo(() => {
+  useEffect(() => {
     if (
       !collateralTokenInputValues.value ||
       !displayTokenTokenPrice ||
+      displayTokenTokenPrice.isZero() ||
       !currentCollateralInDisplayToken?.amount ||
       !currentCollateralTokenValues.value
     ) {
-      return null;
+      setNewCollateralInDisplayTokenValue(null);
+      return;
     }
 
     let newValue: Nullable<Decimal> = null;
@@ -207,12 +209,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     if (!newValue) {
-      return null;
+      setNewCollateralInDisplayTokenValue(null);
+      return;
     }
 
     // Do not show new collateral value in case current collateral is same as new collateral (user did not change input values)
     if (newValue.equals(currentCollateralInDisplayToken.amount)) {
-      return null;
+      setNewCollateralInDisplayTokenValue(null);
+      return;
     }
 
     // Do not allow user to have negative new balance
@@ -233,7 +237,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       setCollateralAmount(newInputValue.toString());
     }
 
-    return getTokenValues(newValue, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+    setNewCollateralInDisplayTokenValue(newValue);
   }, [
     collateralTokenInputValues.value,
     displayTokenTokenPrice,
@@ -244,6 +248,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     collateralBalance,
     collateralAmountDecimal,
   ]);
+
+  const newCollateralInDisplayToken = useMemo(
+    () => getTokenValues(newCollateralInDisplayTokenValue, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN),
+    [newCollateralInDisplayTokenValue, tokenPriceMap],
+  );
 
   /**
    * Current user debt (R-debt)
@@ -313,7 +322,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
-    if (collateralAmountInDisplayToken.equals(0) || debtAmount.equals(0)) {
+    if (collateralAmountInDisplayToken.isZero() || debtAmount.isZero()) {
       return Decimal.ZERO;
     }
 
@@ -387,7 +396,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
-    if (collateralAmountInDisplayToken.equals(0) || debtAmount.equals(0)) {
+    if (collateralAmountInDisplayToken.isZero() || debtAmount.isZero()) {
       return Decimal.ZERO;
     }
 

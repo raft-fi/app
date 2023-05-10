@@ -114,7 +114,7 @@ const OpenPosition = () => {
   );
 
   const collateralizationRatio = useMemo(() => {
-    if (collateralTokenValues.value === null || borrowTokenValues.value === null) {
+    if (collateralTokenValues.value === null || borrowTokenValues.value === null || borrowTokenValues.value.isZero()) {
       return null;
     }
 
@@ -252,7 +252,7 @@ const OpenPosition = () => {
     // if borrow input is null, borrowTokenValues.price will be null, so use the price map here
     const borrowTokenPrice = tokenPriceMap[R_TOKEN];
 
-    if (!collateralTokenValues.value || !borrowTokenPrice || borrowTokenPrice.isZero()) {
+    if (!collateralTokenValues.value || !borrowTokenPrice || borrowTokenPrice.isZero() || !HEALTHY_RATIO) {
       return;
     }
 
@@ -290,7 +290,6 @@ const OpenPosition = () => {
     if (borrowStatus.pending) {
       setActionButtonState('loading');
     } else if (borrowStatus.success) {
-      // TODO - Open success modal with tx info
       setActionButtonState('success');
     } else {
       setActionButtonState('default');
