@@ -36,13 +36,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (!closePositionActive) {
       setCollateralAmount('0');
       setBorrowAmount('0');
-    } else if (collateralBalance && debtBalance) {
-      setCollateralAmount(collateralBalance.toString());
-      setBorrowAmount(debtBalance.toString());
     }
 
     setClosePositionActive(prevState => !prevState);
-  }, [closePositionActive, collateralBalance, debtBalance]);
+  }, [closePositionActive]);
 
   const onMaxSafeBorrow = useCallback(() => {
     // TODO - Implement max safe borrow
