@@ -214,10 +214,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     switch (selectedCollateralToken) {
       case 'ETH':
       case 'stETH':
-        newValue = collateralBalance.add(collateralAmountDecimal);
+        newValue = currentCollateralInDisplayToken.amount.add(collateralAmountDecimal);
         break;
       case 'wstETH':
         newValue = currentCollateralTokenValues.value.add(collateralTokenInputValues.value).div(displayTokenTokenPrice);
+        break;
     }
 
     if (!newValue) {
@@ -227,6 +228,24 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     // Do not show new collateral value in case current collateral is same as new collateral (user did not change input values)
     if (newValue.equals(currentCollateralInDisplayToken.amount)) {
       return null;
+    }
+
+    // Do not allow user to have negative new balance
+    if (newValue.lt(0)) {
+      newValue = Decimal.ZERO;
+
+      let newInputValue: Nullable<Decimal> = null;
+      switch (selectedCollateralToken) {
+        case 'ETH':
+        case 'stETH':
+          newInputValue = currentCollateralInDisplayToken.amount.mul(-1);
+          break;
+        case 'wstETH':
+          newInputValue = collateralBalance.mul(-1);
+          break;
+      }
+
+      setCollateralAmount(newInputValue.toString());
     }
 
     return getTokenValues(newValue, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
