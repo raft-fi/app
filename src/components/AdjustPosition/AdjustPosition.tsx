@@ -66,18 +66,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
   }, []);
 
-  const onToggleClosePosition = useCallback(() => {
-    if (!closePositionActive) {
-      setCollateralAmount(collateralBalance.mul(-1).toString());
-      setBorrowAmount(debtBalance.mul(-1).toString());
-    } else if (collateralBalance && debtBalance) {
-      setCollateralAmount('0');
-      setBorrowAmount('0');
-    }
-
-    setClosePositionActive(prevState => !prevState);
-  }, [closePositionActive, collateralBalance, debtBalance]);
-
   const onMaxSafeBorrow = useCallback(() => {
     // TODO - Implement max safe borrow
   }, []);
@@ -451,7 +439,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [isClosePosition, newCollateralizationRatio],
   );
   const isInputNonEmpty = useMemo(
-    () => collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero(),
+    () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
     [borrowAmountDecimal, collateralAmountDecimal],
   );
 
@@ -477,6 +465,40 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
+
+  const onToggleClosePosition = useCallback(() => {
+    if (!closePositionActive) {
+      if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
+        setCollateralAmount(collateralBalance.mul(-1).toString());
+      } else {
+        const selectedCollateralTokenPrice = tokenPriceMap[selectedCollateralToken];
+
+        if (
+          currentCollateralTokenValues.value &&
+          selectedCollateralTokenPrice &&
+          !selectedCollateralTokenPrice.isZero()
+        ) {
+          const collateralBalanceInSelectedCollateralToken =
+            currentCollateralTokenValues.value.div(selectedCollateralTokenPrice);
+          setCollateralAmount(collateralBalanceInSelectedCollateralToken.mul(-1).toString());
+        }
+      }
+
+      setBorrowAmount(debtBalance.mul(-1).toString());
+    } else if (collateralBalance && debtBalance) {
+      setCollateralAmount('0');
+      setBorrowAmount('0');
+    }
+
+    setClosePositionActive(prevState => !prevState);
+  }, [
+    closePositionActive,
+    collateralBalance,
+    currentCollateralTokenValues.value,
+    debtBalance,
+    selectedCollateralToken,
+    tokenPriceMap,
+  ]);
 
   const onAdjust = useCallback(() => {
     if (!collateralBalance || !debtBalance || !canAdjust) {
