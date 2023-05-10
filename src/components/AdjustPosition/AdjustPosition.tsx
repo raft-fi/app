@@ -260,6 +260,35 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     collateralAmountDecimal,
   ]);
 
+  /**
+   * Current user debt (R-debt)
+   */
+  const currentDebtTokenValues = useMemo(
+    () => getTokenValues(debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
+    [debtBalance, tokenPriceMap],
+  );
+
+  /**
+   * New user debt (R-debt)
+   */
+  const newDebtTokenValues = useMemo(() => {
+    let newValue = debtBalance.add(borrowAmountDecimal);
+
+    // Do not show new debt value in case current debt is same as new collateral (user did not change input values)
+    if (newValue.equals(debtBalance)) {
+      return null;
+    }
+
+    // Do not allow user to have negative new balance
+    if (newValue.lt(0)) {
+      newValue = Decimal.ZERO;
+
+      setBorrowAmount(debtBalance.mul(-1).toString());
+    }
+
+    return getTokenValues(newValue, tokenPriceMap[R_TOKEN], R_TOKEN);
+  }, [borrowAmountDecimal, debtBalance, tokenPriceMap]);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
@@ -342,7 +371,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-tertiary">{')'}</Typography>
                 </>
               ),
-              value: '0.00 R',
+              value: currentDebtTokenValues.amountFormatted || 'N/A',
+              newValue: newDebtTokenValues?.amountFormatted,
             },
             {
               id: 'liquidationPrice',
