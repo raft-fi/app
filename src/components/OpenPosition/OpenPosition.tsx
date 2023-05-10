@@ -38,7 +38,7 @@ const OpenPosition = () => {
   const wallet = useWallet();
   const { borrow, borrowStatus } = useBorrow();
 
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('wstETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [state, setState] = useState<string>('default');
@@ -180,11 +180,11 @@ const OpenPosition = () => {
     [collateralTokenValues.amount, selectedCollateralTokenBalance, walletConnected],
   );
   const hasMinBorrow = useMemo(
-    () => !borrowTokenValues.amount || Boolean(borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT)),
+    () => !borrowTokenValues.amount || borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT),
     [borrowTokenValues.amount],
   );
   const hasMinRatio = useMemo(
-    () => !collateralizationRatio || Boolean(collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO)),
+    () => !collateralizationRatio || collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
     [collateralizationRatio],
   );
   const canBorrow = useMemo(
