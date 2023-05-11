@@ -100,11 +100,8 @@ const TransactionModal = () => {
       return null;
     }
 
-    const collateralValue = borrowStatus.request.collateralChange.abs().mul(collateralPrice);
-
-    const collateralInDisplayToken = collateralValue.div(displayBaseTokenPrice);
-
-    const collateralValueFormatted = DecimalFormat.format(collateralInDisplayToken, {
+    // for modal title, show what's user actually deposit/withdraw, no need to convert
+    const collateralValueFormatted = DecimalFormat.format(borrowStatus.request.collateralChange.abs(), {
       style: 'currency',
       currency: borrowStatus.request.collateralToken,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
@@ -175,9 +172,10 @@ const TransactionModal = () => {
 
     const amount = collateralBalanceValue.add(collateralChangeValue).div(displayBaseTokenPrice);
 
+    // collateral should always show in stETH, so convert to stETH
     return DecimalFormat.format(amount, {
       style: 'currency',
-      currency: borrowStatus.request.collateralToken,
+      currency: DISPLAY_BASE_TOKEN,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });
