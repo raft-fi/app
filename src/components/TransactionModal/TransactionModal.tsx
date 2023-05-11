@@ -4,12 +4,13 @@ import { resetBorrowStatus, useBorrow, useTokenPrices } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { ValueLabel } from '../shared';
+import { Typography, ValueLabel } from '../shared';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   R_TOKEN_UI_PRECISION,
   COLLATERAL_BASE_TOKEN,
   DISPLAY_BASE_TOKEN,
+  HEALTHY_RATIO,
 } from '../../constants';
 
 const TransactionModal = () => {
@@ -258,6 +259,8 @@ const TransactionModal = () => {
     });
   }, [borrowStatus, collateralizationRatio, tokenPriceMap]);
 
+  const isCollateralHealthy = useMemo(() => collateralizationRatio?.gte(HEALTHY_RATIO), [collateralizationRatio]);
+
   return (
     <>
       {successModalOpened && (
@@ -287,7 +290,15 @@ const TransactionModal = () => {
             {
               id: 'collateralizationRatio',
               label: 'Collateralization Ratio',
-              value: collateralizationRatioFormatted || 'N/A',
+              value: (
+                <Typography
+                  variant="body-primary"
+                  color={isCollateralHealthy ? 'text-success' : undefined}
+                  weight="medium"
+                >
+                  {collateralizationRatioFormatted || 'N/A'}
+                </Typography>
+              ),
             },
           ]}
         />

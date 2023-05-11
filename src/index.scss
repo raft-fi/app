@@ -49,6 +49,13 @@ body {
   --colorSecondaryDisabled: var(--raftErrorishYellowish);
   --colorError: var(--raftNegativeRed);
 
+  --textPrimary: var(--raftBlack);
+  --textSecondary: var(--raftOrange);
+  --textTertiary: var(--raftGrey);
+  --textPrimaryInverted: var(--raftLightPastelBlue);
+  --textSuccess: var(--raftPositiveGreen);
+  --textError: var(--raftNegativeRed);
+
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
 

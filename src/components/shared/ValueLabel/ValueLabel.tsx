@@ -16,10 +16,32 @@ const ValueLabel: FC<ValueLabelProps> = ({
   valueSize = 'body-primary',
   tickerSize = 'body-tertiary',
 }) => {
+  console.log(value, label);
   const valueElement = useMemo(() => {
     if (value.startsWith('$')) {
       return (
         <div className="raft__valueLabel">
+          <Typography variant={tickerSize} weight="medium">
+            $
+          </Typography>
+          <Typography variant={valueSize} weight="medium">
+            {value.split('$')[1]}
+          </Typography>
+          {label && (
+            <Typography variant={valueSize} weight="regular">
+              &nbsp;{label}
+            </Typography>
+          )}
+        </div>
+      );
+    }
+
+    if (value.startsWith('~$')) {
+      return (
+        <div className="raft__valueLabel">
+          <Typography variant={valueSize} weight="medium">
+            ~
+          </Typography>
           <Typography variant={tickerSize} weight="medium">
             $
           </Typography>
@@ -92,8 +114,13 @@ const ValueLabel: FC<ValueLabelProps> = ({
     return (
       <div className="raft__valueLabel">
         <Typography variant={valueSize} weight="medium">
-          {value}&nbsp;{label}
+          {value}
         </Typography>
+        {label && (
+          <Typography variant={valueSize} weight="medium">
+            &nbsp;{label}
+          </Typography>
+        )}
       </div>
     );
   }, [label, tickerSize, value, valueSize]);

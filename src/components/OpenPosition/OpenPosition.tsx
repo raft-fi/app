@@ -169,6 +169,7 @@ const OpenPosition = () => {
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
+  const isCollateralHealthy = useMemo(() => collateralizationRatio?.gte(HEALTHY_RATIO), [collateralizationRatio]);
   const hasInputFilled = useMemo(
     () => collateralTokenValues.amount && borrowTokenValues.amount,
     [borrowTokenValues.amount, collateralTokenValues.amount],
@@ -423,8 +424,10 @@ const OpenPosition = () => {
                 <TooltipWrapper
                   anchorClasses="raft__openPosition__error"
                   tooltipContent={
-                    <Tooltip className="raft__openPosition__tooltip__error">
-                      <Typography variant="body-tertiary">Borrow below the minimum amount</Typography>
+                    <Tooltip>
+                      <Typography variant="body-tertiary" color="text-error">
+                        Borrow below the minimum amount
+                      </Typography>
                     </Tooltip>
                   }
                   placement="right"
@@ -455,13 +458,19 @@ const OpenPosition = () => {
               ),
               value:
                 hasMinRatio || collateralizationRatioFormatted === 'N/A' ? (
-                  collateralizationRatioFormatted
+                  <Typography
+                    variant="body-primary"
+                    color={isCollateralHealthy ? 'text-success' : undefined}
+                    weight="medium"
+                  >
+                    {collateralizationRatioFormatted}
+                  </Typography>
                 ) : (
                   <TooltipWrapper
                     anchorClasses="raft__openPosition__error"
                     tooltipContent={
-                      <Tooltip className="raft__openPosition__tooltip__error">
-                        <Typography variant="body-tertiary">
+                      <Tooltip>
+                        <Typography variant="body-tertiary" color="text-error">
                           Collateralization ratio below the minimum threshold
                         </Typography>
                       </Tooltip>

@@ -7,6 +7,7 @@ import { getTokenValues, isCollateralToken } from '../../utils';
 import {
   COLLATERAL_BASE_TOKEN,
   DISPLAY_BASE_TOKEN,
+  HEALTHY_RATIO,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   USD_UI_PRECISION,
@@ -420,6 +421,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
   const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
+  const isCurrentCollateralHealthy = useMemo(
+    () => currentCollateralizationRatio?.gte(HEALTHY_RATIO),
+    [currentCollateralizationRatio],
+  );
+  const isNewCollateralHealthy = useMemo(
+    () => newCollateralizationRatio?.gte(HEALTHY_RATIO),
+    [newCollateralizationRatio],
+  );
   const isClosePosition = useMemo(
     () => newDebtTokenValues?.amount?.isZero() && newCollateralInDisplayToken?.value?.isZero(),
     [newCollateralInDisplayToken?.value, newDebtTokenValues?.amount],
@@ -611,8 +620,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <TooltipWrapper
                     anchorClasses="raft__adjustPosition__error"
                     tooltipContent={
-                      <Tooltip className="raft__adjustPosition__tooltip__error">
-                        <Typography variant="body-tertiary">Borrow below the minimum amount</Typography>
+                      <Tooltip>
+                        <Typography variant="body-tertiary" color="text-error">
+                          Borrow below the minimum amount
+                        </Typography>
                       </Tooltip>
                     }
                     placement="right"
@@ -642,15 +653,33 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
-              value: collateralizationRatioFormatted,
+              value: (
+                <Typography
+                  className="raft__valueLabel"
+                  variant="body-primary"
+                  color={isCurrentCollateralHealthy ? 'text-success' : undefined}
+                  weight="medium"
+                >
+                  {collateralizationRatioFormatted}
+                </Typography>
+              ),
               newValue: hasMinRatio ? (
-                newCollateralizationRatioFormatted
+                newCollateralizationRatioFormatted && (
+                  <Typography
+                    className="raft__valueLabel"
+                    variant="body-primary"
+                    color={isNewCollateralHealthy ? 'text-success' : undefined}
+                    weight="medium"
+                  >
+                    {newCollateralizationRatioFormatted}
+                  </Typography>
+                )
               ) : (
                 <TooltipWrapper
                   anchorClasses="raft__adjustPosition__error"
                   tooltipContent={
-                    <Tooltip className="raft__adjustPosition__tooltip__error">
-                      <Typography variant="body-tertiary">
+                    <Tooltip>
+                      <Typography variant="body-tertiary" color="text-error">
                         Collateralization ratio below the minimum threshold
                       </Typography>
                     </Tooltip>

@@ -10,7 +10,7 @@ interface TransactionSuccessModalProps {
   title: ReactNode | string;
   subtitle: string;
   infoHeader: string;
-  infoEntries: { id: string; label: string; value: string }[];
+  infoEntries: { id: string; label: string; value: ReactNode | string }[];
   onClose: () => void;
 }
 
