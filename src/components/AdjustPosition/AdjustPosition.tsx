@@ -56,6 +56,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       setTransactionState('loading');
     } else if (borrowStatus.success) {
       setTransactionState('success');
+      setCollateralAmount('');
+      setBorrowAmount('');
     } else {
       setTransactionState('default');
     }
