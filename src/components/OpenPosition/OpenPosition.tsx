@@ -199,15 +199,15 @@ const OpenPosition = () => {
     }
 
     if (!hasEnoughCollateralTokenBalance) {
-      return 'Insufficient wallet balance';
+      return 'Insufficient funds';
     }
 
     if (!hasMinBorrow) {
-      return 'Total debt below minimum';
+      return 'Borrow below the minimum amount';
     }
 
     if (!hasMinRatio) {
-      return 'Collateralization ratio too low';
+      return 'Collateralization ratio below the minimum threshold';
     }
 
     return 'Borrow';
@@ -424,10 +424,7 @@ const OpenPosition = () => {
                   anchorClasses="raft__openPosition__error"
                   tooltipContent={
                     <Tooltip className="raft__openPosition__tooltip__error">
-                      <Typography variant="body-tertiary">{`Debt under ${minBorrowFormatted}`}</Typography>
-                      <Typography variant="body-tertiary" type="mono">
-                        &nbsp;{R_TOKEN}
-                      </Typography>
+                      <Typography variant="body-tertiary">Borrow below the minimum amount</Typography>
                     </Tooltip>
                   }
                   placement="right"
@@ -464,7 +461,9 @@ const OpenPosition = () => {
                     anchorClasses="raft__openPosition__error"
                     tooltipContent={
                       <Tooltip className="raft__openPosition__tooltip__error">
-                        <Typography variant="body-tertiary">{`Collateral ratio lower than ${minRatioFormatted}`}</Typography>
+                        <Typography variant="body-tertiary">
+                          Collateralization ratio below the minimum threshold
+                        </Typography>
                       </Tooltip>
                     }
                     placement="right"
