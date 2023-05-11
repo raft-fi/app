@@ -61,6 +61,15 @@ body {
 
   --app-width: 1366px;
   --app-padding: 0 32px;
+
+  --onboard-link-color: var(--colorPrimary);
+  --onboard-checkbox-background: var(--colorPrimary);
+  --onboard-checkbox-background: var(--colorPrimary);
+  --onboard-checkbox-color: var(--colorPrimary);
+  --onboard-warning-100: var(--colorSelectedSurface);
+  --onboard-warning-400: var(--colorBorder);
+  --onboard-warning-700: var(--textPrimary);
+  --onboard-connect-sidebar-progress-background: var(--raftBlack);
 }
 
 // Prevent page scroll when modal is open

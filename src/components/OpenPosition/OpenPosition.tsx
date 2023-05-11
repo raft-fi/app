@@ -432,7 +432,7 @@ const OpenPosition = () => {
                   }
                   placement="right"
                 >
-                  <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0}`} />
+                  <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0}`} color="text-error" />
                   <Icon variant="error" size="small" />
                 </TooltipWrapper>
               ),
@@ -458,13 +458,10 @@ const OpenPosition = () => {
               ),
               value:
                 hasMinRatio || collateralizationRatioFormatted === 'N/A' ? (
-                  <Typography
-                    variant="body-primary"
+                  <ValueLabel
                     color={isCollateralHealthy ? 'text-success' : undefined}
-                    weight="medium"
-                  >
-                    {collateralizationRatioFormatted}
-                  </Typography>
+                    value={collateralizationRatioFormatted || 'N/A'}
+                  />
                 ) : (
                   <TooltipWrapper
                     anchorClasses="raft__openPosition__error"
@@ -477,7 +474,7 @@ const OpenPosition = () => {
                     }
                     placement="right"
                   >
-                    <ValueLabel value={collateralizationRatioFormatted} />
+                    <ValueLabel value={collateralizationRatioFormatted} color="text-error" />
                     <Icon variant="error" size="small" />
                   </TooltipWrapper>
                 ),

@@ -39,8 +39,6 @@
     }
 
     .raft__adjustPosition__error {
-      --textPrimary: var(--colorError);
-
       display: flex;
       justify-content: flex-end;
       align-items: center;
