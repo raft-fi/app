@@ -25,10 +25,11 @@ import { emitAppEvent } from './useAppEvent';
 interface BorrowRequest {
   txnId: string;
   collateralToken: CollateralToken;
-  collateralAmount: Decimal;
-  debtAmount: Decimal;
+  collateralChange: Decimal;
+  debtChange: Decimal;
   currentUserCollateral: Decimal;
   currentUserDebt: Decimal;
+  closePosition?: boolean;
 }
 
 interface BorrowStatus {
@@ -62,7 +63,14 @@ const borrowStatus$ = new BehaviorSubject<Nullable<BorrowStatus>>(null);
 const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
   concatMap<[BorrowRequest, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<BorrowResponse>>(
     ([request, walletProvider, walletSigner]) => {
-      const { txnId, currentUserCollateral, currentUserDebt, collateralAmount, debtAmount } = request;
+      const {
+        txnId,
+        currentUserCollateral,
+        currentUserDebt,
+        collateralChange,
+        debtChange,
+        closePosition = false,
+      } = request;
 
       try {
         if (!walletProvider || !walletSigner) {
@@ -79,24 +87,14 @@ const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
 
         // TODO - maxFeePercentage should be same as borrowFee (should be added in SDK as default value)
         let result$: Observable<ethers.ContractTransactionResponse>;
-        if (collateralAmount.equals(0) && debtAmount.equals(0)) {
+        if (closePosition) {
           result$ = from(
             userPosition.close({
               collateralToken: request.collateralToken,
               maxFeePercentage: new Decimal(0.01),
             }),
           );
-        } else if (currentUserCollateral.isZero() && currentUserDebt.isZero()) {
-          result$ = from(
-            userPosition.open(collateralAmount, debtAmount, {
-              collateralToken: request.collateralToken,
-              maxFeePercentage: new Decimal(0.01),
-            }),
-          );
         } else {
-          const collateralChange = collateralAmount.sub(currentUserCollateral);
-          const debtChange = debtAmount.sub(currentUserDebt);
-
           result$ = from(
             userPosition.manage(collateralChange, debtChange, {
               collateralToken: request.collateralToken,
