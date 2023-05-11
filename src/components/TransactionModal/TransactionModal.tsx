@@ -4,7 +4,7 @@ import { resetBorrowStatus, useBorrow, useTokenPrices } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { Typography, ValueLabel } from '../shared';
+import { ValueLabel } from '../shared';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   R_TOKEN_UI_PRECISION,
@@ -300,13 +300,10 @@ const TransactionModal = () => {
               id: 'collateralizationRatio',
               label: 'Collateralization Ratio',
               value: (
-                <Typography
-                  variant="body-primary"
+                <ValueLabel
                   color={isCollateralHealthy ? 'text-success' : undefined}
-                  weight="medium"
-                >
-                  {collateralizationRatioFormatted || 'N/A'}
-                </Typography>
+                  value={collateralizationRatioFormatted || 'N/A'}
+                />
               ),
             },
           ]}

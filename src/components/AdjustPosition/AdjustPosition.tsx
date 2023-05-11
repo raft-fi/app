@@ -377,11 +377,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     const collateralAmountInDisplayToken = newCollateralInDisplayToken?.value || currentCollateralInDisplayToken?.value;
     const debtAmount = newDebtTokenValues?.value || currentDebtTokenValues?.value;
 
-    if (!collateralAmountInDisplayToken || !debtAmount) {
+    if (!collateralAmountInDisplayToken || !debtAmount || debtAmount.isZero()) {
       return null;
     }
 
-    if (collateralAmountInDisplayToken.isZero() || debtAmount.isZero()) {
+    if (collateralAmountInDisplayToken.isZero()) {
       return Decimal.ZERO;
     }
 
@@ -405,13 +405,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * New collateralization ratio formatted
    */
   const newCollateralizationRatioFormatted = useMemo(() => {
-    if (newCollateralizationRatio?.isZero()) {
+    if (!newCollateralizationRatio) {
       return 'N/A';
     }
 
-    return newCollateralizationRatio
-      ? DecimalFormat.format(newCollateralizationRatio, { style: 'percentage', fractionDigits: 2 })
-      : null;
+    return DecimalFormat.format(newCollateralizationRatio, { style: 'percentage', fractionDigits: 2 });
   }, [newCollateralizationRatio]);
 
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
@@ -621,7 +619,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     }
                     placement="right"
                   >
-                    <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} />
+                    <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} color="text-error" />
                     <Icon variant="error" size="small" />
                   </TooltipWrapper>
                 )),
@@ -647,25 +645,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: (
-                <Typography
-                  className="raft__valueLabel"
-                  variant="body-primary"
+                <ValueLabel
                   color={isCurrentCollateralHealthy ? 'text-success' : undefined}
-                  weight="medium"
-                >
-                  {collateralizationRatioFormatted}
-                </Typography>
+                  value={collateralizationRatioFormatted || 'N/A'}
+                />
               ),
               newValue: hasMinRatio ? (
                 newCollateralizationRatioFormatted && (
-                  <Typography
-                    className="raft__valueLabel"
-                    variant="body-primary"
+                  <ValueLabel
                     color={isNewCollateralHealthy ? 'text-success' : undefined}
-                    weight="medium"
-                  >
-                    {newCollateralizationRatioFormatted}
-                  </Typography>
+                    value={newCollateralizationRatioFormatted || 'N/A'}
+                  />
                 )
               ) : (
                 <TooltipWrapper
@@ -679,7 +669,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   }
                   placement="right"
                 >
-                  <ValueLabel value={newCollateralizationRatioFormatted as string} />
+                  <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
                   <Icon variant="error" size="small" />
                 </TooltipWrapper>
               ),
