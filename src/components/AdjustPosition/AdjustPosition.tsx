@@ -450,15 +450,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const buttonLabel = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
-      return 'Insufficient wallet balance';
+      return 'Insufficient funds';
     }
 
     if (!hasMinBorrow) {
-      return 'Total debt below minimum';
+      return 'Borrow below the minimum amount';
     }
 
     if (!hasMinRatio) {
-      return 'Collateralization ratio too low';
+      return 'Collateralization ratio below the minimum threshold';
     }
 
     return 'Execute';
@@ -612,10 +612,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     anchorClasses="raft__adjustPosition__error"
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__tooltip__error">
-                        <Typography variant="body-tertiary">{`Debt under ${minBorrowFormatted}`}</Typography>
-                        <Typography variant="body-tertiary" type="mono">
-                          &nbsp;{R_TOKEN}
-                        </Typography>
+                        <Typography variant="body-tertiary">Borrow below the minimum amount</Typography>
                       </Tooltip>
                     }
                     placement="right"
@@ -653,7 +650,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   anchorClasses="raft__adjustPosition__error"
                   tooltipContent={
                     <Tooltip className="raft__adjustPosition__tooltip__error">
-                      <Typography variant="body-tertiary">{`Collateral ratio lower than ${minRatioFormatted}`}</Typography>
+                      <Typography variant="body-tertiary">
+                        Collateralization ratio below the minimum threshold
+                      </Typography>
                     </Tooltip>
                   }
                   placement="right"
