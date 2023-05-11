@@ -564,6 +564,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onIncrementAmount={handleCollateralIncrement}
           onDecrementAmount={handleCollateralDecrement}
           disabled={closePositionActive}
+          decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
           allowNegativeNumbers={true}
           error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
         />
@@ -580,6 +581,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onIncrementAmount={handleBorrowIncrement}
           onDecrementAmount={handleBorrowDecrement}
           disabled={closePositionActive}
+          decrementDisabled={newDebtTokenValues.amount?.isZero()}
           allowNegativeNumbers={true}
           error={!hasMinBorrow || !hasMinRatio}
         />

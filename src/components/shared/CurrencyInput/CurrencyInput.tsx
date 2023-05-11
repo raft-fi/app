@@ -33,6 +33,8 @@ export interface CurrencyInputProps extends BaseInputProps {
   onTokenUpdate?: (token: string) => void;
   onIncrementAmount?: (amount: number) => void;
   onDecrementAmount?: (amount: number) => void;
+  incrementDisabled?: boolean;
+  decrementDisabled?: boolean;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
@@ -57,6 +59,8 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onTokenUpdate,
     onDecrementAmount,
     onIncrementAmount,
+    incrementDisabled,
+    decrementDisabled,
     onFocus,
     onBlur,
   } = props;
@@ -168,6 +172,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             variant="secondary"
             className="raft__currencyInput__adjustAmountButton"
             onClick={handleDecrementAmount}
+            disabled={decrementDisabled}
           >
             <Typography variant="subtitle">-</Typography>
           </Button>
@@ -254,6 +259,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             variant="secondary"
             className="raft__currencyInput__adjustAmountButton"
             onClick={handleIncrementAmount}
+            disabled={incrementDisabled}
           >
             <Typography variant="subtitle">+</Typography>
           </Button>
