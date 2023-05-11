@@ -333,7 +333,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Formatted new liquidation price
    */
   const newLiquidationPriceFormatted = useMemo(() => {
-    if (newLiquidationPrice?.equals(0)) {
+    if (newLiquidationPrice?.isZero()) {
       return 'N/A';
     }
 
@@ -444,6 +444,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const isInputNonEmpty = useMemo(
     () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
     [borrowAmountDecimal, collateralAmountDecimal],
+  );
+  const hasCollateralChange = useMemo(
+    () =>
+      currentCollateralizationRatio &&
+      newCollateralizationRatio &&
+      !currentCollateralizationRatio.equals(newCollateralizationRatio),
+    [currentCollateralizationRatio, newCollateralizationRatio],
   );
 
   const canAdjust = useMemo(
@@ -649,14 +656,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
               value: (
                 <ValueLabel
                   color={isCurrentCollateralHealthy ? 'text-success' : undefined}
-                  value={collateralizationRatioFormatted || 'N/A'}
+                  value={collateralizationRatioFormatted}
                 />
               ),
               newValue: hasMinRatio ? (
-                newCollateralizationRatioFormatted && (
+                hasCollateralChange && (
                   <ValueLabel
                     color={isNewCollateralHealthy ? 'text-success' : undefined}
-                    value={newCollateralizationRatioFormatted || 'N/A'}
+                    value={newCollateralizationRatioFormatted}
                   />
                 )
               ) : (
