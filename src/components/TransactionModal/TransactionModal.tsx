@@ -14,7 +14,7 @@ import {
 } from '../../constants';
 
 const TransactionModal = () => {
-  const { borrowStatus } = useBorrow();
+  const { borrowStatus, borrow } = useBorrow();
   const tokenPriceMap = useTokenPrices();
 
   const [successModalOpened, setSuccessModalOpened] = useState<boolean>(false);
@@ -44,8 +44,14 @@ const TransactionModal = () => {
   }, []);
 
   const onRetryTransaction = useCallback(() => {
-    // TODO - Implement retry logic
-  }, []);
+    if (!borrowStatus) {
+      return;
+    }
+
+    onCloseModal();
+
+    borrow(borrowStatus.request);
+  }, [borrow, borrowStatus, onCloseModal]);
 
   const debtChange = useMemo(() => {
     if (!borrowStatus) {
