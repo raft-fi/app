@@ -9,6 +9,9 @@ import Button from '../Button';
 
 import './CurrencyInput.scss';
 
+// ethers 6.3.0 has bugs that cannot format large number
+const MAX_INTEGRAL_DIGIT = 15;
+
 export interface CurrencyInputProps extends BaseInputProps {
   label: string;
   value: string;
@@ -135,7 +138,9 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   }, [onDecrementAmount, step]);
 
   const inputPattern = useMemo(() => {
-    return allowNegativeNumbers ? `-?[0-9]*[.]?[0-9]{0,${precision}}` : `[0-9]*[.]?[0-9]{0,${precision}}`;
+    return allowNegativeNumbers
+      ? `-?[0-9]{0,${MAX_INTEGRAL_DIGIT}}([.][0-9]{0,${precision}})?`
+      : `[0-9]{0,${MAX_INTEGRAL_DIGIT}}([.][0-9]{0,${precision}})?`;
   }, [allowNegativeNumbers, precision]);
 
   return (

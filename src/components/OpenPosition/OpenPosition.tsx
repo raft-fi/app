@@ -328,7 +328,13 @@ const OpenPosition = () => {
   useEffect(() => {
     const borrowTokenPrice = tokenPriceMap[R_TOKEN];
 
-    if (maxButtonDisabled && borrowTokenPrice && collateralTokenValues) {
+    if (
+      maxButtonDisabled &&
+      borrowTokenPrice &&
+      collateralTokenValues &&
+      !borrowTokenPrice.isZero() &&
+      !HEALTHY_RATIO
+    ) {
       const defaultBorrowAmount = collateralTokenValues.value?.div(borrowTokenPrice).div(HEALTHY_RATIO).toTruncated(4);
 
       if (defaultBorrowAmount) {
