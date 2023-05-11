@@ -139,16 +139,16 @@ const TransactionModal = () => {
     }
 
     if (collateralChange.lt(0) && debtChange.isZero()) {
-      return 'Successful withdrawal';
+      return 'Successfully withdrawn';
     }
     if (collateralChange.isZero() && debtChange.lt(0)) {
-      return 'Successful repayment';
+      return 'Successfully repaid';
     }
     if (collateralChange.gt(0) && debtChange.isZero()) {
-      return 'Successful deposit';
+      return 'Successfully deposited';
     }
     if (collateralChange.isZero() && debtChange.gt(0)) {
-      return 'Successful borrowed';
+      return 'Successfully borrowed';
     }
 
     return 'Successful transaction';
