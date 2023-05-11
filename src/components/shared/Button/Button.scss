@@ -17,6 +17,7 @@
       background-color: var(--colorPrimaryDisabled);
     }
 
+    &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover {
       background-color: var(--raftDarkOrange);
       border: 1px solid var(--raftWhite);
@@ -36,6 +37,7 @@
       background-color: var(--colorSecondaryDisabled);
     }
 
+    &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover {
       border-color: var(--colorPrimary);
     }
@@ -48,6 +50,7 @@
   &.raft__button-tertiary {
     background-color: var(--raftWallet);
 
+    &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover {
       background-color: var(--raftWalletDark);
     }
