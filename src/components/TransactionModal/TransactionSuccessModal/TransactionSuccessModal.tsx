@@ -1,6 +1,6 @@
 import { FC, ReactNode, useCallback } from 'react';
 import { Link } from 'tempus-ui';
-import { useBorrow, useEIP1193Provider } from '../../../hooks';
+import { useBorrow, useConfig, useEIP1193Provider } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../../shared';
 
 import './TransactionSuccessModal.scss';
@@ -24,6 +24,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
 }) => {
   const { borrowStatus } = useBorrow();
   const eip1193Provider = useEIP1193Provider();
+  const config = useConfig();
   const txHash = borrowStatus?.contractTransaction?.hash ?? '0x0';
 
   const onAddRToWallet = useCallback(() => {
@@ -72,7 +73,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
           <Typography variant="body-tertiary">View transaction history in&nbsp;</Typography>
-          <Link href={`https://etherscan.io/tx/${txHash}`}>
+          <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
             <Typography variant="body-tertiary" color="text-secondary">
               Etherscan
             </Typography>

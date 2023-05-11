@@ -33,7 +33,7 @@ const config: Config = {
     privateNetworkUrl: '',
     networkName: '',
     alchemyKey: '',
-    chainId: 1,
+    chainId: 5,
     /**
      * Average block time on chain in seconds.
      */
