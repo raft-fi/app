@@ -5,7 +5,7 @@ import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { updateWalletFromEIP1193Provider, useENS } from '../../hooks';
+import { updateWalletFromEIP1193Provider, useConfig, useENS } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
@@ -50,6 +50,7 @@ init({
 const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
 
 const Wallet = () => {
+  const config = useConfig();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
   const ens = useENS();
@@ -150,8 +151,8 @@ const Wallet = () => {
       return null;
     }
 
-    window.open(`https://etherscan.io/address/${wallet.accounts[0].address}`, '_blank', 'noopener,noreferrer');
-  }, [wallet]);
+    window.open(`${config.blockExplorerUrl}/address/${wallet.accounts[0].address}`, '_blank', 'noopener,noreferrer');
+  }, [config.blockExplorerUrl, wallet]);
 
   const onCopyAddress = useCallback(() => {
     if (!wallet) {

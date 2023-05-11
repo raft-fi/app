@@ -9,3 +9,4 @@ export * from './usePriceFeed';
 export * from './useTokenPrices';
 export * from './useTokenBalances';
 export * from './useProtocolStats';
+export * from './useConfig';

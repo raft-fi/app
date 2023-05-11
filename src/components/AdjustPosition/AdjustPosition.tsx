@@ -32,6 +32,8 @@ interface AdjustPositionProps {
   debtBalance: Decimal;
 }
 
+const INPUT_PREVIEW_DIGITS = 4;
+
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
   const tokenBalanceMap = useTokenBalances();
@@ -56,6 +58,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       setTransactionState('loading');
     } else if (borrowStatus.success) {
       setTransactionState('success');
+      setCollateralAmount('');
+      setBorrowAmount('');
     } else {
       setTransactionState('default');
     }
@@ -90,6 +94,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
+  const collateralAmountWithEllipse = useMemo(() => {
+    const original = collateralAmountDecimal.toString();
+    const truncated = collateralAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [collateralAmountDecimal]);
+  const borrowAmountWithEllipse = useMemo(() => {
+    const original = borrowAmountDecimal.toString();
+    const truncated = borrowAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [borrowAmountDecimal]);
 
   const collateralTokenBalanceValues = useMemo(
     () =>
@@ -331,7 +347,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Formatted new liquidation price
    */
   const newLiquidationPriceFormatted = useMemo(() => {
-    if (newLiquidationPrice?.equals(0)) {
+    if (newLiquidationPrice?.isZero()) {
       return 'N/A';
     }
 
@@ -428,10 +444,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [newCollateralInDisplayToken?.value, newDebtTokenValues?.amount],
   );
   const hasEnoughCollateralTokenBalance = useMemo(
-    () =>
-      !newCollateralInDisplayToken?.amount ||
-      (selectedCollateralTokenBalance && newCollateralInDisplayToken.amount.lte(selectedCollateralTokenBalance)),
-    [newCollateralInDisplayToken?.amount, selectedCollateralTokenBalance],
+    () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal),
+    [collateralAmountDecimal, selectedCollateralTokenBalance],
   );
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
@@ -444,6 +458,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const isInputNonEmpty = useMemo(
     () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
     [borrowAmountDecimal, collateralAmountDecimal],
+  );
+  const hasCollateralChange = useMemo(
+    () =>
+      currentCollateralizationRatio &&
+      newCollateralizationRatio &&
+      !currentCollateralizationRatio.equals(newCollateralizationRatio),
+    [currentCollateralizationRatio, newCollateralizationRatio],
   );
 
   const canAdjust = useMemo(
@@ -550,6 +571,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           selectedToken={selectedCollateralToken}
           tokens={['stETH', 'wstETH']}
           value={collateralAmount}
+          previewValue={collateralAmountWithEllipse}
           maxAmount={collateralTokenBalanceValues?.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
@@ -557,7 +579,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onIncrementAmount={handleCollateralIncrement}
           onDecrementAmount={handleCollateralDecrement}
           disabled={closePositionActive}
+          decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
           allowNegativeNumbers={true}
+          error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
         />
         <CurrencyInput
           label="Borrow"
@@ -566,13 +590,16 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
+          previewValue={borrowAmountWithEllipse}
           maxAmount={debtTokenBalanceValues?.amountFormatted}
           onValueUpdate={setBorrowAmount}
           step={100}
           onIncrementAmount={handleBorrowIncrement}
           onDecrementAmount={handleBorrowDecrement}
           disabled={closePositionActive}
+          decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
+          error={!hasMinBorrow || !hasMinRatio}
         />
       </div>
       <div className="raft__adjustPosition__data">
@@ -647,14 +674,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
               value: (
                 <ValueLabel
                   color={isCurrentCollateralHealthy ? 'text-success' : undefined}
-                  value={collateralizationRatioFormatted || 'N/A'}
+                  value={collateralizationRatioFormatted}
                 />
               ),
               newValue: hasMinRatio ? (
-                newCollateralizationRatioFormatted && (
+                hasCollateralChange && (
                   <ValueLabel
                     color={isNewCollateralHealthy ? 'text-success' : undefined}
-                    value={newCollateralizationRatioFormatted || 'N/A'}
+                    value={newCollateralizationRatioFormatted}
                   />
                 )
               ) : (

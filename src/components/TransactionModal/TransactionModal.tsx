@@ -100,11 +100,8 @@ const TransactionModal = () => {
       return null;
     }
 
-    const collateralValue = borrowStatus.request.collateralChange.abs().mul(collateralPrice);
-
-    const collateralInDisplayToken = collateralValue.div(displayBaseTokenPrice);
-
-    const collateralValueFormatted = DecimalFormat.format(collateralInDisplayToken, {
+    // for modal title, show what's user actually deposit/withdraw, no need to convert
+    const collateralValueFormatted = DecimalFormat.format(borrowStatus.request.collateralChange.abs(), {
       style: 'currency',
       currency: borrowStatus.request.collateralToken,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
@@ -141,17 +138,17 @@ const TransactionModal = () => {
       return '';
     }
 
-    if (collateralChange.lt(0) && debtChange.equals(0)) {
-      return 'Successful withdrawal';
+    if (collateralChange.lt(0) && debtChange.isZero()) {
+      return 'Successfully withdrawn';
     }
-    if (collateralChange.equals(0) && debtChange.lt(0)) {
-      return 'Successful repayment';
+    if (collateralChange.isZero() && debtChange.lt(0)) {
+      return 'Successfully repaid';
     }
-    if (collateralChange.gt(0) && debtChange.equals(0)) {
-      return 'Successful deposit';
+    if (collateralChange.gt(0) && debtChange.isZero()) {
+      return 'Successfully deposited';
     }
-    if (collateralChange.equals(0) && debtChange.gt(0)) {
-      return 'Successful borrow';
+    if (collateralChange.isZero() && debtChange.gt(0)) {
+      return 'Successfully borrowed';
     }
 
     return 'Successful transaction';
@@ -175,9 +172,10 @@ const TransactionModal = () => {
 
     const amount = collateralBalanceValue.add(collateralChangeValue).div(displayBaseTokenPrice);
 
+    // collateral should always show in stETH, so convert to stETH
     return DecimalFormat.format(amount, {
       style: 'currency',
-      currency: borrowStatus.request.collateralToken,
+      currency: DISPLAY_BASE_TOKEN,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
     });

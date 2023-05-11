@@ -9,9 +9,13 @@ import Button from '../Button';
 
 import './CurrencyInput.scss';
 
+// ethers 6.3.0 has bugs that cannot format large number
+const MAX_INTEGRAL_DIGIT = 15;
+
 export interface CurrencyInputProps extends BaseInputProps {
   label: string;
   value: string;
+  previewValue?: string;
   placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
@@ -30,12 +34,15 @@ export interface CurrencyInputProps extends BaseInputProps {
   onTokenUpdate?: (token: string) => void;
   onIncrementAmount?: (amount: number) => void;
   onDecrementAmount?: (amount: number) => void;
+  incrementDisabled?: boolean;
+  decrementDisabled?: boolean;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
   const {
     label,
     value,
+    previewValue,
     placeholder = '0',
     precision,
     maxAmount = '',
@@ -54,15 +61,19 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onTokenUpdate,
     onDecrementAmount,
     onIncrementAmount,
+    incrementDisabled,
+    decrementDisabled,
     onFocus,
     onBlur,
   } = props;
   const inputRef = createRef<HTMLInputElement>();
 
-  const [, setFocused] = useState<boolean>(false);
+  const [focused, setFocused] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const isSingleToken = useMemo(() => tokens.length === 1, [tokens.length]);
+
+  const displayValue = useMemo(() => (focused ? value : previewValue ?? value), [focused, previewValue, value]);
 
   const handleValueChange = useCallback(
     (value: string) => {
@@ -135,7 +146,9 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   }, [onDecrementAmount, step]);
 
   const inputPattern = useMemo(() => {
-    return allowNegativeNumbers ? `-?[0-9]*[.]?[0-9]{0,${precision}}` : `[0-9]*[.]?[0-9]{0,${precision}}`;
+    return allowNegativeNumbers
+      ? `-?[0-9]{0,${MAX_INTEGRAL_DIGIT}}([.][0-9]{0,${precision}})?`
+      : `[0-9]{0,${MAX_INTEGRAL_DIGIT}}([.][0-9]{0,${precision}})?`;
   }, [allowNegativeNumbers, precision]);
 
   return (
@@ -157,16 +170,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           )}
         </div>
       </div>
-      <div
-        className={`raft__currencyInput__fieldContainer
-          ${error ? ' raft__currencyInput__fieldContainerError' : ''}
-        `}
-      >
+      <div className="raft__currencyInput__fieldContainer">
         {onDecrementAmount && step && (
           <Button
             variant="secondary"
             className="raft__currencyInput__adjustAmountButton"
             onClick={handleDecrementAmount}
+            disabled={decrementDisabled}
           >
             <Typography variant="subtitle">-</Typography>
           </Button>
@@ -174,6 +184,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         <div
           className={`raft__currencyInput__inputContainer
             ${disabled ? ' raft__currencyInput__inputContainerDisabled' : ''}
+          ${error ? ' raft__currencyInput__inputContainerError' : ''}
           `}
         >
           <div className="raft__currencyInput__amountContainer" onClick={focusInput}>
@@ -185,7 +196,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             >
               <BaseInput
                 ref={inputRef}
-                value={value}
+                value={displayValue}
                 placeholder={placeholder}
                 pattern={inputPattern}
                 disabled={disabled}
@@ -252,6 +263,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             variant="secondary"
             className="raft__currencyInput__adjustAmountButton"
             onClick={handleIncrementAmount}
+            disabled={incrementDisabled}
           >
             <Typography variant="subtitle">+</Typography>
           </Button>
