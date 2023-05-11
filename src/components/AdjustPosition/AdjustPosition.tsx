@@ -32,6 +32,8 @@ interface AdjustPositionProps {
   debtBalance: Decimal;
 }
 
+const INPUT_PREVIEW_DIGITS = 4;
+
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
   const tokenBalanceMap = useTokenBalances();
@@ -92,6 +94,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
+  const collateralAmountWithEllipse = useMemo(() => {
+    const original = collateralAmountDecimal.toString();
+    const truncated = collateralAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [collateralAmountDecimal]);
+  const borrowAmountWithEllipse = useMemo(() => {
+    const original = borrowAmountDecimal.toString();
+    const truncated = borrowAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [borrowAmountDecimal]);
 
   const collateralTokenBalanceValues = useMemo(
     () =>
@@ -557,6 +571,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           selectedToken={selectedCollateralToken}
           tokens={['stETH', 'wstETH']}
           value={collateralAmount}
+          previewValue={collateralAmountWithEllipse}
           maxAmount={collateralTokenBalanceValues?.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
@@ -575,13 +590,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
+          previewValue={borrowAmountWithEllipse}
           maxAmount={debtTokenBalanceValues?.amountFormatted}
           onValueUpdate={setBorrowAmount}
           step={100}
           onIncrementAmount={handleBorrowIncrement}
           onDecrementAmount={handleBorrowDecrement}
           disabled={closePositionActive}
-          decrementDisabled={newDebtTokenValues.amount?.isZero()}
+          decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
           error={!hasMinBorrow || !hasMinRatio}
         />

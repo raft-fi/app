@@ -15,6 +15,7 @@ const MAX_INTEGRAL_DIGIT = 15;
 export interface CurrencyInputProps extends BaseInputProps {
   label: string;
   value: string;
+  previewValue?: string;
   placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
@@ -41,6 +42,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   const {
     label,
     value,
+    previewValue,
     placeholder = '0',
     precision,
     maxAmount = '',
@@ -66,10 +68,12 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   } = props;
   const inputRef = createRef<HTMLInputElement>();
 
-  const [, setFocused] = useState<boolean>(false);
+  const [focused, setFocused] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const isSingleToken = useMemo(() => tokens.length === 1, [tokens.length]);
+
+  const displayValue = useMemo(() => (focused ? value : previewValue ?? value), [focused, previewValue, value]);
 
   const handleValueChange = useCallback(
     (value: string) => {
@@ -192,7 +196,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             >
               <BaseInput
                 ref={inputRef}
-                value={value}
+                value={displayValue}
                 placeholder={placeholder}
                 pattern={inputPattern}
                 disabled={disabled}
