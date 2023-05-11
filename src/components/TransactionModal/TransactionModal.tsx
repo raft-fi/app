@@ -51,7 +51,7 @@ const TransactionModal = () => {
       return null;
     }
 
-    return borrowStatus.request.debtAmount.sub(borrowStatus.request.currentUserDebt);
+    return borrowStatus.request.debtChange;
   }, [borrowStatus]);
 
   const collateralChange = useMemo(() => {
@@ -59,7 +59,7 @@ const TransactionModal = () => {
       return null;
     }
 
-    return borrowStatus.request.collateralAmount.sub(borrowStatus.request.currentUserCollateral);
+    return borrowStatus.request.collateralChange;
   }, [borrowStatus]);
 
   /**
@@ -92,17 +92,16 @@ const TransactionModal = () => {
       lessThanFormat: true,
     });
 
-    const collateralBaseTokenPrice = tokenPriceMap[COLLATERAL_BASE_TOKEN];
-    if (!collateralBaseTokenPrice) {
-      return null;
-    }
-
     const displayBaseTokenPrice = tokenPriceMap[DISPLAY_BASE_TOKEN];
-    if (!displayBaseTokenPrice) {
+    const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
+
+    if (!displayBaseTokenPrice || !collateralPrice) {
       return null;
     }
 
-    const collateralInDisplayToken = collateralBaseTokenPrice.mul(collateralChange.abs()).div(displayBaseTokenPrice);
+    const collateralValue = borrowStatus.request.collateralChange.abs().mul(collateralPrice);
+
+    const collateralInDisplayToken = collateralValue.div(displayBaseTokenPrice);
 
     const collateralValueFormatted = DecimalFormat.format(collateralInDisplayToken, {
       style: 'currency',
@@ -162,17 +161,18 @@ const TransactionModal = () => {
       return null;
     }
 
-    const collateralBaseTokenPrice = tokenPriceMap[COLLATERAL_BASE_TOKEN];
-    if (!collateralBaseTokenPrice) {
-      return null;
-    }
-
+    const baseCollateralTokenPrice = tokenPriceMap[COLLATERAL_BASE_TOKEN];
     const displayBaseTokenPrice = tokenPriceMap[DISPLAY_BASE_TOKEN];
-    if (!displayBaseTokenPrice) {
+    const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
+
+    if (!displayBaseTokenPrice || !collateralPrice || !baseCollateralTokenPrice) {
       return null;
     }
 
-    const amount = collateralBaseTokenPrice.mul(borrowStatus.request.collateralAmount).div(displayBaseTokenPrice);
+    const collateralChangeValue = borrowStatus.request.collateralChange.mul(collateralPrice);
+    const collateralBalanceValue = borrowStatus.request.currentUserCollateral.mul(baseCollateralTokenPrice);
+
+    const amount = collateralBalanceValue.add(collateralChangeValue).div(displayBaseTokenPrice);
 
     return DecimalFormat.format(amount, {
       style: 'currency',
@@ -182,12 +182,17 @@ const TransactionModal = () => {
     });
   }, [borrowStatus, tokenPriceMap]);
 
+  /**
+   * Calculate new debt after transaction
+   */
   const debtAfterTx = useMemo(() => {
     if (!borrowStatus) {
       return null;
     }
 
-    return DecimalFormat.format(borrowStatus.request.debtAmount, {
+    const value = borrowStatus.request.currentUserDebt.add(borrowStatus.request.debtChange);
+
+    return DecimalFormat.format(value, {
       style: 'currency',
       currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
@@ -195,26 +200,34 @@ const TransactionModal = () => {
     });
   }, [borrowStatus]);
 
+  /**
+   * Calculate new collateralization ratio after transaction
+   */
   const collateralizationRatio = useMemo(() => {
     if (!borrowStatus) {
       return null;
     }
 
-    if (borrowStatus.request.debtAmount.isZero()) {
-      return null;
-    }
-
+    const baseCollateralTokenPrice = tokenPriceMap[COLLATERAL_BASE_TOKEN];
     const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
     const rPrice = tokenPriceMap[R_TOKEN];
 
-    if (!collateralPrice || !rPrice) {
+    if (!collateralPrice || !rPrice || !baseCollateralTokenPrice) {
       return null;
     }
 
-    const collateralValue = borrowStatus.request.collateralAmount.mul(collateralPrice);
-    const debtValue = borrowStatus.request.debtAmount.mul(rPrice);
+    const collateralChangeValue = borrowStatus.request.collateralChange.mul(collateralPrice);
+    const collateralBalanceValue = borrowStatus.request.currentUserCollateral.mul(baseCollateralTokenPrice);
 
-    return collateralValue.div(debtValue);
+    const debtBalanceValue = borrowStatus.request.currentUserDebt.mul(rPrice);
+    const debtChangeValue = borrowStatus.request.debtChange.mul(rPrice);
+
+    const totalDebtValue = debtBalanceValue.add(debtChangeValue);
+    if (totalDebtValue.isZero()) {
+      return null;
+    }
+
+    return collateralBalanceValue.add(collateralChangeValue).div(totalDebtValue);
   }, [borrowStatus, tokenPriceMap]);
 
   const collateralizationRatioFormatted = useMemo(() => {
@@ -235,7 +248,7 @@ const TransactionModal = () => {
       return null;
     }
 
-    if (borrowStatus.request.debtAmount.isZero()) {
+    if (collateralizationRatio.isZero()) {
       return 'N/A';
     }
 
@@ -243,10 +256,6 @@ const TransactionModal = () => {
     if (!displayBaseTokenPrice) {
       return null;
     }
-
-    // stETHPrice * MinimumCollateralRatio / CollateralizationRatio
-
-    // const value = new Decimal(1.1).mul(borrowStatus.request.debtAmount.div(borrowStatus.request.collateralAmount));
 
     const value = displayBaseTokenPrice.mul(new Decimal(1.1).div(collateralizationRatio));
 

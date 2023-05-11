@@ -228,8 +228,8 @@ const OpenPosition = () => {
     }
 
     borrow({
-      collateralAmount: new Decimal(collateralAmount),
-      debtAmount: new Decimal(borrowAmount),
+      collateralChange: new Decimal(collateralAmount),
+      debtChange: new Decimal(borrowAmount),
       collateralToken: selectedCollateralToken,
       currentUserCollateral: new Decimal(0), // Always zero when user is 'Opening' a position
       currentUserDebt: new Decimal(0), // Always zero when user is 'Opening' a position

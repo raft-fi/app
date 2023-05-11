@@ -501,16 +501,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   ]);
 
   const onAdjust = useCallback(() => {
-    if (!collateralBalance || !debtBalance || !canAdjust) {
+    if (!canAdjust) {
       return null;
     }
 
     borrow({
-      collateralAmount: collateralBalance.add(collateralAmountDecimal),
-      debtAmount: debtBalance.add(borrowAmountDecimal),
+      collateralChange: collateralAmountDecimal,
+      debtChange: borrowAmountDecimal,
       collateralToken: selectedCollateralToken,
       currentUserCollateral: collateralBalance,
       currentUserDebt: debtBalance,
+      closePosition: closePositionActive,
       txnId: uuid(),
     });
   }, [
@@ -521,6 +522,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     collateralBalance,
     debtBalance,
     selectedCollateralToken,
+    closePositionActive,
   ]);
 
   return (
