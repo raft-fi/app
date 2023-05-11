@@ -1,11 +1,11 @@
 import { FC, memo } from 'react';
 import {
   Typography as TypographyBase,
-  TypographyColor,
   TypographyBaseProps,
   TypographyType,
   TypographyTypeMap,
   TypographyVariantMap,
+  TypographyColorMap,
   TypographyWeightMap,
 } from 'tempus-ui';
 
@@ -20,6 +20,13 @@ export type TypographyVariant =
   | 'body-primary'
   | 'body-secondary'
   | 'body-tertiary';
+export type TypographyColor =
+  | 'text-primary'
+  | 'text-secondary'
+  | 'text-tertiary'
+  | 'text-primary-inverted'
+  | 'text-success'
+  | 'text-error';
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
 const typographyVariantMap: TypographyVariantMap = {
@@ -75,6 +82,15 @@ const typographyVariantMap: TypographyVariantMap = {
   },
 };
 
+const typographyColorMap: TypographyColorMap = {
+  'text-primary': 'var(--textPrimary)',
+  'text-secondary': 'var(--textSecondary)',
+  'text-tertiary': 'var(--textTertiary)',
+  'text-primary-inverted': 'var(--textPrimaryInverted)',
+  'text-success': 'var(--textSuccess)',
+  'text-error': 'var(--textError)',
+};
+
 const typographyWeightMap: TypographyWeightMap = {
   regular: 400,
   medium: 500,
@@ -93,6 +109,7 @@ const Typography: FC<TypographyProps> = props => (
   <TypographyBase<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>
     {...props}
     variantMap={typographyVariantMap}
+    colorMap={typographyColorMap}
     weightMap={typographyWeightMap}
     typeMap={typographyTypeMap}
   />
