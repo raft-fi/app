@@ -141,17 +141,17 @@ const TransactionModal = () => {
       return '';
     }
 
-    if (collateralChange.lt(0) && debtChange.equals(0)) {
+    if (collateralChange.lt(0) && debtChange.isZero()) {
       return 'Successful withdrawal';
     }
-    if (collateralChange.equals(0) && debtChange.lt(0)) {
+    if (collateralChange.isZero() && debtChange.lt(0)) {
       return 'Successful repayment';
     }
-    if (collateralChange.gt(0) && debtChange.equals(0)) {
+    if (collateralChange.gt(0) && debtChange.isZero()) {
       return 'Successful deposit';
     }
-    if (collateralChange.equals(0) && debtChange.gt(0)) {
-      return 'Successful borrow';
+    if (collateralChange.isZero() && debtChange.gt(0)) {
+      return 'Successful borrowed';
     }
 
     return 'Successful transaction';
