@@ -443,11 +443,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
     [borrowAmountDecimal, collateralAmountDecimal],
   );
-  console.log(
-    hasEnoughCollateralTokenBalance,
-    collateralAmountDecimal.toString(),
-    selectedCollateralTokenBalance?.toString(),
-  );
 
   const canAdjust = useMemo(
     () => isInputNonEmpty && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
@@ -561,6 +556,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onDecrementAmount={handleCollateralDecrement}
           disabled={closePositionActive}
           allowNegativeNumbers={true}
+          error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
         />
         <CurrencyInput
           label="Borrow"
@@ -576,6 +572,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onDecrementAmount={handleBorrowDecrement}
           disabled={closePositionActive}
           allowNegativeNumbers={true}
+          error={!hasMinBorrow || !hasMinRatio}
         />
       </div>
       <div className="raft__adjustPosition__data">

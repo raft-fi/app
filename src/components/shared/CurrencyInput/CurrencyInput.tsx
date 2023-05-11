@@ -162,11 +162,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           )}
         </div>
       </div>
-      <div
-        className={`raft__currencyInput__fieldContainer
-          ${error ? ' raft__currencyInput__fieldContainerError' : ''}
-        `}
-      >
+      <div className="raft__currencyInput__fieldContainer">
         {onDecrementAmount && step && (
           <Button
             variant="secondary"
@@ -179,6 +175,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         <div
           className={`raft__currencyInput__inputContainer
             ${disabled ? ' raft__currencyInput__inputContainerDisabled' : ''}
+          ${error ? ' raft__currencyInput__inputContainerError' : ''}
           `}
         >
           <div className="raft__currencyInput__amountContainer" onClick={focusInput}>

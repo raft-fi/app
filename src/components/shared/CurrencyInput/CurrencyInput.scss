@@ -40,7 +40,6 @@
     align-items: center;
     height: 48px;
     box-sizing: border-box;
-    border-radius: 8px 8px 0px 0px;
 
     .raft__currencyInput__inputContainer {
       height: 48px;
@@ -51,6 +50,7 @@
       box-sizing: border-box;
       padding: 0px 8px;
       border-bottom: 1px solid var(--colorBorder);
+      border-radius: 8px 8px 0px 0px;
 
       .raft__currencyInput__amountContainer {
         width: 100%;
@@ -157,6 +157,11 @@
           }
         }
       }
+
+      &.raft__currencyInput__inputContainerError {
+        border-color: var(--colorError);
+        background: var(--raftErrorBackgroundPastelRed);
+      }
     }
 
     .raft__currencyInput__adjustAmountButton {
@@ -177,11 +182,6 @@
         margin-left: 20px;
       }
     }
-  }
-
-  .raft__currencyInput__fieldContainerError {
-    border-color: var(--colorError);
-    background: var(--raftErrorBackgroundPastelRed);
   }
 
   .raft__currencyInput__fiatAmount {
