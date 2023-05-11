@@ -66,10 +66,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
   }, []);
 
-  const onMaxSafeBorrow = useCallback(() => {
-    // TODO - Implement max safe borrow
-  }, []);
-
   const handleCollateralIncrement = useCallback(
     (incrementAmount: number) =>
       setCollateralAmount(prevAmount => Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
@@ -535,11 +531,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           <Button variant="secondary" onClick={onToggleClosePosition} selected={closePositionActive}>
             <Typography variant="body-primary" weight="medium">
               Close position
-            </Typography>
-          </Button>
-          <Button variant="secondary" onClick={onMaxSafeBorrow}>
-            <Typography variant="body-primary" weight="medium">
-              Max safe borrow
             </Typography>
           </Button>
         </div>
