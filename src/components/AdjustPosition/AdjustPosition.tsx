@@ -428,10 +428,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [newCollateralInDisplayToken?.value, newDebtTokenValues?.amount],
   );
   const hasEnoughCollateralTokenBalance = useMemo(
-    () =>
-      !newCollateralInDisplayToken?.amount ||
-      (selectedCollateralTokenBalance && newCollateralInDisplayToken.amount.lte(selectedCollateralTokenBalance)),
-    [newCollateralInDisplayToken?.amount, selectedCollateralTokenBalance],
+    () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal),
+    [collateralAmountDecimal, selectedCollateralTokenBalance],
   );
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
@@ -444,6 +442,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const isInputNonEmpty = useMemo(
     () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
     [borrowAmountDecimal, collateralAmountDecimal],
+  );
+  console.log(
+    hasEnoughCollateralTokenBalance,
+    collateralAmountDecimal.toString(),
+    selectedCollateralTokenBalance?.toString(),
   );
 
   const canAdjust = useMemo(
