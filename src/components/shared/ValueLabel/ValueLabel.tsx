@@ -16,7 +16,6 @@ const ValueLabel: FC<ValueLabelProps> = ({
   valueSize = 'body-primary',
   tickerSize = 'body-tertiary',
 }) => {
-  console.log(value, label);
   const valueElement = useMemo(() => {
     if (value.startsWith('$')) {
       return (
