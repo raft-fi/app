@@ -38,6 +38,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
             address: '0x69665394a7ee38bb4599B0D7EBC9802242e2bF87',
             symbol: 'R',
             decimals: 18,
+            image: 'https://raft.fi/rtoken.png',
           },
           // @web-onboard wrongly treats this as unknown[] but it should not
         } as unknown as unknown[],
