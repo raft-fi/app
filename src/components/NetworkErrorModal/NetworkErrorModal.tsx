@@ -33,7 +33,7 @@ const NetworkErrorModal: FC = () => {
           </ButtonWrapper>
         </div>
         <div className="raft__networkErrorModal__icon">
-          <Icon variant="transaction-failed" size={142} />
+          <Icon variant="unsupported-network" size={142} />
         </div>
         <div className="raft__networkErrorModal__title">
           <Typography variant="subheader" weight="medium">
