@@ -37,7 +37,7 @@ const NetworkErrorModal: FC = () => {
         </div>
         <div className="raft__networkErrorModal__title">
           <Typography variant="subheader" weight="medium">
-            Wrong network.
+            Unsupported network.
           </Typography>
         </div>
         <div className="raft__networkErrorModal__subtitle">

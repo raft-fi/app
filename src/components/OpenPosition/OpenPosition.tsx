@@ -558,7 +558,7 @@ const OpenPosition = () => {
           >
             <Icon variant="error" />
             <Typography variant="body-primary" weight="bold" color="text-error">
-              Wrong network
+              Unsupported network
             </Typography>
           </Button>
         ) : (
