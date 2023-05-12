@@ -5,11 +5,12 @@ import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { updateWalletFromEIP1193Provider, useConfig, useENS } from '../../hooks';
+import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
+import NetworkErrorModal from '../NetworkErrorModal';
 
 const injected = injectedModule();
 const ledger = ledgerModule();
@@ -52,6 +53,7 @@ const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
 const Wallet = () => {
   const config = useConfig();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
+  const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
   const ens = useENS();
 
@@ -174,7 +176,18 @@ const Wallet = () => {
         </div>
       )}
 
-      {wallet && (
+      {wallet && isWrongNetwork && (
+        <div className="raft__wallet__wrongNetwork">
+          <Button variant="tertiary" onClick={switchToSupportedNetwork}>
+            <Icon variant="error" />
+            <Typography variant="body-primary" weight="medium" color="text-error">
+              Wrong network
+            </Typography>
+          </Button>
+        </div>
+      )}
+
+      {wallet && !isWrongNetwork && (
         <div className="raft__wallet__connected">
           <Button variant="tertiary" onClick={handlePopupOpen}>
             {ens.avatar ? (
@@ -245,6 +258,7 @@ const Wallet = () => {
           </div>
         </div>
       </ModalWrapper>
+      {wallet && <NetworkErrorModal />}
     </div>
   );
 };

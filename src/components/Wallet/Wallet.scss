@@ -5,6 +5,15 @@
     }
   }
 
+  .raft__wallet__wrongNetwork {
+    --raftWallet: var(--raftErrorBackgroundPastelRed);
+    --raftWalletDark: var(--raftErrorHoverPastelRed);
+
+    svg {
+      margin-right: 8px;
+    }
+  }
+
   .raft__wallet__connected {
     --textPrimary: var(--raftHeaderTextDark);
 

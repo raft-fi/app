@@ -72,6 +72,15 @@
 
     .raft__button {
       width: 100%;
+
+      &.raft__openPosition__action__wrongNetwork {
+        --colorPrimary: var(--raftErrorBackgroundPastelRed);
+        --raftDarkOrange: var(--raftErrorHoverPastelRed);
+
+        svg {
+          margin-right: 8px;
+        }
+      }
     }
 
     .raft__loading__container {
