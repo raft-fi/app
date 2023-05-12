@@ -405,7 +405,18 @@ const OpenPosition = () => {
               id: 'collateral',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__openPosition__infoTooltip">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                          The total collateral amount you will be depositing into Raft.
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Total collateral&nbsp;</Typography>
                 </>
               ),
@@ -415,7 +426,18 @@ const OpenPosition = () => {
               id: 'debt',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__openPosition__infoTooltip">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                          The total amount of R you will be borrowing from Raft using your collateral.
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
                   <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
@@ -447,7 +469,25 @@ const OpenPosition = () => {
               id: 'liquidationPrice',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__openPosition__infoTooltip">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                          The price at which your position will be available to be liquidated. Learn more about
+                          liquidations{' '}
+                          <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
+                            here
+                            <span>
+                              <Icon variant="external-link" size={10} />
+                            </span>
+                          </a>
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
@@ -457,7 +497,18 @@ const OpenPosition = () => {
               id: 'collateralizationRatio',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__openPosition__infoTooltip">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                          The percentage of R borrowed in relation to the total collateral amount.
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
                   <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>

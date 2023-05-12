@@ -34,10 +34,6 @@
   .raft__adjustPosition__data {
     margin-top: 16px;
 
-    .raft__icon__info {
-      margin-right: 8px;
-    }
-
     .raft__adjustPosition__error {
       display: flex;
       justify-content: flex-end;
@@ -61,5 +57,22 @@
     .raft__loading__container {
       margin-right: 8px;
     }
+  }
+}
+
+.raft__adjustPosition__infoTooltip {
+  max-width: 282px;
+
+  a {
+    color: var(--raftOrange);
+  }
+
+  .raft__icon__externalLink {
+    margin-left: 4px;
+    --externalLinkColor: var(--raftOrange);
+  }
+
+  .raft__adjustPosition__infoTooltipText {
+    line-height: 19px !important;
   }
 }

@@ -61,10 +61,6 @@
 
   .raft__openPosition__data {
     margin-top: 16px;
-
-    .raft__icon__info {
-      margin-right: 8px;
-    }
   }
 
   .raft__openPosition__action {
@@ -86,5 +82,22 @@
     .raft__valueLabel {
       margin-right: 8px;
     }
+  }
+}
+
+.raft__openPosition__infoTooltip {
+  max-width: 282px;
+
+  a {
+    color: var(--raftOrange);
+  }
+
+  .raft__icon__externalLink {
+    margin-left: 4px;
+    --externalLinkColor: var(--raftOrange);
+  }
+
+  .raft__openPosition__infoTooltipText {
+    line-height: 19px !important;
   }
 }

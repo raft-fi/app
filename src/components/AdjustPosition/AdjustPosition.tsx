@@ -609,7 +609,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
               id: 'collateral',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__adjustPosition__infoTooltip">
+                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          The final collateral amount you will hold after adjusting your position.
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Total collateral&nbsp;</Typography>
                 </>
               ),
@@ -620,7 +631,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
               id: 'debt',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__adjustPosition__infoTooltip">
+                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          The final debt amount you will hold after adjusting your position.
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
                   <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
                   <Typography variant="body-tertiary" type="mono">
@@ -655,7 +677,25 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
               id: 'liquidationPrice',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__adjustPosition__infoTooltip">
+                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          The price at which your position will be available to be liquidated after adjusting your
+                          position. Learn more about liquidations here{' '}
+                          <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
+                            here
+                            <span>
+                              <Icon variant="external-link" size={10} />
+                            </span>
+                          </a>
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
@@ -666,7 +706,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
               id: 'collateralizationRatio',
               label: (
                 <>
-                  <Icon variant="info" size="small" />
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__adjustPosition__infoTooltip">
+                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          The percentage of R borrowed in relation to the total collateral amount after adjusting your
+                          position.
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="left"
+                  >
+                    <Icon variant="info" size="small" />
+                  </TooltipWrapper>
                   <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
                   <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
