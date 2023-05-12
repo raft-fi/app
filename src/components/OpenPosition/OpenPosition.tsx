@@ -254,7 +254,7 @@ const OpenPosition = () => {
     }
 
     // default collateral = 150% of borrow value
-    const defaultBorrowAmount = collateralTokenValues.value.div(borrowTokenPrice).div(HEALTHY_RATIO).toTruncated(18);
+    const defaultBorrowAmount = collateralTokenValues.value.div(borrowTokenPrice).div(HEALTHY_RATIO).toString();
     setBorrowAmount(defaultBorrowAmount);
   }, [borrowTokenValues.amount, collateralTokenValues.value, tokenPriceMap]);
 
@@ -272,10 +272,7 @@ const OpenPosition = () => {
     }
 
     // default collateral = 150% of borrow value
-    const defaultCollateralAmount = borrowTokenValues.value
-      .mul(HEALTHY_RATIO)
-      .div(collateralTokenPrice)
-      .toTruncated(18);
+    const defaultCollateralAmount = borrowTokenValues.value.mul(HEALTHY_RATIO).div(collateralTokenPrice).toString();
     setCollateralAmount(defaultCollateralAmount);
   }, [borrowTokenValues.value, collateralTokenValues.amount, selectedCollateralToken, tokenPriceMap]);
 
@@ -327,7 +324,7 @@ const OpenPosition = () => {
         const defaultBorrowAmount = selectedCollateralTokenBalanceValues.value
           .div(borrowTokenPrice)
           .div(HEALTHY_RATIO)
-          .toTruncated(18);
+          .toString();
         setBorrowAmount(defaultBorrowAmount);
       }
     }
