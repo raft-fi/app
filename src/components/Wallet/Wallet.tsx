@@ -58,6 +58,7 @@ const Wallet = () => {
   const ens = useENS();
 
   const [popupOpen, setPopupOpen] = useState(false);
+  const connectedAddress = wallet?.accounts?.[0]?.address ?? '';
 
   /**
    * Update wallet hook every time user changes wallet
@@ -129,16 +130,16 @@ const Wallet = () => {
       return null;
     }
 
-    return ens.name ?? shortenAddress(wallet.accounts[0].address);
-  }, [ens.name, wallet]);
+    return ens.name ?? shortenAddress(connectedAddress);
+  }, [connectedAddress, ens.name, wallet]);
 
   const shortenedAddressPopup = useMemo(() => {
     if (!wallet) {
       return null;
     }
 
-    return ens.name ?? shortenAddress(wallet.accounts[0].address, 10, 8);
-  }, [ens.name, wallet]);
+    return ens.name ?? shortenAddress(connectedAddress, 10, 8);
+  }, [connectedAddress, ens.name, wallet]);
 
   const handlePopupOpen = useCallback(() => {
     setPopupOpen(true);
@@ -153,16 +154,16 @@ const Wallet = () => {
       return null;
     }
 
-    window.open(`${config.blockExplorerUrl}/address/${wallet.accounts[0].address}`, '_blank', 'noopener,noreferrer');
-  }, [config.blockExplorerUrl, wallet]);
+    window.open(`${config.blockExplorerUrl}/address/${connectedAddress}`, '_blank', 'noopener,noreferrer');
+  }, [config.blockExplorerUrl, connectedAddress, wallet]);
 
   const onCopyAddress = useCallback(() => {
     if (!wallet) {
       return null;
     }
 
-    navigator.clipboard.writeText(wallet.accounts[0].address);
-  }, [wallet]);
+    navigator.clipboard.writeText(connectedAddress);
+  }, [connectedAddress, wallet]);
 
   return (
     <div className="raft__wallet">
