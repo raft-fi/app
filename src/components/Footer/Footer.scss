@@ -48,7 +48,11 @@
 
   @media screen and (max-width: 1280px) {
     width: 100%;
-    grid-template-columns: 1fr 1fr 120px;
+    grid-template-columns: repeat(3, 1fr);
+
+    .raft__footer__links-column {
+      align-items: center;
+    }
   }
 
   @media screen and (max-width: 767px) {
@@ -85,6 +89,7 @@
     }
 
     .raft__footer__link {
+      display: inline-block;
       cursor: pointer;
 
       > div:hover {
