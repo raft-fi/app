@@ -461,10 +461,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
   const hasCollateralChange = useMemo(
     () =>
-      currentCollateralizationRatio &&
-      newCollateralizationRatio &&
-      !currentCollateralizationRatio.equals(newCollateralizationRatio),
-    [currentCollateralizationRatio, newCollateralizationRatio],
+      isClosePosition ||
+      (currentCollateralizationRatio &&
+        newCollateralizationRatio &&
+        !currentCollateralizationRatio.equals(newCollateralizationRatio)),
+    [currentCollateralizationRatio, isClosePosition, newCollateralizationRatio],
   );
 
   const canAdjust = useMemo(
