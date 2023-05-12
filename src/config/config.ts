@@ -10,7 +10,7 @@ const config: Config = {
     raftDebtToken: '0x8f616D781e799fE8e150AE98F3e233722007e536',
     publicNetworkUrl: '',
     privateNetworkUrl: '',
-    networkName: '',
+    networkName: 'Ethereum mainnet',
     alchemyKey: '',
     chainId: 1,
     /**
@@ -31,7 +31,7 @@ const config: Config = {
     raftDebtToken: '0x8f616D781e799fE8e150AE98F3e233722007e536',
     publicNetworkUrl: '',
     privateNetworkUrl: '',
-    networkName: '',
+    networkName: 'Goerli testnet',
     alchemyKey: '',
     chainId: 5,
     /**

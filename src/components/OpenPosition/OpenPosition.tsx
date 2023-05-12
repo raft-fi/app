@@ -4,7 +4,7 @@ import { Link } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { COLLATERAL_TOKENS, CollateralToken, R_TOKEN } from '@raft-fi/sdk';
-import { useWallet, useBorrow, useTokenPrices, useTokenBalances } from '../../hooks';
+import { useWallet, useBorrow, useTokenPrices, useTokenBalances, useNetwork } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   DISPLAY_BASE_TOKEN,
@@ -32,6 +32,7 @@ import './OpenPosition.scss';
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
+  const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
 
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
@@ -540,12 +541,25 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__action">
-        <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={buttonDisabled}>
-          {actionButtonState === 'loading' && <Loading />}
-          <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            {buttonLabel}
-          </Typography>
-        </Button>
+        {isWrongNetwork ? (
+          <Button
+            className="raft__openPosition__action__wrongNetwork"
+            variant="primary"
+            onClick={switchToSupportedNetwork}
+          >
+            <Icon variant="error" />
+            <Typography variant="body-primary" weight="bold" color="text-error">
+              Wrong network
+            </Typography>
+          </Button>
+        ) : (
+          <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={buttonDisabled}>
+            {actionButtonState === 'loading' && <Loading />}
+            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+              {buttonLabel}
+            </Typography>
+          </Button>
+        )}
       </div>
     </div>
   );
