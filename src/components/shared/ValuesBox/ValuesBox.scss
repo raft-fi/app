@@ -25,6 +25,10 @@
     .raft__valuesBox__itemLabel {
       display: flex;
       align-items: flex-end;
+
+      div:nth-child(2) {
+        margin-left: 8px;
+      }
     }
 
     .raft__valuesBox__itemValue {
