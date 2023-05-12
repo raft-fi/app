@@ -1,5 +1,5 @@
 import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';
@@ -214,7 +214,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
               isSingleToken ? 'raft__currencyInput__tokenSelectorContainer__single' : ''
             }`}
           >
-            <div
+            <ButtonWrapper
               className={`raft__currencyInput__tokenSelector ${
                 isSingleToken ? 'raft__currencyInput__tokenSelector__single' : ''
               }`}
@@ -231,28 +231,26 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
                   <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={24} />
                 </>
               )}
-            </div>
+            </ButtonWrapper>
             {!isSingleToken && (
               <Menu open={dropdownOpen} onClose={onCloseDropdown}>
                 <div className="raft__currencyInput__dropdownContainer">
-                  {tokens.map(token => {
-                    return (
-                      <div
-                        key={token}
-                        className="raft__currencyInput__dropdownItem"
-                        onClick={() => {
-                          handleTokenUpdate(token);
-                        }}
-                      >
-                        <div className="raft__currencyInput__dropdownTokenLogoContainer">
-                          <TokenLogo type={`token-${token}`} size="small" />
-                        </div>
-                        <Typography variant="body-primary" weight="medium">
-                          {token}
-                        </Typography>
+                  {tokens.map(token => (
+                    <ButtonWrapper
+                      key={token}
+                      className="raft__currencyInput__dropdownItem"
+                      onClick={() => {
+                        handleTokenUpdate(token);
+                      }}
+                    >
+                      <div className="raft__currencyInput__dropdownTokenLogoContainer">
+                        <TokenLogo type={`token-${token}`} size="small" />
                       </div>
-                    );
-                  })}
+                      <Typography variant="body-primary" weight="medium">
+                        {token}
+                      </Typography>
+                    </ButtonWrapper>
+                  ))}
                 </div>
               </Menu>
             )}

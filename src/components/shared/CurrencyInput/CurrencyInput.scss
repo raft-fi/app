@@ -117,7 +117,9 @@
 
           .raft__currencyInput__dropdownItem {
             display: flex;
+            justify-content: flex-start;
             align-items: center;
+            width: 100%;
             padding: 12px;
             box-sizing: border-box;
             cursor: pointer;
