@@ -181,7 +181,7 @@ const Wallet = () => {
           <Button variant="tertiary" onClick={switchToSupportedNetwork}>
             <Icon variant="error" />
             <Typography variant="body-primary" weight="medium" color="text-error">
-              Wrong network
+              Unsupported network
             </Typography>
           </Button>
         </div>
