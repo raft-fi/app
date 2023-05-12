@@ -57,6 +57,15 @@ const OpenPosition = () => {
     () => getTokenValues(borrowAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], R_TOKEN),
     [borrowAmount, tokenPriceMap],
   );
+  const selectedCollateralTokenBalanceValues = useMemo(
+    () =>
+      getTokenValues(
+        tokenBalanceMap[selectedCollateralToken],
+        tokenPriceMap[selectedCollateralToken],
+        selectedCollateralToken,
+      ),
+    [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
+  );
 
   const baseTokenAmount = useMemo(() => {
     if (!collateralTokenValues.amount || !collateralTokenValues.value) {
@@ -134,23 +143,6 @@ const OpenPosition = () => {
     [collateralizationRatio],
   );
 
-  const selectedCollateralTokenBalance = useMemo(
-    () => tokenBalanceMap[selectedCollateralToken],
-    [selectedCollateralToken, tokenBalanceMap],
-  );
-  const selectedCollateralTokenBalanceFormatted = useMemo(() => {
-    if (!selectedCollateralTokenBalance) {
-      return '';
-    }
-
-    return DecimalFormat.format(selectedCollateralTokenBalance, {
-      style: 'currency',
-      currency: selectedCollateralToken,
-      fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [selectedCollateralToken, selectedCollateralTokenBalance]);
-
   const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
   const rTokenBalanceFormatted = useMemo(() => {
     if (!rTokenBalance) {
@@ -179,8 +171,11 @@ const OpenPosition = () => {
     () =>
       !walletConnected ||
       !collateralTokenValues.amount ||
-      Boolean(selectedCollateralTokenBalance && collateralTokenValues.amount.lte(selectedCollateralTokenBalance)),
-    [collateralTokenValues.amount, selectedCollateralTokenBalance, walletConnected],
+      Boolean(
+        selectedCollateralTokenBalanceValues.amount &&
+          collateralTokenValues.amount.lte(selectedCollateralTokenBalanceValues.amount),
+      ),
+    [collateralTokenValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
   );
   const hasMinBorrow = useMemo(
     () => !borrowTokenValues.amount || borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT),
@@ -259,7 +254,7 @@ const OpenPosition = () => {
     }
 
     // default collateral = 150% of borrow value
-    const defaultBorrowAmount = collateralTokenValues.value.div(borrowTokenPrice).div(HEALTHY_RATIO).toTruncated(4);
+    const defaultBorrowAmount = collateralTokenValues.value.div(borrowTokenPrice).div(HEALTHY_RATIO).toTruncated(18);
     setBorrowAmount(defaultBorrowAmount);
   }, [borrowTokenValues.amount, collateralTokenValues.value, tokenPriceMap]);
 
@@ -277,7 +272,10 @@ const OpenPosition = () => {
     }
 
     // default collateral = 150% of borrow value
-    const defaultCollateralAmount = borrowTokenValues.value.mul(HEALTHY_RATIO).div(collateralTokenPrice).toTruncated(4);
+    const defaultCollateralAmount = borrowTokenValues.value
+      .mul(HEALTHY_RATIO)
+      .div(collateralTokenPrice)
+      .toTruncated(18);
     setCollateralAmount(defaultCollateralAmount);
   }, [borrowTokenValues.value, collateralTokenValues.amount, selectedCollateralToken, tokenPriceMap]);
 
@@ -315,11 +313,25 @@ const OpenPosition = () => {
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
   const handleMaxButtonClick = useCallback(() => {
-    if (selectedCollateralTokenBalance && selectedCollateralTokenBalance.gt(Decimal.ZERO)) {
+    if (
+      selectedCollateralTokenBalanceValues.amount &&
+      selectedCollateralTokenBalanceValues.value &&
+      selectedCollateralTokenBalanceValues.amount.gt(0)
+    ) {
       setMaxButtonDisabled(true);
-      setCollateralAmount(selectedCollateralTokenBalance.toString());
+      setCollateralAmount(selectedCollateralTokenBalanceValues.amount.toString());
+
+      const borrowTokenPrice = tokenPriceMap[R_TOKEN];
+
+      if (borrowTokenPrice && !borrowTokenPrice.isZero()) {
+        const defaultBorrowAmount = selectedCollateralTokenBalanceValues.value
+          .div(borrowTokenPrice)
+          .div(HEALTHY_RATIO)
+          .toTruncated(18);
+        setBorrowAmount(defaultBorrowAmount);
+      }
     }
-  }, [selectedCollateralTokenBalance]);
+  }, [selectedCollateralTokenBalanceValues, tokenPriceMap]);
 
   const handleCollateralValueUpdate = useCallback((amount: string) => {
     setMaxButtonDisabled(false);
@@ -367,7 +379,7 @@ const OpenPosition = () => {
           selectedToken={selectedCollateralToken}
           tokens={[...COLLATERAL_TOKENS]}
           value={collateralAmount}
-          maxAmount={selectedCollateralTokenBalanceFormatted}
+          maxAmount={selectedCollateralTokenBalanceValues.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
