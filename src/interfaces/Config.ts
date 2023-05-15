@@ -3,6 +3,7 @@ export interface ChainConfig {
   collateralTokens: { [tokenName: string]: string };
   raftCollateralToken: string;
   raftDebtToken: string;
+  rToken: string;
   publicNetworkUrl: string;
   privateNetworkUrl: string;
   networkName: string;

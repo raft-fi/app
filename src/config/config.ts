@@ -1,13 +1,15 @@
+import { RaftConfig } from '@raft-fi/sdk';
 import { Config } from '../interfaces';
 
 const config: Config = {
   ethereum: {
-    positionManager: '0xfFaAB9cb73844DE549d28B4fFe348f48eff267C9',
+    positionManager: RaftConfig.addresses.positionManager,
     collateralTokens: {
-      wstETH: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
+      wstETH: RaftConfig.addresses.wstEth,
     },
-    raftCollateralToken: '0xEff7d350DDF490CB3b12A96Adc476F0ee5908efE',
-    raftDebtToken: '0x8f616D781e799fE8e150AE98F3e233722007e536',
+    raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
+    raftDebtToken: RaftConfig.addresses.raftDebtToken,
+    rToken: RaftConfig.addresses.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Ethereum mainnet',
@@ -23,12 +25,13 @@ const config: Config = {
     blockExplorerUrl: 'https://etherscan.io',
   },
   goerli: {
-    positionManager: '0xfFaAB9cb73844DE549d28B4fFe348f48eff267C9',
+    positionManager: RaftConfig.addresses.positionManager,
     collateralTokens: {
-      wstETH: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
+      wstETH: RaftConfig.addresses.wstEth,
     },
-    raftCollateralToken: '0xEff7d350DDF490CB3b12A96Adc476F0ee5908efE',
-    raftDebtToken: '0x8f616D781e799fE8e150AE98F3e233722007e536',
+    raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
+    raftDebtToken: RaftConfig.addresses.raftDebtToken,
+    rToken: RaftConfig.addresses.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Goerli testnet',

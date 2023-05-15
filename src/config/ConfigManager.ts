@@ -1,8 +1,9 @@
-import { Chain, Config } from '../interfaces';
+import { RaftConfig } from '@raft-fi/sdk';
+import { Chain, Config, Nullable } from '../interfaces';
 import { ChainConfig } from '../interfaces/Config';
 import config from './config';
 
-const DEFAULT_NETWORK = import.meta.env.NETWORK || 'goerli';
+const FALLBACK_NETWORK = 'goerli';
 
 export interface TokenListItem {
   chain: Chain;
@@ -12,9 +13,17 @@ export interface TokenListItem {
 class ConfigManager {
   private config: Config = config;
 
-  // TODO: load config from SDK
   getConfig(): ChainConfig {
-    return this.config[DEFAULT_NETWORK];
+    // SDK tells which network is active
+    const defaultNetwork = Object.keys(config).reduce(
+      (network, key) => (config[key].chainId === RaftConfig.networkId ? key : network),
+      null as Nullable<string>,
+    );
+    // ENV tells which network is active
+    const configuredNetwork = import.meta.env.NETWORK;
+
+    // if ENV is set in specific, take it. otherwise take the active network from SDK
+    return this.config[configuredNetwork ?? defaultNetwork ?? FALLBACK_NETWORK];
   }
 }
 

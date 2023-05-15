@@ -35,7 +35,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         params: {
           type: 'ERC20',
           options: {
-            address: '0x69665394a7ee38bb4599B0D7EBC9802242e2bF87',
+            address: config.rToken,
             symbol: 'R',
             decimals: 18,
             image: 'https://raft.fi/rtoken.png',
@@ -44,7 +44,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         } as unknown as unknown[],
       });
     }
-  }, [eip1193Provider]);
+  }, [config.rToken, eip1193Provider]);
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
