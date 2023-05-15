@@ -15,6 +15,7 @@ import {
   combineLatest,
   switchMap,
   Observable,
+  withLatestFrom,
 } from 'rxjs';
 import { Nullable } from '../interfaces';
 import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
@@ -60,9 +61,10 @@ interface BorrowResponse {
 const [borrow$, borrow] = createSignal<BorrowRequest>();
 const borrowStatus$ = new BehaviorSubject<Nullable<BorrowStatus>>(null);
 
-const stream$ = combineLatest([borrow$, wallet$, walletSigner$]).pipe(
-  concatMap<[BorrowRequest, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<BorrowResponse>>(
-    ([request, walletProvider, walletSigner]) => {
+const stream$ = combineLatest([borrow$]).pipe(
+  withLatestFrom(wallet$, walletSigner$),
+  concatMap<[[BorrowRequest], Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<BorrowResponse>>(
+    ([[request], walletProvider, walletSigner]) => {
       const {
         txnId,
         currentUserCollateral,
