@@ -26,6 +26,7 @@ export type TypographyColor =
   | 'text-tertiary'
   | 'text-primary-inverted'
   | 'text-success'
+  | 'text-warning'
   | 'text-error';
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
@@ -88,6 +89,7 @@ const typographyColorMap: TypographyColorMap = {
   'text-tertiary': 'var(--textTertiary)',
   'text-primary-inverted': 'var(--textPrimaryInverted)',
   'text-success': 'var(--textSuccess)',
+  'text-warning': 'var(--textWarning)',
   'text-error': 'var(--textError)',
 };
 

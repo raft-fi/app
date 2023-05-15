@@ -5,12 +5,12 @@ import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ValueLabel } from '../shared';
+import { getCollateralRatioColor } from '../../utils';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   R_TOKEN_UI_PRECISION,
   COLLATERAL_BASE_TOKEN,
   DISPLAY_BASE_TOKEN,
-  HEALTHY_RATIO,
 } from '../../constants';
 
 const TransactionModal = () => {
@@ -272,7 +272,7 @@ const TransactionModal = () => {
     });
   }, [borrowStatus, collateralizationRatio, tokenPriceMap]);
 
-  const isCollateralHealthy = useMemo(() => collateralizationRatio?.gte(HEALTHY_RATIO), [collateralizationRatio]);
+  const collateralRatioColor = useMemo(() => getCollateralRatioColor(collateralizationRatio), [collateralizationRatio]);
 
   return (
     <>
@@ -303,12 +303,7 @@ const TransactionModal = () => {
             {
               id: 'collateralizationRatio',
               label: 'Collateralization Ratio',
-              value: (
-                <ValueLabel
-                  color={isCollateralHealthy ? 'text-success' : undefined}
-                  value={collateralizationRatioFormatted || 'N/A'}
-                />
-              ),
+              value: <ValueLabel color={collateralRatioColor} value={collateralizationRatioFormatted || 'N/A'} />,
             },
           ]}
         />

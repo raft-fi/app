@@ -15,7 +15,7 @@ import {
   R_TOKEN_UI_PRECISION,
   USD_UI_PRECISION,
 } from '../../constants';
-import { getTokenValues, isCollateralToken } from '../../utils';
+import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../../utils';
 import {
   Button,
   CurrencyInput,
@@ -162,7 +162,7 @@ const OpenPosition = () => {
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
-  const isCollateralHealthy = useMemo(() => collateralizationRatio?.gte(HEALTHY_RATIO), [collateralizationRatio]);
+  const collateralRatioColor = useMemo(() => getCollateralRatioColor(collateralizationRatio), [collateralizationRatio]);
   const hasInputFilled = useMemo(
     () => collateralTokenValues.amount && borrowTokenValues.amount,
     [borrowTokenValues.amount, collateralTokenValues.amount],
@@ -525,10 +525,7 @@ const OpenPosition = () => {
               ),
               value:
                 hasMinRatio || collateralizationRatioFormatted === 'N/A' ? (
-                  <ValueLabel
-                    color={isCollateralHealthy ? 'text-success' : undefined}
-                    value={collateralizationRatioFormatted || 'N/A'}
-                  />
+                  <ValueLabel color={collateralRatioColor} value={collateralizationRatioFormatted || 'N/A'} />
                 ) : (
                   <TooltipWrapper
                     anchorClasses="raft__openPosition__error"
