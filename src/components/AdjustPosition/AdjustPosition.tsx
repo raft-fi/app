@@ -3,11 +3,10 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import { useBorrow, useTokenBalances, useTokenPrices } from '../../hooks';
-import { getTokenValues, isCollateralToken } from '../../utils';
+import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../../utils';
 import {
   COLLATERAL_BASE_TOKEN,
   DISPLAY_BASE_TOKEN,
-  HEALTHY_RATIO,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   USD_UI_PRECISION,
@@ -431,12 +430,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
   const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
-  const isCurrentCollateralHealthy = useMemo(
-    () => currentCollateralizationRatio?.gte(HEALTHY_RATIO),
+  const currentCollateralRatioColor = useMemo(
+    () => getCollateralRatioColor(currentCollateralizationRatio),
     [currentCollateralizationRatio],
   );
-  const isNewCollateralHealthy = useMemo(
-    () => newCollateralizationRatio?.gte(HEALTHY_RATIO),
+  const newCollateralRatioColor = useMemo(
+    () => getCollateralRatioColor(newCollateralizationRatio),
     [newCollateralizationRatio],
   );
   const isClosePosition = useMemo(
@@ -724,18 +723,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
-              value: (
-                <ValueLabel
-                  color={isCurrentCollateralHealthy ? 'text-success' : undefined}
-                  value={collateralizationRatioFormatted}
-                />
-              ),
+              value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
               newValue: hasMinRatio ? (
                 hasCollateralChange && (
-                  <ValueLabel
-                    color={isNewCollateralHealthy ? 'text-success' : undefined}
-                    value={newCollateralizationRatioFormatted}
-                  />
+                  <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
                 )
               ) : (
                 <TooltipWrapper

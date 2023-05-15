@@ -34,6 +34,7 @@ body {
   --raftPositiveGreen: #0c7b2d;
   --raftSuccessBackgroundPastelGreen: #def3e5;
   --raftErrorishYellowish: #fff8f1;
+  --raftCollateralYellow: #c78500;
   --raftScrollbarBackground: #ebebeb;
   --raftAlertTextDarkGrey: #5d5b59;
   --raftCTADisabled: rgba(247, 99, 41, 0.5);
@@ -55,6 +56,7 @@ body {
   --textTertiary: var(--raftGrey);
   --textPrimaryInverted: var(--raftLightPastelBlue);
   --textSuccess: var(--raftPositiveGreen);
+  --textWarning: var(--raftCollateralYellow);
   --textError: var(--raftNegativeRed);
 
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
