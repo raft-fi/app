@@ -7,10 +7,11 @@ import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
 import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
+import NetworkErrorModal from '../NetworkErrorModal';
+import NotificationCenter from '../NotificationCenter';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
-import NetworkErrorModal from '../NetworkErrorModal';
 
 const injected = injectedModule();
 const ledger = ledgerModule();
@@ -259,7 +260,12 @@ const Wallet = () => {
           </div>
         </div>
       </ModalWrapper>
-      {wallet && <NetworkErrorModal />}
+      {wallet && (
+        <>
+          <NetworkErrorModal />
+          <NotificationCenter />
+        </>
+      )}
     </div>
   );
 };

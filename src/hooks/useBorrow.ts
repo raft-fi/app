@@ -22,6 +22,7 @@ import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
+import { notification$ } from './useNotification';
 
 interface BorrowRequest {
   txnId: string;
@@ -101,6 +102,22 @@ const stream$ = combineLatest([borrow$]).pipe(
             userPosition.manage(collateralChange, debtChange, {
               collateralToken: request.collateralToken,
               maxFeePercentage: new Decimal(0.01),
+              onApprovalStart: () =>
+                notification$.next({
+                  notificationId: txnId,
+                  notificationType: 'approving',
+                  token: request.collateralToken,
+                  amount: request.collateralChange,
+                  timestamp: Date.now(),
+                }),
+              onApprovalEnd: () =>
+                notification$.next({
+                  notificationId: txnId,
+                  notificationType: 'approved',
+                  token: request.collateralToken,
+                  amount: request.collateralChange,
+                  timestamp: Date.now(),
+                }),
             }),
           );
         }
