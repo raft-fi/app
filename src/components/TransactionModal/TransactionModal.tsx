@@ -34,7 +34,11 @@ const TransactionModal = () => {
       setSuccessModalOpened(true);
     }
     if (borrowStatus.error) {
-      setFailedModalOpened(true);
+      // error code ACTION_REJECTED means rejected by metamask user (not sure for other wallets)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((borrowStatus.error as any).code !== 'ACTION_REJECTED') {
+        setFailedModalOpened(true);
+      }
     }
   }, [borrowStatus]);
 
