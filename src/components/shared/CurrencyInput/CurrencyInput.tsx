@@ -246,9 +246,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
                       <div className="raft__currencyInput__dropdownTokenLogoContainer">
                         <TokenLogo type={`token-${token}`} size="small" />
                       </div>
-                      <Typography variant="body-primary" weight="medium">
-                        {token}
-                      </Typography>
+                      <Typography variant="body-tertiary">{token}</Typography>
                     </ButtonWrapper>
                   ))}
                 </div>
