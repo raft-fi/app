@@ -6,6 +6,7 @@ import Typography from '../Typography';
 import Icon from '../Icon';
 import Menu from '../Menu';
 import Button from '../Button';
+import ValueLabel from '../ValueLabel';
 
 import './CurrencyInput.scss';
 
@@ -165,7 +166,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             <div className="raft__currencyInput__maxAmountValue">
               {showMaxAmountIcon && <Icon variant="wallet" size="tiny" />}
               {maxAmountLabel && <Typography variant="body-tertiary">{maxAmountLabel}</Typography>}
-              <Typography variant="body-tertiary">{maxAmount}</Typography>
+              <ValueLabel valueSize="body-tertiary" tickerSize="body-tertiary" value={maxAmount} />
             </div>
           )}
         </div>

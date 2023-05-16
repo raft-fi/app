@@ -48,6 +48,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        &:hover {
+          --closeColor: var(--raftOrange);
+        }
       }
     }
 

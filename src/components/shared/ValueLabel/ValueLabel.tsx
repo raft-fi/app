@@ -61,10 +61,10 @@ const ValueLabel: FC<ValueLabelProps> = ({
     return (
       <div className="raft__valueLabel">
         <Typography variant={valueSize} weight="medium" color={color}>
-          {value.split(' ')[0]}
+          {value.split(' ')[0]}&nbsp;
         </Typography>
         <Typography variant={tickerSize} type="mono" color={color}>
-          &nbsp;R
+          R
         </Typography>
         {label && (
           <Typography variant={valueSize} weight="regular" color={color}>
