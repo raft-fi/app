@@ -1,17 +1,9 @@
 import { JsonRpcProvider } from 'ethers';
-import { tap, BehaviorSubject } from 'rxjs';
-import { config$ } from './useConfig';
+import { BehaviorSubject } from 'rxjs';
+import { getConfigManager } from '../config';
 
-const defaultRpcUrl = import.meta.env.VITE_GOERLI_RPC_URL;
+const config = getConfigManager().getConfig();
 
-// TODO - Select RPC URL based on current user network (or use default if wallet is not connected)
-const DEFAULT_VALUE = new JsonRpcProvider(defaultRpcUrl);
+const DEFAULT_VALUE = new JsonRpcProvider(config.rpcUrl);
 
 export const provider$ = new BehaviorSubject(DEFAULT_VALUE);
-
-const stream$ = config$.pipe(
-  tap(config => {
-    provider$.next(new JsonRpcProvider(config.rpcUrl));
-  }),
-);
-stream$.subscribe();
