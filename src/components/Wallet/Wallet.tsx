@@ -21,9 +21,9 @@ init({
   wallets: [injected, ledger, walletConnect],
   chains: [
     {
-      id: '0x1',
-      token: 'ETH',
-      label: 'Ethereum Mainnet',
+      id: '0x5',
+      token: 'GoerliETH',
+      label: 'Goerli test network',
       rpcUrl: import.meta.env.VITE_RPC_URL,
     },
   ],
