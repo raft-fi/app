@@ -236,6 +236,7 @@ const OpenPosition = () => {
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
+      setMaxButtonDisabled(false);
       setSelectedCollateralToken(token);
     }
   }, []);
@@ -335,6 +336,11 @@ const OpenPosition = () => {
     setCollateralAmount(amount);
   }, []);
 
+  const handleBorrowValueUpdate = useCallback((amount: string) => {
+    setMaxButtonDisabled(false);
+    setBorrowAmount(amount);
+  }, []);
+
   useEffect(() => {
     const borrowTokenPrice = tokenPriceMap[R_TOKEN];
 
@@ -390,7 +396,7 @@ const OpenPosition = () => {
           tokens={[R_TOKEN]}
           value={borrowAmount}
           maxAmount={rTokenBalanceFormatted}
-          onValueUpdate={setBorrowAmount}
+          onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
           error={!hasMinBorrow || !hasMinRatio}
         />
