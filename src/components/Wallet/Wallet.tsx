@@ -5,10 +5,11 @@ import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork } from '../../hooks';
+import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork, useTransactionHistory } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import NotificationCenter from '../NotificationCenter';
+import TransactionHistoryRow from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
@@ -63,6 +64,7 @@ const Wallet = () => {
   const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
   const ens = useENS();
+  const transactionHistory = useTransactionHistory();
 
   const [popupOpen, setPopupOpen] = useState(false);
   const connectedAddress = wallet?.accounts?.[0]?.address ?? '';
@@ -241,18 +243,15 @@ const Wallet = () => {
               </Typography>
             </Button>
           </div>
-          <div className="raft__wallet_popupTransactions">
-            {/* Load list of transaction and show it here as as list */}
-            <div className="raft__wallet__popupTransaction">
-              <Typography variant="body-secondary">Repayment 20,000 R</Typography>
+          {transactionHistory && (
+            <div className="raft__wallet_popupTransactions">
+              <div className="raft__wallet__popupTransactionsContainer">
+                {transactionHistory.map(transaction => {
+                  return <TransactionHistoryRow key={transaction.id} transaction={transaction} />;
+                })}
+              </div>
             </div>
-            <div className="raft__wallet__popupTransaction">
-              <Typography variant="body-secondary">Repayment 10,000 R</Typography>
-            </div>
-            <div className="raft__wallet__popupTransaction">
-              <Typography variant="body-secondary">Repayment 40,000 R</Typography>
-            </div>
-          </div>
+          )}
           <div className="raft__wallet__popupActions">
             <Button
               variant="secondary"

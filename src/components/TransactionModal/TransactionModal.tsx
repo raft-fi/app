@@ -281,7 +281,7 @@ const TransactionModal = () => {
           title={successModalTitle}
           subtitle={successModalSubtitle}
           onClose={onCloseModal}
-          infoHeader="Transaction summary"
+          infoHeader="Your position"
           open={successModalOpened}
           infoEntries={[
             {
