@@ -10,6 +10,7 @@ import {
   DISPLAY_BASE_TOKEN,
   GITBOOK_URL,
   HEALTHY_RATIO,
+  HEALTHY_RATIO_BUFFER,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
@@ -255,7 +256,10 @@ const OpenPosition = () => {
     }
 
     // default collateral = 150% of borrow value
-    const defaultBorrowAmount = collateralTokenValues.value.div(borrowTokenPrice).div(HEALTHY_RATIO).toString();
+    const defaultBorrowAmount = collateralTokenValues.value
+      .div(borrowTokenPrice)
+      .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
+      .toString();
     setBorrowAmount(defaultBorrowAmount);
   }, [borrowTokenValues.amount, collateralTokenValues.value, tokenPriceMap]);
 
@@ -273,7 +277,10 @@ const OpenPosition = () => {
     }
 
     // default collateral = 150% of borrow value
-    const defaultCollateralAmount = borrowTokenValues.value.mul(HEALTHY_RATIO).div(collateralTokenPrice).toString();
+    const defaultCollateralAmount = borrowTokenValues.value
+      .mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
+      .div(collateralTokenPrice)
+      .toString();
     setCollateralAmount(defaultCollateralAmount);
   }, [borrowTokenValues.value, collateralTokenValues.amount, selectedCollateralToken, tokenPriceMap]);
 
@@ -324,7 +331,7 @@ const OpenPosition = () => {
       if (borrowTokenPrice && !borrowTokenPrice.isZero()) {
         const defaultBorrowAmount = selectedCollateralTokenBalanceValues.value
           .div(borrowTokenPrice)
-          .div(HEALTHY_RATIO)
+          .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
           .toString();
         setBorrowAmount(defaultBorrowAmount);
       }
@@ -340,24 +347,6 @@ const OpenPosition = () => {
     setMaxButtonDisabled(false);
     setBorrowAmount(amount);
   }, []);
-
-  useEffect(() => {
-    const borrowTokenPrice = tokenPriceMap[R_TOKEN];
-
-    if (
-      maxButtonDisabled &&
-      borrowTokenPrice &&
-      collateralTokenValues &&
-      !borrowTokenPrice.isZero() &&
-      !HEALTHY_RATIO
-    ) {
-      const defaultBorrowAmount = collateralTokenValues.value?.div(borrowTokenPrice).div(HEALTHY_RATIO).toTruncated(4);
-
-      if (defaultBorrowAmount) {
-        setBorrowAmount(defaultBorrowAmount);
-      }
-    }
-  }, [maxButtonDisabled, collateralTokenValues, tokenPriceMap]);
 
   return (
     <div className="raft__openPosition">
