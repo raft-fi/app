@@ -28,14 +28,19 @@
             margin-right: 12px;
           }
 
-          &.raft__notification__approved {
+          &.raft__notification__approvalSucceed {
             background-color: var(--raftSuccessBackgroundPastelGreen);
+          }
+
+          &.raft__notification__approvalFailed {
+            background-color: var(--raftErrorBackgroundPastelRed);
           }
         }
       }
 
       .Toastify__progress-bar {
-        display: none;
+        height: 0;
+        animation-play-state: running !important;
       }
     }
   }

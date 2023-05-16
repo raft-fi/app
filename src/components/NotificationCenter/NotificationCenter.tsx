@@ -7,37 +7,25 @@ import './NotificationCenter.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 const TOAST_ID = 'RAFT_TOAST';
+const TOAST_DEFAULT_OPTIONS = {
+  toastId: TOAST_ID,
+  autoClose: 10000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: false,
+  draggable: false,
+  progress: 0,
+  closeButton: false,
+};
+
 const renderToast = (render: ReactNode) => {
   if (toast.isActive(TOAST_ID)) {
     toast.update(TOAST_ID, {
-      toastId: TOAST_ID,
-      position: 'top-right',
-      autoClose: 5000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-      closeButton: false,
+      ...TOAST_DEFAULT_OPTIONS,
       render,
     });
   } else {
-    toast(
-      <Typography className="raft__notification raft__notification__approving" variant="body-secondary">
-        Approval pending...
-      </Typography>,
-      {
-        toastId: TOAST_ID,
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: false,
-        progress: undefined,
-        closeButton: false,
-      },
-    );
+    toast(render, TOAST_DEFAULT_OPTIONS);
   }
 };
 
@@ -46,23 +34,35 @@ const NotificationCenter = () => {
 
   useEffect(() => {
     if (notification) {
-      switch (notification?.notificationType) {
-        case 'approving':
+      switch (notification.notificationType) {
+        case 'approval-pending':
           renderToast(
-            <Typography className="raft__notification raft__notification__approving" variant="body-secondary">
+            <Typography className="raft__notification raft__notification__approvalPending" variant="body-secondary">
               Approval pending...
             </Typography>,
           );
           break;
-        case 'approved':
+        case 'approval-success':
           renderToast(
             <Typography
-              className="raft__notification raft__notification__approved"
+              className="raft__notification raft__notification__approvalSucceed"
               variant="body-secondary"
               color="text-success"
             >
               <Icon variant="success" size="small" />
-              Approval successful
+              Approval succeeded
+            </Typography>,
+          );
+          break;
+        case 'approval-error':
+          renderToast(
+            <Typography
+              className="raft__notification raft__notification__approvalFailed"
+              variant="body-secondary"
+              color="text-error"
+            >
+              <Icon variant="error" size="small" />
+              Approval failed
             </Typography>,
           );
           break;

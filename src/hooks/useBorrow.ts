@@ -105,15 +105,15 @@ const stream$ = combineLatest([borrow$]).pipe(
               onApprovalStart: () =>
                 notification$.next({
                   notificationId: txnId,
-                  notificationType: 'approving',
+                  notificationType: 'approval-pending',
                   token: request.collateralToken,
                   amount: request.collateralChange,
                   timestamp: Date.now(),
                 }),
-              onApprovalEnd: () =>
+              onApprovalEnd: error =>
                 notification$.next({
                   notificationId: txnId,
-                  notificationType: 'approved',
+                  notificationType: error ? 'approval-error' : 'approval-success',
                   token: request.collateralToken,
                   amount: request.collateralChange,
                   timestamp: Date.now(),

@@ -4,7 +4,7 @@ import { Decimal } from '@tempusfinance/decimal';
 import { bind } from '@react-rxjs/core';
 import { Nullable } from '../interfaces';
 
-export type NotificationType = 'approving' | 'approved';
+export type NotificationType = 'approval-pending' | 'approval-success' | 'approval-error';
 
 export interface Notification {
   notificationId: string;
