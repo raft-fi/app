@@ -20,7 +20,6 @@
     &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover {
       background-color: var(--raftDarkOrange);
-      border: 1px solid var(--raftWhite);
     }
 
     &:focus-visible {
