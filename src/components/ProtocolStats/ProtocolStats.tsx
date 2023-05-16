@@ -66,6 +66,17 @@ const ProtocolStats = () => {
     });
   }, [collateralizationRatio]);
 
+  const openPositionsFormatted = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return DecimalFormat.format(protocolStats.openPositions, {
+      style: 'decimal',
+      fractionDigits: 0,
+    });
+  }, [protocolStats]);
+
   const borrowingFeeFormatted = useMemo(() => {
     if (!protocolStats) {
       return null;
@@ -193,7 +204,7 @@ const ProtocolStats = () => {
             {
               id: 'openPositions',
               label: 'Open positions',
-              value: '50,000',
+              value: openPositionsFormatted || '---',
             },
             {
               id: 'borrowingRate',
