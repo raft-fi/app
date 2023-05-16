@@ -1,5 +1,9 @@
 import { JsonRpcProvider } from 'ethers';
-import { of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { getConfigManager } from '../config';
 
-const DEFAULT_VALUE = new JsonRpcProvider(import.meta.env.VITE_RPC_URL);
-export const provider$ = of(DEFAULT_VALUE);
+const config = getConfigManager().getConfig();
+
+const DEFAULT_VALUE = new JsonRpcProvider(config.rpcUrl);
+
+export const provider$ = new BehaviorSubject(DEFAULT_VALUE);

@@ -17,6 +17,7 @@ export interface ChainConfig {
   nativeTokenPrecision: number;
   blockExplorerName: 'Etherscan';
   blockExplorerUrl: string;
+  rpcUrl: string;
 }
 
 export type Config = {
