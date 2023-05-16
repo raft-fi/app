@@ -20,6 +20,4 @@ const notification$ = new BehaviorSubject<Nullable<Notification>>(DEFAULT_VALUE)
 
 export const [useNotification] = bind<Nullable<Notification>>(notification$, DEFAULT_VALUE);
 
-notification$.subscribe(notification => console.log(notification));
-
 export { notification$ };
