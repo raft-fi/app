@@ -23,6 +23,7 @@ const config: Config = {
     nativeTokenPrecision: 18,
     blockExplorerName: 'Etherscan',
     blockExplorerUrl: 'https://etherscan.io',
+    rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
   },
   goerli: {
     positionManager: RaftConfig.addresses.positionManager,
@@ -45,6 +46,7 @@ const config: Config = {
     nativeTokenPrecision: 18,
     blockExplorerName: 'Etherscan',
     blockExplorerUrl: 'https://goerli.etherscan.io',
+    rpcUrl: import.meta.env.VITE_GOERLI_RPC_URL,
   },
 };
 export default config;
