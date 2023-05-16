@@ -48,10 +48,10 @@ const TransactionModal = () => {
       return;
     }
 
-    onCloseModal();
+    setFailedModalOpened(false);
 
     borrow(borrowStatus.request);
-  }, [borrow, borrowStatus, onCloseModal]);
+  }, [borrow, borrowStatus]);
 
   const debtChange = useMemo(() => {
     if (!borrowStatus) {
