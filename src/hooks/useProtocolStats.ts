@@ -33,7 +33,7 @@ const fetchData = (provider: JsonRpcProvider) => {
 
     return from(stats.fetch()).pipe(
       map(() => {
-        if (!stats.collateralSupply || !stats.debtSupply || !stats.borrowingRate) {
+        if (!stats.collateralSupply || !stats.debtSupply || !stats.borrowingRate || !stats.openPositionCount) {
           return null;
         }
 
@@ -41,6 +41,7 @@ const fetchData = (provider: JsonRpcProvider) => {
           collateralSupply: stats.collateralSupply,
           debtSupply: stats.debtSupply,
           borrowingRate: stats.borrowingRate,
+          openPositions: stats.openPositionCount,
         };
       }),
       catchError(error => {
