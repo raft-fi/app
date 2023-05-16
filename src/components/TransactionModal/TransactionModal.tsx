@@ -24,7 +24,7 @@ const TransactionModal = () => {
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
    */
   useEffect(() => {
-    if (!borrowStatus) {
+    if (!borrowStatus || borrowStatus.pending) {
       setSuccessModalOpened(false);
       setFailedModalOpened(false);
       return;
@@ -48,10 +48,10 @@ const TransactionModal = () => {
       return;
     }
 
-    onCloseModal();
+    setFailedModalOpened(false);
 
     borrow(borrowStatus.request);
-  }, [borrow, borrowStatus, onCloseModal]);
+  }, [borrow, borrowStatus]);
 
   const debtChange = useMemo(() => {
     if (!borrowStatus) {
