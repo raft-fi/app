@@ -3,7 +3,7 @@ import { InnerIconProps, withIcon } from 'tempus-ui';
 
 const PositionChanged: FC<InnerIconProps> = ({ size }) => (
   <svg
-    className="raft__icon raft__icon__transactionSuccess"
+    className="raft__icon raft__icon__positionChanged"
     width={size}
     height={size}
     viewBox="0 0 143 142"
