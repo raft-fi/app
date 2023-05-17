@@ -553,12 +553,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
         <Typography variant="subtitle" weight="medium">
-          Adjust position
+          Adjust Position
         </Typography>
         <div className="raft__adjustPosition__actions">
           <Button variant="secondary" onClick={onToggleClosePosition} selected={closePositionActive}>
             <Typography variant="body-primary" weight="medium">
-              Close position
+              Close Position
             </Typography>
           </Button>
         </div>
