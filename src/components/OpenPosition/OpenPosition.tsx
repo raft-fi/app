@@ -94,8 +94,13 @@ const OpenPosition = () => {
   ]);
   const baseTokenAmountFormatted = useMemo(
     () =>
-      baseTokenAmount
-        ? DecimalFormat.format(baseTokenAmount, { style: 'decimal', fractionDigits: COLLATERAL_TOKEN_UI_PRECISION })
+      baseTokenAmount && !baseTokenAmount.isZero()
+        ? DecimalFormat.format(baseTokenAmount, {
+            style: 'currency',
+            currency: DISPLAY_BASE_TOKEN,
+            fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+            lessThanFormat: true,
+          })
         : 'N/A',
     [baseTokenAmount],
   );
@@ -303,7 +308,7 @@ const OpenPosition = () => {
 
   const collateralInputFiatValue = useMemo(() => {
     if (!collateralTokenValues.valueFormatted || Decimal.parse(collateralAmount, 0).isZero()) {
-      return '$0.00';
+      return '';
     }
 
     return `~${collateralTokenValues.valueFormatted}`;
@@ -311,7 +316,7 @@ const OpenPosition = () => {
 
   const borrowInputFiatValue = useMemo(() => {
     if (!borrowTokenValues.valueFormatted || Decimal.parse(borrowAmount, 0).isZero()) {
-      return '$0.00';
+      return '';
     }
 
     return `~${borrowTokenValues.valueFormatted}`;
@@ -425,7 +430,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Total collateral&nbsp;</Typography>
                 </>
               ),
-              value: `${baseTokenAmountFormatted} ${DISPLAY_BASE_TOKEN}`,
+              value: baseTokenAmountFormatted,
             },
             {
               id: 'debt',
@@ -452,7 +457,7 @@ const OpenPosition = () => {
                 </>
               ),
               value: hasMinBorrow ? (
-                `${borrowTokenValues.amountFormatted ?? 0}`
+                `${borrowTokenValues.amountFormatted ?? 'N/A'}`
               ) : (
                 <TooltipWrapper
                   anchorClasses="raft__openPosition__error"
