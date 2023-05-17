@@ -8,6 +8,7 @@ import { shortenAddress } from '../../utils';
 import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork, useTransactionHistory } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
+import LiquidationModal from '../LiquidationModal';
 import NotificationCenter from '../NotificationCenter';
 import TransactionHistoryRow from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
@@ -150,6 +151,11 @@ const Wallet = () => {
     return ens.name ?? shortenAddress(connectedAddress, 10, 8);
   }, [connectedAddress, ens.name, wallet]);
 
+  const lastLiquidation = useMemo(
+    () => (transactionHistory?.filter(transaction => transaction.type === 'LIQUIDATION') ?? [])[0],
+    [transactionHistory],
+  );
+
   const handlePopupOpen = useCallback(() => {
     setPopupOpen(true);
   }, []);
@@ -268,6 +274,13 @@ const Wallet = () => {
       {wallet && (
         <>
           <NetworkErrorModal />
+          {connectedAddress && lastLiquidation && (
+            <LiquidationModal
+              key={`liquidation-modal-${lastLiquidation.id}`}
+              walletAddress={connectedAddress}
+              liquidationTransaction={lastLiquidation}
+            />
+          )}
           <NotificationCenter />
         </>
       )}
