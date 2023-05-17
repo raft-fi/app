@@ -446,6 +446,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal),
     [collateralAmountDecimal, selectedCollateralTokenBalance],
   );
+  const hasEnoughDebtTokenBalance = useMemo(
+    () =>
+      !debtTokenBalanceValues.amount ||
+      (debtTokenBalanceValues.amount.gt(borrowAmountDecimal.abs()) && borrowAmountDecimal.lt(0)) ||
+      borrowAmountDecimal.gte(0),
+    [borrowAmountDecimal, debtTokenBalanceValues.amount],
+  );
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
     [isClosePosition, newDebtTokenValues?.amount],
@@ -468,8 +475,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   const canAdjust = useMemo(
-    () => isInputNonEmpty && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
-    [hasEnoughCollateralTokenBalance, isInputNonEmpty, hasMinBorrow, hasMinRatio],
+    () =>
+      isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinRatio,
+    [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinRatio],
   );
 
   const buttonLabel = useMemo(() => {
@@ -477,6 +485,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Insufficient funds';
     }
 
+    if (!hasEnoughDebtTokenBalance) {
+      return 'Insufficient R to repay';
+    }
     if (!hasMinBorrow) {
       return 'Borrow below the minimum amount';
     }
@@ -486,7 +497,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     return 'Execute';
-  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio]);
+  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinRatio]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
