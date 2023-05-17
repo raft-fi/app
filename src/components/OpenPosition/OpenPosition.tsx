@@ -210,7 +210,7 @@ const OpenPosition = () => {
     }
 
     if (!hasMinRatio) {
-      return 'Collateralization ratio below the minimum threshold';
+      return 'Collateralization ratio is below the minimum threshold';
     }
 
     return 'Borrow';
@@ -532,7 +532,7 @@ const OpenPosition = () => {
                     tooltipContent={
                       <Tooltip>
                         <Typography variant="body-tertiary" color="text-error">
-                          Collateralization ratio below the minimum threshold
+                          Collateralization ratio is below the minimum threshold
                         </Typography>
                       </Tooltip>
                     }

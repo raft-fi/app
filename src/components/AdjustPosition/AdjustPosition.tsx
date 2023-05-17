@@ -482,7 +482,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     if (!hasMinRatio) {
-      return 'Collateralization ratio below the minimum threshold';
+      return 'Collateralization ratio is below the minimum threshold';
     }
 
     return 'Execute';
@@ -735,7 +735,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   tooltipContent={
                     <Tooltip>
                       <Typography variant="body-tertiary" color="text-error">
-                        Collateralization ratio below the minimum threshold
+                        Collateralization ratio is below the minimum threshold
                       </Typography>
                     </Tooltip>
                   }
