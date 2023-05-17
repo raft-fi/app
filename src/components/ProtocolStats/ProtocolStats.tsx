@@ -1,5 +1,5 @@
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
 import { getTokenValues } from '../../utils';
@@ -9,10 +9,14 @@ import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 import './ProtocolStats.scss';
 import { R_TOKEN } from '@raft-fi/sdk';
 
-const ProtocolStats = () => {
+interface ProtocolStatsProps {
+  isClose: boolean;
+}
+
+const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
-  const [expanded, setExpanded] = useState<boolean>(true);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   const displayBaseTokenValues = useMemo(() => {
     return getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
@@ -90,6 +94,10 @@ const ProtocolStats = () => {
   }, [protocolStats]);
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
+
+  useEffect(() => {
+    setExpanded(!isClose);
+  }, [isClose]);
 
   return (
     <div className="raft__protocol-stats">
