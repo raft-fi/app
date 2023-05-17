@@ -501,7 +501,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
-              value: liquidationPriceFormatted,
+              value: hasMinRatio ? liquidationPriceFormatted : 'N/A',
             },
             {
               id: 'collateralizationRatio',
