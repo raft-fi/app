@@ -117,7 +117,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
         </div>
         <div className="raft__liquidationModal__info">
           <Typography className="raft__liquidationModal__info__title" variant="body-primary" weight="semi-bold">
-            Your position
+            Your Position
           </Typography>
           <ValuesBox values={infoEntries} />
         </div>

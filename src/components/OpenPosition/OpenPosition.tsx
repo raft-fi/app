@@ -357,7 +357,7 @@ const OpenPosition = () => {
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
         <Typography variant="subtitle" weight="medium">
-          Open position
+          Open Position
         </Typography>
 
         {walletConnected && (

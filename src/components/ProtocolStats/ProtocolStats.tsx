@@ -211,7 +211,7 @@ const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
             },
             {
               id: 'openPositions',
-              label: 'Open positions',
+              label: 'Open Positions',
               value: openPositionsFormatted || '---',
             },
             {
