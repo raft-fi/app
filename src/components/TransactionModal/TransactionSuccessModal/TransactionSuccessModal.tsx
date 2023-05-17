@@ -73,7 +73,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
-          <Typography variant="body-tertiary">View transaction history in&nbsp;</Typography>
+          <Typography variant="body-tertiary">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
             <Typography variant="body-tertiary" color="text-secondary">
               Etherscan

@@ -122,7 +122,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
           <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__liquidationModal__explorerLink">
-          <Typography variant="body-tertiary">View transaction history in&nbsp;</Typography>
+          <Typography variant="body-tertiary">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${liquidationTransaction.id}`}>
             <Typography variant="body-tertiary" color="text-secondary">
               Etherscan
