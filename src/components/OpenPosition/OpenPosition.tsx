@@ -337,7 +337,7 @@ const OpenPosition = () => {
         const defaultBorrowAmount = selectedCollateralTokenBalanceValues.value
           .div(borrowTokenPrice)
           .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
-          .toRounded(2);
+          .toTruncated(2);
         setBorrowAmount(defaultBorrowAmount);
       }
     }

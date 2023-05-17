@@ -22,10 +22,6 @@ const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
     return getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
   }, [tokenPriceMap]);
 
-  const raftTokenValues = useMemo(() => {
-    return getTokenValues(Decimal.ONE, tokenPriceMap[R_TOKEN], R_TOKEN);
-  }, [tokenPriceMap]);
-
   const collateralTotalSupplyValues = useMemo(() => {
     if (!protocolStats || !displayBaseTokenValues.price || !tokenPriceMap[COLLATERAL_BASE_TOKEN]) {
       return null;
@@ -57,6 +53,19 @@ const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
 
     return collateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
   }, [collateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
+
+  const raftTokenPriceFormatted = useMemo(() => {
+    if (!tokenPriceMap[R_TOKEN]) {
+      return null;
+    }
+
+    return DecimalFormat.format(tokenPriceMap[R_TOKEN].toRounded(2), {
+      style: 'currency',
+      currency: '$',
+      fractionDigits: 2,
+      pad: true,
+    });
+  }, [tokenPriceMap]);
 
   const collateralizationRatioFormatted = useMemo(() => {
     if (!collateralizationRatio) {
@@ -197,7 +206,7 @@ const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
-                <ValueLabel value={raftTokenValues.priceFormatted || '---'} />
+                <ValueLabel value={raftTokenPriceFormatted || '---'} />
               </div>
             </div>
           </div>
