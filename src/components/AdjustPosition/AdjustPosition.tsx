@@ -625,7 +625,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The final collateral amount you will hold after adjusting your position.
+                          The amount of collateral in your Position.
                         </Typography>
                       </Tooltip>
                     }
@@ -647,7 +647,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The final debt amount you will hold after adjusting your position.
+                          The amount of debt your Position has.
                         </Typography>
                       </Tooltip>
                     }
@@ -693,8 +693,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The price at which your position will be available to be liquidated after adjusting your
-                          position. Learn more about liquidations here{' '}
+                          The price of one unit of collateral at which your Position will be available to be liquidated.
+                          Learn more about liquidations&nbsp;
                           <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
                             here
                             <span>
@@ -722,8 +722,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The percentage of R borrowed in relation to the total collateral amount after adjusting your
-                          position.
+                          The percentage of R borrowed in relation to the total collateral amount.
                         </Typography>
                       </Tooltip>
                     }
