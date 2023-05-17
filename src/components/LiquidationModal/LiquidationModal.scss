@@ -1,0 +1,92 @@
+.raft__liquidationModal {
+  border-radius: 8px;
+  padding: 48px 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 472px;
+
+  .raft__liquidationModal__icon {
+    margin-bottom: 24px;
+  }
+
+  .raft__liquidationModal__title {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .raft__valueLabel:not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
+
+  .raft__liquidationModal__subtitle {
+    margin-bottom: 32px;
+  }
+
+  .raft__liquidationModal__infoHeader {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .raft__liquidationModal__info {
+    width: 100%;
+    margin-bottom: 16px;
+    background: var(--colorSurface);
+    border: 1px solid var(--colorBorder);
+    border-radius: 8px;
+    padding: 16px;
+    box-sizing: border-box;
+
+    .raft__liquidationModal__info__title {
+      margin-bottom: 16px;
+    }
+
+    .raft__valuesBox {
+      background: initial;
+      border: initial;
+      padding: 0;
+
+      .raft__valuesBox__item .raft__valuesBox__itemValueMultiple .raft__valueLabel {
+        width: 108px;
+      }
+    }
+  }
+
+  .raft__liquidationModal__explorerLink {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 32px;
+
+    --externalLinkColor: var(--colorPrimary);
+
+    .common-ui__link {
+      text-decoration: underline;
+      color: var(--colorPrimary);
+    }
+  }
+
+  .raft__liquidationModal__actions {
+    display: flex;
+    flex-direction: column;
+    width: 316px;
+
+    .raft__liquidationModal__action {
+      width: 100%;
+
+      &:not(:first-child) {
+        margin-top: 12px;
+      }
+
+      .raft__button {
+        width: 100%;
+      }
+    }
+  }
+}

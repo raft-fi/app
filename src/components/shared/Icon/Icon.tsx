@@ -23,6 +23,7 @@ import Copy from './Copy';
 import Info from './Info';
 import TransactionFailed from './TransactionFailed';
 import TransactionSuccess from './TransactionSuccess';
+import PositionChanged from './PositionChanged';
 import UnsupportedNetwork from './UnsupportedNetwork';
 import ArrowRightThin from './ArrowRightThin';
 
@@ -50,6 +51,7 @@ type IconVariant =
   | 'info'
   | 'transaction-failed'
   | 'transaction-success'
+  | 'position-changed'
   | 'unsupported-network'
   | 'arrow-right-thin';
 
@@ -77,6 +79,7 @@ const ICON_MAP: IconMap = {
   info: Info,
   'transaction-failed': TransactionFailed,
   'transaction-success': TransactionSuccess,
+  'position-changed': PositionChanged,
   'unsupported-network': UnsupportedNetwork,
   'arrow-right-thin': ArrowRightThin,
 };

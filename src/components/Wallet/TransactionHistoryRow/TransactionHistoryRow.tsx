@@ -1,5 +1,5 @@
-import { FC, useCallback, useMemo } from 'react';
-import { ButtonWrapper } from 'tempus-ui';
+import { FC, useMemo } from 'react';
+import { Link } from 'tempus-ui';
 import { PositionTransaction, R_TOKEN } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../../constants';
@@ -128,6 +128,20 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
             <Typography variant="body-secondary">&nbsp;collateral</Typography>
           </>
         );
+      case 'LIQUIDATION':
+        return (
+          <>
+            <Typography variant="body-secondary">Position liquidated with&nbsp;</Typography>
+            <Typography variant="body-secondary" weight="semi-bold">
+              {debtChangeFormatted}
+            </Typography>
+            <Typography variant="body-secondary">&nbsp;and&nbsp;</Typography>
+            <Typography variant="body-secondary" weight="semi-bold">
+              {collateralChangeFormatted}
+            </Typography>
+            <Typography variant="body-secondary">&nbsp;collateral</Typography>
+          </>
+        );
     }
   }, [
     transaction.collateralChange,
@@ -137,15 +151,11 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
     collateralChangeFormatted,
   ]);
 
-  const onTransactionClick = useCallback(() => {
-    window.open(`${config.blockExplorerUrl}/tx/${transaction.id}`, '_blank', 'noopener,noreferrer');
-  }, [config.blockExplorerUrl, transaction.id]);
-
   return (
-    <ButtonWrapper className="raft__wallet__popupTransaction" onClick={onTransactionClick}>
+    <Link href={`${config.blockExplorerUrl}/tx/${transaction.id}`} className="raft__wallet__popupTransaction">
       <Icon variant="external-link" size="small" />
       {transactionLabel}
-    </ButtonWrapper>
+    </Link>
   );
 };
 export { TransactionHistoryRow };
