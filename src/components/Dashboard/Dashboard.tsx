@@ -16,10 +16,12 @@ const Dashboard = () => {
     return collateralBalance?.gt(0) || debtBalance?.gt(0);
   }, [collateralBalance, debtBalance]);
 
+  const shouldShowAdjustPosition = userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork;
+
   return (
     <div className="raft__dashboard">
-      <ProtocolStats />
-      {userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork ? (
+      <ProtocolStats isClose={!!shouldShowAdjustPosition} />
+      {shouldShowAdjustPosition ? (
         <AdjustPosition collateralBalance={collateralBalance} debtBalance={debtBalance} />
       ) : (
         <OpenPosition />
