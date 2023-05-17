@@ -30,6 +30,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   selectedToken: string;
   step?: number;
   allowNegativeNumbers?: boolean;
+  maxIntegralDigits?: number;
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
@@ -57,6 +58,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     tokens,
     step,
     allowNegativeNumbers = false,
+    maxIntegralDigits = MAX_INTEGRAL_DIGIT,
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
@@ -148,9 +150,9 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
 
   const inputPattern = useMemo(() => {
     return allowNegativeNumbers
-      ? `-?[0-9]{0,${MAX_INTEGRAL_DIGIT}}([.][0-9]{0,${precision}})?`
-      : `[0-9]{0,${MAX_INTEGRAL_DIGIT}}([.][0-9]{0,${precision}})?`;
-  }, [allowNegativeNumbers, precision]);
+      ? `-?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`
+      : `[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`;
+  }, [allowNegativeNumbers, precision, maxIntegralDigits]);
 
   return (
     <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>

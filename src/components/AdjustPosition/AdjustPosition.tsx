@@ -600,6 +600,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
           error={!hasMinBorrow || !hasMinRatio}
+          maxIntegralDigits={10}
         />
       </div>
       <div className="raft__adjustPosition__data">
