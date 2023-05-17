@@ -266,13 +266,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </Button>
         )}
       </div>
-      {fiatValue && (
-        <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
+      <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
+        {fiatValue && (
           <Typography variant="body-tertiary" color={!disabled ? 'text-primary' : 'text-tertiary'}>
             {fiatValue}
           </Typography>
-        </span>
-      )}
+        )}
+      </span>
       {disabled && <div className="raft__currencyInput__disabledOverlay"></div>}
     </div>
   );
