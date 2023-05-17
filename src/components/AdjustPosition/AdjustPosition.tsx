@@ -457,7 +457,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
     [isClosePosition, newDebtTokenValues?.amount],
   );
-  const hasMinRatio = useMemo(
+  const hasMinCurrentRatio = useMemo(
+    () => !currentCollateralizationRatio || currentCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
+    [currentCollateralizationRatio],
+  );
+  const hasMinNewRatio = useMemo(
     () => !newCollateralizationRatio || newCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO) || isClosePosition,
     [isClosePosition, newCollateralizationRatio],
   );
@@ -476,7 +480,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const canAdjust = useMemo(
     () =>
-      isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinRatio,
+      isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinNewRatio,
     [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinRatio],
   );
 
@@ -492,12 +496,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Borrow below the minimum amount';
     }
 
-    if (!hasMinRatio) {
+    if (!hasMinNewRatio) {
       return 'Collateralization ratio below the minimum threshold';
     }
 
     return 'Execute';
-  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinRatio]);
+  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
@@ -592,7 +596,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           disabled={closePositionActive}
           decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
           allowNegativeNumbers={true}
-          error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
+          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
         />
         <CurrencyInput
           label="Borrow"
@@ -610,7 +614,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           disabled={closePositionActive}
           decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
-          error={!hasMinBorrow || !hasMinRatio}
+          error={!hasMinBorrow || !hasMinNewRatio}
           maxIntegralDigits={10}
         />
       </div>
@@ -711,8 +715,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
-              value: currentLiquidationPriceFormatted,
-              newValue: newLiquidationPriceFormatted,
+              value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
+              newValue: hasMinNewRatio ? newLiquidationPriceFormatted : 'N/A',
             },
             {
               id: 'collateralizationRatio',
@@ -735,7 +739,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
-              newValue: hasMinRatio ? (
+              newValue: hasMinNewRatio ? (
                 hasCollateralChange && (
                   <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
                 )
