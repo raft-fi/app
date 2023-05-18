@@ -229,24 +229,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return;
     }
 
-    // Do not allow user to have negative new balance
-    if (newValue.lt(0)) {
-      newValue = Decimal.ZERO;
-
-      let newInputValue: Nullable<Decimal> = null;
-      switch (selectedCollateralToken) {
-        case 'ETH':
-        case 'stETH':
-          newInputValue = currentCollateralInDisplayToken.amount.mul(-1);
-          break;
-        case 'wstETH':
-          newInputValue = collateralBalance.mul(-1);
-          break;
-      }
-
-      handleCollateralAmountChange(newInputValue.toString());
-    }
-
     setNewCollateralInDisplayTokenValue(newValue);
   }, [
     collateralTokenInputValues.value,
@@ -278,18 +260,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * New user debt (R-debt)
    */
   const newDebtTokenValues = useMemo(() => {
-    let newValue = debtBalance.add(borrowAmountDecimal);
+    const newValue = debtBalance.add(borrowAmountDecimal);
 
     // Do not show new debt value in case current debt is same as new collateral (user did not change input values)
     if (newValue.equals(debtBalance)) {
       return null;
-    }
-
-    // Do not allow user to have negative new balance
-    if (newValue.lt(0)) {
-      newValue = Decimal.ZERO;
-
-      handleBorrowAmountChange(debtBalance.mul(-1).toString());
     }
 
     return getTokenValues(newValue, tokenPriceMap[R_TOKEN], R_TOKEN);
@@ -489,6 +464,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         !currentCollateralizationRatio.equals(newCollateralizationRatio)),
     [currentCollateralizationRatio, isClosePosition, newCollateralizationRatio],
   );
+  const hasEnoughToWithdraw = useMemo(() => {
+    if (!newCollateralInDisplayToken.amount) {
+      return true;
+    }
+
+    return newCollateralInDisplayToken.amount.gte(0);
+  }, [newCollateralInDisplayToken.amount]);
 
   const canAdjust = useMemo(
     () =>
@@ -499,6 +481,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const buttonLabel = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
       return 'Insufficient funds';
+    }
+
+    if (!hasEnoughToWithdraw) {
+      return 'Collateral amount to withdraw larger than current balance';
     }
 
     if (!hasEnoughDebtTokenBalance) {
@@ -513,7 +499,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     return 'Execute';
-  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio]);
+  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasEnoughToWithdraw, hasMinBorrow, hasMinNewRatio]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
@@ -607,10 +593,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onIncrementAmount={handleCollateralIncrement}
           onDecrementAmount={handleCollateralDecrement}
           disabled={closePositionActive}
-          decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
           allowNegativeNumbers={true}
           onBlur={handleCollateralAmountBlur}
-          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
+          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio || !hasEnoughToWithdraw}
         />
         <CurrencyInput
           label="Adjust borrow"
@@ -625,7 +610,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onIncrementAmount={handleBorrowIncrement}
           onDecrementAmount={handleBorrowDecrement}
           disabled={closePositionActive}
-          decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
           onBlur={handleBorrowAmountBlur}
           error={!hasMinBorrow || !hasMinNewRatio}
@@ -655,7 +639,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
-              newValue: newCollateralInDisplayToken?.amountFormatted,
+              newValue:
+                !newCollateralInDisplayToken.amount || newCollateralInDisplayToken.amount.gte(0)
+                  ? newCollateralInDisplayToken.amountFormatted
+                  : 'N/A',
             },
             {
               id: 'debt',
@@ -686,7 +673,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 newDebtTokenValues?.amountFormatted &&
                 (hasMinBorrow ? (
                   `${newDebtTokenValues.amountFormatted || 'N/A'}`
-                ) : (
+                ) : newDebtTokenValues.amount?.gte(0) ? (
                   <TooltipWrapper
                     anchorClasses="raft__adjustPosition__error"
                     tooltipContent={
@@ -701,6 +688,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} color="text-error" />
                     <Icon variant="error" size="small" />
                   </TooltipWrapper>
+                ) : (
+                  'N/A'
                 )),
             },
             {
@@ -730,7 +719,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
-              newValue: hasMinNewRatio ? newLiquidationPriceFormatted : 'N/A',
+              newValue: hasMinNewRatio && hasEnoughToWithdraw ? newLiquidationPriceFormatted : 'N/A',
             },
             {
               id: 'collateralizationRatio',
@@ -753,26 +742,29 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
-              newValue: hasMinNewRatio ? (
-                hasCollateralChange && (
-                  <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
-                )
-              ) : (
-                <TooltipWrapper
-                  anchorClasses="raft__adjustPosition__error"
-                  tooltipContent={
-                    <Tooltip>
-                      <Typography variant="body-tertiary" color="text-error">
-                        Collateralization ratio is below the minimum threshold
-                      </Typography>
-                    </Tooltip>
-                  }
-                  placement="right"
-                >
-                  <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
-                  <Icon variant="error" size="small" />
-                </TooltipWrapper>
-              ),
+              newValue:
+                hasMinNewRatio && hasEnoughToWithdraw ? (
+                  (hasCollateralChange || newDebtTokenValues?.amount?.isZero()) && (
+                    <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
+                  )
+                ) : newCollateralizationRatio?.gte(0) && newDebtTokenValues?.amount?.gte(0) && hasEnoughToWithdraw ? (
+                  <TooltipWrapper
+                    anchorClasses="raft__adjustPosition__error"
+                    tooltipContent={
+                      <Tooltip>
+                        <Typography variant="body-tertiary" color="text-error">
+                          Collateralization ratio is below the minimum threshold
+                        </Typography>
+                      </Tooltip>
+                    }
+                    placement="right"
+                  >
+                    <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
+                    <Icon variant="error" size="small" />
+                  </TooltipWrapper>
+                ) : (
+                  'N/A'
+                ),
             },
           ]}
         />
