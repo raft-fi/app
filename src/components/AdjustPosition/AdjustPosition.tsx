@@ -583,6 +583,159 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             maxIntegralDigits={10}
           />
         </div>
+        <div className="raft__adjustPosition__data">
+          <ValuesBox
+            values={[
+              {
+                id: 'collateral',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The amount of collateral in your Position.
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Total collateral&nbsp;</Typography>
+                  </>
+                ),
+                value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
+                newValue:
+                  !newCollateralInDisplayToken.amount || newCollateralInDisplayToken.amount.gte(0)
+                    ? newCollateralInDisplayToken.amountFormatted
+                    : 'N/A',
+              },
+              {
+                id: 'debt',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The amount of debt your Position has.
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Total debt&nbsp;</Typography>
+                    <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
+                    <Typography variant="body-tertiary" type="mono">
+                      R
+                    </Typography>
+                    <Typography variant="body-tertiary">{')'}</Typography>
+                  </>
+                ),
+                value: currentDebtTokenValues.amountFormatted || 'N/A',
+                newValue:
+                  newDebtTokenValues?.amountFormatted &&
+                  (hasMinBorrow ? (
+                    `${newDebtTokenValues.amountFormatted || 'N/A'}`
+                  ) : newDebtTokenValues.amount?.gte(0) ? (
+                    <TooltipWrapper
+                      anchorClasses="raft__adjustPosition__error"
+                      tooltipContent={
+                        <Tooltip>
+                          <Typography variant="body-tertiary" color="text-error">
+                            Collateralization ratio is below the minimum threshold
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="right"
+                    >
+                      <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
+                      <Icon variant="error" size="small" />
+                    </TooltipWrapper>
+                  ) : (
+                    'N/A'
+                  )),
+              },
+              {
+                id: 'liquidationPrice',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The price of one unit of collateral at which your Position will be available to be
+                            liquidated. Learn more about liquidations&nbsp;
+                            <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
+                              here
+                              <span>
+                                <Icon variant="external-link" size={10} />
+                              </span>
+                            </a>
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
+                  </>
+                ),
+                value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
+                newValue: hasMinNewRatio && hasEnoughToWithdraw ? newLiquidationPriceFormatted : 'N/A',
+              },
+              {
+                id: 'collateralizationRatio',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The percentage of R borrowed in relation to the total collateral amount.
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
+                    <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
+                  </>
+                ),
+                value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
+                newValue:
+                  hasMinNewRatio && hasEnoughToWithdraw ? (
+                    (hasCollateralChange || newDebtTokenValues?.amount?.isZero()) && (
+                      <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
+                    )
+                  ) : newCollateralizationRatio?.gte(0) && newDebtTokenValues?.amount?.gte(0) && hasEnoughToWithdraw ? (
+                    <TooltipWrapper
+                      anchorClasses="raft__adjustPosition__error"
+                      tooltipContent={
+                        <Tooltip>
+                          <Typography variant="body-tertiary" color="text-error">
+                            Collateralization ratio is below the minimum threshold
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="right"
+                    >
+                      <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
+                      <Icon variant="error" size="small" />
+                    </TooltipWrapper>
+                  ) : (
+                    'N/A'
+                  ),
+              },
+            ]}
+          />
+        </div>
       </div>
       <div className="raft__adjustPosition__input">
         <CurrencyInput
@@ -620,159 +773,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onBlur={handleBorrowAmountBlur}
           error={!hasMinBorrow || !hasMinNewRatio}
           maxIntegralDigits={10}
-        />
-      </div>
-      <div className="raft__adjustPosition__data">
-        <ValuesBox
-          values={[
-            {
-              id: 'collateral',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The amount of collateral in your Position.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Total collateral&nbsp;</Typography>
-                </>
-              ),
-              value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
-              newValue:
-                !newCollateralInDisplayToken.amount || newCollateralInDisplayToken.amount.gte(0)
-                  ? newCollateralInDisplayToken.amountFormatted
-                  : 'N/A',
-            },
-            {
-              id: 'debt',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The amount of debt your Position has.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
-                  <Typography variant="body-tertiary" type="mono">
-                    R
-                  </Typography>
-                  <Typography variant="body-tertiary">{')'}</Typography>
-                </>
-              ),
-              value: currentDebtTokenValues.amountFormatted || 'N/A',
-              newValue:
-                newDebtTokenValues?.amountFormatted &&
-                (hasMinBorrow ? (
-                  `${newDebtTokenValues.amountFormatted || 'N/A'}`
-                ) : newDebtTokenValues.amount?.gte(0) ? (
-                  <TooltipWrapper
-                    anchorClasses="raft__adjustPosition__error"
-                    tooltipContent={
-                      <Tooltip>
-                        <Typography variant="body-tertiary" color="text-error">
-                          Collateralization ratio is below the minimum threshold
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="right"
-                  >
-                    <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
-                    <Icon variant="error" size="small" />
-                  </TooltipWrapper>
-                ) : (
-                  'N/A'
-                )),
-            },
-            {
-              id: 'liquidationPrice',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The price of one unit of collateral at which your Position will be available to be liquidated.
-                          Learn more about liquidations&nbsp;
-                          <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
-                            here
-                            <span>
-                              <Icon variant="external-link" size={10} />
-                            </span>
-                          </a>
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
-                </>
-              ),
-              value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
-              newValue: hasMinNewRatio && hasEnoughToWithdraw ? newLiquidationPriceFormatted : 'N/A',
-            },
-            {
-              id: 'collateralizationRatio',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The percentage of R borrowed in relation to the total collateral amount.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
-                </>
-              ),
-              value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
-              newValue:
-                hasMinNewRatio && hasEnoughToWithdraw ? (
-                  (hasCollateralChange || newDebtTokenValues?.amount?.isZero()) && (
-                    <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
-                  )
-                ) : newCollateralizationRatio?.gte(0) && newDebtTokenValues?.amount?.gte(0) && hasEnoughToWithdraw ? (
-                  <TooltipWrapper
-                    anchorClasses="raft__adjustPosition__error"
-                    tooltipContent={
-                      <Tooltip>
-                        <Typography variant="body-tertiary" color="text-error">
-                          Collateralization ratio is below the minimum threshold
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="right"
-                  >
-                    <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
-                    <Icon variant="error" size="small" />
-                  </TooltipWrapper>
-                ) : (
-                  'N/A'
-                ),
-            },
-          ]}
         />
       </div>
       <div className="raft__adjustPosition__action">
