@@ -1,4 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { ButtonWrapper } from 'tempus-ui';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
@@ -44,6 +45,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
   const [newCollateralInDisplayTokenValue, setNewCollateralInDisplayTokenValue] = useState<Nullable<Decimal>>(null);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   /**
    * Update action button state based on current borrow request status
@@ -517,42 +519,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
-  const onToggleClosePosition = useCallback(() => {
-    if (!closePositionActive) {
-      if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
-        handleCollateralAmountChange(collateralBalance.mul(-1).toString());
-      } else {
-        const selectedCollateralTokenPrice = tokenPriceMap[selectedCollateralToken];
-
-        if (
-          currentCollateralTokenValues.value &&
-          selectedCollateralTokenPrice &&
-          !selectedCollateralTokenPrice.isZero()
-        ) {
-          const collateralBalanceInSelectedCollateralToken =
-            currentCollateralTokenValues.value.div(selectedCollateralTokenPrice);
-          handleCollateralAmountChange(collateralBalanceInSelectedCollateralToken.mul(-1).toString());
-        }
-      }
-
-      handleBorrowAmountChange(debtBalance.mul(-1).toString());
-    } else if (collateralBalance && debtBalance) {
-      handleCollateralAmountChange('0');
-      handleBorrowAmountChange('0');
-    }
-
-    setClosePositionActive(prevState => !prevState);
-  }, [
-    closePositionActive,
-    collateralBalance,
-    currentCollateralTokenValues.value,
-    debtBalance,
-    handleBorrowAmountChange,
-    handleCollateralAmountChange,
-    selectedCollateralToken,
-    tokenPriceMap,
-  ]);
-
   const onAdjust = useCallback(() => {
     if (!canAdjust) {
       return null;
@@ -578,212 +544,212 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     closePositionActive,
   ]);
 
+  const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
+
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
         <Typography variant="subtitle" weight="medium">
           Adjust Position
         </Typography>
-        <div className="raft__adjustPosition__actions">
-          <Button variant="secondary" onClick={onToggleClosePosition} selected={closePositionActive}>
-            <Typography variant="body-primary" weight="medium">
-              Close Position
-            </Typography>
-          </Button>
+        <ButtonWrapper onClick={onToggleExpanded}>
+          <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
+        </ButtonWrapper>
+      </div>
+      <div className={`raft__adjustPosition__body ${expanded ? 'raft__adjustPosition-expanded' : ''}`}>
+        <div className="raft__adjustPosition__input">
+          <CurrencyInput
+            label="Adjust collateral"
+            precision={18}
+            fiatValue={null}
+            selectedToken={selectedCollateralToken}
+            tokens={['stETH', 'wstETH']}
+            value={collateralAmount}
+            previewValue={collateralAmountWithEllipse}
+            onTokenUpdate={handleCollateralTokenChange}
+            onValueUpdate={handleCollateralAmountChange}
+            step={0.1}
+            onIncrementAmount={handleCollateralIncrement}
+            onDecrementAmount={handleCollateralDecrement}
+            disabled={closePositionActive}
+            decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
+            allowNegativeNumbers={true}
+            onBlur={handleCollateralAmountBlur}
+            error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
+          />
+          <CurrencyInput
+            label="Adjust borrow"
+            precision={18}
+            fiatValue={null}
+            selectedToken={R_TOKEN}
+            tokens={[R_TOKEN]}
+            value={borrowAmount}
+            previewValue={borrowAmountWithEllipse}
+            onValueUpdate={handleBorrowAmountChange}
+            step={100}
+            onIncrementAmount={handleBorrowIncrement}
+            onDecrementAmount={handleBorrowDecrement}
+            disabled={closePositionActive}
+            decrementDisabled={newDebtTokenValues?.amount?.isZero()}
+            allowNegativeNumbers={true}
+            onBlur={handleBorrowAmountBlur}
+            error={!hasMinBorrow || !hasMinNewRatio}
+            maxIntegralDigits={10}
+          />
         </div>
-      </div>
-      <div className="raft__adjustPosition__input">
-        <CurrencyInput
-          label="Adjust collateral"
-          precision={18}
-          fiatValue={null}
-          selectedToken={selectedCollateralToken}
-          tokens={['stETH', 'wstETH']}
-          value={collateralAmount}
-          previewValue={collateralAmountWithEllipse}
-          onTokenUpdate={handleCollateralTokenChange}
-          onValueUpdate={handleCollateralAmountChange}
-          step={0.1}
-          onIncrementAmount={handleCollateralIncrement}
-          onDecrementAmount={handleCollateralDecrement}
-          disabled={closePositionActive}
-          decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
-          allowNegativeNumbers={true}
-          onBlur={handleCollateralAmountBlur}
-          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
-        />
-        <CurrencyInput
-          label="Adjust borrow"
-          precision={18}
-          fiatValue={null}
-          selectedToken={R_TOKEN}
-          tokens={[R_TOKEN]}
-          value={borrowAmount}
-          previewValue={borrowAmountWithEllipse}
-          onValueUpdate={handleBorrowAmountChange}
-          step={100}
-          onIncrementAmount={handleBorrowIncrement}
-          onDecrementAmount={handleBorrowDecrement}
-          disabled={closePositionActive}
-          decrementDisabled={newDebtTokenValues?.amount?.isZero()}
-          allowNegativeNumbers={true}
-          onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio}
-          maxIntegralDigits={10}
-        />
-      </div>
-      <div className="raft__adjustPosition__data">
-        <ValuesBox
-          values={[
-            {
-              id: 'collateral',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The amount of collateral in your Position.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Total collateral&nbsp;</Typography>
-                </>
-              ),
-              value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
-              newValue: newCollateralInDisplayToken?.amountFormatted,
-            },
-            {
-              id: 'debt',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The amount of debt your Position has.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
-                  <Typography variant="body-tertiary" type="mono">
-                    R
-                  </Typography>
-                  <Typography variant="body-tertiary">{')'}</Typography>
-                </>
-              ),
-              value: currentDebtTokenValues.amountFormatted || 'N/A',
-              newValue:
-                newDebtTokenValues?.amountFormatted &&
-                (hasMinBorrow ? (
-                  `${newDebtTokenValues.amountFormatted || 'N/A'}`
+        <div className="raft__adjustPosition__data">
+          <ValuesBox
+            values={[
+              {
+                id: 'collateral',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The amount of collateral in your Position.
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Total collateral&nbsp;</Typography>
+                  </>
+                ),
+                value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
+                newValue: newCollateralInDisplayToken?.amountFormatted,
+              },
+              {
+                id: 'debt',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The amount of debt your Position has.
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Total debt&nbsp;</Typography>
+                    <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
+                    <Typography variant="body-tertiary" type="mono">
+                      R
+                    </Typography>
+                    <Typography variant="body-tertiary">{')'}</Typography>
+                  </>
+                ),
+                value: currentDebtTokenValues.amountFormatted || 'N/A',
+                newValue:
+                  newDebtTokenValues?.amountFormatted &&
+                  (hasMinBorrow ? (
+                    `${newDebtTokenValues.amountFormatted || 'N/A'}`
+                  ) : (
+                    <TooltipWrapper
+                      anchorClasses="raft__adjustPosition__error"
+                      tooltipContent={
+                        <Tooltip>
+                          <Typography variant="body-tertiary" color="text-error">
+                            Borrow below the minimum amount
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="right"
+                    >
+                      <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} color="text-error" />
+                      <Icon variant="error" size="small" />
+                    </TooltipWrapper>
+                  )),
+              },
+              {
+                id: 'liquidationPrice',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The price of one unit of collateral at which your Position will be available to be
+                            liquidated. Learn more about liquidations&nbsp;
+                            <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
+                              here
+                              <span>
+                                <Icon variant="external-link" size={10} />
+                              </span>
+                            </a>
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
+                  </>
+                ),
+                value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
+                newValue: hasMinNewRatio ? newLiquidationPriceFormatted : 'N/A',
+              },
+              {
+                id: 'collateralizationRatio',
+                label: (
+                  <>
+                    <TooltipWrapper
+                      tooltipContent={
+                        <Tooltip className="raft__adjustPosition__infoTooltip">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                            The percentage of R borrowed in relation to the total collateral amount.
+                          </Typography>
+                        </Tooltip>
+                      }
+                      placement="left"
+                    >
+                      <Icon variant="info" size="small" />
+                    </TooltipWrapper>
+                    <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
+                    <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
+                  </>
+                ),
+                value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
+                newValue: hasMinNewRatio ? (
+                  hasCollateralChange && (
+                    <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
+                  )
                 ) : (
                   <TooltipWrapper
                     anchorClasses="raft__adjustPosition__error"
                     tooltipContent={
                       <Tooltip>
                         <Typography variant="body-tertiary" color="text-error">
-                          Borrow below the minimum amount
+                          Collateralization ratio is below the minimum threshold
                         </Typography>
                       </Tooltip>
                     }
                     placement="right"
                   >
-                    <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} color="text-error" />
+                    <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
                     <Icon variant="error" size="small" />
                   </TooltipWrapper>
-                )),
-            },
-            {
-              id: 'liquidationPrice',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The price of one unit of collateral at which your Position will be available to be liquidated.
-                          Learn more about liquidations&nbsp;
-                          <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
-                            here
-                            <span>
-                              <Icon variant="external-link" size={10} />
-                            </span>
-                          </a>
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
-                </>
-              ),
-              value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
-              newValue: hasMinNewRatio ? newLiquidationPriceFormatted : 'N/A',
-            },
-            {
-              id: 'collateralizationRatio',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__adjustPosition__infoTooltip">
-                        <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The percentage of R borrowed in relation to the total collateral amount.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
-                </>
-              ),
-              value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
-              newValue: hasMinNewRatio ? (
-                hasCollateralChange && (
-                  <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
-                )
-              ) : (
-                <TooltipWrapper
-                  anchorClasses="raft__adjustPosition__error"
-                  tooltipContent={
-                    <Tooltip>
-                      <Typography variant="body-tertiary" color="text-error">
-                        Collateralization ratio is below the minimum threshold
-                      </Typography>
-                    </Tooltip>
-                  }
-                  placement="right"
-                >
-                  <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
-                  <Icon variant="error" size="small" />
-                </TooltipWrapper>
-              ),
-            },
-          ]}
-        />
-      </div>
-      <div className="raft__adjustPosition__action">
-        <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
-          {transactionState === 'loading' && <Loading />}
-          <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            {buttonLabel}
-          </Typography>
-        </Button>
+                ),
+              },
+            ]}
+          />
+        </div>
+        <div className="raft__adjustPosition__action">
+          <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
+            {transactionState === 'loading' && <Loading />}
+            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+              {buttonLabel}
+            </Typography>
+          </Button>
+        </div>
       </div>
     </div>
   );
