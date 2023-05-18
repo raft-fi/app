@@ -11,6 +11,7 @@ import ModalWrapper from './ModalWrapper';
 import ValueLabel from './ValueLabel';
 import TooltipWrapper from './TooltipWrapper';
 import Tooltip from './Tooltip';
+import Checkbox from './Checkbox';
 
 export {
   Button,
@@ -26,6 +27,7 @@ export {
   ValueLabel,
   TooltipWrapper,
   Tooltip,
+  Checkbox,
 };
 
 export { colors } from './Colors';

@@ -10,6 +10,7 @@ import Redeem from './components/Redeem';
 import Stats from './components/Stats';
 import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
+import NoticePopup from './components/NoticePopup';
 
 import './index.scss';
 
@@ -18,6 +19,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <div className="raft__app__root">
+        <NoticePopup />
         <HookSubscriber />
         <Background />
         <Header />

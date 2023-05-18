@@ -1,0 +1,36 @@
+.raft__checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.raft__checkbox__boxContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  background-color: var(--raftWhite);
+  border: 1px solid var(--raftBlack);
+  border-radius: 4px;
+
+  &[data-checked='true'] {
+    background-color: var(--raftOrange);
+    border: 1px solid var(--raftOrange);
+  }
+
+  input[type='checkbox'] {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    top: 0px;
+    left: 0px;
+    opacity: 0%;
+    position: absolute;
+    z-index: 1;
+  }
+}
+
+.raft__checkbox__label {
+  margin-left: 8px;
+}

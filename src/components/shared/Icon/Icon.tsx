@@ -26,6 +26,7 @@ import TransactionSuccess from './TransactionSuccess';
 import PositionChanged from './PositionChanged';
 import UnsupportedNetwork from './UnsupportedNetwork';
 import ArrowRightThin from './ArrowRightThin';
+import Checkmark from './Checkmark';
 
 type IconVariant =
   | 'discord'
@@ -53,7 +54,8 @@ type IconVariant =
   | 'transaction-success'
   | 'position-changed'
   | 'unsupported-network'
-  | 'arrow-right-thin';
+  | 'arrow-right-thin'
+  | 'checkmark';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -82,6 +84,7 @@ const ICON_MAP: IconMap = {
   'position-changed': PositionChanged,
   'unsupported-network': UnsupportedNetwork,
   'arrow-right-thin': ArrowRightThin,
+  checkmark: Checkmark,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;
