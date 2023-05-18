@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Background from './components/Background';
 import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
+import Stats from './components/Stats';
 import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
 
@@ -22,7 +23,7 @@ root.render(
         <Header />
         <Routes>
           <Route path="/redeem" element={<Redeem />} />
-          <Route path="/stats" element={<Redeem />} />
+          <Route path="/stats" element={<Stats />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
