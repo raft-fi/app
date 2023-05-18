@@ -174,16 +174,6 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         </div>
       </div>
       <div className="raft__currencyInput__fieldContainer">
-        {onDecrementAmount && step && (
-          <Button
-            variant="secondary"
-            className="raft__currencyInput__adjustAmountButton"
-            onClick={handleDecrementAmount}
-            disabled={decrementDisabled}
-          >
-            <Typography variant="subtitle">-</Typography>
-          </Button>
-        )}
         <div
           className={`raft__currencyInput__inputContainer
             ${disabled ? ' raft__currencyInput__inputContainerDisabled' : ''}
@@ -257,16 +247,28 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             )}
           </div>
         </div>
-        {onIncrementAmount && step && (
-          <Button
-            variant="secondary"
-            className="raft__currencyInput__adjustAmountButton"
-            onClick={handleIncrementAmount}
-            disabled={incrementDisabled}
-          >
-            <Typography variant="subtitle">+</Typography>
-          </Button>
-        )}
+        <div className="raft__currencyInput__adjustAmountButton__container">
+          {onIncrementAmount && step && (
+            <Button
+              variant="secondary"
+              className="raft__currencyInput__adjustAmountButton"
+              onClick={handleIncrementAmount}
+              disabled={incrementDisabled}
+            >
+              <Typography variant="subtitle">+</Typography>
+            </Button>
+          )}
+          {onDecrementAmount && step && (
+            <Button
+              variant="secondary"
+              className="raft__currencyInput__adjustAmountButton"
+              onClick={handleDecrementAmount}
+              disabled={decrementDisabled}
+            >
+              <Typography variant="subtitle">-</Typography>
+            </Button>
+          )}
+        </div>
       </div>
       {fiatValue && (
         <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
