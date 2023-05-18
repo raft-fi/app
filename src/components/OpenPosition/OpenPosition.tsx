@@ -374,7 +374,7 @@ const OpenPosition = () => {
           precision={18}
           fiatValue={collateralInputFiatValue}
           selectedToken={selectedCollateralToken}
-          tokens={[...COLLATERAL_TOKENS]}
+          tokens={[...COLLATERAL_TOKENS.filter(token => token !== 'ETH')]}
           value={collateralAmount}
           maxAmount={selectedCollateralTokenBalanceValues.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
@@ -395,19 +395,6 @@ const OpenPosition = () => {
           error={!hasMinBorrow || !hasMinRatio}
         />
       </div>
-      {selectedCollateralToken === 'ETH' && (
-        <div className="raft__openPosition__warning">
-          <Icon variant="error" size="small" />
-          <Typography variant="body-tertiary">
-            ETH is converted to stETH and withdrawals are available in stETH or wstETH. You can read more about
-            withdrawals&nbsp;
-            <Link href={`${GITBOOK_URL}/how-it-works/position`}>
-              in Docs
-              <Icon variant="external-link" size="tiny" />
-            </Link>
-          </Typography>
-        </div>
-      )}
       <div className="raft__openPosition__data">
         <ValuesBox
           values={[
