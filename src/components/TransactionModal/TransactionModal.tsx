@@ -295,8 +295,8 @@ const TransactionModal = () => {
   const collateralRatioColor = useMemo(() => getCollateralRatioColor(collateralizationRatio), [collateralizationRatio]);
 
   const isClosePosition = useMemo(
-    () => newCollateralAfterTx?.isZero() && newDebtAfterTx?.isZero(),
-    [newCollateralAfterTx, newDebtAfterTx],
+    () => Boolean(borrowStatus?.request.closePosition),
+    [borrowStatus?.request.closePosition],
   );
 
   return (
