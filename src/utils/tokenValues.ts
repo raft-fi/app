@@ -60,7 +60,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         amount: tokenAmount,
         price,
         value: tokenValue,
-        amountFormatted: formatCurrency(tokenAmount, token, R_TOKEN_UI_PRECISION),
+        amountFormatted: formatCurrency(tokenAmount, token, tokenAmount.isZero() ? 0 : R_TOKEN_UI_PRECISION),
         amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
           style: 'multiplier',
           currency: token,
@@ -80,7 +80,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         amount: tokenAmount,
         price,
         value: tokenValue,
-        amountFormatted: formatCurrency(tokenAmount, token, COLLATERAL_TOKEN_UI_PRECISION),
+        amountFormatted: formatCurrency(tokenAmount, token, tokenAmount.isZero() ? 0 : COLLATERAL_TOKEN_UI_PRECISION),
         amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
           style: 'multiplier',
           currency: token,

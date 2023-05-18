@@ -11,7 +11,7 @@ import ValueLabel from '../ValueLabel';
 import './CurrencyInput.scss';
 
 // ethers 6.3.0 has bugs that cannot format large number
-const MAX_INTEGRAL_DIGIT = 15;
+const MAX_INTEGRAL_DIGIT = 10;
 
 export interface CurrencyInputProps extends BaseInputProps {
   label: string;

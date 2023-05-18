@@ -446,11 +446,22 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal),
     [collateralAmountDecimal, selectedCollateralTokenBalance],
   );
+  const hasEnoughDebtTokenBalance = useMemo(
+    () =>
+      !debtTokenBalanceValues.amount ||
+      (debtTokenBalanceValues.amount.gt(borrowAmountDecimal.abs()) && borrowAmountDecimal.lt(0)) ||
+      borrowAmountDecimal.gte(0),
+    [borrowAmountDecimal, debtTokenBalanceValues.amount],
+  );
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
     [isClosePosition, newDebtTokenValues?.amount],
   );
-  const hasMinRatio = useMemo(
+  const hasMinCurrentRatio = useMemo(
+    () => !currentCollateralizationRatio || currentCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
+    [currentCollateralizationRatio],
+  );
+  const hasMinNewRatio = useMemo(
     () => !newCollateralizationRatio || newCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO) || isClosePosition,
     [isClosePosition, newCollateralizationRatio],
   );
@@ -468,8 +479,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   const canAdjust = useMemo(
-    () => isInputNonEmpty && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
-    [hasEnoughCollateralTokenBalance, isInputNonEmpty, hasMinBorrow, hasMinRatio],
+    () =>
+      isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinNewRatio,
+    [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio],
   );
 
   const buttonLabel = useMemo(() => {
@@ -477,16 +489,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Insufficient funds';
     }
 
+    if (!hasEnoughDebtTokenBalance) {
+      return 'Insufficient R to repay';
+    }
     if (!hasMinBorrow) {
       return 'Borrow below the minimum amount';
     }
 
-    if (!hasMinRatio) {
+    if (!hasMinNewRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
 
     return 'Execute';
-  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio]);
+  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
@@ -581,7 +596,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           disabled={closePositionActive}
           decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
           allowNegativeNumbers={true}
-          error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
+          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
         />
         <CurrencyInput
           label="Borrow"
@@ -599,7 +614,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           disabled={closePositionActive}
           decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
-          error={!hasMinBorrow || !hasMinRatio}
+          error={!hasMinBorrow || !hasMinNewRatio}
           maxIntegralDigits={10}
         />
       </div>
@@ -614,7 +629,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The final collateral amount you will hold after adjusting your position.
+                          The amount of collateral in your Position.
                         </Typography>
                       </Tooltip>
                     }
@@ -636,7 +651,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The final debt amount you will hold after adjusting your position.
+                          The amount of debt your Position has.
                         </Typography>
                       </Tooltip>
                     }
@@ -682,8 +697,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The price at which your position will be available to be liquidated after adjusting your
-                          position. Learn more about liquidations here{' '}
+                          The price of one unit of collateral at which your Position will be available to be liquidated.
+                          Learn more about liquidations&nbsp;
                           <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
                             here
                             <span>
@@ -700,8 +715,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
-              value: currentLiquidationPriceFormatted,
-              newValue: newLiquidationPriceFormatted,
+              value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
+              newValue: hasMinNewRatio ? newLiquidationPriceFormatted : 'N/A',
             },
             {
               id: 'collateralizationRatio',
@@ -711,8 +726,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     tooltipContent={
                       <Tooltip className="raft__adjustPosition__infoTooltip">
                         <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
-                          The percentage of R borrowed in relation to the total collateral amount after adjusting your
-                          position.
+                          The percentage of R borrowed in relation to the total collateral amount.
                         </Typography>
                       </Tooltip>
                     }
@@ -725,7 +739,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                 </>
               ),
               value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
-              newValue: hasMinRatio ? (
+              newValue: hasMinNewRatio ? (
                 hasCollateralChange && (
                   <ValueLabel color={newCollateralRatioColor} value={newCollateralizationRatioFormatted} />
                 )

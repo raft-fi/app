@@ -337,7 +337,7 @@ const OpenPosition = () => {
         const defaultBorrowAmount = selectedCollateralTokenBalanceValues.value
           .div(borrowTokenPrice)
           .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
-          .toRounded(2);
+          .toTruncated(2);
         setBorrowAmount(defaultBorrowAmount);
       }
     }
@@ -501,7 +501,7 @@ const OpenPosition = () => {
                   <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
-              value: liquidationPriceFormatted,
+              value: hasMinRatio ? liquidationPriceFormatted : 'N/A',
             },
             {
               id: 'collateralizationRatio',
