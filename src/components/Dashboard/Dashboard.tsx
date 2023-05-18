@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { useCollateralBalance, useDebtBalance, useNetwork } from '../../hooks';
-import ProtocolStats from '../ProtocolStats';
+import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
 import TransactionModal from '../TransactionModal';
@@ -20,9 +20,11 @@ const Dashboard = () => {
 
   return (
     <div className="raft__dashboard">
-      <ProtocolStats isClose={!!shouldShowAdjustPosition} />
       {shouldShowAdjustPosition ? (
-        <AdjustPosition collateralBalance={collateralBalance} debtBalance={debtBalance} />
+        <>
+          <YourPosition />
+          <AdjustPosition collateralBalance={collateralBalance} debtBalance={debtBalance} />
+        </>
       ) : (
         <OpenPosition />
       )}

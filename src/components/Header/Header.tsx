@@ -73,7 +73,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <div key="navitem-dashboard" className="raft__header__nav-item">
+      <div key="navitem-stats" className="raft__header__nav-item">
         <Link to="/stats">
           <Typography
             variant="subtitle"
