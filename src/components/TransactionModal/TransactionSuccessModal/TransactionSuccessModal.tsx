@@ -1,5 +1,6 @@
 import { FC, ReactNode, useCallback } from 'react';
 import { Link } from 'tempus-ui';
+import { ZERO_ADDRESS } from '../../../constants';
 import { useBorrow, useConfig, useEIP1193Provider } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../../shared';
 
@@ -25,7 +26,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
   const { borrowStatus } = useBorrow();
   const eip1193Provider = useEIP1193Provider();
   const config = useConfig();
-  const txHash = borrowStatus?.contractTransaction?.hash ?? '0x0';
+  const txHash = borrowStatus?.contractTransaction?.hash ?? ZERO_ADDRESS;
 
   const onAddRToWallet = useCallback(() => {
     if (eip1193Provider) {
