@@ -558,10 +558,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             onIncrementAmount={handleCollateralIncrement}
             onDecrementAmount={handleCollateralDecrement}
             disabled={closePositionActive}
-            decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
             allowNegativeNumbers={true}
             onBlur={handleCollateralAmountBlur}
-            error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
+            error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio || !hasEnoughToWithdraw}
           />
           <CurrencyInput
             label="Adjust borrow"
@@ -576,7 +575,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             onIncrementAmount={handleBorrowIncrement}
             onDecrementAmount={handleBorrowDecrement}
             disabled={closePositionActive}
-            decrementDisabled={newDebtTokenValues?.amount?.isZero()}
             allowNegativeNumbers={true}
             onBlur={handleBorrowAmountBlur}
             error={!hasMinBorrow || !hasMinNewRatio}
@@ -646,13 +644,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                       tooltipContent={
                         <Tooltip>
                           <Typography variant="body-tertiary" color="text-error">
-                            Collateralization ratio is below the minimum threshold
+                            Borrow below the minimum amount
                           </Typography>
                         </Tooltip>
                       }
                       placement="right"
                     >
-                      <ValueLabel value={newCollateralizationRatioFormatted as string} color="text-error" />
+                      <ValueLabel value={`${newDebtTokenValues.amountFormatted ?? 0}`} color="text-error" />
                       <Icon variant="error" size="small" />
                     </TooltipWrapper>
                   ) : (
@@ -736,52 +734,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             ]}
           />
         </div>
-      </div>
-      <div className="raft__adjustPosition__input">
-        <CurrencyInput
-          label="Adjust collateral"
-          precision={18}
-          fiatValue={null}
-          selectedToken={selectedCollateralToken}
-          tokens={['stETH', 'wstETH']}
-          value={collateralAmount}
-          previewValue={collateralAmountWithEllipse}
-          onTokenUpdate={handleCollateralTokenChange}
-          onValueUpdate={handleCollateralAmountChange}
-          step={0.1}
-          onIncrementAmount={handleCollateralIncrement}
-          onDecrementAmount={handleCollateralDecrement}
-          disabled={closePositionActive}
-          allowNegativeNumbers={true}
-          onBlur={handleCollateralAmountBlur}
-          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio || !hasEnoughToWithdraw}
-        />
-        <CurrencyInput
-          label="Adjust borrow"
-          precision={18}
-          fiatValue={null}
-          selectedToken={R_TOKEN}
-          tokens={[R_TOKEN]}
-          value={borrowAmount}
-          previewValue={borrowAmountWithEllipse}
-          onValueUpdate={handleBorrowAmountChange}
-          step={100}
-          onIncrementAmount={handleBorrowIncrement}
-          onDecrementAmount={handleBorrowDecrement}
-          disabled={closePositionActive}
-          allowNegativeNumbers={true}
-          onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio}
-          maxIntegralDigits={10}
-        />
-      </div>
-      <div className="raft__adjustPosition__action">
-        <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
-          {transactionState === 'loading' && <Loading />}
-          <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
-            {buttonLabel}
-          </Typography>
-        </Button>
+        <div className="raft__adjustPosition__action">
+          <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
+            {transactionState === 'loading' && <Loading />}
+            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+              {buttonLabel}
+            </Typography>
+          </Button>
+        </div>
       </div>
     </div>
   );
