@@ -150,8 +150,8 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
 
   const inputPattern = useMemo(() => {
     return allowNegativeNumbers
-      ? `-?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`
-      : `[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`;
+      ? `[+-]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`
+      : `[+]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`;
   }, [allowNegativeNumbers, precision, maxIntegralDigits]);
 
   return (
@@ -268,13 +268,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </Button>
         )}
       </div>
-      <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
-        {fiatValue && (
+      {fiatValue && (
+        <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
           <Typography variant="body-tertiary" color={!disabled ? 'text-primary' : 'text-tertiary'}>
             {fiatValue}
           </Typography>
-        )}
-      </span>
+        </span>
+      )}
       {disabled && <div className="raft__currencyInput__disabledOverlay"></div>}
     </div>
   );

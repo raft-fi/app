@@ -25,6 +25,10 @@
     display: flex;
 
     .raft__currencyInput {
+      .raft__currencyInput__fieldContainer .raft__currencyInput__inputContainer {
+        --colorBorder: transparent;
+      }
+
       &:not(:first-child) {
         margin-left: 16px;
       }
