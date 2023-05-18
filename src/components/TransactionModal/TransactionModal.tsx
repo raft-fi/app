@@ -330,7 +330,7 @@ const TransactionModal = () => {
             },
             {
               id: 'collateralizationRatio',
-              label: 'Collateralization Ratio',
+              label: 'Collateralization ratio',
               value: <ValueLabel color={collateralRatioColor} value={collateralizationRatioFormatted || 'N/A'} />,
             },
           ]}
