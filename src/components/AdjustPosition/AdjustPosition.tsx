@@ -70,83 +70,93 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
   }, []);
 
+  // when user input is +ve number, we prepend a "+"
+  const prependPositiveSign = useCallback((amount: string) => {
+    if (amount.startsWith('+')) {
+      // already have a "+"
+      return amount;
+    } else {
+      const decimal = Decimal.parse(amount, 0);
+
+      if (decimal.gt(0)) {
+        // if +ve, prepend a "+"
+        return `+${amount}`;
+      } else {
+        return amount;
+      }
+    }
+  }, []);
+
+  const handleCollateralAmountChange = useCallback(
+    (amount: string) => setCollateralAmount(prependPositiveSign(amount)),
+    [prependPositiveSign],
+  );
+  const handleBorrowAmountChange = useCallback(
+    (amount: string) => setBorrowAmount(prependPositiveSign(amount)),
+    [prependPositiveSign],
+  );
   const handleCollateralIncrement = useCallback(
     (incrementAmount: number) =>
-      setCollateralAmount(prevAmount => Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
-    [],
+      setCollateralAmount(prevAmount =>
+        prependPositiveSign(Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
+      ),
+    [prependPositiveSign],
   );
   const handleCollateralDecrement = useCallback(
     (decrementAmount: number) =>
-      setCollateralAmount(prevAmount => Decimal.parse(prevAmount, 0).sub(decrementAmount).toString()),
-    [],
+      setCollateralAmount(prevAmount =>
+        prependPositiveSign(Decimal.parse(prevAmount, 0).sub(decrementAmount).toString()),
+      ),
+    [prependPositiveSign],
   );
   const handleBorrowIncrement = useCallback(
     (incrementAmount: number) =>
-      setBorrowAmount(prevAmount => Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
-    [],
+      setBorrowAmount(prevAmount => prependPositiveSign(Decimal.parse(prevAmount, 0).add(incrementAmount).toString())),
+    [prependPositiveSign],
   );
   const handleBorrowDecrement = useCallback(
     (decrementAmount: number) =>
-      setBorrowAmount(prevAmount => Decimal.parse(prevAmount, 0).sub(decrementAmount).toString()),
-    [],
+      setBorrowAmount(prevAmount => prependPositiveSign(Decimal.parse(prevAmount, 0).sub(decrementAmount).toString())),
+    [prependPositiveSign],
   );
+  const handleCollateralAmountBlur = useCallback(() => {
+    const decimal = Decimal.parse(collateralAmount, 0);
+    if (decimal.isZero()) {
+      setCollateralAmount('0');
+    }
+  }, [collateralAmount]);
+  const handleBorrowAmountBlur = useCallback(() => {
+    const decimal = Decimal.parse(borrowAmount, 0);
+    if (decimal.isZero()) {
+      setBorrowAmount('0');
+    }
+  }, [borrowAmount]);
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
   const collateralAmountWithEllipse = useMemo(() => {
     const original = collateralAmountDecimal.toString();
     const truncated = collateralAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+    const positiveSign = collateralAmountDecimal.gt(0) ? '+' : '';
 
-    return original === truncated ? original : `${truncated}...`;
+    return original === truncated ? `${positiveSign}${original}` : `${positiveSign}${truncated}...`;
   }, [collateralAmountDecimal]);
   const borrowAmountWithEllipse = useMemo(() => {
     const original = borrowAmountDecimal.toString();
     const truncated = borrowAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+    const positiveSign = borrowAmountDecimal.gt(0) ? '+' : '';
 
-    return original === truncated ? original : `${truncated}...`;
+    return original === truncated ? `${positiveSign}${original}` : `${positiveSign}${truncated}...`;
   }, [borrowAmountDecimal]);
 
-  const collateralTokenBalanceValues = useMemo(
-    () =>
-      getTokenValues(
-        tokenBalanceMap[selectedCollateralToken],
-        tokenPriceMap[selectedCollateralToken],
-        selectedCollateralToken,
-      ),
-    [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
-  );
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
-  );
-  const collateralTokenInputAbsoluteValues = useMemo(
-    () =>
-      getTokenValues(collateralAmountDecimal.abs(), tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
-    [collateralAmountDecimal, selectedCollateralToken, tokenPriceMap],
   );
   const collateralTokenInputValues = useMemo(
     () => getTokenValues(collateralAmountDecimal, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
     [collateralAmountDecimal, selectedCollateralToken, tokenPriceMap],
   );
-  const borrowTokenInputAbsoluteValues = useMemo(
-    () => getTokenValues(borrowAmountDecimal.abs(), tokenPriceMap[R_TOKEN], R_TOKEN),
-    [borrowAmountDecimal, tokenPriceMap],
-  );
-
-  const collateralInputFiatValueFormatted = useMemo(() => {
-    if (!collateralTokenInputAbsoluteValues.valueFormatted || collateralAmountDecimal.isZero()) {
-      return '$0.00';
-    }
-
-    return `~${collateralTokenInputAbsoluteValues.valueFormatted}`;
-  }, [collateralTokenInputAbsoluteValues.valueFormatted, collateralAmountDecimal]);
-  const borrowInputFiatValueFormatted = useMemo(() => {
-    if (!borrowTokenInputAbsoluteValues.valueFormatted || borrowAmountDecimal.isZero()) {
-      return '$0.00';
-    }
-
-    return `~${borrowTokenInputAbsoluteValues.valueFormatted}`;
-  }, [borrowTokenInputAbsoluteValues.valueFormatted, borrowAmountDecimal]);
 
   /**
    * Current user collateral (wstETH)
@@ -234,7 +244,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           break;
       }
 
-      setCollateralAmount(newInputValue.toString());
+      handleCollateralAmountChange(newInputValue.toString());
     }
 
     setNewCollateralInDisplayTokenValue(newValue);
@@ -247,6 +257,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     tokenPriceMap,
     collateralBalance,
     collateralAmountDecimal,
+    prependPositiveSign,
+    handleCollateralAmountChange,
   ]);
 
   const newCollateralInDisplayToken = useMemo(
@@ -277,11 +289,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (newValue.lt(0)) {
       newValue = Decimal.ZERO;
 
-      setBorrowAmount(debtBalance.mul(-1).toString());
+      handleBorrowAmountChange(debtBalance.mul(-1).toString());
     }
 
     return getTokenValues(newValue, tokenPriceMap[R_TOKEN], R_TOKEN);
-  }, [borrowAmountDecimal, debtBalance, tokenPriceMap]);
+  }, [borrowAmountDecimal, debtBalance, handleBorrowAmountChange, tokenPriceMap]);
 
   /**
    * Current liquidation price
@@ -508,7 +520,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
       if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
-        setCollateralAmount(collateralBalance.mul(-1).toString());
+        handleCollateralAmountChange(collateralBalance.mul(-1).toString());
       } else {
         const selectedCollateralTokenPrice = tokenPriceMap[selectedCollateralToken];
 
@@ -519,14 +531,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         ) {
           const collateralBalanceInSelectedCollateralToken =
             currentCollateralTokenValues.value.div(selectedCollateralTokenPrice);
-          setCollateralAmount(collateralBalanceInSelectedCollateralToken.mul(-1).toString());
+          handleCollateralAmountChange(collateralBalanceInSelectedCollateralToken.mul(-1).toString());
         }
       }
 
-      setBorrowAmount(debtBalance.mul(-1).toString());
+      handleBorrowAmountChange(debtBalance.mul(-1).toString());
     } else if (collateralBalance && debtBalance) {
-      setCollateralAmount('0');
-      setBorrowAmount('0');
+      handleCollateralAmountChange('0');
+      handleBorrowAmountChange('0');
     }
 
     setClosePositionActive(prevState => !prevState);
@@ -535,6 +547,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     collateralBalance,
     currentCollateralTokenValues.value,
     debtBalance,
+    handleBorrowAmountChange,
+    handleCollateralAmountChange,
     selectedCollateralToken,
     tokenPriceMap,
   ]);
@@ -580,40 +594,40 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       </div>
       <div className="raft__adjustPosition__input">
         <CurrencyInput
-          label="Collateral"
+          label="Adjust collateral"
           precision={18}
-          fiatValue={collateralInputFiatValueFormatted}
+          fiatValue={null}
           selectedToken={selectedCollateralToken}
           tokens={['stETH', 'wstETH']}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse}
-          maxAmount={collateralTokenBalanceValues?.amountFormatted}
           onTokenUpdate={handleCollateralTokenChange}
-          onValueUpdate={setCollateralAmount}
+          onValueUpdate={handleCollateralAmountChange}
           step={0.1}
           onIncrementAmount={handleCollateralIncrement}
           onDecrementAmount={handleCollateralDecrement}
           disabled={closePositionActive}
           decrementDisabled={newCollateralInDisplayToken.amount?.isZero()}
           allowNegativeNumbers={true}
+          onBlur={handleCollateralAmountBlur}
           error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio}
         />
         <CurrencyInput
-          label="Borrow"
+          label="Adjust borrow"
           precision={18}
-          fiatValue={borrowInputFiatValueFormatted}
+          fiatValue={null}
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
           previewValue={borrowAmountWithEllipse}
-          maxAmount={debtTokenBalanceValues?.amountFormatted}
-          onValueUpdate={setBorrowAmount}
+          onValueUpdate={handleBorrowAmountChange}
           step={100}
           onIncrementAmount={handleBorrowIncrement}
           onDecrementAmount={handleBorrowDecrement}
           disabled={closePositionActive}
           decrementDisabled={newDebtTokenValues?.amount?.isZero()}
           allowNegativeNumbers={true}
+          onBlur={handleBorrowAmountBlur}
           error={!hasMinBorrow || !hasMinNewRatio}
           maxIntegralDigits={10}
         />
