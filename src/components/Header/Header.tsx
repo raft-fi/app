@@ -29,6 +29,9 @@ const Header = () => {
       case '/redeem':
         setCurrentPage('redeem');
         break;
+      case '/stats':
+        setCurrentPage('stats');
+        break;
       default:
         setCurrentPage(null);
     }
@@ -66,7 +69,18 @@ const Header = () => {
             weight="medium"
             className={`${currentPage === 'dashboard' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
-            Dashboard
+            Your position
+          </Typography>
+        </Link>
+      </div>,
+      <div key="navitem-dashboard" className="raft__header__nav-item">
+        <Link to="/stats">
+          <Typography
+            variant="subtitle"
+            weight="medium"
+            className={`${currentPage === 'stats' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Stats
           </Typography>
         </Link>
       </div>,

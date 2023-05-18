@@ -22,6 +22,7 @@ root.render(
         <Header />
         <Routes>
           <Route path="/redeem" element={<Redeem />} />
+          <Route path="/stats" element={<Redeem />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
