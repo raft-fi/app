@@ -1,5 +1,4 @@
 import { add } from 'date-fns';
-import { Link } from 'react-router-dom';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { ModalWrapper, Typography, Checkbox, Button } from '../shared';
 
@@ -59,13 +58,13 @@ const NoticePopup = () => {
 
           <Typography variant="body-primary">
             By clicking Agree, you confirm that you have read and understood this Notice and the{' '}
-            <Link className="raft__link" to="/privacy">
+            <a className="raft__link" rel="external noreferrer nofollow" target="_blank" href="/privacy">
               Privacy Policy
-            </Link>
+            </a>
             . You also agree to be bound by the{' '}
-            <Link className="raft__link" to="/terms-and-conditions">
+            <a className="raft__link" rel="external noreferrer nofollow" target="_blank" href="/terms-and-conditions">
               Terms & Conditions
-            </Link>
+            </a>
             .
           </Typography>
         </div>
