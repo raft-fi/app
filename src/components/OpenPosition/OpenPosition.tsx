@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import { useWallet, useBorrow, useTokenPrices, useTokenBalances, useNetwork } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   DISPLAY_BASE_TOKEN,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
+  INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
@@ -44,6 +45,7 @@ const OpenPosition = () => {
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
   const [maxButtonDisabled, setMaxButtonDisabled] = useState<boolean>(false);
+  const [hasChanged, setHasChanged] = useState<boolean>(false);
 
   const collateralTokenValues = useMemo(
     () => getTokenValues(collateralAmount, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
@@ -66,6 +68,45 @@ const OpenPosition = () => {
       ),
     [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
   );
+
+  useEffect(() => {
+    const rTokenPrice = tokenPriceMap[R_TOKEN];
+    const collateralBalanceValid =
+      tokenBalanceMap[selectedCollateralToken] && !tokenBalanceMap[selectedCollateralToken]?.isZero();
+    const collateralPriceValid =
+      tokenPriceMap[selectedCollateralToken] && !tokenPriceMap[selectedCollateralToken]?.isZero();
+
+    // when input is not dirty, check whether price and balance are available
+    if (!hasChanged && rTokenPrice && !rTokenPrice.isZero() && collateralPriceValid && MIN_COLLATERAL_RATIO.gt(0)) {
+      const collateralBalance = tokenBalanceMap[selectedCollateralToken] as Decimal;
+      const collateralPrice = tokenPriceMap[selectedCollateralToken] as Decimal;
+      const minBorrowValue = rTokenPrice.mul(MIN_BORROW_AMOUNT);
+      const minCollateral = minBorrowValue.mul(HEALTHY_RATIO).div(collateralPrice);
+      // suggested amount = integer amount of collateral that is enough to borrow min amount of R
+      const normalizedCollateral = new Decimal(minCollateral.toTruncated(0)).add(1);
+      const normalizedBorrow = normalizedCollateral.mul(collateralPrice).div(rTokenPrice).div(HEALTHY_RATIO);
+
+      if (!collateralBalanceValid || collateralBalance.gte(normalizedCollateral)) {
+        // if balance >= suggested amount or balance not available
+        //   fill input with suggested amount and corresponding R
+        setCollateralAmount(normalizedCollateral.toTruncated(0));
+        setBorrowAmount(normalizedBorrow.toString());
+      } else {
+        // if balance < suggested amount, fill input with balance and corresponding R
+        const maxBorrow = collateralBalance.mul(collateralPrice).div(rTokenPrice).div(HEALTHY_RATIO);
+
+        setCollateralAmount(collateralBalance.toString());
+        setBorrowAmount(maxBorrow.toString());
+      }
+    }
+  }, [
+    hasChanged,
+    selectedCollateralToken,
+    selectedCollateralTokenBalanceValues.amount,
+    selectedCollateralTokenBalanceValues.price,
+    tokenBalanceMap,
+    tokenPriceMap,
+  ]);
 
   const baseTokenAmount = useMemo(() => {
     if (!collateralTokenValues.amount || !collateralTokenValues.value) {
@@ -162,6 +203,27 @@ const OpenPosition = () => {
     });
   }, [rTokenBalance]);
 
+  const collateralAmountWithEllipse = useMemo(() => {
+    if (!collateralTokenValues.amount) {
+      return null;
+    }
+
+    const original = collateralTokenValues.amount.toString();
+    const truncated = collateralTokenValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [collateralTokenValues.amount]);
+  const borrowAmountWithEllipse = useMemo(() => {
+    if (!borrowTokenValues.amount) {
+      return null;
+    }
+
+    const original = borrowTokenValues.amount.toString();
+    const truncated = borrowTokenValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [borrowTokenValues.amount]);
+
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
   const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
@@ -243,6 +305,7 @@ const OpenPosition = () => {
     if (isCollateralToken(token)) {
       setMaxButtonDisabled(false);
       setSelectedCollateralToken(token);
+      setHasChanged(true);
     }
   }, []);
 
@@ -265,6 +328,7 @@ const OpenPosition = () => {
       .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
       .toString();
     setBorrowAmount(defaultBorrowAmount);
+    setHasChanged(true);
   }, [borrowTokenValues.amount, collateralTokenValues.value, tokenPriceMap]);
 
   const handleBorrowTokenBlur = useCallback(() => {
@@ -286,6 +350,7 @@ const OpenPosition = () => {
       .div(collateralTokenPrice)
       .toString();
     setCollateralAmount(defaultCollateralAmount);
+    setHasChanged(true);
   }, [borrowTokenValues.value, collateralTokenValues.amount, selectedCollateralToken, tokenPriceMap]);
 
   /**
@@ -329,6 +394,7 @@ const OpenPosition = () => {
     ) {
       setMaxButtonDisabled(true);
       setCollateralAmount(selectedCollateralTokenBalanceValues.amount.toString());
+      setHasChanged(true);
 
       const borrowTokenPrice = tokenPriceMap[R_TOKEN];
 
@@ -338,6 +404,7 @@ const OpenPosition = () => {
           .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
           .toTruncated(2);
         setBorrowAmount(defaultBorrowAmount);
+        setHasChanged(true);
       }
     }
   }, [selectedCollateralTokenBalanceValues, tokenPriceMap]);
@@ -345,11 +412,13 @@ const OpenPosition = () => {
   const handleCollateralValueUpdate = useCallback((amount: string) => {
     setMaxButtonDisabled(false);
     setCollateralAmount(amount);
+    setHasChanged(true);
   }, []);
 
   const handleBorrowValueUpdate = useCallback((amount: string) => {
     setMaxButtonDisabled(false);
     setBorrowAmount(amount);
+    setHasChanged(true);
   }, []);
 
   return (
@@ -377,6 +446,7 @@ const OpenPosition = () => {
           value={collateralAmount}
           maxAmount={selectedCollateralTokenBalanceValues.amount}
           maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
+          previewValue={collateralAmountWithEllipse ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
@@ -391,6 +461,7 @@ const OpenPosition = () => {
           value={borrowAmount}
           maxAmount={rTokenBalance}
           maxAmountFormatted={rTokenBalanceFormatted ?? undefined}
+          previewValue={borrowAmountWithEllipse ?? undefined}
           disableMaxAmountClick
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
