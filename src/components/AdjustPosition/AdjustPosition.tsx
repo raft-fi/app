@@ -10,6 +10,7 @@ import {
   DISPLAY_BASE_TOKEN,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
+  SUPPORTED_COLLATERAL_TOKENS,
   USD_UI_PRECISION,
 } from '../../constants';
 import { Nullable } from '../../interfaces';
@@ -150,6 +151,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return original === truncated ? `${positiveSign}${original}` : `${positiveSign}${truncated}...`;
   }, [borrowAmountDecimal]);
 
+  const collateralTokenBalanceValues = useMemo(
+    () =>
+      getTokenValues(
+        tokenBalanceMap[selectedCollateralToken],
+        tokenPriceMap[selectedCollateralToken],
+        selectedCollateralToken,
+      ),
+    [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
+  );
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
@@ -591,8 +601,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             precision={18}
             fiatValue={null}
             selectedToken={selectedCollateralToken}
-            tokens={['stETH', 'wstETH']}
+            tokens={SUPPORTED_COLLATERAL_TOKENS}
             value={collateralAmount}
+            maxAmount={collateralTokenBalanceValues.amount}
+            maxAmountFormatted={collateralTokenBalanceValues.amountFormatted ?? undefined}
             previewValue={collateralAmountWithEllipse}
             onTokenUpdate={handleCollateralTokenChange}
             onValueUpdate={handleCollateralAmountChange}
@@ -611,6 +623,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             selectedToken={R_TOKEN}
             tokens={[R_TOKEN]}
             value={borrowAmount}
+            maxAmount={debtTokenBalanceValues.amount}
+            maxAmountFormatted={debtTokenBalanceValues.amountFormatted ?? undefined}
+            disableMaxAmountClick
             previewValue={borrowAmountWithEllipse}
             onValueUpdate={handleBorrowAmountChange}
             step={100}
