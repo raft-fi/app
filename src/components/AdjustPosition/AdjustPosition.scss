@@ -7,6 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 28px;
 
     .raft__adjustPosition__actions {
       display: flex;
@@ -15,6 +16,16 @@
       .raft__button {
         &:not(:last-child) {
           margin-right: 16px;
+        }
+      }
+
+      .raft__adjustPosition__actions__close {
+        transition: opacity 0.3s ease-out;
+        opacity: 0;
+        margin-right: 32px;
+
+        &.show {
+          opacity: 1;
         }
       }
     }
