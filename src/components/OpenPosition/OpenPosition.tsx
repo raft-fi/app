@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { Link } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { COLLATERAL_TOKENS, CollateralToken, R_TOKEN } from '@raft-fi/sdk';
@@ -8,7 +7,6 @@ import { useWallet, useBorrow, useTokenPrices, useTokenBalances, useNetwork } fr
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   DISPLAY_BASE_TOKEN,
-  GITBOOK_URL,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   LIQUIDATION_UPPER_RATIO,
@@ -206,7 +204,7 @@ const OpenPosition = () => {
     }
 
     if (!hasMinBorrow) {
-      return 'Borrow below the minimum amount';
+      return `You need to borrow at least ${minBorrowFormatted} R`;
     }
 
     if (!hasMinRatio) {
@@ -214,7 +212,7 @@ const OpenPosition = () => {
     }
 
     return 'Borrow';
-  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio, walletConnected]);
+  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio, walletConnected, minBorrowFormatted]);
 
   const buttonDisabled = useMemo(
     () => actionButtonState === 'loading' || (walletConnected && !canBorrow),
