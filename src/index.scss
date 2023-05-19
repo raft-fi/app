@@ -71,7 +71,9 @@
   --w3o-font-family: 'Work Sans', sans-serif;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -83,6 +85,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   overflow-y: scroll;
+  background-color: var(--raftBackgroundBlue);
 
   @include colors;
   @include w3o;

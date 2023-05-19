@@ -4,7 +4,6 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import 'tempus-ui/dist/index.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Background from './components/Background';
 import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
 import Stats from './components/Stats';
@@ -21,7 +20,6 @@ root.render(
       <div className="raft__app__root">
         <NoticePopup />
         <HookSubscriber />
-        <Background />
         <Header />
         <Routes>
           <Route path="/redeem" element={<Redeem />} />
