@@ -1,0 +1,39 @@
+.raft__noticePopup {
+  width: 765px;
+  padding: 32px 64px;
+  box-sizing: border-box;
+
+  .raft__noticePopup__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .raft__noticePopup__description {
+    > div {
+      margin-bottom: 19px;
+    }
+
+    .raft__link {
+      color: var(--raftOrange);
+      text-decoration: underline;
+    }
+  }
+
+  .raft__noticePopup__checkbox {
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+  }
+
+  .raft__noticePopup__action {
+    display: flex;
+    justify-content: center;
+    margin-top: 27px;
+
+    .raft__button-primary {
+      width: 316px;
+    }
+  }
+}
