@@ -154,7 +154,7 @@ const YourPosition: FC = () => {
             <Typography variant="title" weight="medium">
               {debtAmountFormatted ?? '---'}
             </Typography>
-            <Typography variant="subtitle" weight="medium">
+            <Typography variant="subtitle" weight="medium" type="mono">
               {R_TOKEN}
             </Typography>
           </div>
