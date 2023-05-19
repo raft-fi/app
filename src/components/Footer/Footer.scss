@@ -91,6 +91,7 @@
     .raft__footer__link {
       display: inline-block;
       cursor: pointer;
+      text-decoration: none;
 
       > div:hover {
         --textPrimaryInverted: var(--colorPrimary);
