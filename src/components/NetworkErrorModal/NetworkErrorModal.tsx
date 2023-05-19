@@ -55,7 +55,7 @@ const NetworkErrorModal: FC = () => {
           </div>
           <div className="raft__networkErrorModal__action">
             <Button variant="primary" onClick={switchToSupportedNetwork}>
-              <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+              <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
                 Switch network
               </Typography>
             </Button>

@@ -621,7 +621,7 @@ const OpenPosition = () => {
         ) : (
           <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={buttonDisabled}>
             {actionButtonState === 'loading' && <Loading />}
-            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               {buttonLabel}
             </Typography>
           </Button>

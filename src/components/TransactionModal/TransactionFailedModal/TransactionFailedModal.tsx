@@ -41,7 +41,7 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
         </div>
         <div className="raft__transactionFailedModal__action">
           <Button variant="primary" onClick={onTryAgain}>
-            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               Try again
             </Typography>
           </Button>
