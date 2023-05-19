@@ -84,22 +84,9 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <div key="navitem-redeem" className="raft__header__nav-item">
-        <Link to="/redeem">
-          <Typography
-            variant="subtitle"
-            weight="medium"
-            className={`${currentPage === 'redeem' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
-          >
-            Redeem
-          </Typography>
-        </Link>
-      </div>,
-      //<LocaleSwitcher key="navitem-locale" />,
       <Wallet key="navitem-wallet" />,
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentPage, locale],
+    [currentPage],
   );
   const menuItems = useMemo(() => {
     switch (openedSubmenu) {
@@ -120,27 +107,9 @@ const Header = () => {
             </Typography>
             <Icon variant="arrow-right" />
           </Link>,
-          <Link key="menu-item-redeem" className="raft__header__menu-link" to="/redeem" onClick={handleLinkClick}>
-            <Typography variant="body-primary" weight="medium">
-              Redeem
-            </Typography>
-            <Icon variant="arrow-right" />
-          </Link>,
-          /*
-          <ButtonWrapper key="menu-item-locale" className="raft__header__menu-link" onClick={handleLocaleClick}>
-            <div className="raft__header__menu-link-label">
-              <Icon variant="globe" size={20} />
-              <Typography variant="body-primary" weight="medium">
-                {t('LocaleSwitcher.localeLabel')}
-              </Typography>
-            </div>
-            <Icon variant="arrow-right" />
-          </ButtonWrapper>,
-          */
         ];
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleLinkClick, handleLocaleClick, locale, onSelectLocale, openedSubmenu, t]);
+  }, [handleLinkClick, onSelectLocale, openedSubmenu, t]);
 
   return (
     <div className="raft__header">
