@@ -48,10 +48,6 @@ init({
     description:
       'Connecting your wallet is like “logging in” to Web3. Select your wallet from the options to get started.',
     recommendedInjectedWallets: [{ name: 'MetaMask', url: 'https://metamask.io' }],
-    agreement: {
-      version: '1.0',
-      privacyUrl: 'https://www.raft.fi/privacy/', // TODO - Add terms of service url as well once page is done
-    },
     logo: getStarted,
   },
   disableFontDownload: true,
