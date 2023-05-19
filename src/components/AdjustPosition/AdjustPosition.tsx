@@ -443,16 +443,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       borrowAmountDecimal.gte(0),
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
   );
-  const formattedMissingBorrowAmount = useMemo(
-    () =>
-      debtTokenBalanceValues.amount
-        ? DecimalFormat.format(debtTokenBalanceValues?.amount?.sub(borrowAmountDecimal.abs()), {
-            style: 'decimal',
-            round: true,
-          })
-        : '',
-    [debtTokenBalanceValues.amount, borrowAmountDecimal],
-  );
+  const formattedMissingBorrowAmount = useMemo(() => {
+    const missingBorrowAmount = debtTokenBalanceValues.amount?.sub(borrowAmountDecimal.abs()) || Decimal.ZERO;
+    const truncatedMissingBorrowAmount = new Decimal(missingBorrowAmount.toTruncated(2));
+    const result = truncatedMissingBorrowAmount.lt(missingBorrowAmount)
+      ? truncatedMissingBorrowAmount.add(0.01)
+      : missingBorrowAmount;
+
+    return DecimalFormat.format(result, {
+      style: 'decimal',
+      round: true,
+    });
+  }, [debtTokenBalanceValues.amount, borrowAmountDecimal]);
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
     [isClosePosition, newDebtTokenValues?.amount],
