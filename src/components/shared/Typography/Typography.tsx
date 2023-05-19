@@ -23,7 +23,7 @@ export type TypographyVariant =
 export type TypographyColor =
   | 'text-primary'
   | 'text-secondary'
-  | 'text-tertiary'
+  | 'text-accent'
   | 'text-primary-inverted'
   | 'text-success'
   | 'text-warning'
@@ -86,7 +86,7 @@ const typographyVariantMap: TypographyVariantMap = {
 const typographyColorMap: TypographyColorMap = {
   'text-primary': 'var(--textPrimary)',
   'text-secondary': 'var(--textSecondary)',
-  'text-tertiary': 'var(--textTertiary)',
+  'text-accent': 'var(--textAccent)',
   'text-primary-inverted': 'var(--textPrimaryInverted)',
   'text-success': 'var(--textSuccess)',
   'text-warning': 'var(--textWarning)',

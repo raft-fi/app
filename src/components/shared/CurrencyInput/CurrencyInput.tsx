@@ -214,7 +214,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
             <Typography
               className="raft__currencyInput__amount"
               variant="subtitle"
-              color={disabled ? 'text-tertiary' : 'text-primary'}
+              color={disabled ? 'text-secondary' : 'text-primary'}
               weight="bold"
             >
               <BaseInput
@@ -302,7 +302,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
       </div>
       {fiatValue && (
         <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
-          <Typography variant="body-tertiary" color={!disabled ? 'text-primary' : 'text-tertiary'}>
+          <Typography variant="body-tertiary" color={!disabled ? 'text-primary' : 'text-secondary'}>
             {fiatValue}
           </Typography>
         </span>

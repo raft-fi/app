@@ -15,8 +15,8 @@
   border-radius: 4px;
 
   &[data-checked='true'] {
-    background-color: var(--raftOrange);
-    border: 1px solid var(--raftOrange);
+    background-color: var(--textAccent);
+    border: 1px solid var(--textAccent);
   }
 
   input[type='checkbox'] {

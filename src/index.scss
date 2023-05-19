@@ -40,9 +40,10 @@
   --colorSecondaryDisabled: var(--raftErrorishYellowish);
   --colorError: var(--raftNegativeRed);
 
-  --textPrimary: var(--raftBlack);
-  --textSecondary: var(--raftOrange);
-  --textTertiary: var(--raftGrey);
+  /* we are going to have new color system, quick fix for now */
+  --textPrimary: #191f27;
+  --textSecondary: #5b6776;
+  --textAccent: #f76329;
   --textPrimaryInverted: var(--raftLightPastelBlue);
   --textSuccess: var(--raftPositiveGreen);
   --textWarning: var(--raftCollateralYellow);

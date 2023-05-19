@@ -114,7 +114,7 @@ const ProtocolStats = () => {
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Total supply
               </Typography>
@@ -128,7 +128,7 @@ const ProtocolStats = () => {
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Total value
               </Typography>
@@ -142,7 +142,7 @@ const ProtocolStats = () => {
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Price
               </Typography>
@@ -159,7 +159,7 @@ const ProtocolStats = () => {
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Total supply
               </Typography>
@@ -173,7 +173,7 @@ const ProtocolStats = () => {
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Total value
               </Typography>
@@ -187,7 +187,7 @@ const ProtocolStats = () => {
                 className="raft__protocol-stats__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Price
               </Typography>

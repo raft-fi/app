@@ -100,7 +100,7 @@ const YourPosition: FC = () => {
                 className="raft__your-position__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Collateral amount
               </Typography>
@@ -114,7 +114,7 @@ const YourPosition: FC = () => {
                 className="raft__your-position__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Value
               </Typography>
@@ -128,7 +128,7 @@ const YourPosition: FC = () => {
                 className="raft__your-position__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Price
               </Typography>
@@ -145,7 +145,7 @@ const YourPosition: FC = () => {
                 className="raft__your-position__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Debt amount
               </Typography>
@@ -159,7 +159,7 @@ const YourPosition: FC = () => {
                 className="raft__your-position__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Value
               </Typography>
@@ -173,7 +173,7 @@ const YourPosition: FC = () => {
                 className="raft__your-position__stat__data__title"
                 variant="body-tertiary"
                 weight="semi-bold"
-                color="text-secondary"
+                color="text-accent"
               >
                 Price
               </Typography>
