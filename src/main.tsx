@@ -11,6 +11,7 @@ import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
 import NoticePopup from './components/NoticePopup';
 import TermsAndConditions from './components/TermsAndConditions';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 import './index.scss';
 
@@ -23,6 +24,7 @@ root.render(
         <Header />
         <Routes>
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route
             path="/redeem"
             element={
