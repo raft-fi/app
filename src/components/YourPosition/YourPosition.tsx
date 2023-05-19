@@ -110,9 +110,9 @@ const YourPosition: FC = () => {
       case 'text-success':
         return 'Healthy';
       case 'text-warning':
-        return 'Unhealthy';
+        return 'At risk';
       case 'text-error':
-        return 'Dangerous';
+        return 'Unhealthy';
       default:
         return null;
     }
