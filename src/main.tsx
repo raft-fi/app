@@ -10,6 +10,7 @@ import Stats from './components/Stats';
 import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
 import NoticePopup from './components/NoticePopup';
+import TermsAndConditions from './components/TermsAndConditions';
 
 import './index.scss';
 
@@ -22,6 +23,7 @@ root.render(
         <HookSubscriber />
         <Header />
         <Routes>
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/redeem" element={<Redeem />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/" element={<Dashboard />} />

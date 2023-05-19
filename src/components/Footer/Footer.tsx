@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Link } from 'tempus-ui';
+import { Link as LocalNav } from 'react-router-dom';
 import { DISCORD_INVITE_URL, GITBOOK_URL, GITHUB_URL, TWITTER_URL } from '../../constants';
 import RaftLogo from '../Logo/RaftLogo';
 import { Typography } from '../shared';
@@ -16,18 +17,18 @@ const Footer = (): JSX.Element => {
         <div className="raft__footer__links-container">
           <div className="raft__footer__links-column">
             <div className="raft__footer__link-container">
-              <Link className="raft__footer__link" href="/terms-and-conditions">
+              <LocalNav className="raft__footer__link" to="/terms-and-conditions">
                 <Typography variant="body-primary" color="text-primary-inverted">
                   Terms & Conditions
                 </Typography>
-              </Link>
+              </LocalNav>
             </div>
             <div className="raft__footer__link-container">
-              <Link className="raft__footer__link" href="/disclaimer">
+              <LocalNav className="raft__footer__link" to="/disclaimer">
                 <Typography variant="body-primary" color="text-primary-inverted">
                   Disclaimer
                 </Typography>
-              </Link>
+              </LocalNav>
             </div>
           </div>
           <div className="raft__footer__links-column">

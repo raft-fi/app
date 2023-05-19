@@ -1,0 +1,18 @@
+.raft__legalPageHeader {
+  margin-top: 100px;
+  margin-bottom: 150px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+
+  .raft__legalPageHeader__title {
+    --textPrimary: var(--raftLegalPageTitle);
+  }
+
+  .raft__legalPageHeader__subtitle {
+    --textPrimary: var(--raftLegalPageSubtitle);
+  }
+}

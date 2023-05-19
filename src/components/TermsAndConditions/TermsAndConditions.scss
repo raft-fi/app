@@ -1,0 +1,45 @@
+.rw__legal__page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .rw__legal__contentContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    background-color: white;
+
+    .rw__legal__content {
+      display: flex;
+      margin: 40px 0px;
+      flex-direction: column;
+      width: 1366px;
+
+      .rw__legal__title {
+        font-size: 24px;
+        line-height: 28px;
+        font-weight: 600;
+        font-family: Work Sans, sans-serif;
+        margin-bottom: 38px;
+      }
+
+      .rw__legal__text {
+        font-size: 18px;
+        line-height: 24px;
+        font-weight: 400;
+        font-family: Work Sans, sans-serif;
+        color: #737373;
+        margin-bottom: 38px;
+      }
+
+      a {
+        color: #f76329;
+      }
+
+      a:visited {
+        color: #f76329;
+      }
+    }
+  }
+}

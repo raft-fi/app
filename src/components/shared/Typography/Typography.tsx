@@ -10,7 +10,7 @@ import {
 } from 'tempus-ui';
 
 export type TypographyVariant =
-  | 'hero-title'
+  | 'legal-page-title'
   | 'hero-subtitle'
   | 'header'
   | 'section-header'
@@ -31,10 +31,10 @@ export type TypographyColor =
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
 const typographyVariantMap: TypographyVariantMap = {
-  'hero-title': {
+  'legal-page-title': {
     fontStyle: 'normal',
-    fontSize: '106px',
-    lineHeight: '53px',
+    fontSize: '64px',
+    lineHeight: '70px',
   },
   'hero-subtitle': {
     fontStyle: 'normal',
