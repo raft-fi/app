@@ -40,14 +40,42 @@
   --colorSecondaryDisabled: var(--raftErrorishYellowish);
   --colorError: var(--raftNegativeRed);
 
+  --raft-orange-800: #d94308;
+  --raft-orange-700: #f76329;
+  --raft-orange-500: #f98d62;
+  --raft-orange-100: #fef1eb;
+  --raft-grey-900: #191f27;
+  --raft-grey-700: #5b6776;
+  --raft-grey-500: #9fb1c1;
+  --raft-grey-400: #c0cad2;
+  --raft-grey-300: #ccd5de;
+  --raft-white: #ffffff;
+
   /* we are going to have new color system, quick fix for now */
-  --textPrimary: #191f27;
-  --textSecondary: #5b6776;
-  --textAccent: #f76329;
-  --textPrimaryInverted: var(--raftLightPastelBlue);
+  --textPrimary: var(--raft-grey-900);
+  --textSecondary: var(--raft-grey-700);
+  --textAccent: var(--raft-orange-700);
+  --textPrimaryInverted: var(--raft-white);
   --textSuccess: var(--raftPositiveGreen);
   --textWarning: var(--raftCollateralYellow);
   --textError: var(--raftNegativeRed);
+  --colorBorder: var(--raft-grey-300);
+  --btnPrimary: var(--raft-orange-700);
+  --btnPrimaryHover: var(--raft-orange-800);
+  --btnPrimaryActive: var(--raft-orange-800);
+  --btnPrimaryDisabled: var(--raft-orange-500);
+  --btnPrimaryDisabledText: var(--raft-orange-100);
+  --btnPrimaryFocusVisible: var(--raft-white);
+  --btnSecondary: var(--raft-white);
+  --btnSecondaryBorder: var(--raft-grey-300);
+  --btnSecondaryHover: var(--raft-white);
+  --btnSecondaryHoverBorder: var(--raft-grey-500);
+  --btnSecondaryActive: var(--raft-white);
+  --btnSecondaryActiveBorder: var(--raft-orange-700);
+  --btnSecondaryDisabled: var(--raft-white);
+  --btnSecondaryDisabledBorder: var(--raft-grey-500);
+  --btnSecondaryDisabledText: var(--raft-grey-400);
+  --btnSecondaryFocusVisible: var(--raft-grey-300);
 
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);

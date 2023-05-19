@@ -3,7 +3,8 @@ import { ButtonWrapper, ButtonWrapperProps } from 'tempus-ui';
 
 import './Button.scss';
 
-type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
+// TODO: we should define a better variant for wallet button, probably a secondary button with special styles
+type ButtonVariant = 'primary' | 'secondary' | 'wallet';
 
 type ButtonProps = ButtonWrapperProps & {
   className?: string;
