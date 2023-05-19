@@ -9,6 +9,7 @@ import Button from '../Button';
 import ValueLabel from '../ValueLabel';
 
 import './CurrencyInput.scss';
+import { Decimal } from '@tempusfinance/decimal';
 
 // ethers 6.3.0 has bugs that cannot format large number
 const MAX_INTEGRAL_DIGIT = 10;
@@ -20,8 +21,9 @@ export interface CurrencyInputProps extends BaseInputProps {
   placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
-  maxAmount?: Nullable<string>;
-  maxAmountLabel?: string;
+  maxAmount?: Nullable<Decimal>;
+  maxAmountFormatted?: string;
+  disableMaxAmountClick?: boolean;
   disabled?: boolean;
   error?: boolean;
   autoFocus?: boolean;
@@ -47,8 +49,9 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     previewValue,
     placeholder = '0',
     precision,
-    maxAmount = '',
-    maxAmountLabel = '',
+    maxAmount,
+    maxAmountFormatted = '',
+    disableMaxAmountClick = false,
     fiatValue,
     disabled,
     error = false,
@@ -148,11 +151,46 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onDecrementAmount(step);
   }, [onDecrementAmount, step]);
 
+  const setValueToMax = useCallback(() => {
+    if (maxAmount && !disableMaxAmountClick) {
+      onValueUpdate?.(maxAmount.toString());
+    }
+  }, [disableMaxAmountClick, maxAmount, onValueUpdate]);
+
   const inputPattern = useMemo(() => {
     return allowNegativeNumbers
       ? `[+-]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`
       : `[+]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`;
   }, [allowNegativeNumbers, precision, maxIntegralDigits]);
+
+  const maxAmountComponent = useMemo(
+    () => (
+      <>
+        {showMaxAmountIcon && <Icon variant="wallet" size="tiny" />}
+        <ValueLabel
+          valueSize="body-tertiary"
+          tickerSize="body-tertiary"
+          value={maxAmountFormatted ?? maxAmount?.toString()}
+        />
+      </>
+    ),
+    [maxAmount, maxAmountFormatted, showMaxAmountIcon],
+  );
+  const maxAmountContainer = useMemo(
+    () =>
+      disableMaxAmountClick ? (
+        <div className="raft__currencyInput__maxAmountValue">{maxAmountComponent}</div>
+      ) : (
+        <ButtonWrapper
+          className="raft__currencyInput__maxAmountValue"
+          onClick={setValueToMax}
+          disabled={disableMaxAmountClick}
+        >
+          {maxAmountComponent}
+        </ButtonWrapper>
+      ),
+    [disableMaxAmountClick, maxAmountComponent, setValueToMax],
+  );
 
   return (
     <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>
@@ -163,15 +201,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           </Typography>
         </div>
 
-        <div className="raft__currencyInput__maxAmount">
-          {maxAmount && (
-            <div className="raft__currencyInput__maxAmountValue">
-              {showMaxAmountIcon && <Icon variant="wallet" size="tiny" />}
-              {maxAmountLabel && <Typography variant="body-tertiary">{maxAmountLabel}</Typography>}
-              <ValueLabel valueSize="body-tertiary" tickerSize="body-tertiary" value={maxAmount} />
-            </div>
-          )}
-        </div>
+        <div className="raft__currencyInput__maxAmount">{maxAmount && maxAmountContainer}</div>
       </div>
       <div className="raft__currencyInput__fieldContainer">
         <div

@@ -15,6 +15,7 @@ export const R_TOKEN_UI_PRECISION = 2;
 export const R_PRICE_UI_PRECISION = 4;
 export const USD_UI_PRECISION = 2;
 export const MULTIPLIER_UI_PRECISION = 2;
+export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH']; // app to control what is supported
 export const DISPLAY_BASE_TOKEN = 'stETH';
 export const COLLATERAL_BASE_TOKEN = 'wstETH';
 export const ZERO_ADDRESS = '0x0';

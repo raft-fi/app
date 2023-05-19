@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { COLLATERAL_TOKENS, CollateralToken, R_TOKEN } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import { useWallet, useBorrow, useTokenPrices, useTokenBalances, useNetwork } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -12,6 +12,7 @@ import {
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
+  SUPPORTED_COLLATERAL_TOKENS,
   USD_UI_PRECISION,
 } from '../../constants';
 import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../../utils';
@@ -372,9 +373,10 @@ const OpenPosition = () => {
           precision={18}
           fiatValue={collateralInputFiatValue}
           selectedToken={selectedCollateralToken}
-          tokens={[...COLLATERAL_TOKENS.filter(token => token !== 'ETH')]}
+          tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
-          maxAmount={selectedCollateralTokenBalanceValues.amountFormatted}
+          maxAmount={selectedCollateralTokenBalanceValues.amount}
+          maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
@@ -387,7 +389,9 @@ const OpenPosition = () => {
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
-          maxAmount={rTokenBalanceFormatted}
+          maxAmount={rTokenBalance}
+          maxAmountFormatted={rTokenBalanceFormatted ?? undefined}
+          disableMaxAmountClick
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
           error={!hasMinBorrow || !hasMinRatio}
