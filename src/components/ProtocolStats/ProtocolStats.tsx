@@ -1,22 +1,17 @@
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { memo, useMemo, useState } from 'react';
+import { TokenLogo } from 'tempus-ui';
+import { R_TOKEN } from '@raft-fi/sdk';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
 import { getTokenValues } from '../../utils';
 import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN } from '../../constants';
-import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
+import { Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './ProtocolStats.scss';
-import { R_TOKEN } from '@raft-fi/sdk';
 
-interface ProtocolStatsProps {
-  isClose: boolean;
-}
-
-const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
+const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
-  const [expanded, setExpanded] = useState<boolean>(false);
 
   const displayBaseTokenValues = useMemo(() => {
     return getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
@@ -102,23 +97,14 @@ const ProtocolStats: FC<ProtocolStatsProps> = ({ isClose }) => {
     });
   }, [protocolStats]);
 
-  const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
-
-  useEffect(() => {
-    setExpanded(!isClose);
-  }, [isClose]);
-
   return (
     <div className="raft__protocol-stats">
       <div className="raft__protocol-stats__header">
         <Typography variant="subtitle" weight="medium">
           Protocol stats
         </Typography>
-        <ButtonWrapper onClick={onToggleExpanded}>
-          <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
-        </ButtonWrapper>
       </div>
-      <div className={`raft__protocol-stats__body ${expanded ? 'raft__protocol-stats-expanded' : ''}`}>
+      <div className="raft__protocol-stats__body raft__protocol-stats-expanded">
         <div className="raft__protocol-stats__stat-token">
           <div className="raft__protocol-stats__stat">
             <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} />
