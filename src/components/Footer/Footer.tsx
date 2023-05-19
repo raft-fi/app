@@ -24,9 +24,9 @@ const Footer = (): JSX.Element => {
               </LocalNav>
             </div>
             <div className="raft__footer__link-container">
-              <LocalNav className="raft__footer__link" to="/disclaimer">
+              <LocalNav className="raft__footer__link" to="/privacy">
                 <Typography variant="body-primary" color="text-primary-inverted">
-                  Disclaimer
+                  Privacy Policy
                 </Typography>
               </LocalNav>
             </div>

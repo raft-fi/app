@@ -58,8 +58,11 @@ const NoticePopup = () => {
           </Typography>
 
           <Typography variant="body-primary">
-            By clicking Agree, you confirm that you have read and understood this Notice. You also agree to be bound by
-            the{' '}
+            By clicking Agree, you confirm that you have read and understood this Notice and the{' '}
+            <Link className="raft__link" to="/privacy">
+              Privacy Policy
+            </Link>
+            . You also agree to be bound by the{' '}
             <Link className="raft__link" to="/terms-and-conditions">
               Terms & Conditions
             </Link>
