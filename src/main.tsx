@@ -11,6 +11,7 @@ import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
 import NoticePopup from './components/NoticePopup';
 import TermsAndConditions from './components/TermsAndConditions';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 import './index.scss';
 
@@ -19,14 +20,38 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <div className="raft__app__root">
-        <NoticePopup />
         <HookSubscriber />
         <Header />
         <Routes>
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/redeem" element={<Redeem />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route
+            path="/redeem"
+            element={
+              <>
+                <NoticePopup />
+                <Redeem />
+              </>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <>
+                <NoticePopup />
+                <Stats />
+              </>
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <>
+                <NoticePopup />
+                <Dashboard />
+              </>
+            }
+          />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         <Footer />
