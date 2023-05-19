@@ -181,7 +181,7 @@ const Wallet = () => {
       {!wallet && (
         <div className="raft__wallet__disconnected">
           <Button variant="primary" onClick={onConnect}>
-            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               Connect
             </Typography>
           </Button>
@@ -190,7 +190,7 @@ const Wallet = () => {
 
       {wallet && isWrongNetwork && (
         <div className="raft__wallet__wrongNetwork">
-          <Button variant="tertiary" onClick={switchToSupportedNetwork}>
+          <Button variant="wallet" onClick={switchToSupportedNetwork}>
             <Icon variant="error" />
             <Typography variant="body-primary" weight="medium" color="text-error">
               Unsupported network
@@ -201,7 +201,7 @@ const Wallet = () => {
 
       {wallet && !isWrongNetwork && (
         <div className="raft__wallet__connected">
-          <Button variant="tertiary" onClick={handlePopupOpen}>
+          <Button variant="wallet" onClick={handlePopupOpen}>
             {ens.avatar ? (
               <img className="raft__wallet__connected__avatar" src={ens.avatar} />
             ) : (

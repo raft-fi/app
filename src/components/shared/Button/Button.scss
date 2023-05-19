@@ -11,42 +11,54 @@
   border-color: transparent;
 
   &.raft__button-primary {
-    background-color: var(--colorPrimary);
+    background-color: var(--btnPrimary);
 
     &[data-disabled='true'] {
-      background-color: var(--colorPrimaryDisabled);
+      --textPrimaryInverted: var(--btnPrimaryDisabledText);
+      background-color: var(--btnPrimaryDisabled);
     }
 
     &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover {
-      background-color: var(--raftDarkOrange);
+      background-color: var(--btnPrimaryHover);
+    }
+
+    &:not([data-disabled='true']):active {
+      background-color: var(--btnPrimaryActive);
     }
 
     &:focus-visible {
-      outline: 1px solid var(--raftWhite);
+      outline: 1px solid var(--btnPrimaryFocusVisible);
     }
   }
 
   &.raft__button-secondary {
-    background-color: var(--colorSurface);
-    border-color: var(--colorBorder);
+    background-color: var(--btnSecondary);
+    border-color: var(--btnSecondaryBorder);
 
     &[data-disabled='true'] {
-      color: var(--colorPrimary);
-      background-color: var(--colorSecondaryDisabled);
+      --textPrimaryInverted: var(--btnSecondaryDisabledText);
+      background-color: var(--btnSecondaryDisabled);
+      border-color: var(--btnSecondaryDisabledBorder);
     }
 
     &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover {
-      border-color: var(--colorPrimary);
+      background-color: var(--btnSecondaryHover);
+      border-color: var(--btnSecondaryHoverBorder);
+    }
+
+    &:not([data-disabled='true']):active {
+      background-color: var(--btnSecondaryActive);
+      border-color: var(--btnSecondaryActiveBorder);
     }
 
     &:focus-visible {
-      outline: 1px solid var(--colorBorder);
+      outline: 1px solid var(--btnSecondaryFocusVisible);
     }
   }
 
-  &.raft__button-tertiary {
+  &.raft__button-wallet {
     background-color: var(--raftWallet);
 
     &:not([data-disabled='true']):focus,

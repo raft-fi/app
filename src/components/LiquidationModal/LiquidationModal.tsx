@@ -124,7 +124,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
         <div className="raft__liquidationModal__explorerLink">
           <Typography variant="body-tertiary">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${liquidationTransaction.id}`}>
-            <Typography variant="body-tertiary" color="text-secondary">
+            <Typography variant="body-tertiary" color="text-accent">
               Etherscan
             </Typography>
           </Link>
@@ -134,7 +134,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
         <div className="raft__liquidationModal__actions">
           <div className="raft__liquidationModal__action">
             <Button variant="primary" onClick={onClose}>
-              <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+              <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
                 Got it!
               </Typography>
             </Button>

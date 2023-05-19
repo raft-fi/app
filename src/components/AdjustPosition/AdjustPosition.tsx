@@ -806,7 +806,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <div className="raft__adjustPosition__action">
           <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
             {transactionState === 'loading' && <Loading />}
-            <Typography variant="body-primary" weight="bold" color="text-primary-inverted">
+            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               {buttonLabel}
             </Typography>
           </Button>
