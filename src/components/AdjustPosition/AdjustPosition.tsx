@@ -497,6 +497,42 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
+  const onToggleClosePosition = useCallback(() => {
+    if (!closePositionActive) {
+      if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
+        handleCollateralAmountChange(collateralBalance.mul(-1).toString());
+      } else {
+        const selectedCollateralTokenPrice = tokenPriceMap[selectedCollateralToken];
+
+        if (
+          currentCollateralTokenValues.value &&
+          selectedCollateralTokenPrice &&
+          !selectedCollateralTokenPrice.isZero()
+        ) {
+          const collateralBalanceInSelectedCollateralToken =
+            currentCollateralTokenValues.value.div(selectedCollateralTokenPrice);
+          handleCollateralAmountChange(collateralBalanceInSelectedCollateralToken.mul(-1).toString());
+        }
+      }
+
+      handleBorrowAmountChange(debtBalance.mul(-1).toString());
+    } else if (collateralBalance && debtBalance) {
+      handleCollateralAmountChange('0');
+      handleBorrowAmountChange('0');
+    }
+
+    setClosePositionActive(prevState => !prevState);
+  }, [
+    closePositionActive,
+    collateralBalance,
+    currentCollateralTokenValues.value,
+    debtBalance,
+    handleBorrowAmountChange,
+    handleCollateralAmountChange,
+    selectedCollateralToken,
+    tokenPriceMap,
+  ]);
+
   const onAdjust = useCallback(() => {
     if (!canAdjust) {
       return null;
@@ -530,9 +566,16 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <Typography variant="subtitle" weight="medium">
           Adjust Position
         </Typography>
-        <ButtonWrapper onClick={onToggleExpanded}>
-          <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
-        </ButtonWrapper>
+        <div className="raft__adjustPosition__actions">
+          <Button variant="secondary" onClick={onToggleClosePosition} selected={closePositionActive}>
+            <Typography variant="body-primary" weight="medium">
+              Close Position
+            </Typography>
+          </Button>
+          <ButtonWrapper onClick={onToggleExpanded}>
+            <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
+          </ButtonWrapper>
+        </div>
       </div>
       <div className={`raft__adjustPosition__body ${expanded ? 'raft__adjustPosition-expanded' : ''}`}>
         <div className="raft__adjustPosition__input">

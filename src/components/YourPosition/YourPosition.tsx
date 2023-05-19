@@ -1,15 +1,17 @@
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { FC, memo, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { FC, memo, useCallback, useMemo, useState } from 'react';
+import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
 import { getTokenValues } from '../../utils';
 import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN } from '../../constants';
-import { Typography, ValuesBox, ValueLabel } from '../shared';
+import { Icon, Typography, ValuesBox, ValueLabel } from '../shared';
 
 import './YourPosition.scss';
 import { R_TOKEN } from '@raft-fi/sdk';
 
 const YourPosition: FC = () => {
+  const [expanded, setExpanded] = useState<boolean>(true);
+
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
 
@@ -74,14 +76,21 @@ const YourPosition: FC = () => {
     });
   }, [collateralizationRatio]);
 
+  const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
+
   return (
     <div className="raft__your-position">
       <div className="raft__your-position__header">
         <Typography variant="subtitle" weight="medium">
           Your Position
         </Typography>
+        <div className="raft__your-position__actions">
+          <ButtonWrapper onClick={onToggleExpanded}>
+            <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
+          </ButtonWrapper>
+        </div>
       </div>
-      <div className="raft__your-position__body raft__your-position-expanded">
+      <div className={`raft__your-position__body ${expanded ? 'raft__your-position-expanded' : ''}`}>
         <div className="raft__your-position__stat-token">
           <div className="raft__your-position__stat">
             <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} />
