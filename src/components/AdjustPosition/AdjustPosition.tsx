@@ -418,7 +418,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return DecimalFormat.format(newCollateralizationRatio, { style: 'percentage', fractionDigits: 2 });
   }, [newCollateralizationRatio]);
 
-  const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
   const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
   const currentCollateralRatioColor = useMemo(
@@ -440,9 +439,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const hasEnoughDebtTokenBalance = useMemo(
     () =>
       !debtTokenBalanceValues.amount ||
-      (debtTokenBalanceValues.amount.gt(borrowAmountDecimal.abs()) && borrowAmountDecimal.lt(0)) ||
+      (debtTokenBalanceValues.amount.gte(borrowAmountDecimal.abs()) && borrowAmountDecimal.lt(0)) ||
       borrowAmountDecimal.gte(0),
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
+  );
+  const formattedMissingBorrowAmount = useMemo(
+    () =>
+      debtTokenBalanceValues.amount
+        ? DecimalFormat.format(debtTokenBalanceValues?.amount?.sub(borrowAmountDecimal.abs()), {
+            style: 'decimal',
+            round: true,
+          })
+        : '',
+    [debtTokenBalanceValues.amount, borrowAmountDecimal],
   );
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
@@ -492,7 +501,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     if (!hasEnoughDebtTokenBalance) {
-      return 'Insufficient R to repay';
+      return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
     }
     if (!hasMinBorrow) {
       return 'Borrow below the minimum amount';
@@ -503,7 +512,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     return 'Execute';
-  }, [hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasEnoughToWithdraw, hasMinBorrow, hasMinNewRatio]);
+  }, [
+    hasEnoughCollateralTokenBalance,
+    hasEnoughDebtTokenBalance,
+    hasEnoughToWithdraw,
+    hasMinBorrow,
+    hasMinNewRatio,
+    formattedMissingBorrowAmount,
+  ]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
