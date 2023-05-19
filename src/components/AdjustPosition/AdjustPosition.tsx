@@ -564,7 +564,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
         <Typography variant="subtitle" weight="medium">
-          Adjust Position
+          Adjust your Position
         </Typography>
         <div className="raft__adjustPosition__actions">
           <div className={`raft__adjustPosition__actions__close ${expanded ? 'show' : ''}`}>
@@ -587,7 +587,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       <div className={`raft__adjustPosition__body ${expanded ? 'raft__adjustPosition-expanded' : ''}`}>
         <div className="raft__adjustPosition__input">
           <CurrencyInput
-            label="Adjust collateral"
+            label="Adjust your collateral"
             precision={18}
             fiatValue={null}
             selectedToken={selectedCollateralToken}
@@ -605,7 +605,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio || !hasEnoughToWithdraw}
           />
           <CurrencyInput
-            label="Adjust borrow"
+            label="Adjust your debt"
             precision={18}
             fiatValue={null}
             selectedToken={R_TOKEN}
@@ -642,7 +642,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     >
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
-                    <Typography variant="body-primary">Total collateral&nbsp;</Typography>
+                    <Typography variant="body-primary">Your collateral&nbsp;</Typography>
                   </>
                 ),
                 value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
@@ -667,12 +667,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     >
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
-                    <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                    <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
-                    <Typography variant="body-tertiary" type="mono">
-                      R
-                    </Typography>
-                    <Typography variant="body-tertiary">{')'}</Typography>
+                    <Typography variant="body-primary">Your debt&nbsp;</Typography>
                   </>
                 ),
                 value: currentDebtTokenValues.amountFormatted || 'N/A',
