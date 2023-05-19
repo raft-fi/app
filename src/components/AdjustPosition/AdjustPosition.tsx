@@ -8,6 +8,7 @@ import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../.
 import {
   COLLATERAL_BASE_TOKEN,
   DISPLAY_BASE_TOKEN,
+  INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -32,8 +33,6 @@ interface AdjustPositionProps {
   collateralBalance: Decimal;
   debtBalance: Decimal;
 }
-
-const INPUT_PREVIEW_DIGITS = 4;
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
