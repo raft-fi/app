@@ -6,7 +6,7 @@ import ProtocolStats from '../ProtocolStats';
 const Stats = () => {
   return (
     <div className="raft__stats">
-      <ProtocolStats isClose={false} />
+      <ProtocolStats />
     </div>
   );
 };
