@@ -23,7 +23,7 @@ import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 
-const debtBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
+export const debtBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
 const fetchData = (walletAddress: Nullable<string>, provider: JsonRpcProvider) => {
   // In case user disconnects the wallet we want to reset balance to null

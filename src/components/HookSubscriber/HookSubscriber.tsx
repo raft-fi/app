@@ -4,10 +4,12 @@ import {
   subscribeDebtBalances,
   subscribeENS,
   subscribeProtocolStats,
-  subscribeTakenBalances,
-  subscribeTakenPrices,
+  subscribeTokenBalances,
+  subscribeTokenPrices,
   subscribeEIP1193Provider,
   subscribeTransactionHistory,
+  subscribeTokenAllowances,
+  subscribeTokenWhitelists,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -16,13 +18,15 @@ const HookSubscriber: FC = () => {
   // subscribe for the steam$ of the polling hooks
   useEffect(() => {
     subscribeENS();
-    subscribeTakenPrices();
-    subscribeTakenBalances();
+    subscribeTokenPrices();
+    subscribeTokenBalances();
     subscribeProtocolStats();
     subscribeCollateralBalances();
     subscribeDebtBalances();
     subscribeEIP1193Provider();
     subscribeTransactionHistory();
+    subscribeTokenAllowances();
+    subscribeTokenWhitelists();
   }, []);
 
   return null;

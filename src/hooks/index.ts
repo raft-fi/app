@@ -13,3 +13,5 @@ export * from './useConfig';
 export * from './useNetwork';
 export * from './useNotification';
 export * from './useTransactionHistory';
+export * from './useTokenAllowances';
+export * from './useTokenWhitelists';

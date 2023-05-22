@@ -3,7 +3,15 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
-import { useWallet, useBorrow, useTokenPrices, useTokenBalances, useNetwork } from '../../hooks';
+import {
+  useWallet,
+  useBorrow,
+  useTokenPrices,
+  useTokenBalances,
+  useNetwork,
+  useTokenAllowances,
+  useTokenWhitelists,
+} from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   DISPLAY_BASE_TOKEN,
@@ -37,6 +45,8 @@ const OpenPosition = () => {
 
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
+  const tokenAllowanceMap = useTokenAllowances();
+  const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
   const { borrow, borrowStatus } = useBorrow();
 
@@ -67,6 +77,14 @@ const OpenPosition = () => {
         selectedCollateralToken,
       ),
     [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
+  );
+  const selectedCollateralTokenAllowance = useMemo(
+    () => tokenAllowanceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenAllowanceMap],
+  );
+  const selectedCollateralTokenWhitelist = useMemo(
+    () => tokenWhitelistMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenWhitelistMap],
   );
 
   useEffect(() => {
@@ -244,6 +262,11 @@ const OpenPosition = () => {
       ),
     [collateralTokenValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
   );
+  const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
+  const hasEnoughCollateralAllowance = useMemo(
+    () => Boolean(selectedCollateralTokenAllowance?.gte(borrowTokenValues.amount ?? Decimal.ZERO)),
+    [borrowTokenValues.amount, selectedCollateralTokenAllowance],
+  );
   const hasMinBorrow = useMemo(
     () => !borrowTokenValues.amount || borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT),
     [borrowTokenValues.amount],
@@ -256,6 +279,14 @@ const OpenPosition = () => {
     () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
     [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio],
   );
+
+  const executionSteps = useMemo(() => {
+    const whitelistStep = hasWhitelisted ? 0 : 1;
+    const collateralApprovalStep = hasEnoughCollateralAllowance ? 0 : 1;
+    const executionStep = 1;
+
+    return whitelistStep + collateralApprovalStep + executionStep;
+  }, [hasEnoughCollateralAllowance, hasWhitelisted]);
 
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
@@ -274,8 +305,26 @@ const OpenPosition = () => {
       return 'Collateralization ratio is below the minimum threshold';
     }
 
+    if (!hasWhitelisted) {
+      return `Whitelist delegate (1/${executionSteps})`;
+    }
+
+    if (!hasEnoughCollateralAllowance) {
+      return `Approve ${selectedCollateralToken} (1/${executionSteps})`;
+    }
+
     return 'Borrow';
-  }, [hasEnoughCollateralTokenBalance, hasMinBorrow, hasMinRatio, walletConnected, minBorrowFormatted]);
+  }, [
+    walletConnected,
+    hasEnoughCollateralTokenBalance,
+    hasMinBorrow,
+    hasMinRatio,
+    hasWhitelisted,
+    hasEnoughCollateralAllowance,
+    minBorrowFormatted,
+    executionSteps,
+    selectedCollateralToken,
+  ]);
 
   const buttonDisabled = useMemo(
     () => actionButtonState === 'loading' || (walletConnected && !canBorrow),
