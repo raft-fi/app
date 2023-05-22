@@ -58,8 +58,8 @@ const typographyVariantMap: TypographyVariantMap = {
   },
   title: {
     fontStyle: 'normal',
-    fontSize: '24px',
-    lineHeight: '32px',
+    fontSize: '28px',
+    lineHeight: '36px',
   },
   subtitle: {
     fontStyle: 'normal',
