@@ -22,6 +22,7 @@ import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
+import { resetApproveStatus } from './useApprove';
 
 interface BorrowRequest {
   txnId: string;
@@ -184,6 +185,9 @@ const stream$ = combineLatest([borrow$]).pipe(
     });
 
     borrowStatus$.next(status);
+
+    // reset approval status after borrow becoz signature used will be invalid
+    resetApproveStatus();
   }),
 );
 

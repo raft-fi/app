@@ -505,7 +505,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     // R token somehow can give MAX allowance which is wrong
     // return true whenever debt amount is -ve and collateral is not wstETH
     () =>
-      (borrowAmountDecimal.lt(0) && TOKENS_WITH_PERMIT.has(selectedCollateralToken)) || Boolean(approveStatus?.rPermit),
+      (borrowAmountDecimal.lt(0) && TOKENS_WITH_PERMIT.has(selectedCollateralToken)) ||
+      Boolean(approveStatus?.rPermit) ||
+      borrowAmountDecimal.gte(0),
     [approveStatus?.rPermit, borrowAmountDecimal, selectedCollateralToken],
   );
   const hasEnoughToWithdraw = useMemo(() => {
