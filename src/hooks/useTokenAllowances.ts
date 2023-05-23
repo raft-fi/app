@@ -18,7 +18,7 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { Allowance, TOKENS, Token } from '@raft-fi/sdk';
+import { Allowance, TOKENS, Token, TOKENS_WITH_PERMIT, R_TOKEN, UNDERLYING_COLLATERAL_TOKENS } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { ChainConfig, Nullable } from '../interfaces';
@@ -39,6 +39,10 @@ const DEFAULT_VALUE: TokenAllowanceMap = TOKENS.reduce(
   {} as TokenAllowanceMap,
 );
 
+const getPositionManager = (token: Token, config: ChainConfig) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  UNDERLYING_COLLATERAL_TOKENS.includes(token as any) ? config.positionManager : config.positionManagerStEth;
+
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 export const tokenAllowances$ = new BehaviorSubject<TokenAllowanceMap>(DEFAULT_VALUE);
@@ -50,6 +54,11 @@ const fetchData = async (
   provider: JsonRpcProvider,
 ): Promise<Nullable<Decimal>> => {
   try {
+    // for collateral token with permit, allowance will be MAX. permit done when processing txn
+    if (TOKENS_WITH_PERMIT.has(token) && R_TOKEN !== token) {
+      return Decimal.MAX_DECIMAL;
+    }
+
     const allowance = new Allowance(token, walletAddress, positionManagerAddress, provider);
 
     const result = await allowance.fetchAllowance();
@@ -71,7 +80,7 @@ const walletChangeStream$: Observable<TokenAllowanceMap> = walletAddress$.pipe(
       }
 
       const tokenAllowanceMaps = TOKENS.map(token =>
-        from(fetchData(token, walletAddress, config.positionManager, provider)).pipe(
+        from(fetchData(token, walletAddress, getPositionManager(token, config), provider)).pipe(
           map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
         ),
       );
@@ -92,7 +101,7 @@ const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBe
     }
 
     const tokenAllowanceMaps = TOKENS.map(token =>
-      from(fetchData(token, walletAddress, config.positionManager, provider)).pipe(
+      from(fetchData(token, walletAddress, getPositionManager(token, config), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),
     );
@@ -111,7 +120,7 @@ const appEventsStream$ = appEvent$.pipe(
   }),
   mergeMap(([, walletAddress, provider, config]) => {
     const tokenAllowanceMaps = TOKENS.map(token =>
-      from(fetchData(token, walletAddress, config.positionManager, provider)).pipe(
+      from(fetchData(token, walletAddress, getPositionManager(token, config), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),
     );

@@ -11,6 +11,7 @@ import {
   useNetwork,
   useTokenAllowances,
   useTokenWhitelists,
+  useApprove,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -49,6 +50,7 @@ const OpenPosition = () => {
   const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
   const { borrow, borrowStatus } = useBorrow();
+  const { approve, approveStatus } = useApprove();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
@@ -264,8 +266,8 @@ const OpenPosition = () => {
   );
   const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
   const hasEnoughCollateralAllowance = useMemo(
-    () => Boolean(selectedCollateralTokenAllowance?.gte(borrowTokenValues.amount ?? Decimal.ZERO)),
-    [borrowTokenValues.amount, selectedCollateralTokenAllowance],
+    () => Boolean(selectedCollateralTokenAllowance?.gte(collateralTokenValues.amount ?? Decimal.ZERO)),
+    [collateralTokenValues.amount, selectedCollateralTokenAllowance],
   );
   const hasMinBorrow = useMemo(
     () => !borrowTokenValues.amount || borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT),
@@ -335,20 +337,30 @@ const OpenPosition = () => {
     connect();
   }, [connect]);
 
-  const onBorrow = useCallback(() => {
+  const onAction = useCallback(() => {
     if (!canBorrow) {
       return;
     }
 
-    borrow({
+    const action = hasEnoughCollateralAllowance ? borrow : approve;
+
+    action({
       collateralChange: new Decimal(collateralAmount),
       debtChange: new Decimal(borrowAmount),
       collateralToken: selectedCollateralToken,
-      currentUserCollateral: new Decimal(0), // Always zero when user is 'Opening' a position
-      currentUserDebt: new Decimal(0), // Always zero when user is 'Opening' a position
+      currentUserCollateral: Decimal.ZERO,
+      currentUserDebt: Decimal.ZERO,
       txnId: uuid(),
     });
-  }, [borrow, borrowAmount, canBorrow, collateralAmount, selectedCollateralToken]);
+  }, [
+    approve,
+    borrow,
+    borrowAmount,
+    canBorrow,
+    collateralAmount,
+    hasEnoughCollateralAllowance,
+    selectedCollateralToken,
+  ]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -371,7 +383,6 @@ const OpenPosition = () => {
       return;
     }
 
-    // default collateral = 150% of borrow value
     const defaultBorrowAmount = collateralTokenValues.value
       .div(borrowTokenPrice)
       .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
@@ -393,7 +404,6 @@ const OpenPosition = () => {
       return;
     }
 
-    // default collateral = 150% of borrow value
     const defaultCollateralAmount = borrowTokenValues.value
       .mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
       .div(collateralTokenPrice)
@@ -403,21 +413,21 @@ const OpenPosition = () => {
   }, [borrowTokenValues.value, collateralTokenValues.amount, selectedCollateralToken, tokenPriceMap]);
 
   /**
-   * Update action button state based on current borrow request status
+   * Update action button state based on current approve/borrow request status
    */
   useEffect(() => {
-    if (!borrowStatus) {
+    if (!approveStatus && !borrowStatus) {
       return;
     }
 
-    if (borrowStatus.pending) {
+    if (approveStatus?.pending || borrowStatus?.pending) {
       setActionButtonState('loading');
-    } else if (borrowStatus.success) {
+    } else if (approveStatus?.success || borrowStatus?.success) {
       setActionButtonState('success');
     } else {
       setActionButtonState('default');
     }
-  }, [borrowStatus]);
+  }, [approveStatus, borrowStatus]);
 
   const collateralInputFiatValue = useMemo(() => {
     if (!collateralTokenValues.valueFormatted || Decimal.parse(collateralAmount, 0).isZero()) {
@@ -668,7 +678,7 @@ const OpenPosition = () => {
             </Typography>
           </Button>
         ) : (
-          <Button variant="primary" onClick={walletConnected ? onBorrow : onConnectWallet} disabled={buttonDisabled}>
+          <Button variant="primary" onClick={walletConnected ? onAction : onConnectWallet} disabled={buttonDisabled}>
             {actionButtonState === 'loading' && <Loading />}
             <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               {buttonLabel}

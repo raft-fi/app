@@ -544,6 +544,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return `Whitelist delegate (1/${executionSteps})`;
     }
 
+    if (!hasEnoughCollateralAllowance && !hasEnoughDebtAllowance) {
+      return `Approve required tokens (1/${executionSteps})`;
+    }
+
     if (!hasEnoughCollateralAllowance) {
       return `Approve ${selectedCollateralToken} (1/${executionSteps})`;
     }
