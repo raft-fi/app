@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { ButtonWrapper } from 'tempus-ui';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useApprove,
   useBorrow,
@@ -502,11 +502,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [collateralAmountDecimal, selectedCollateralTokenAllowance],
   );
   const hasEnoughDebtAllowance = useMemo(
+    // R token somehow can give MAX allowance which is wrong
+    // return true whenever debt amount is -ve and collateral is not wstETH
     () =>
-      Boolean(tokenAllowanceMap[R_TOKEN]?.gte(borrowAmountDecimal) && borrowAmountDecimal.gt(0)) ||
-      borrowAmountDecimal.lte(0) ||
-      Boolean(approveStatus?.rPermit),
-    [approveStatus?.rPermit, borrowAmountDecimal, tokenAllowanceMap],
+      (borrowAmountDecimal.lt(0) && TOKENS_WITH_PERMIT.has(selectedCollateralToken)) || Boolean(approveStatus?.rPermit),
+    [approveStatus?.rPermit, borrowAmountDecimal, selectedCollateralToken],
   );
   const hasEnoughToWithdraw = useMemo(() => {
     if (!newCollateralInDisplayToken.amount) {
