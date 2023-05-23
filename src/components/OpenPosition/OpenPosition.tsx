@@ -12,6 +12,7 @@ import {
   useTokenAllowances,
   useTokenWhitelists,
   useApprove,
+  useWhitelistDelegate,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -51,6 +52,7 @@ const OpenPosition = () => {
   const wallet = useWallet();
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
+  const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
@@ -342,6 +344,11 @@ const OpenPosition = () => {
       return;
     }
 
+    if (!hasWhitelisted) {
+      whitelistDelegate({ token: selectedCollateralToken, txnId: uuid() });
+      return;
+    }
+
     const action = hasEnoughCollateralAllowance ? borrow : approve;
 
     action({
@@ -359,7 +366,9 @@ const OpenPosition = () => {
     canBorrow,
     collateralAmount,
     hasEnoughCollateralAllowance,
+    hasWhitelisted,
     selectedCollateralToken,
+    whitelistDelegate,
   ]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
@@ -416,18 +425,18 @@ const OpenPosition = () => {
    * Update action button state based on current approve/borrow request status
    */
   useEffect(() => {
-    if (!approveStatus && !borrowStatus) {
+    if (!whitelistDelegateStatus && !approveStatus && !borrowStatus) {
       return;
     }
 
-    if (approveStatus?.pending || borrowStatus?.pending) {
+    if (whitelistDelegateStatus?.pending || approveStatus?.pending || borrowStatus?.pending) {
       setActionButtonState('loading');
-    } else if (approveStatus?.success || borrowStatus?.success) {
+    } else if (whitelistDelegateStatus?.success || approveStatus?.success || borrowStatus?.success) {
       setActionButtonState('success');
     } else {
       setActionButtonState('default');
     }
-  }, [approveStatus, borrowStatus]);
+  }, [approveStatus, borrowStatus, whitelistDelegateStatus]);
 
   const collateralInputFiatValue = useMemo(() => {
     if (!collateralTokenValues.valueFormatted || Decimal.parse(collateralAmount, 0).isZero()) {

@@ -40,10 +40,6 @@ interface ApproveStatus {
   error?: Error;
   contractTransaction?: ethers.ContractTransactionResponse;
   rPermit?: ERC20PermitSignatureStruct;
-  transactionData?: {
-    approvedAmount: Decimal;
-    gasFee: Decimal;
-  };
   txnId: string;
 }
 
@@ -52,10 +48,6 @@ interface ApproveResponse {
   contractTransaction?: ethers.ContractTransactionResponse;
   transactionReceipt?: ethers.TransactionReceipt;
   rPermit?: ERC20PermitSignatureStruct;
-  transactionData?: {
-    approvedAmount: Decimal;
-    gasFee: Decimal;
-  };
   error?: Error;
   txnId: string;
 }
@@ -160,19 +152,14 @@ const stream$ = combineLatest([approve$]).pipe(
       }
     }
 
-    try {
-      return {
-        pending: false,
-        success: true,
-        request,
-        contractTransaction,
-        rPermit,
-        txnId,
-      };
-    } catch (error) {
-      console.error('useApprove - Failed to parse transaction receipt!', error);
-      return { pending: false, success: false, error, request, txnId } as ApproveStatus;
-    }
+    return {
+      pending: false,
+      success: true,
+      request,
+      contractTransaction,
+      rPermit,
+      txnId,
+    };
   }),
   tap(status => {
     emitAppEvent({

@@ -16,3 +16,4 @@ export * from './useNotification';
 export * from './useTransactionHistory';
 export * from './useTokenAllowances';
 export * from './useTokenWhitelists';
+export * from './useWhitelistDelegate';

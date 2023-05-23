@@ -3,7 +3,15 @@ import { ButtonWrapper } from 'tempus-ui';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
-import { useBorrow, useTokenAllowances, useTokenBalances, useTokenPrices, useTokenWhitelists } from '../../hooks';
+import {
+  useApprove,
+  useBorrow,
+  useTokenAllowances,
+  useTokenBalances,
+  useTokenPrices,
+  useTokenWhitelists,
+  useWhitelistDelegate,
+} from '../../hooks';
 import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../../utils';
 import {
   COLLATERAL_BASE_TOKEN,
@@ -36,6 +44,8 @@ interface AdjustPositionProps {
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
+  const { approve, approveStatus } = useApprove();
+  const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
   const tokenAllowanceMap = useTokenAllowances();
@@ -52,20 +62,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Update action button state based on current borrow request status
    */
   useEffect(() => {
-    if (!borrowStatus) {
+    if (!whitelistDelegateStatus && !approveStatus && !borrowStatus) {
       return;
     }
 
-    if (borrowStatus.pending) {
+    if (whitelistDelegateStatus?.pending || approveStatus?.pending || borrowStatus?.pending) {
       setTransactionState('loading');
-    } else if (borrowStatus.success) {
+    } else if (whitelistDelegateStatus?.success || approveStatus?.success || borrowStatus?.success) {
       setTransactionState('success');
-      setCollateralAmount('');
-      setBorrowAmount('');
     } else {
       setTransactionState('default');
     }
-  }, [borrowStatus]);
+  }, [approveStatus, borrowStatus, whitelistDelegateStatus]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -494,8 +502,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [collateralAmountDecimal, selectedCollateralTokenAllowance],
   );
   const hasEnoughDebtAllowance = useMemo(
-    () => Boolean(tokenAllowanceMap[R_TOKEN]?.gte(borrowAmountDecimal.abs()) && borrowAmountDecimal.lt(0)),
-    [borrowAmountDecimal, tokenAllowanceMap],
+    () =>
+      Boolean(tokenAllowanceMap[R_TOKEN]?.gte(borrowAmountDecimal) && borrowAmountDecimal.gt(0)) ||
+      borrowAmountDecimal.lte(0) ||
+      Boolean(approveStatus?.rPermit),
+    [approveStatus?.rPermit, borrowAmountDecimal, tokenAllowanceMap],
   );
   const hasEnoughToWithdraw = useMemo(() => {
     if (!newCollateralInDisplayToken.amount) {
@@ -556,7 +567,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return `Approve R (1/${executionSteps})`;
     }
 
-    return `Execute (1/${executionSteps})`;
+    return 'Execute';
   }, [
     hasEnoughCollateralTokenBalance,
     hasEnoughToWithdraw,
@@ -609,12 +620,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     tokenPriceMap,
   ]);
 
-  const onAdjust = useCallback(() => {
+  const onAction = useCallback(() => {
     if (!canAdjust) {
       return null;
     }
 
-    borrow({
+    if (!hasWhitelisted) {
+      whitelistDelegate({ token: selectedCollateralToken, txnId: uuid() });
+      return;
+    }
+
+    const action = hasEnoughCollateralAllowance && hasEnoughDebtAllowance ? borrow : approve;
+
+    action({
       collateralChange: collateralAmountDecimal,
       debtChange: borrowAmountDecimal,
       collateralToken: selectedCollateralToken,
@@ -622,16 +640,25 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       currentUserDebt: debtBalance,
       closePosition: closePositionActive,
       txnId: uuid(),
+      options: {
+        rPermitSignature: approveStatus?.rPermit,
+      },
     });
   }, [
-    borrow,
-    borrowAmountDecimal,
     canAdjust,
+    hasWhitelisted,
+    hasEnoughCollateralAllowance,
+    hasEnoughDebtAllowance,
+    borrow,
+    approve,
     collateralAmountDecimal,
+    borrowAmountDecimal,
+    selectedCollateralToken,
     collateralBalance,
     debtBalance,
-    selectedCollateralToken,
     closePositionActive,
+    approveStatus?.rPermit,
+    whitelistDelegate,
   ]);
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
@@ -853,7 +880,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           />
         </div>
         <div className="raft__adjustPosition__action">
-          <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
+          <Button variant="primary" onClick={onAction} disabled={buttonDisabled}>
             {transactionState === 'loading' && <Loading />}
             <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               {buttonLabel}
