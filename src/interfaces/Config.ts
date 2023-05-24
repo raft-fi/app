@@ -1,5 +1,6 @@
 export interface ChainConfig {
   positionManager: string;
+  positionManagerStEth: string;
   collateralTokens: { [tokenName: string]: string };
   raftCollateralToken: string;
   raftDebtToken: string;

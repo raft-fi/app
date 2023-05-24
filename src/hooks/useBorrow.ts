@@ -2,7 +2,7 @@ import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
 import { Decimal } from '@tempusfinance/decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
-import { CollateralToken, UserPosition } from '@raft-fi/sdk';
+import { CollateralToken, ManagePositionOptions, UserPosition } from '@raft-fi/sdk';
 import {
   concatMap,
   map,
@@ -22,7 +22,7 @@ import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
-import { notification$ } from './useNotification';
+import { resetApproveStatus } from './useApprove';
 
 interface BorrowRequest {
   txnId: string;
@@ -32,6 +32,7 @@ interface BorrowRequest {
   currentUserCollateral: Decimal;
   currentUserDebt: Decimal;
   closePosition?: boolean;
+  options?: ManagePositionOptions;
 }
 
 interface BorrowStatus {
@@ -73,6 +74,7 @@ const stream$ = combineLatest([borrow$]).pipe(
         collateralChange,
         debtChange,
         closePosition = false,
+        options = {},
       } = request;
 
       try {
@@ -93,6 +95,7 @@ const stream$ = combineLatest([borrow$]).pipe(
         if (closePosition) {
           result$ = from(
             userPosition.close({
+              ...options,
               collateralToken: request.collateralToken,
               maxFeePercentage: new Decimal(0.01),
             }),
@@ -100,24 +103,9 @@ const stream$ = combineLatest([borrow$]).pipe(
         } else {
           result$ = from(
             userPosition.manage(collateralChange, debtChange, {
+              ...options,
               collateralToken: request.collateralToken,
               maxFeePercentage: new Decimal(0.01),
-              onApprovalStart: () =>
-                notification$.next({
-                  notificationId: txnId,
-                  notificationType: 'approval-pending',
-                  token: request.collateralToken,
-                  amount: request.collateralChange,
-                  timestamp: Date.now(),
-                }),
-              onApprovalEnd: error =>
-                notification$.next({
-                  notificationId: txnId,
-                  notificationType: error ? 'approval-error' : 'approval-success',
-                  token: request.collateralToken,
-                  amount: request.collateralChange,
-                  timestamp: Date.now(),
-                }),
             }),
           );
         }
@@ -181,18 +169,13 @@ const stream$ = combineLatest([borrow$]).pipe(
       return { pending: false, success: false, error: error ?? receiptFetchFailed, request, txnId } as BorrowStatus;
     }
 
-    try {
-      return {
-        pending: false,
-        success: true,
-        request,
-        contractTransaction: contractTransaction,
-        txnId,
-      };
-    } catch (error) {
-      console.error('useBorrow - Failed to parse transaction receipt!', error);
-      return { pending: false, success: false, error, request, txnId } as BorrowStatus;
-    }
+    return {
+      pending: false,
+      success: true,
+      request,
+      contractTransaction,
+      txnId,
+    };
   }),
   tap(status => {
     emitAppEvent({
@@ -202,6 +185,9 @@ const stream$ = combineLatest([borrow$]).pipe(
     });
 
     borrowStatus$.next(status);
+
+    // reset approval status after borrow becoz signature used will be invalid
+    resetApproveStatus();
   }),
 );
 

@@ -2,8 +2,16 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { ButtonWrapper } from 'tempus-ui';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
-import { useBorrow, useTokenBalances, useTokenPrices } from '../../hooks';
+import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import {
+  useApprove,
+  useBorrow,
+  useTokenAllowances,
+  useTokenBalances,
+  useTokenPrices,
+  useTokenWhitelists,
+  useWhitelistDelegate,
+} from '../../hooks';
 import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../../utils';
 import {
   COLLATERAL_BASE_TOKEN,
@@ -36,8 +44,12 @@ interface AdjustPositionProps {
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
+  const { approve, approveStatus } = useApprove();
+  const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
+  const tokenAllowanceMap = useTokenAllowances();
+  const tokenWhitelistMap = useTokenWhitelists();
 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
@@ -50,20 +62,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Update action button state based on current borrow request status
    */
   useEffect(() => {
-    if (!borrowStatus) {
+    if (!whitelistDelegateStatus && !approveStatus && !borrowStatus) {
       return;
     }
 
-    if (borrowStatus.pending) {
+    if (whitelistDelegateStatus?.pending || approveStatus?.pending || borrowStatus?.pending) {
       setTransactionState('loading');
-    } else if (borrowStatus.success) {
+    } else if (whitelistDelegateStatus?.success || approveStatus?.success || borrowStatus?.success) {
       setTransactionState('success');
-      setCollateralAmount('');
-      setBorrowAmount('');
     } else {
       setTransactionState('default');
     }
-  }, [borrowStatus]);
+  }, [approveStatus, borrowStatus, whitelistDelegateStatus]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -182,6 +192,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const selectedCollateralTokenBalance = useMemo(
     () => tokenBalanceMap[selectedCollateralToken],
     [selectedCollateralToken, tokenBalanceMap],
+  );
+  const selectedCollateralTokenAllowance = useMemo(
+    () => tokenAllowanceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenAllowanceMap],
+  );
+  const selectedCollateralTokenWhitelist = useMemo(
+    () => tokenWhitelistMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenWhitelistMap],
   );
 
   /**
@@ -443,7 +461,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
   );
   const formattedMissingBorrowAmount = useMemo(() => {
-    const missingBorrowAmount = debtTokenBalanceValues.amount?.sub(borrowAmountDecimal.abs()) || Decimal.ZERO;
+    const missingBorrowAmount = (debtTokenBalanceValues.amount?.sub(borrowAmountDecimal.abs()) || Decimal.ZERO).abs();
     const truncatedMissingBorrowAmount = new Decimal(missingBorrowAmount.toTruncated(2));
     const result = truncatedMissingBorrowAmount.lt(missingBorrowAmount)
       ? truncatedMissingBorrowAmount.add(0.01)
@@ -451,7 +469,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return DecimalFormat.format(result, {
       style: 'decimal',
-      round: true,
+      fractionDigits: 2,
     });
   }, [debtTokenBalanceValues.amount, borrowAmountDecimal]);
   const hasMinBorrow = useMemo(
@@ -478,6 +496,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         !currentCollateralizationRatio.equals(newCollateralizationRatio)),
     [currentCollateralizationRatio, isClosePosition, newCollateralizationRatio],
   );
+  const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
+  const hasEnoughCollateralAllowance = useMemo(
+    () => Boolean(selectedCollateralTokenAllowance?.gte(collateralAmountDecimal)),
+    [collateralAmountDecimal, selectedCollateralTokenAllowance],
+  );
+  const hasEnoughDebtAllowance = useMemo(
+    // R token somehow can give MAX allowance which is wrong
+    // return true whenever debt amount is -ve and collateral is not wstETH
+    () =>
+      (borrowAmountDecimal.lt(0) && TOKENS_WITH_PERMIT.has(selectedCollateralToken)) ||
+      Boolean(approveStatus?.rPermit) ||
+      borrowAmountDecimal.gte(0),
+    [approveStatus?.rPermit, borrowAmountDecimal, selectedCollateralToken],
+  );
   const hasEnoughToWithdraw = useMemo(() => {
     if (!newCollateralInDisplayToken.amount) {
       return true;
@@ -491,6 +523,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinNewRatio,
     [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio],
   );
+
+  const executionSteps = useMemo(() => {
+    const whitelistStep = hasWhitelisted ? 0 : 1;
+    const collateralApprovalStep = hasEnoughCollateralAllowance ? 0 : 1;
+    const debtApprovalStep = hasEnoughDebtAllowance ? 0 : 1;
+    const executionStep = 1;
+
+    return whitelistStep + collateralApprovalStep + debtApprovalStep + executionStep;
+  }, [hasEnoughCollateralAllowance, hasEnoughDebtAllowance, hasWhitelisted]);
 
   const buttonLabel = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
@@ -512,14 +553,35 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Collateralization ratio is below the minimum threshold';
     }
 
+    if (!hasWhitelisted) {
+      return `Whitelist delegate (1/${executionSteps})`;
+    }
+
+    if (!hasEnoughCollateralAllowance && !hasEnoughDebtAllowance) {
+      return `Approve required tokens (1/${executionSteps})`;
+    }
+
+    if (!hasEnoughCollateralAllowance) {
+      return `Approve ${selectedCollateralToken} (1/${executionSteps})`;
+    }
+
+    if (!hasEnoughDebtAllowance) {
+      return `Approve R (1/${executionSteps})`;
+    }
+
     return 'Execute';
   }, [
     hasEnoughCollateralTokenBalance,
-    hasEnoughDebtTokenBalance,
     hasEnoughToWithdraw,
+    hasEnoughDebtTokenBalance,
     hasMinBorrow,
     hasMinNewRatio,
+    hasWhitelisted,
+    hasEnoughCollateralAllowance,
+    hasEnoughDebtAllowance,
+    executionSteps,
     formattedMissingBorrowAmount,
+    selectedCollateralToken,
   ]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
@@ -560,12 +622,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     tokenPriceMap,
   ]);
 
-  const onAdjust = useCallback(() => {
+  const onAction = useCallback(() => {
     if (!canAdjust) {
       return null;
     }
 
-    borrow({
+    if (!hasWhitelisted) {
+      whitelistDelegate({ token: selectedCollateralToken, txnId: uuid() });
+      return;
+    }
+
+    const action = hasEnoughCollateralAllowance && hasEnoughDebtAllowance ? borrow : approve;
+
+    action({
       collateralChange: collateralAmountDecimal,
       debtChange: borrowAmountDecimal,
       collateralToken: selectedCollateralToken,
@@ -573,16 +642,25 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       currentUserDebt: debtBalance,
       closePosition: closePositionActive,
       txnId: uuid(),
+      options: {
+        rPermitSignature: approveStatus?.rPermit,
+      },
     });
   }, [
-    borrow,
-    borrowAmountDecimal,
     canAdjust,
+    hasWhitelisted,
+    hasEnoughCollateralAllowance,
+    hasEnoughDebtAllowance,
+    borrow,
+    approve,
     collateralAmountDecimal,
+    borrowAmountDecimal,
+    selectedCollateralToken,
     collateralBalance,
     debtBalance,
-    selectedCollateralToken,
     closePositionActive,
+    approveStatus?.rPermit,
+    whitelistDelegate,
   ]);
 
   const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
@@ -804,7 +882,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           />
         </div>
         <div className="raft__adjustPosition__action">
-          <Button variant="primary" onClick={onAdjust} disabled={buttonDisabled}>
+          <Button variant="primary" onClick={onAction} disabled={buttonDisabled}>
             {transactionState === 'loading' && <Loading />}
             <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
               {buttonLabel}

@@ -23,7 +23,7 @@ import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 
-const collateralBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
+export const collateralBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
 const fetchData = (walletAddress: Nullable<string>, provider: JsonRpcProvider) => {
   if (!walletAddress) {

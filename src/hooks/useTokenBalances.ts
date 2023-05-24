@@ -127,9 +127,9 @@ export const [useTokenBalances] = bind(tokenBalances$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 
-export const subscribeTakenBalances = (): void => {
-  unsubscribeTakenBalances();
+export const subscribeTokenBalances = (): void => {
+  unsubscribeTokenBalances();
   subscription = stream$.subscribe();
 };
-export const unsubscribeTakenBalances = (): void => subscription?.unsubscribe();
-export const resetTakenBalances = (): void => tokenBalances$.next(DEFAULT_VALUE);
+export const unsubscribeTokenBalances = (): void => subscription?.unsubscribe();
+export const resetTokenBalances = (): void => tokenBalances$.next(DEFAULT_VALUE);

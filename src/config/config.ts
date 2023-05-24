@@ -4,6 +4,7 @@ import { Config } from '../interfaces';
 const config: Config = {
   ethereum: {
     positionManager: RaftConfig.addresses.positionManager,
+    positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
     collateralTokens: {
       wstETH: RaftConfig.addresses.wstEth,
     },
@@ -27,6 +28,7 @@ const config: Config = {
   },
   goerli: {
     positionManager: RaftConfig.addresses.positionManager,
+    positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
     collateralTokens: {
       wstETH: RaftConfig.addresses.wstEth,
     },

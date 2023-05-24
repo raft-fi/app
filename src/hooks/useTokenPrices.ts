@@ -105,9 +105,9 @@ export const [useTokenPrices] = bind(tokenPrices$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 
-export const subscribeTakenPrices = (): void => {
-  unsubscribeTakenPrices();
+export const subscribeTokenPrices = (): void => {
+  unsubscribeTokenPrices();
   subscription = stream$.subscribe();
 };
-export const unsubscribeTakenPrices = (): void => subscription?.unsubscribe?.();
-export const resetTakenPrices = (): void => rawTokenPrices$.next(DEFAULT_VALUE);
+export const unsubscribeTokenPrices = (): void => subscription?.unsubscribe?.();
+export const resetTokenPrices = (): void => rawTokenPrices$.next(DEFAULT_VALUE);

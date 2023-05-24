@@ -1,6 +1,4 @@
-import { CollateralToken } from '@raft-fi/sdk';
 import { BehaviorSubject } from 'rxjs';
-import { Decimal } from '@tempusfinance/decimal';
 import { bind } from '@react-rxjs/core';
 import { Nullable } from '../interfaces';
 
@@ -9,8 +7,6 @@ export type NotificationType = 'approval-pending' | 'approval-success' | 'approv
 export interface Notification {
   notificationId: string;
   notificationType: NotificationType;
-  token: CollateralToken;
-  amount: Decimal;
   timestamp: number;
 }
 
