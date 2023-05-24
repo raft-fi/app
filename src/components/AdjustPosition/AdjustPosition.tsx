@@ -554,19 +554,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     if (!hasWhitelisted) {
-      return `Whitelist delegate (1/${executionSteps})`;
-    }
-
-    if (!hasEnoughCollateralAllowance && !hasEnoughDebtAllowance) {
-      return `Approve required tokens (1/${executionSteps})`;
+      return transactionState === 'loading'
+        ? `Whitelisting delegate (1/${executionSteps})`
+        : `Whitelist delegate (1/${executionSteps})`;
     }
 
     if (!hasEnoughCollateralAllowance) {
-      return `Approve ${selectedCollateralToken} (1/${executionSteps})`;
+      return transactionState === 'loading'
+        ? `Approving ${selectedCollateralToken} (1/${executionSteps})`
+        : `Approve ${selectedCollateralToken} (1/${executionSteps})`;
     }
 
     if (!hasEnoughDebtAllowance) {
-      return `Approve R (1/${executionSteps})`;
+      return transactionState === 'loading' ? `Approving R (1/${executionSteps})` : `Approve R (1/${executionSteps})`;
     }
 
     return 'Execute';
@@ -579,8 +579,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     hasWhitelisted,
     hasEnoughCollateralAllowance,
     hasEnoughDebtAllowance,
-    executionSteps,
     formattedMissingBorrowAmount,
+    transactionState,
+    executionSteps,
     selectedCollateralToken,
   ]);
 
@@ -632,9 +633,33 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return;
     }
 
-    const action = hasEnoughCollateralAllowance && hasEnoughDebtAllowance ? borrow : approve;
+    if (!hasEnoughCollateralAllowance) {
+      approve({
+        collateralChange: collateralAmountDecimal,
+        debtChange: Decimal.ZERO,
+        collateralToken: selectedCollateralToken,
+        currentUserCollateral: collateralBalance,
+        currentUserDebt: debtBalance,
+        closePosition: closePositionActive,
+        txnId: uuid(),
+      });
+      return;
+    }
 
-    action({
+    if (!hasEnoughDebtAllowance) {
+      approve({
+        collateralChange: Decimal.ZERO,
+        debtChange: borrowAmountDecimal,
+        collateralToken: selectedCollateralToken,
+        currentUserCollateral: collateralBalance,
+        currentUserDebt: debtBalance,
+        closePosition: closePositionActive,
+        txnId: uuid(),
+      });
+      return;
+    }
+
+    borrow({
       collateralChange: collateralAmountDecimal,
       debtChange: borrowAmountDecimal,
       collateralToken: selectedCollateralToken,
