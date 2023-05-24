@@ -310,14 +310,18 @@ const OpenPosition = () => {
     }
 
     if (!hasWhitelisted) {
-      return `Whitelist delegate (1/${executionSteps})`;
+      return actionButtonState === 'loading'
+        ? `Whitelisting delegate (1/${executionSteps})`
+        : `Whitelist delegate (1/${executionSteps})`;
     }
 
     if (!hasEnoughCollateralAllowance) {
-      return `Approve ${selectedCollateralToken} (1/${executionSteps})`;
+      return actionButtonState === 'loading'
+        ? `Approving ${selectedCollateralToken} (1/${executionSteps})`
+        : `Approve ${selectedCollateralToken} (1/${executionSteps})`;
     }
 
-    return 'Borrow';
+    return actionButtonState === 'loading' ? 'Borrowing' : 'Borrow';
   }, [
     walletConnected,
     hasEnoughCollateralTokenBalance,
@@ -325,6 +329,7 @@ const OpenPosition = () => {
     hasMinRatio,
     hasWhitelisted,
     hasEnoughCollateralAllowance,
+    actionButtonState,
     minBorrowFormatted,
     executionSteps,
     selectedCollateralToken,
