@@ -17,15 +17,11 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
         <Icon variant="transaction-failed" size={142} />
       </div>
       <div className="raft__transactionFailedModal__title">
-        <Typography variant="subheader" weight="medium">
-          Transaction failed
-        </Typography>
+        <Typography variant="heading1">Transaction failed</Typography>
       </div>
       <div className="raft__transactionFailedModal__errorMessage">
         <div className="raft__transactionFailedModal__errorMessage__title">
-          <Typography variant="body-primary" weight="semi-bold">
-            Transaction summary
-          </Typography>
+          <Typography variant="body-primary">Transaction summary</Typography>
         </div>
         <div className="raft__transactionFailedModal__errorMessage__content">
           <Typography variant="body-primary">{error}</Typography>
@@ -33,18 +29,10 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
       </div>
       <div className="raft__transactionFailedModal__actions">
         <div className="raft__transactionFailedModal__action">
-          <Button variant="secondary" onClick={onClose}>
-            <Typography variant="body-primary" weight="medium">
-              Close
-            </Typography>
-          </Button>
+          <Button variant="secondary" text="Close" onClick={onClose} />
         </div>
         <div className="raft__transactionFailedModal__action">
-          <Button variant="primary" onClick={onTryAgain}>
-            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
-              Try again
-            </Typography>
-          </Button>
+          <Button variant="primary" text="Try again" onClick={onTryAgain} />
         </div>
       </div>
     </div>

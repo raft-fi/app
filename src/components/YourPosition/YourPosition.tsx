@@ -121,68 +121,56 @@ const YourPosition: FC = () => {
   return (
     <div className="raft__your-position">
       <div className="raft__your-position__collateral">
-        <Typography variant="body-tertiary" weight="semi-bold" color="text-accent">
+        <Typography variant="body-secondary" color="text-accent">
           YOUR COLLATERAL
         </Typography>
         <div className="raft__your-position__collateral__amount">
           <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
           <div className="raft__your-position__collateral__amount__number">
-            <Typography variant="title" weight="medium">
-              {collateralAmountFormatted ?? '---'}
-            </Typography>
-            <Typography variant="subtitle" weight="medium">
-              {DISPLAY_BASE_TOKEN}
-            </Typography>
+            <Typography variant="heading1">{collateralAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading2">{DISPLAY_BASE_TOKEN}</Typography>
           </div>
         </div>
         <div className="raft__your-position__collateral__value__number">
-          <Typography variant="body-tertiary" color="text-secondary">
+          <Typography variant="body-secondary" color="text-secondary">
             $
           </Typography>
-          <Typography variant="body-primary" weight="medium" color="text-secondary">
+          <Typography variant="body-primary" color="text-secondary">
             {collateralValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
       <div className="raft__your-position__debt">
-        <Typography variant="body-tertiary" weight="semi-bold" color="text-accent">
+        <Typography variant="body-secondary" color="text-accent">
           YOUR DEBT
         </Typography>
         <div className="raft__your-position__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
           <div className="raft__your-position__debt__amount__number">
-            <Typography variant="title" weight="medium">
-              {debtAmountFormatted ?? '---'}
-            </Typography>
-            <Typography variant="subtitle" weight="medium" type="mono">
-              {R_TOKEN}
-            </Typography>
+            <Typography variant="heading1">{debtAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading2">{R_TOKEN}</Typography>
           </div>
         </div>
         <div className="raft__your-position__debt__value__number">
-          <Typography variant="body-tertiary" color="text-secondary">
+          <Typography variant="body-secondary" color="text-secondary">
             $
           </Typography>
-          <Typography variant="body-primary" weight="medium" color="text-secondary">
+          <Typography variant="body-primary" color="text-secondary">
             {debtValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
       <div className="raft__your-position__ratio">
-        <Typography variant="body-tertiary" weight="semi-bold" color="text-accent">
+        <Typography variant="body-secondary" color="text-accent">
           COLLATERALIZATION
         </Typography>
         <div className="raft__your-position__ratio__percent">
-          <Typography variant="title" weight="medium">
-            {collateralizationRatioFormatted ?? '---'}
-          </Typography>
-          <Typography variant="subtitle" weight="medium">
-            %
-          </Typography>
+          <Typography variant="heading1">{collateralizationRatioFormatted ?? '---'}</Typography>
+          <Typography variant="heading2">%</Typography>
         </div>
         <div className="raft__your-position__ratio__status">
           <div className={`raft__your-position__ratio__status__color ${collateralRatioColor}`} />
-          <Typography variant="body-primary" weight="medium" color="text-secondary">
+          <Typography variant="body-primary" color="text-secondary">
             {collateralRatioLabel ?? '---'}
           </Typography>
         </div>

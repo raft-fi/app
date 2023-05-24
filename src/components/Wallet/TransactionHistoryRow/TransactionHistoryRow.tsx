@@ -41,9 +41,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           return (
             <>
               <Typography variant="body-secondary">Deposited&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
-                {collateralChangeFormatted}
-              </Typography>
+              <Typography variant="body-secondary">{collateralChangeFormatted}</Typography>
             </>
           );
         }
@@ -52,9 +50,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           return (
             <>
               <Typography variant="body-secondary">Borrowed&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
-                {debtChangeFormatted}
-              </Typography>
+              <Typography variant="body-secondary">{debtChangeFormatted}</Typography>
             </>
           );
         }
@@ -63,9 +59,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           return (
             <>
               <Typography variant="body-secondary">Withdrew&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
-                {collateralChangeFormatted}
-              </Typography>
+              <Typography variant="body-secondary">{collateralChangeFormatted}</Typography>
             </>
           );
         }
@@ -74,9 +68,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           return (
             <>
               <Typography variant="body-secondary">Repaid&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
-                {debtChangeFormatted}
-              </Typography>
+              <Typography variant="body-secondary">{debtChangeFormatted}</Typography>
             </>
           );
         }
@@ -87,15 +79,11 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
             <Typography variant="body-secondary">
               {transaction.debtChange.lt(0) ? 'Repaid' : 'Borrowed'}&nbsp;
             </Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {debtChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{debtChangeFormatted}</Typography>
             <Typography variant="body-secondary">
               &nbsp;and {transaction.collateralChange.lt(0) ? 'withdrew' : 'deposited'}&nbsp;
             </Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {collateralChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{collateralChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;collateral</Typography>
           </>
         );
@@ -104,13 +92,9 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         return (
           <>
             <Typography variant="body-secondary">Borrowed&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {debtChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{debtChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;with&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {collateralChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{collateralChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;collateral</Typography>
           </>
         );
@@ -118,13 +102,9 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         return (
           <>
             <Typography variant="body-secondary">Position closed with&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {debtChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{debtChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;and&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {collateralChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{collateralChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;collateral</Typography>
           </>
         );
@@ -132,13 +112,9 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         return (
           <>
             <Typography variant="body-secondary">Position liquidated with&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {debtChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{debtChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;and&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
-              {collateralChangeFormatted}
-            </Typography>
+            <Typography variant="body-secondary">{collateralChangeFormatted}</Typography>
             <Typography variant="body-secondary">&nbsp;collateral</Typography>
           </>
         );

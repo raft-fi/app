@@ -100,9 +100,7 @@ const ProtocolStats = () => {
   return (
     <div className="raft__protocol-stats">
       <div className="raft__protocol-stats__header">
-        <Typography variant="subtitle" weight="medium">
-          Protocol stats
-        </Typography>
+        <Typography variant="heading2">Protocol stats</Typography>
       </div>
       <div className="raft__protocol-stats__body raft__protocol-stats-expanded">
         <div className="raft__protocol-stats__stat-token">
@@ -112,8 +110,7 @@ const ProtocolStats = () => {
             <div className="raft__protocol-stats__stat__data">
               <Typography
                 className="raft__protocol-stats__stat__data__title"
-                variant="body-tertiary"
-                weight="semi-bold"
+                variant="body-secondary"
                 color="text-accent"
               >
                 Total supply
@@ -126,8 +123,7 @@ const ProtocolStats = () => {
             <div className="raft__protocol-stats__stat__data">
               <Typography
                 className="raft__protocol-stats__stat__data__title"
-                variant="body-tertiary"
-                weight="semi-bold"
+                variant="body-secondary"
                 color="text-accent"
               >
                 Total value
@@ -140,8 +136,7 @@ const ProtocolStats = () => {
             <div className="raft__protocol-stats__stat__data">
               <Typography
                 className="raft__protocol-stats__stat__data__title"
-                variant="body-tertiary"
-                weight="semi-bold"
+                variant="body-secondary"
                 color="text-accent"
               >
                 Price
@@ -157,8 +152,7 @@ const ProtocolStats = () => {
             <div className="raft__protocol-stats__stat__data">
               <Typography
                 className="raft__protocol-stats__stat__data__title"
-                variant="body-tertiary"
-                weight="semi-bold"
+                variant="body-secondary"
                 color="text-accent"
               >
                 Total supply
@@ -171,8 +165,7 @@ const ProtocolStats = () => {
             <div className="raft__protocol-stats__stat__data">
               <Typography
                 className="raft__protocol-stats__stat__data__title"
-                variant="body-tertiary"
-                weight="semi-bold"
+                variant="body-secondary"
                 color="text-accent"
               >
                 Total value
@@ -185,8 +178,7 @@ const ProtocolStats = () => {
             <div className="raft__protocol-stats__stat__data">
               <Typography
                 className="raft__protocol-stats__stat__data__title"
-                variant="body-tertiary"
-                weight="semi-bold"
+                variant="body-secondary"
                 color="text-accent"
               >
                 Price

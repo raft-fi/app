@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
 const Close: FC<InnerIconProps> = ({ size }) => {
-  const color = 'var(--closeColor, var(--raftHeaderTextDark))';
+  const color = 'var(--closeColor, var(--textSecondary))';
 
   return (
     <svg width={size} height={size} viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">

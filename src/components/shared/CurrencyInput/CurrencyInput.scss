@@ -2,8 +2,8 @@
   position: relative;
   width: 100%;
   padding: 16px;
-  background: var(--colorSurface);
-  border: 1px solid var(--colorBorder);
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
   border-radius: 8px;
   box-sizing: border-box;
 
@@ -49,7 +49,7 @@
       justify-content: space-between;
       box-sizing: border-box;
       padding: 0px 8px;
-      border-bottom: 1px solid var(--colorBorder);
+      border-bottom: 1px solid var(--borderPrimary);
       border-radius: 8px 8px 0px 0px;
 
       .raft__currencyInput__amountContainer {
@@ -95,7 +95,7 @@
             cursor: default;
           }
 
-          --chevronDownColor: var(--raftBlack);
+          --chevronDownColor: var(--colorBlack);
 
           .raft__currencyInput__tokenLabel {
             padding-left: 8px;
@@ -111,7 +111,7 @@
         }
 
         .raft__currencyInput__dropdownContainer {
-          background-color: var(--colorSurface);
+          background-color: var(--surfacePrimary);
           box-shadow: var(--shadowMenu);
           border-radius: 8px;
 
@@ -124,13 +124,13 @@
             box-sizing: border-box;
             cursor: pointer;
 
-            --textPrimary: var(--raftBlack);
+            --textPrimary: var(--colorBlack);
 
             .raft__currencyInput__dropdownTokenLogoContainer {
               width: 24px;
               height: 24px;
               box-shadow: var(--shadowPrimary);
-              background: var(--colorSurface);
+              background: var(--surfacePrimary);
               border-radius: 50%;
               margin-right: 12px;
             }
@@ -140,7 +140,7 @@
             }
 
             &:hover {
-              background-color: var(--raftBlue);
+              background-color: var(--surfacePrimary);
             }
 
             &:first-child {
@@ -176,7 +176,7 @@
       padding: 0 20px;
       flex-shrink: 0;
       border-radius: 8px;
-      background-color: var(--colorSurfaceHighlight);
+      background-color: var(--surfacePrimaryHighlight);
       margin-left: 20px;
 
       &:first-child {

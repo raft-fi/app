@@ -45,9 +45,7 @@ const NoticePopup = () => {
     <ModalWrapper open={open} onClose={handleModalClose}>
       <div className="raft__noticePopup">
         <div className="raft__noticePopup__title">
-          <Typography variant="subheader" weight="medium">
-            Notice
-          </Typography>
+          <Typography variant="heading1">Notice</Typography>
         </div>
 
         <div className="raft__noticePopup__description">
@@ -79,11 +77,7 @@ const NoticePopup = () => {
         </div>
 
         <div className="raft__noticePopup__action">
-          <Button variant="primary" onClick={handleTermsAccepted}>
-            <Typography variant="subtitle" weight="medium" color="text-primary-inverted">
-              Agree
-            </Typography>
-          </Button>
+          <Button variant="primary" text="Agree" onClick={handleTermsAccepted} />
         </div>
       </div>
     </ModalWrapper>

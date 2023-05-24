@@ -1,82 +1,99 @@
 @mixin colors {
-  --raftStroke: #c4c4c4;
-  --raftBlack: #171717;
-  --raftHeaderTextDark: #3f5559;
-  --raftHeaderText: #6e898c;
-  --raftFooter: #002229;
-  --raftGrey: #c4c4c4;
-  --raftWhite: #ffffff;
-  --raftLightPastelOrange: #fcf3ea;
-  --raftWallet: #ffd7ba;
-  --raftWalletDark: #ffaf89;
-  --raftOrange: #f76329;
-  --raftLinearOrange: linear-gradient(131.8deg, #ff661e 14.82%, #ff9308 85.92%);
-  --raftDarkOrange: #dd4508;
-  --raftLightPastelBlue: #f5fdff;
-  --raftBlue: #e1f8ff;
-  --raftBackgroundBlue: #c8ebf7;
-  --raftNegativeRed: #c81e1e;
-  --raftErrorBackgroundPastelRed: #fde8e8;
-  --raftErrorHoverPastelRed: #ffbebe;
-  --raftPositiveGreen: #0c7b2d;
-  --raftSuccessBackgroundPastelGreen: #def3e5;
-  --raftErrorishYellowish: #fff8f1;
-  --raftCollateralYellow: #c78500;
-  --raftScrollbarBackground: #ebebeb;
-  --raftAlertTextDarkGrey: #5d5b59;
-  --raftCTADisabled: rgba(247, 99, 41, 0.5);
-  --raftModalIconBackground: rgba(247, 99, 41, 0.25);
-  --raftModalBackground: rgba(23, 23, 23, 0.5);
-  --raftBackgroundBlueLinear: linear-gradient(180deg, rgba(200, 235, 247, 0) 0%, #c8ebf7 89.06%, #c8ebf7 100%);
-  --raftLegalPageTitle: #34464a;
-  --raftLegalPageSubtitle: rgba(0, 0, 0, 0.4);
-
-  --colorPrimary: var(--raftOrange);
-  --colorSurface: var(--raftLightPastelBlue);
-  --colorBorder: var(--raftStroke);
-  --colorSurfaceHighlight: var(--raftLightPastelBlue);
-  --colorSelectedSurface: var(--raftErrorishYellowish);
-  --colorPrimaryDisabled: var(--raftCTADisabled);
-  --colorSecondaryDisabled: var(--raftErrorishYellowish);
-  --colorError: var(--raftNegativeRed);
-
+  /* color palette */
+  --raft-orange-900: #621e04;
   --raft-orange-800: #d94308;
   --raft-orange-700: #f76329;
+  --raft-orange-600: #f97e4e;
   --raft-orange-500: #f98d62;
+  --raft-orange-400: #fba989;
+  --raft-orange-300: #fcd6c5;
+  --raft-orange-200: #fde4d8;
   --raft-orange-100: #fef1eb;
   --raft-grey-900: #191f27;
+  --raft-grey-800: #313a48;
   --raft-grey-700: #5b6776;
+  --raft-grey-600: #7f8ea1;
   --raft-grey-500: #9fb1c1;
   --raft-grey-400: #c0cad2;
   --raft-grey-300: #ccd5de;
+  --raft-grey-200: #dae1e7;
+  --raft-grey-100: #f6f7f9;
+  --raft-blue-900: #003652;
+  --raft-blue-800: #006da3;
+  --raft-blue-700: #008dd5;
+  --raft-blue-600: #0aadff;
+  --raft-blue-500: #5cc9ff;
+  --raft-blue-400: #99ddff;
+  --raft-blue-300: #c2ebff;
+  --raft-blue-200: #ebf8ff;
   --raft-blue-100: #f5fbff;
+  --raft-green-900: #023b0f;
+  --raft-green-800: #05761d;
+  --raft-green-700: #07ad2c;
+  --raft-green-600: #09d736;
+  --raft-green-500: #14f545;
+  --raft-green-400: #89faa2;
+  --raft-green-300: #c4fdd0;
+  --raft-green-200: #ebfeef;
+  --raft-green-100: #f5fff7;
+  --raft-yellow-900: #524700;
+  --raft-yellow-800: #a38d00;
+  --raft-yellow-700: #e0c200;
+  --raft-yellow-600: #ffe11f;
+  --raft-yellow-500: #ffe74c;
+  --raft-yellow-400: #ffef85;
+  --raft-yellow-300: #fff4ad;
+  --raft-yellow-200: #fffad6;
+  --raft-yellow-100: #fffef5;
+  --raft-red-900: #5e080c;
+  --raft-red-800: #ab0d15;
+  --raft-red-700: #e4111c;
+  --raft-red-600: #f1414a;
+  --raft-red-500: #f4676e;
+  --raft-red-400: #f78d92;
+  --raft-red-300: #fab3b6;
+  --raft-red-200: #fcd9db;
+  --raft-red-100: #fef5f6;
   --raft-white: #ffffff;
+  --raft-black: #000000;
 
   /* we are going to have new color system, quick fix for now */
+  --colorWhite: var(--raft-white);
+  --colorBlack: var(--raft-black);
+  --headerActive: var(--raft-grey-700);
+  --headerInactive: var(--raft-grey-600);
+  --borderPrimary: var(--raft-grey-300);
+  --borderSecondary: var(--raft-grey-400);
+  --surfacePrimary: var(--raft-white);
+  --surfaceSecondary: var(--raft-grey-200);
   --textPrimary: var(--raft-grey-900);
   --textSecondary: var(--raft-grey-700);
+  --textTertiary: var(--raft-grey-600);
   --textAccent: var(--raft-orange-700);
   --textPrimaryInverted: var(--raft-white);
-  --textSuccess: var(--raftPositiveGreen);
-  --textWarning: var(--raftCollateralYellow);
-  --textError: var(--raftNegativeRed);
-  --colorBorder: var(--raft-grey-300);
+  --textSuccess: var(--raft-green-700);
+  --textWarning: var(--raft-yellow-600);
+  --textError: var(--raft-red-600);
   --btnPrimary: var(--raft-orange-700);
   --btnPrimaryHover: var(--raft-orange-800);
   --btnPrimaryActive: var(--raft-orange-800);
-  --btnPrimaryDisabled: var(--raft-orange-500);
+  --btnPrimaryDisabled: var(--raft-orange-400);
   --btnPrimaryDisabledText: var(--raft-orange-100);
-  --btnPrimaryFocusVisible: var(--raft-white);
   --btnSecondary: var(--raft-white);
   --btnSecondaryBorder: var(--raft-grey-300);
-  --btnSecondaryHover: var(--raft-white);
+  --btnSecondaryFocusBorder: var(--raft-orange-600);
+  --btnSecondaryHover: var(--raft-grey-100);
   --btnSecondaryHoverBorder: var(--raft-grey-500);
   --btnSecondaryActive: var(--raft-white);
   --btnSecondaryActiveBorder: var(--raft-orange-700);
+  --btnSecondaryActiveText: var(--raft-orange-700);
   --btnSecondaryDisabled: var(--raft-white);
-  --btnSecondaryDisabledBorder: var(--raft-grey-500);
+  --btnSecondaryDisabledBorder: var(--raft-grey-200);
   --btnSecondaryDisabledText: var(--raft-grey-400);
-  --btnSecondaryFocusVisible: var(--raft-grey-300);
+  --btnError: var(--raft-red-200);
+  --btnErrorBorder: var(--raft-red-400);
+  --btnErrorText: var(--raft-red-800);
+  --btnErrorFocusBorder: var(--raft-red-700);
 
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
@@ -89,9 +106,9 @@
   --onboard-checkbox-background: var(--colorPrimary);
   --onboard-checkbox-color: var(--colorPrimary);
   --onboard-warning-100: var(--colorSelectedSurface);
-  --onboard-warning-400: var(--colorBorder);
+  --onboard-warning-400: var(--borderPrimary);
   --onboard-warning-700: var(--textPrimary);
-  --onboard-connect-sidebar-progress-background: var(--raftBlack);
+  --onboard-connect-sidebar-progress-background: var(--colorBlack);
 }
 
 @mixin w3o {
@@ -117,7 +134,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   overflow-y: scroll;
-  background-color: var(--raftBackgroundBlue);
+  background-color: var(--raft-blue-100);
 
   @include colors;
   @include w3o;
@@ -138,13 +155,10 @@ body.modal-open {
 }
 
 @mixin sectionBox {
-  background: var(--raftBlue);
-  border: 1px solid var(--colorBorder);
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
   border-radius: 8px;
-  padding: 24px;
-  width: 800px;
-
-  &:not(:first-child) {
-    margin-top: 32px;
-  }
+  padding: 32px;
+  width: 856px;
+  box-sizing: border-box;
 }

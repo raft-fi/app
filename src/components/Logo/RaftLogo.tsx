@@ -1,7 +1,8 @@
 import { memo } from 'react';
 
 const RaftLogo = () => {
-  const raftLogoTextColor = 'var(--raftLogoTextColor, var(--raftHeaderTextDark))';
+  // #344649 is not in color palette
+  const raftLogoTextColor = 'var(--raftLogoTextColor, #344649)';
 
   return (
     <svg width="139" height="43" viewBox="0 0 139 43" fill="none" xmlns="http://www.w3.org/2000/svg">

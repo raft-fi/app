@@ -1,7 +1,4 @@
 .raft__header {
-  --colorLinkActive: var(--raftHeaderTextDark);
-  --colorLinkInactive: var(--raftHeaderText);
-
   position: relative;
   width: 100%;
   padding: var(--app-padding);
@@ -16,7 +13,7 @@
   }
 
   .raft__header__link-active {
-    --textPrimary: var(--colorLinkActive);
+    --textPrimary: var(--headerActive);
   }
 
   .raft__header__container {
@@ -30,19 +27,19 @@
       z-index: 3;
 
       .raft__header__link-active {
-        --textPrimary: var(--colorLinkActive);
+        --textPrimary: var(--headerActive);
       }
 
       .raft__header__link-inactive {
-        --textPrimary: var(--colorLinkInactive);
+        --textPrimary: var(--headerInactive);
 
         &:hover {
-          --textPrimary: var(--colorLinkActive);
+          --textPrimary: var(--headerActive);
         }
       }
 
       .raft__header__menu-link {
-        --textPrimary: var(--colorLinkInactive);
+        --textPrimary: var(--headerInactive);
 
         width: 100%;
         display: flex;
@@ -69,19 +66,19 @@
         position: relative;
 
         .raft__locale-switcher__button {
-          --chevronDownColor: var(--colorLinkInactive);
-          --chevronUpColor: var(--colorLinkInactive);
-          --globeColor: var(--colorLinkInactive);
-          --textPrimary: var(--colorLinkInactive);
+          --chevronDownColor: var(--headerInactive);
+          --chevronUpColor: var(--headerInactive);
+          --globeColor: var(--headerInactive);
+          --textPrimary: var(--headerInactive);
 
           &:hover {
-            --chevronDownColor: var(--colorLinkActive);
-            --chevronUpColor: var(--colorLinkActive);
-            --globeColor: var(--colorLinkActive);
-            --textPrimary: var(--colorLinkActive);
+            --chevronDownColor: var(--headerActive);
+            --chevronUpColor: var(--headerActive);
+            --globeColor: var(--headerActive);
+            --textPrimary: var(--headerActive);
 
             .raft__header__link-inactive {
-              --textPrimary: var(--colorLinkActive);
+              --textPrimary: var(--headerActive);
             }
           }
         }
@@ -108,7 +105,7 @@
 
         .raft__locale-switcher__menu {
           position: absolute;
-          background-color: var(--colorSurface);
+          background-color: var(--surfacePrimary);
           box-shadow: var(--shadowMenu);
           width: 180px;
           top: 50px;
@@ -124,14 +121,14 @@
 
             > li {
               > button {
-                --textPrimary: var(--raftBlack);
+                --textPrimary: var(--colorBlack);
 
                 padding: 28px 16px;
                 position: relative;
               }
 
               &:hover {
-                background-color: var(--raftBlue);
+                background-color: var(--surfacePrimary);
               }
 
               &:first-of-type {

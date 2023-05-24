@@ -16,19 +16,19 @@ const ValueLabel: FC<ValueLabelProps> = ({
   label = '',
   color,
   valueSize = 'body-primary',
-  tickerSize = 'body-tertiary',
+  tickerSize = 'body-secondary',
 }) => {
   if (value.startsWith('$')) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={tickerSize} weight="medium" color={color}>
+        <Typography variant={tickerSize} color={color}>
           $
         </Typography>
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           {value.split('$')[1]}
         </Typography>
         {label && (
-          <Typography variant={valueSize} weight="regular" color={color}>
+          <Typography variant={valueSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -39,17 +39,17 @@ const ValueLabel: FC<ValueLabelProps> = ({
   if (value.startsWith('~$')) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           ~
         </Typography>
-        <Typography variant={tickerSize} weight="medium" color={color}>
+        <Typography variant={tickerSize} color={color}>
           $
         </Typography>
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           {value.split('$')[1]}
         </Typography>
         {label && (
-          <Typography variant={valueSize} weight="regular" color={color}>
+          <Typography variant={valueSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -60,14 +60,14 @@ const ValueLabel: FC<ValueLabelProps> = ({
   if (value.endsWith('R')) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           {value.split(' ')[0]}&nbsp;
         </Typography>
-        <Typography variant={tickerSize} type="mono" color={color}>
+        <Typography variant={tickerSize} color={color}>
           R
         </Typography>
         {label && (
-          <Typography variant={valueSize} weight="regular" color={color}>
+          <Typography variant={valueSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -78,14 +78,14 @@ const ValueLabel: FC<ValueLabelProps> = ({
   if (value.endsWith('%')) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           {value.split('%')[0]}
         </Typography>
-        <Typography variant={tickerSize} weight="medium" color={color}>
+        <Typography variant={tickerSize} color={color}>
           %
         </Typography>
         {label && (
-          <Typography variant={valueSize} weight="regular" color={color}>
+          <Typography variant={valueSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -96,14 +96,14 @@ const ValueLabel: FC<ValueLabelProps> = ({
   if (value.indexOf(' ') !== -1) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           {value.split(' ')[0]}
         </Typography>
-        <Typography variant={tickerSize} weight="medium" color={color}>
+        <Typography variant={tickerSize} color={color}>
           &nbsp;{value.split(' ')[1]}
         </Typography>
         {label && (
-          <Typography variant={valueSize} weight="regular" color={color}>
+          <Typography variant={valueSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -113,11 +113,11 @@ const ValueLabel: FC<ValueLabelProps> = ({
 
   return (
     <div className="raft__valueLabel">
-      <Typography variant={valueSize} weight="medium" color={color}>
+      <Typography variant={valueSize} color={color}>
         {value}
       </Typography>
       {label && (
-        <Typography variant={valueSize} weight="medium" color={color}>
+        <Typography variant={valueSize} color={color}>
           &nbsp;{label}
         </Typography>
       )}

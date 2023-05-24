@@ -693,21 +693,16 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
-        <Typography variant="subtitle" weight="medium">
-          Adjust your Position
-        </Typography>
+        <Typography variant="heading2">Adjust your Position</Typography>
         <div className="raft__adjustPosition__actions">
           <div className={`raft__adjustPosition__actions__close ${expanded ? 'show' : ''}`}>
             <Button
               variant="secondary"
+              text="Close Position"
               onClick={onToggleClosePosition}
               selected={closePositionActive}
               disabled={!expanded}
-            >
-              <Typography variant="body-primary" weight="medium">
-                Close Position
-              </Typography>
-            </Button>
+            />
           </div>
           <ButtonWrapper onClick={onToggleExpanded}>
             <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
@@ -815,7 +810,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                       anchorClasses="raft__adjustPosition__error"
                       tooltipContent={
                         <Tooltip>
-                          <Typography variant="body-tertiary" color="text-error">
+                          <Typography variant="body-secondary" color="text-error">
                             Borrow below the minimum amount
                           </Typography>
                         </Tooltip>
@@ -875,7 +870,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
                     <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                    <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
+                    <Typography variant="body-secondary">{`(Min. ${minRatioFormatted})`}</Typography>
                   </>
                 ),
                 value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
@@ -889,7 +884,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                       anchorClasses="raft__adjustPosition__error"
                       tooltipContent={
                         <Tooltip>
-                          <Typography variant="body-tertiary" color="text-error">
+                          <Typography variant="body-secondary" color="text-error">
                             Collateralization ratio is below the minimum threshold
                           </Typography>
                         </Tooltip>
@@ -909,7 +904,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <div className="raft__adjustPosition__action">
           <Button variant="primary" onClick={onAction} disabled={buttonDisabled}>
             {transactionState === 'loading' && <Loading />}
-            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
+            <Typography variant="button-label" color="text-primary-inverted">
               {buttonLabel}
             </Typography>
           </Button>

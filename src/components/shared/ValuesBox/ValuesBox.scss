@@ -1,7 +1,7 @@
 .raft__valuesBox {
   padding: 16px;
-  background: var(--colorSurface);
-  border: 1px solid var(--colorBorder);
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
   border-radius: 8px;
 
   .raft__valuesBox__item {
@@ -19,7 +19,7 @@
     }
 
     &:not(:last-child) {
-      border-bottom: 1px dashed var(--colorBorder);
+      border-bottom: 1px dashed var(--borderPrimary);
     }
 
     .raft__valuesBox__itemLabel {

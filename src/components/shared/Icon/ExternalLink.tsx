@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
 const ExternalLink: FC<InnerIconProps> = ({ size }) => {
-  const color = 'var(--externalLinkColor, white)';
+  const color = 'var(--externalLinkColor, var(--textSecondary))';
 
   return (
     <svg

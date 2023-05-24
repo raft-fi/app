@@ -497,16 +497,14 @@ const OpenPosition = () => {
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
-        <Typography variant="subtitle" weight="medium">
-          Open Position
-        </Typography>
-
+        <Typography variant="heading2">Open Position</Typography>
         {walletConnected && (
-          <Button variant="secondary" disabled={maxButtonDisabled} onClick={handleMaxButtonClick}>
-            <Typography variant="body-primary" weight="medium">
-              Max safe borrow
-            </Typography>
-          </Button>
+          <Button
+            variant="secondary"
+            text="Max safe borrow"
+            disabled={maxButtonDisabled}
+            onClick={handleMaxButtonClick}
+          />
         )}
       </div>
       <div className="raft__openPosition__input">
@@ -582,11 +580,9 @@ const OpenPosition = () => {
                     <Icon variant="info" size="small" />
                   </TooltipWrapper>
                   <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
-                  <Typography variant="body-tertiary" type="mono">
-                    {R_TOKEN}
-                  </Typography>
-                  <Typography variant="body-tertiary">{')'}</Typography>
+                  <Typography variant="body-secondary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
+                  <Typography variant="body-secondary">{R_TOKEN}</Typography>
+                  <Typography variant="body-secondary">{')'}</Typography>
                 </>
               ),
               value: hasMinBorrow ? (
@@ -596,7 +592,7 @@ const OpenPosition = () => {
                   anchorClasses="raft__openPosition__error"
                   tooltipContent={
                     <Tooltip>
-                      <Typography variant="body-tertiary" color="text-error">
+                      <Typography variant="body-secondary" color="text-error">
                         Borrow below the minimum amount
                       </Typography>
                     </Tooltip>
@@ -653,7 +649,7 @@ const OpenPosition = () => {
                     <Icon variant="info" size="small" />
                   </TooltipWrapper>
                   <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="body-tertiary">{`(Min. ${minRatioFormatted})`}</Typography>
+                  <Typography variant="body-secondary">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
               value:
@@ -664,7 +660,7 @@ const OpenPosition = () => {
                     anchorClasses="raft__openPosition__error"
                     tooltipContent={
                       <Tooltip>
-                        <Typography variant="body-tertiary" color="text-error">
+                        <Typography variant="body-secondary" color="text-error">
                           Collateralization ratio is below the minimum threshold
                         </Typography>
                       </Tooltip>
@@ -683,18 +679,14 @@ const OpenPosition = () => {
         {isWrongNetwork ? (
           <Button
             className="raft__openPosition__action__wrongNetwork"
-            variant="primary"
+            variant="error"
+            text="Unsupported network"
             onClick={switchToSupportedNetwork}
-          >
-            <Icon variant="error" />
-            <Typography variant="body-primary" weight="bold" color="text-error">
-              Unsupported network
-            </Typography>
-          </Button>
+          />
         ) : (
           <Button variant="primary" onClick={walletConnected ? onAction : onConnectWallet} disabled={buttonDisabled}>
             {actionButtonState === 'loading' && <Loading />}
-            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
+            <Typography variant="button-label" color="text-primary-inverted">
               {buttonLabel}
             </Typography>
           </Button>

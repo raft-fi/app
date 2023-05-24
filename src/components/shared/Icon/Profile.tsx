@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
 const Profile: FC<InnerIconProps> = ({ size }) => {
-  const color = 'var(--profileColor, #3F5559)';
+  const color = 'var(--profileColor, var(--textSecondary))';
 
   return (
     <svg

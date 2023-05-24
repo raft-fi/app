@@ -11,10 +11,10 @@ interface LegalPageHeaderProps {
 const LegalPageHeader: FC<LegalPageHeaderProps> = ({ title, subtitle }) => {
   return (
     <div className="raft__legalPageHeader">
-      <Typography className="raft__legalPageHeader__title" variant="legal-page-title" weight="medium">
+      <Typography className="raft__legalPageHeader__title" variant="heading3">
         {title}
       </Typography>
-      <Typography className="raft__legalPageHeader__subtitle" variant="subheader">
+      <Typography className="raft__legalPageHeader__subtitle" variant="heading2">
         {subtitle}
       </Typography>
     </div>
