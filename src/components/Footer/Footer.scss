@@ -3,10 +3,11 @@
   width: 100%;
   padding: var(--app-padding);
   box-sizing: border-box;
-  background-color: var(--raftBlack);
+  background-color: var(--colorBlack);
   display: flex;
   justify-content: center;
   z-index: 1;
+  display: none;
 
   .raft__footer__container {
     display: flex;

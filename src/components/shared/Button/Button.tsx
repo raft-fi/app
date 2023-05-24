@@ -1,24 +1,28 @@
-import { FC, PropsWithChildren, useCallback } from 'react';
+import { FC, PropsWithChildren, useCallback, useMemo } from 'react';
 import { ButtonWrapper, ButtonWrapperProps } from 'tempus-ui';
+import Icon from '../Icon';
+import Typography from '../Typography';
 
 import './Button.scss';
 
-// TODO: we should define a better variant for wallet button, probably a secondary button with special styles
-type ButtonVariant = 'primary' | 'secondary' | 'wallet';
+type ButtonVariant = 'primary' | 'secondary' | 'error';
+type ButtonSize = 'medium' | 'large';
 
 type ButtonProps = ButtonWrapperProps & {
   className?: string;
   variant: ButtonVariant;
+  size?: ButtonSize;
+  text?: string;
   disabled?: boolean;
   onClick: () => void;
 };
-
-const getButtonClass = (variant: ButtonVariant): string => `raft__button-${variant}`;
 
 const Button: FC<PropsWithChildren<ButtonProps>> = ({
   children,
   className = '',
   variant,
+  size = 'medium',
+  text,
   disabled,
   selected,
   onClick,
@@ -30,14 +34,44 @@ const Button: FC<PropsWithChildren<ButtonProps>> = ({
     }
   }, [disabled, onClick]);
 
+  const buttonClasses = useMemo(
+    () => `raft__button-${variant} raft__button-size-${size} ${className}`,
+    [className, size, variant],
+  );
+
+  const textComponent = useMemo(() => {
+    if (!text) {
+      return null;
+    }
+
+    switch (variant) {
+      case 'primary':
+      case 'secondary':
+        return (
+          <Typography variant="button-label" color={`text-${variant}`}>
+            {text}
+          </Typography>
+        );
+      case 'error':
+        return (
+          <Typography className="raft__button-text" variant="button-label" color="text-error">
+            <Icon variant="error" size="small" />
+            {text}
+          </Typography>
+        );
+      default:
+        return null;
+    }
+  }, [text, variant]);
+
   return (
     <ButtonWrapper
-      className={`raft__button ${getButtonClass(variant)} ${className}`}
+      className={`raft__button ${buttonClasses}`}
       disabled={disabled}
       selected={selected}
       onClick={handleClick}
     >
-      {children}
+      {textComponent ?? children}
     </ButtonWrapper>
   );
 };

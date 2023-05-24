@@ -106,25 +106,21 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
           <Icon variant="position-changed" size={142} />
         </div>
         <div className="raft__liquidationModal__title">
-          <Typography variant="subheader" weight="medium">
-            Your Position has changed
-          </Typography>
+          <Typography variant="heading1">Your Position has changed</Typography>
         </div>
         <div className="raft__liquidationModal__subtitle">
-          <Typography variant="subtitle" weight="medium">
-            {timestampFormatted}
-          </Typography>
+          <Typography variant="heading2">{timestampFormatted}</Typography>
         </div>
         <div className="raft__liquidationModal__info">
-          <Typography className="raft__liquidationModal__info__title" variant="body-primary" weight="semi-bold">
+          <Typography className="raft__liquidationModal__info__title" variant="body-primary">
             Your Position
           </Typography>
           <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__liquidationModal__explorerLink">
-          <Typography variant="body-tertiary">View transaction on&nbsp;</Typography>
+          <Typography variant="body-secondary">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${liquidationTransaction.id}`}>
-            <Typography variant="body-tertiary" color="text-accent">
+            <Typography variant="body-secondary" color="text-accent">
               Etherscan
             </Typography>
           </Link>
@@ -133,11 +129,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
         </div>
         <div className="raft__liquidationModal__actions">
           <div className="raft__liquidationModal__action">
-            <Button variant="primary" onClick={onClose}>
-              <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
-                Got it!
-              </Typography>
-            </Button>
+            <Button variant="primary" text="Got it!" onClick={onClose} />
           </div>
         </div>
       </div>

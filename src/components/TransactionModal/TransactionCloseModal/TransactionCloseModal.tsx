@@ -24,23 +24,15 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, on
           <Icon variant="transaction-success" size={142} />
         </div>
         <div className="raft__transactionCloseModal__title">
-          {typeof title === 'string' ? (
-            <Typography variant="subheader" weight="medium">
-              {title}
-            </Typography>
-          ) : (
-            title
-          )}
+          {typeof title === 'string' ? <Typography variant="heading1">{title}</Typography> : title}
         </div>
         <div className="raft__transactionSuccessModal__subtitle">
-          <Typography variant="subtitle" weight="medium">
-            You've successfully closed your Position
-          </Typography>
+          <Typography variant="heading2">You've successfully closed your Position</Typography>
         </div>
         <div className="raft__transactionCloseModal__explorerLink">
-          <Typography variant="body-tertiary">View transaction on&nbsp;</Typography>
+          <Typography variant="body-secondary">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
-            <Typography variant="body-tertiary" color="text-accent">
+            <Typography variant="body-secondary" color="text-accent">
               Etherscan
             </Typography>
           </Link>
@@ -49,11 +41,7 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, on
         </div>
         <div className="raft__transactionCloseModal__actions">
           <div className="raft__transactionCloseModal__action">
-            <Button variant="primary" onClick={onClose}>
-              <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
-                Continue
-              </Typography>
-            </Button>
+            <Button variant="primary" text="Continue" onClick={onClose} />
           </div>
         </div>
       </div>

@@ -10,16 +10,14 @@ import {
 } from 'tempus-ui';
 
 export type TypographyVariant =
-  | 'legal-page-title'
-  | 'hero-subtitle'
-  | 'header'
-  | 'section-header'
-  | 'subheader'
-  | 'title'
-  | 'subtitle'
+  | 'heading3'
+  | 'heading2'
+  | 'heading1'
+  | 'caption'
   | 'body-primary'
   | 'body-secondary'
-  | 'body-tertiary';
+  | 'input-value'
+  | 'button-label';
 export type TypographyColor =
   | 'text-primary'
   | 'text-secondary'
@@ -31,55 +29,45 @@ export type TypographyColor =
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
 const typographyVariantMap: TypographyVariantMap = {
-  'legal-page-title': {
-    fontStyle: 'normal',
-    fontSize: '64px',
-    lineHeight: '70px',
-  },
-  'hero-subtitle': {
-    fontStyle: 'normal',
-    fontSize: '48px',
-    lineHeight: '24px',
-  },
-  header: {
-    fontStyle: 'normal',
-    fontSize: '40px',
-    lineHeight: '48px',
-  },
-  'section-header': {
-    fontStyle: 'normal',
-    fontSize: '36px',
-    lineHeight: '44px',
-  },
-  subheader: {
-    fontStyle: 'normal',
-    fontSize: '32px',
-    lineHeight: '40px',
-  },
-  title: {
+  heading3: {
     fontStyle: 'normal',
     fontSize: '28px',
-    lineHeight: '36px',
+    lineHeight: '39.2px',
   },
-  subtitle: {
+  heading2: {
     fontStyle: 'normal',
     fontSize: '20px',
     lineHeight: '28px',
   },
+  heading1: {
+    fontStyle: 'normal',
+    fontSize: '16px',
+    lineHeight: '22.4px',
+  },
+  caption: {
+    fontStyle: 'normal',
+    fontSize: '12px',
+    lineHeight: '16.8px',
+  },
   'body-primary': {
     fontStyle: 'normal',
     fontSize: '16px',
-    lineHeight: '18px',
+    lineHeight: '22.4px',
   },
   'body-secondary': {
     fontStyle: 'normal',
-    fontSize: '14px',
-    lineHeight: '16px',
-  },
-  'body-tertiary': {
-    fontStyle: 'normal',
     fontSize: '12px',
-    lineHeight: '16px',
+    lineHeight: '16.8px',
+  },
+  'input-value': {
+    fontStyle: 'normal',
+    fontSize: '20px',
+    lineHeight: '28px',
+  },
+  'button-label': {
+    fontStyle: 'normal',
+    fontSize: '16px',
+    lineHeight: '22.4px',
   },
 };
 
@@ -100,21 +88,36 @@ const typographyWeightMap: TypographyWeightMap = {
   bold: 700,
 };
 
+const typographyDefaultWeightMap: { [x: string]: TypographyWeight } = {
+  heading3: 'medium',
+  heading2: 'medium',
+  heading1: 'semi-bold',
+  caption: 'semi-bold',
+  'body-primary': 'regular',
+  'body-secondary': 'regular',
+  'input-value': 'bold',
+  'button-label': 'medium',
+};
+
 const typographyTypeMap: TypographyTypeMap = {
   regular: 'Work Sans, sans-serif',
-  mono: 'BioRhyme, serif',
 };
 
 export type TypographyProps = TypographyBaseProps<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>;
 
-const Typography: FC<TypographyProps> = props => (
-  <TypographyBase<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>
-    {...props}
-    variantMap={typographyVariantMap}
-    colorMap={typographyColorMap}
-    weightMap={typographyWeightMap}
-    typeMap={typographyTypeMap}
-  />
-);
+const Typography: FC<TypographyProps> = props => {
+  const weight = props.weight ?? typographyDefaultWeightMap[props.variant] ?? 'regular';
+
+  return (
+    <TypographyBase<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>
+      {...props}
+      weight={weight}
+      variantMap={typographyVariantMap}
+      colorMap={typographyColorMap}
+      weightMap={typographyWeightMap}
+      typeMap={typographyTypeMap}
+    />
+  );
+};
 
 export default memo(Typography) as FC<TypographyProps>;

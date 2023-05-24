@@ -65,8 +65,7 @@ const Header = () => {
       <div key="navitem-dashboard" className="raft__header__nav-item">
         <Link to="/">
           <Typography
-            variant="subtitle"
-            weight="medium"
+            variant="heading2"
             className={`${currentPage === 'dashboard' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
             Your position
@@ -76,8 +75,7 @@ const Header = () => {
       <div key="navitem-stats" className="raft__header__nav-item">
         <Link to="/stats">
           <Typography
-            variant="subtitle"
-            weight="medium"
+            variant="heading2"
             className={`${currentPage === 'stats' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
             Stats
@@ -93,18 +91,14 @@ const Header = () => {
       case 'locale':
         return SUPPORTED_LOCALES.map(l => (
           <ButtonWrapper key={`menu-item-${l}`} className="raft__header__menu-link" onClick={() => onSelectLocale(l)}>
-            <Typography variant="body-primary" weight="medium">
-              {t('LocaleSwitcher.localeLabel', { lng: l })}
-            </Typography>
+            <Typography variant="body-primary">{t('LocaleSwitcher.localeLabel', { lng: l })}</Typography>
             <Icon variant="arrow-right" />
           </ButtonWrapper>
         ));
       default:
         return [
           <Link key="menu-item-dashboard" className="raft__header__menu-link" to="/" onClick={handleLinkClick}>
-            <Typography variant="body-primary" weight="medium">
-              Dashboard
-            </Typography>
+            <Typography variant="body-primary">Dashboard</Typography>
             <Icon variant="arrow-right" />
           </Link>,
         ];

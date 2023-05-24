@@ -180,34 +180,25 @@ const Wallet = () => {
     <div className="raft__wallet">
       {!wallet && (
         <div className="raft__wallet__disconnected">
-          <Button variant="primary" onClick={onConnect}>
-            <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
-              Connect
-            </Typography>
-          </Button>
+          <Button variant="primary" text="Connect" onClick={onConnect} />
         </div>
       )}
 
       {wallet && isWrongNetwork && (
         <div className="raft__wallet__wrongNetwork">
-          <Button variant="wallet" onClick={switchToSupportedNetwork}>
-            <Icon variant="error" />
-            <Typography variant="body-primary" weight="medium" color="text-error">
-              Unsupported network
-            </Typography>
-          </Button>
+          <Button variant="error" onClick={switchToSupportedNetwork} text="Unsupported network" />
         </div>
       )}
 
       {wallet && !isWrongNetwork && (
         <div className="raft__wallet__connected">
-          <Button variant="wallet" onClick={handlePopupOpen}>
+          <Button variant="secondary" onClick={handlePopupOpen}>
             {ens.avatar ? (
               <img className="raft__wallet__connected__avatar" src={ens.avatar} />
             ) : (
               <Icon variant="profile" />
             )}
-            <Typography variant="subtitle" weight="medium">
+            <Typography variant="button-label" color="text-secondary">
               {shortenedAddress}
             </Typography>
           </Button>
@@ -218,7 +209,7 @@ const Wallet = () => {
         <div className="raft__wallet__popup">
           <div className="raft__wallet__popupHeader">
             <ButtonWrapper className="raft__wallet__popupClose" onClick={handlePopupClose}>
-              <Icon variant="close" size="tiny" />
+              <Icon variant="close" size="small" />
             </ButtonWrapper>
           </div>
           <div className="raft__wallet__popupAddress">
@@ -227,22 +218,16 @@ const Wallet = () => {
             ) : (
               <Icon variant="profile" size={20} />
             )}
-            <Typography variant="subtitle" weight="semi-bold">
-              {shortenedAddressPopup}
-            </Typography>
+            <Typography variant="heading2">{shortenedAddressPopup}</Typography>
           </div>
           <div className="raft__wallet__popupActions">
             <Button variant="secondary" className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
-              <Icon variant="external-link" size={16} />
-              <Typography variant="body-primary" weight="medium">
-                View on Etherscan
-              </Typography>
+              <Icon variant="external-link" size="small" />
+              <Typography variant="body-primary">View on Etherscan</Typography>
             </Button>
             <Button variant="secondary" className="raft__wallet__popupAction" onClick={onCopyAddress}>
-              <Icon variant="copy" size={16} />
-              <Typography variant="body-primary" weight="medium">
-                Copy address
-              </Typography>
+              <Icon variant="copy" size="small" />
+              <Typography variant="body-primary">Copy address</Typography>
             </Button>
           </div>
           {transactionHistory && (
@@ -257,13 +242,10 @@ const Wallet = () => {
           <div className="raft__wallet__popupActions">
             <Button
               variant="secondary"
+              text="Disconnect wallet"
               className="raft__wallet__popupAction raft__wallet__popupActionMaxWidth"
               onClick={onDisconnect}
-            >
-              <Typography variant="body-primary" weight="medium">
-                Disconnect wallet
-              </Typography>
-            </Button>
+            />
           </div>
         </div>
       </ModalWrapper>

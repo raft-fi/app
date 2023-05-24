@@ -125,16 +125,16 @@ const TransactionModal = () => {
           <ValueLabel
             value={debtValueFormatted}
             label={!collateralChange.isZero() ? debtLabel : ''}
-            valueSize="subheader"
-            tickerSize="subheader"
+            valueSize="heading2"
+            tickerSize="heading2"
           />
         )}
         {!collateralChange.isZero() && (
           <ValueLabel
             value={collateralValueFormatted}
             label={!debtChange.isZero() ? collateralLabel : ''}
-            valueSize="subheader"
-            tickerSize="subheader"
+            valueSize="heading2"
+            tickerSize="heading2"
           />
         )}
       </>

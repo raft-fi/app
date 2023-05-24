@@ -7,18 +7,7 @@
     }
   }
 
-  .raft__wallet__wrongNetwork {
-    --raftWallet: var(--raftErrorBackgroundPastelRed);
-    --raftWalletDark: var(--raftErrorHoverPastelRed);
-
-    svg {
-      margin-right: 8px;
-    }
-  }
-
   .raft__wallet__connected {
-    --textPrimary: var(--raftHeaderTextDark);
-
     .raft__icon__profile {
       margin-right: 8px;
     }
@@ -41,14 +30,6 @@
       justify-content: flex-end;
 
       .raft__wallet__popupClose {
-        background: var(--colorSurface);
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
         &:hover {
           --closeColor: var(--textAccent);
         }
@@ -56,8 +37,6 @@
     }
 
     .raft__wallet__popupAddress {
-      --textPrimary: var(--raftHeaderTextDark);
-
       display: flex;
       align-items: center;
       justify-content: center;
@@ -76,9 +55,6 @@
     }
 
     .raft__wallet__popupActions {
-      --textPrimary: var(--raftHeaderTextDark);
-      --externalLinkColor: var(--raftGrey);
-
       margin-top: 16px;
       display: flex;
       justify-content: center;
@@ -89,8 +65,8 @@
         justify-content: center;
         border-radius: 6px;
         padding: 14px 20px;
-        width: 210px;
         white-space: nowrap;
+        flex: 1;
 
         .raft__icon {
           margin-right: 8px;
@@ -110,8 +86,8 @@
       margin-top: 16px;
       padding: 16px;
       box-sizing: border-box;
-      background: var(--colorSurface);
-      border: 1px solid var(--colorBorder);
+      background: var(--surfaceSecondary);
+      border: 1px solid var(--borderPrimary);
       border-radius: 8px;
 
       .raft__wallet__popupTransactionsContainer {
@@ -149,8 +125,6 @@
           padding: 12px 0px;
           margin-right: 16px;
 
-          --externalLinkColor: var(--raftGrey);
-
           &:first-child {
             padding-top: 0px;
           }
@@ -160,7 +134,7 @@
           }
 
           &:not(:last-child) {
-            border-bottom: 1px dashed var(--colorBorder);
+            border-bottom: 1px dashed var(--borderSecondary);
           }
 
           .raft__icon__externalLink {

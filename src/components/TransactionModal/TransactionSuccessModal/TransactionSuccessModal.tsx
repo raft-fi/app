@@ -54,29 +54,21 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <Icon variant="transaction-success" size={142} />
         </div>
         <div className="raft__transactionSuccessModal__title">
-          {typeof title === 'string' ? (
-            <Typography variant="subheader" weight="medium">
-              {title}
-            </Typography>
-          ) : (
-            title
-          )}
+          {typeof title === 'string' ? <Typography variant="heading1">{title}</Typography> : title}
         </div>
         <div className="raft__transactionSuccessModal__subtitle">
-          <Typography variant="subtitle" weight="medium">
-            {subtitle}
-          </Typography>
+          <Typography variant="heading2">{subtitle}</Typography>
         </div>
         <div className="raft__transactionSuccessModal__info">
-          <Typography className="raft__transactionSuccessModal__info__title" variant="body-primary" weight="semi-bold">
+          <Typography className="raft__transactionSuccessModal__info__title" variant="body-primary">
             {infoHeader}
           </Typography>
           <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
-          <Typography variant="body-tertiary">View transaction on&nbsp;</Typography>
+          <Typography variant="body-secondary">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
-            <Typography variant="body-tertiary" color="text-accent">
+            <Typography variant="body-secondary" color="text-accent">
               Etherscan
             </Typography>
           </Link>
@@ -85,24 +77,10 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
-            <Button variant="secondary" onClick={onAddRToWallet}>
-              <Typography variant="body-primary" weight="medium">
-                Add&nbsp;
-              </Typography>
-              <Typography variant="body-primary" weight="medium" type="mono">
-                R
-              </Typography>
-              <Typography variant="body-primary" weight="medium">
-                &nbsp;to wallet
-              </Typography>
-            </Button>
+            <Button variant="secondary" text="Add R to wallet" onClick={onAddRToWallet} />
           </div>
           <div className="raft__transactionSuccessModal__action">
-            <Button variant="primary" onClick={onClose}>
-              <Typography variant="body-primary" weight="medium" color="text-primary-inverted">
-                Continue
-              </Typography>
-            </Button>
+            <Button variant="primary" text="Continue" onClick={onClose} />
           </div>
         </div>
       </div>

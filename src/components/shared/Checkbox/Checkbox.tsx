@@ -22,9 +22,7 @@ const Checkbox: FC<CheckboxProps> = props => {
       </span>
       {label && (
         <label htmlFor={id} className="raft__checkbox__label">
-          <Typography variant="body-primary" weight="medium">
-            {label}
-          </Typography>
+          <Typography variant="body-primary">{label}</Typography>
         </label>
       )}
     </span>

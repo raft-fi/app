@@ -23,7 +23,7 @@ const LocaleSwitcher = () => {
     <div className="raft__locale-switcher">
       <ButtonWrapper className="raft__locale-switcher__button" onClick={onToggleMenu}>
         <Icon variant="globe" size={20} />
-        <Typography variant="subtitle" weight="medium" className="raft__header__link-inactive">
+        <Typography variant="heading2" className="raft__header__link-inactive">
           {t('LocaleSwitcher.localeCode')}
         </Typography>
         <Icon variant={menuOpened ? 'chevron-up' : 'chevron-down'} />
@@ -36,9 +36,7 @@ const LocaleSwitcher = () => {
               {SUPPORTED_LOCALES.map(locale => (
                 <li key={`locale-switcher-item-${locale}`}>
                   <ButtonWrapper onClick={() => onSelect(locale)}>
-                    <Typography variant="subtitle" weight="medium">
-                      {t('LocaleSwitcher.localeLabel', { lng: locale })}
-                    </Typography>
+                    <Typography variant="heading2">{t('LocaleSwitcher.localeLabel', { lng: locale })}</Typography>
                   </ButtonWrapper>
                 </li>
               ))}

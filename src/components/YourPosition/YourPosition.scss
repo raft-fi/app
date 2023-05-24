@@ -1,6 +1,6 @@
 .raft__your-position {
   background: var(--raft-blue-100);
-  border: 1px solid var(--colorBorder);
+  border: 1px solid var(--borderPrimary);
   border-radius: 8px;
   width: 848px;
   padding: 16px 0;
@@ -19,7 +19,7 @@
     flex: 1;
 
     &:not(:first-child) {
-      border-left: 1px solid var(--colorBorder);
+      border-left: 1px solid var(--borderPrimary);
     }
   }
 

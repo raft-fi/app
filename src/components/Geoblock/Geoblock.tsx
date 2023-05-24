@@ -39,10 +39,10 @@ const Geoblock = () => {
     <div className="raft__geoblock">
       <div className="raft__geoblock__modal">
         <Icon variant="geoblock" size={142} />
-        <Typography className="raft__geoblock__title" variant="subheader" weight="medium">
+        <Typography className="raft__geoblock__title" variant="heading1">
           We're sorry.
         </Typography>
-        <Typography className="raft__geoblock__subtitle" variant="subtitle" weight="medium">
+        <Typography className="raft__geoblock__subtitle" variant="heading2">
           Raft is not available in the US.
         </Typography>
       </div>
