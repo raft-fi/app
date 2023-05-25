@@ -167,11 +167,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     () => (
       <>
         {showMaxAmountIcon && <Icon variant="wallet" size="tiny" />}
-        <ValueLabel
-          valueSize="body-secondary"
-          tickerSize="body-secondary"
-          value={maxAmountFormatted ?? maxAmount?.toString()}
-        />
+        <ValueLabel valueSize="caption" tickerSize="caption" value={maxAmountFormatted ?? maxAmount?.toString()} />
       </>
     ),
     [maxAmount, maxAmountFormatted, showMaxAmountIcon],
@@ -196,7 +192,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>
       <div className="raft__currencyInput__header">
         <div className="raft__currencyInput__title">
-          <Typography variant="body-primary">{label}</Typography>
+          <Typography variant="body">{label}</Typography>
         </div>
 
         <div className="raft__currencyInput__maxAmount">{maxAmount && maxAmountContainer}</div>
@@ -245,7 +241,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
               </div>
               {!isSingleToken && (
                 <>
-                  <Typography className="raft__currencyInput__tokenLabel" variant="body-secondary">
+                  <Typography className="raft__currencyInput__tokenLabel" variant="caption">
                     {selectedToken}
                   </Typography>
                   <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={24} />
@@ -266,7 +262,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
                       <div className="raft__currencyInput__dropdownTokenLogoContainer">
                         <TokenLogo type={`token-${token}`} size="small" />
                       </div>
-                      <Typography variant="body-secondary">{token}</Typography>
+                      <Typography variant="caption">{token}</Typography>
                     </ButtonWrapper>
                   ))}
                 </div>
@@ -277,7 +273,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
       </div>
       {fiatValue && (
         <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
-          <Typography variant="body-secondary" color={!disabled ? 'text-primary' : 'text-secondary'}>
+          <Typography variant="caption" color={!disabled ? 'text-primary' : 'text-secondary'}>
             {fiatValue}
           </Typography>
         </span>

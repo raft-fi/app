@@ -91,14 +91,14 @@ const Header = () => {
       case 'locale':
         return SUPPORTED_LOCALES.map(l => (
           <ButtonWrapper key={`menu-item-${l}`} className="raft__header__menu-link" onClick={() => onSelectLocale(l)}>
-            <Typography variant="body-primary">{t('LocaleSwitcher.localeLabel', { lng: l })}</Typography>
+            <Typography variant="body">{t('LocaleSwitcher.localeLabel', { lng: l })}</Typography>
             <Icon variant="arrow-right" />
           </ButtonWrapper>
         ));
       default:
         return [
           <Link key="menu-item-dashboard" className="raft__header__menu-link" to="/" onClick={handleLinkClick}>
-            <Typography variant="body-primary">Dashboard</Typography>
+            <Typography variant="body">Dashboard</Typography>
             <Icon variant="arrow-right" />
           </Link>,
         ];

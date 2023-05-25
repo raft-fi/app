@@ -21,7 +21,7 @@ const ValuesBox: FC<ValuesBoxProps> = ({ values }) => {
         return (
           <div key={id} className="raft__valuesBox__item">
             {typeof label === 'string' ? (
-              <Typography variant="body-primary">{label}</Typography>
+              <Typography variant="body">{label}</Typography>
             ) : (
               <div className="raft__valuesBox__itemLabel">{label}</div>
             )}

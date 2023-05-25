@@ -37,7 +37,7 @@ const NotificationCenter = () => {
       switch (notification.notificationType) {
         case 'approval-pending':
           renderToast(
-            <Typography className="raft__notification raft__notification__approvalPending" variant="body-secondary">
+            <Typography className="raft__notification raft__notification__approvalPending" variant="caption">
               Approval pending...
             </Typography>,
           );
@@ -46,7 +46,7 @@ const NotificationCenter = () => {
           renderToast(
             <Typography
               className="raft__notification raft__notification__approvalSucceed"
-              variant="body-secondary"
+              variant="caption"
               color="text-success"
             >
               <Icon variant="success" size="small" />
@@ -58,7 +58,7 @@ const NotificationCenter = () => {
           renderToast(
             <Typography
               className="raft__notification raft__notification__approvalFailed"
-              variant="body-secondary"
+              variant="caption"
               color="text-error"
             >
               <Icon variant="error" size="small" />

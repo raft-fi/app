@@ -40,8 +40,8 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         if (transaction.collateralChange.gt(0) && transaction.debtChange.isZero()) {
           return (
             <>
-              <Typography variant="body-secondary">Deposited&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
+              <Typography variant="body2">Deposited&nbsp;</Typography>
+              <Typography variant="body2" weight="semi-bold">
                 {collateralChangeFormatted}
               </Typography>
             </>
@@ -51,8 +51,8 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         if (transaction.collateralChange.isZero() && transaction.debtChange.gt(0)) {
           return (
             <>
-              <Typography variant="body-secondary">Borrowed&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
+              <Typography variant="body2">Borrowed&nbsp;</Typography>
+              <Typography variant="body2" weight="semi-bold">
                 {debtChangeFormatted}
               </Typography>
             </>
@@ -62,8 +62,8 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         if (transaction.collateralChange.lt(0) && transaction.debtChange.isZero()) {
           return (
             <>
-              <Typography variant="body-secondary">Withdrew&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
+              <Typography variant="body2">Withdrew&nbsp;</Typography>
+              <Typography variant="body2" weight="semi-bold">
                 {collateralChangeFormatted}
               </Typography>
             </>
@@ -73,8 +73,8 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         if (transaction.collateralChange.isZero() && transaction.debtChange.lt(0)) {
           return (
             <>
-              <Typography variant="body-secondary">Repaid&nbsp;</Typography>
-              <Typography variant="body-secondary" weight="semi-bold">
+              <Typography variant="body2">Repaid&nbsp;</Typography>
+              <Typography variant="body2" weight="semi-bold">
                 {debtChangeFormatted}
               </Typography>
             </>
@@ -84,62 +84,60 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         // Both collateral and debt changed
         return (
           <>
-            <Typography variant="body-secondary">
-              {transaction.debtChange.lt(0) ? 'Repaid' : 'Borrowed'}&nbsp;
-            </Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">{transaction.debtChange.lt(0) ? 'Repaid' : 'Borrowed'}&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {debtChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">
+            <Typography variant="body2">
               &nbsp;and {transaction.collateralChange.lt(0) ? 'withdrew' : 'deposited'}&nbsp;
             </Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2" weight="semi-bold">
               {collateralChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;collateral</Typography>
+            <Typography variant="body2">&nbsp;collateral</Typography>
           </>
         );
 
       case 'OPEN':
         return (
           <>
-            <Typography variant="body-secondary">Borrowed&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">Borrowed&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {debtChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;with&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">&nbsp;with&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {collateralChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;collateral</Typography>
+            <Typography variant="body2">&nbsp;collateral</Typography>
           </>
         );
       case 'CLOSE':
         return (
           <>
-            <Typography variant="body-secondary">Position closed with&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">Position closed with&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {debtChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;and&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">&nbsp;and&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {collateralChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;collateral</Typography>
+            <Typography variant="body2">&nbsp;collateral</Typography>
           </>
         );
       case 'LIQUIDATION':
         return (
           <>
-            <Typography variant="body-secondary">Position liquidated with&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">Position liquidated with&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {debtChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;and&nbsp;</Typography>
-            <Typography variant="body-secondary" weight="semi-bold">
+            <Typography variant="body2">&nbsp;and&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
               {collateralChangeFormatted}
             </Typography>
-            <Typography variant="body-secondary">&nbsp;collateral</Typography>
+            <Typography variant="body2">&nbsp;collateral</Typography>
           </>
         );
     }

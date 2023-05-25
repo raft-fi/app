@@ -1,5 +1,5 @@
 .raft__noticePopup {
-  width: 765px;
+  width: 856px;
   padding: 32px 64px;
   box-sizing: border-box;
 
@@ -7,12 +7,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 18px;
+    margin-top: 16px;
   }
 
   .raft__noticePopup__description {
     > div {
-      margin-bottom: 19px;
+      margin-top: 20px;
     }
 
     .raft__link {
@@ -22,15 +22,18 @@
   }
 
   .raft__noticePopup__checkbox {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-800);
+
     display: flex;
     justify-content: center;
-    padding-top: 8px;
+    margin-top: 28px;
   }
 
   .raft__noticePopup__action {
     display: flex;
     justify-content: center;
-    margin-top: 27px;
+    margin-top: 28px;
 
     .raft__button-primary {
       width: 316px;

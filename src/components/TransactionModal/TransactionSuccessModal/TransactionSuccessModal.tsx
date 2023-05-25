@@ -60,15 +60,15 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <Typography variant="heading2">{subtitle}</Typography>
         </div>
         <div className="raft__transactionSuccessModal__info">
-          <Typography className="raft__transactionSuccessModal__info__title" variant="body-primary">
+          <Typography className="raft__transactionSuccessModal__info__title" variant="body">
             {infoHeader}
           </Typography>
           <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
-          <Typography variant="body-secondary">View transaction on&nbsp;</Typography>
+          <Typography variant="caption">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
-            <Typography variant="body-secondary" color="text-accent">
+            <Typography variant="caption" color="text-accent">
               Etherscan
             </Typography>
           </Link>
