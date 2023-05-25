@@ -77,10 +77,10 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
-            <Button variant="secondary" text="Add R to wallet" onClick={onAddRToWallet} />
+            <Button variant="secondary" size="large" text="Add R to wallet" onClick={onAddRToWallet} />
           </div>
           <div className="raft__transactionSuccessModal__action">
-            <Button variant="primary" text="Continue" onClick={onClose} />
+            <Button variant="primary" size="large" text="Continue" onClick={onClose} />
           </div>
         </div>
       </div>

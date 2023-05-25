@@ -41,7 +41,7 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, on
         </div>
         <div className="raft__transactionCloseModal__actions">
           <div className="raft__transactionCloseModal__action">
-            <Button variant="primary" text="Continue" onClick={onClose} />
+            <Button variant="primary" size="large" text="Continue" onClick={onClose} />
           </div>
         </div>
       </div>

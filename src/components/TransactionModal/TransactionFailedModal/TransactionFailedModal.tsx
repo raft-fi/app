@@ -29,10 +29,10 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
       </div>
       <div className="raft__transactionFailedModal__actions">
         <div className="raft__transactionFailedModal__action">
-          <Button variant="secondary" text="Close" onClick={onClose} />
+          <Button variant="secondary" size="large" text="Close" onClick={onClose} />
         </div>
         <div className="raft__transactionFailedModal__action">
-          <Button variant="primary" text="Try again" onClick={onTryAgain} />
+          <Button variant="primary" size="large" text="Try again" onClick={onTryAgain} />
         </div>
       </div>
     </div>

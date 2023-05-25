@@ -24,7 +24,8 @@
     position: relative;
     pointer-events: all;
     background-color: var(--surfacePrimary);
-    border: 1px solid var(--borderPrimary);
+    /* TODO: hardcode color as suggested */
+    border: 1px solid var(--raft-grey-200);
     border-radius: 8px;
   }
 }
