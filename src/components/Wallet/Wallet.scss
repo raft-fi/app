@@ -30,6 +30,9 @@
       justify-content: flex-end;
 
       .raft__wallet__popupClose {
+        /* TODO: hardcode color as suggested */
+        --closeColor: var(--raft-grey-600);
+
         &:hover {
           --closeColor: var(--textAccent);
         }
@@ -91,6 +94,9 @@
       border-radius: 8px;
 
       .raft__wallet__popupTransactionsContainer {
+        /* TODO: hardcode color as suggested */
+        --externalLinkColor: var(--raft-grey-500);
+
         max-height: 256px;
         overflow-y: scroll;
         display: flex;
@@ -124,6 +130,12 @@
           justify-content: flex-start;
           padding: 12px 0px;
           margin-right: 16px;
+
+          /* TODO: hardcode font as suggested */
+          > div {
+            font-size: 14px !important;
+            line-height: 16.42px !important;
+          }
 
           &:first-child {
             padding-top: 0px;
