@@ -9,8 +9,7 @@
     top: 96px;
 
     .Toastify__toast {
-      background-color: var(--surfacePrimary);
-      border: 1px solid var(--borderPrimary);
+      background-color: var(--toastBackground);
       box-shadow: var(--shadowPrimary);
       border-radius: 6px;
       padding: 0;
@@ -20,6 +19,10 @@
         padding: 0;
 
         .raft__notification {
+          --textPrimary: var(--toastText);
+
+          border: 1px solid var(--borderPrimary);
+          border-radius: 6px;
           display: flex;
           align-items: center;
           padding: 16px;
@@ -29,11 +32,18 @@
           }
 
           &.raft__notification__approvalSucceed {
-            background-color: var(--raftSuccessBackgroundPastelGreen);
+            --textPrimary: var(--toastSuccessText);
+            --successColor: var(--toastSuccessText);
+
+            background-color: var(--toastSuccessBackground);
           }
 
           &.raft__notification__approvalFailed {
-            background-color: var(--raftErrorBackgroundPastelRed);
+            --textPrimary: var(--toastErrorText);
+            --errorColor: var(--toastErrorText);
+
+            background-color: var(--toastErrorBackground);
+            border-color: var(--toastErrorBorder);
           }
         }
       }
