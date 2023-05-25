@@ -45,9 +45,6 @@
 
   .raft__your-position__collateral__amount__number,
   .raft__your-position__debt__amount__number {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-500);
-
     display: flex;
     align-items: baseline;
 
