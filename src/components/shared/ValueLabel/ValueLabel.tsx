@@ -18,7 +18,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
         <Typography variant={tickerSize} color={color}>
           $
         </Typography>
-        <Typography variant={valueSize} color={color}>
+        <Typography variant={valueSize} color={color} weight="medium">
           {value.split('$')[1]}
         </Typography>
         {label && (
@@ -36,7 +36,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
         <Typography variant={valueSize} color={color}>
           ~
         </Typography>
-        <Typography variant={tickerSize} color={color}>
+        <Typography variant={tickerSize} color={color} weight="medium">
           $
         </Typography>
         <Typography variant={valueSize} color={color}>
@@ -54,7 +54,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
   if (value.endsWith('R')) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} color={color}>
+        <Typography variant={valueSize} color={color} weight="medium">
           {value.split(' ')[0]}&nbsp;
         </Typography>
         <Typography variant={tickerSize} color={color}>
@@ -72,7 +72,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
   if (value.endsWith('%')) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} color={color}>
+        <Typography variant={valueSize} color={color} weight="medium">
           {value.split('%')[0]}
         </Typography>
         <Typography variant={tickerSize} color={color}>
@@ -90,7 +90,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
   if (value.indexOf(' ') !== -1) {
     return (
       <div className="raft__valueLabel">
-        <Typography variant={valueSize} color={color}>
+        <Typography variant={valueSize} color={color} weight="medium">
           {value.split(' ')[0]}
         </Typography>
         <Typography variant={tickerSize} color={color}>
@@ -107,7 +107,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
 
   return (
     <div className="raft__valueLabel">
-      <Typography variant={valueSize} color={color}>
+      <Typography variant={valueSize} color={color} weight="medium">
         {value}
       </Typography>
       {label && (

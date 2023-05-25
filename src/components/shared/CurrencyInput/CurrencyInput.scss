@@ -149,6 +149,7 @@
       }
 
       .raft__currencyInput__tokenLabel {
+        /* TODO: hardcode color as suggested */
         --textPrimary: var(--raft-grey-600);
       }
     }

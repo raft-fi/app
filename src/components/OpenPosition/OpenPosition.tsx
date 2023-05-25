@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
@@ -23,20 +24,9 @@ import {
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
-  USD_UI_PRECISION,
 } from '../../constants';
-import { getCollateralRatioColor, getTokenValues, isCollateralToken } from '../../utils';
-import {
-  Button,
-  CurrencyInput,
-  ValuesBox,
-  Typography,
-  Icon,
-  Loading,
-  ValueLabel,
-  TooltipWrapper,
-  Tooltip,
-} from '../shared';
+import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
+import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 
 import './OpenPosition.scss';
 
@@ -131,7 +121,7 @@ const OpenPosition = () => {
 
   const baseTokenAmount = useMemo(() => {
     if (!collateralTokenValues.amount || !collateralTokenValues.value) {
-      return new Decimal(0);
+      return Decimal.ZERO;
     }
 
     switch (selectedCollateralToken) {
@@ -155,39 +145,13 @@ const OpenPosition = () => {
   ]);
   const baseTokenAmountFormatted = useMemo(
     () =>
-      baseTokenAmount && !baseTokenAmount.isZero()
-        ? DecimalFormat.format(baseTokenAmount, {
-            style: 'currency',
-            currency: DISPLAY_BASE_TOKEN,
-            fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-            lessThanFormat: true,
-          })
-        : 'N/A',
+      DecimalFormat.format(baseTokenAmount ?? Decimal.ZERO, {
+        style: 'currency',
+        currency: DISPLAY_BASE_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      }),
     [baseTokenAmount],
-  );
-
-  const liquidationPrice = useMemo(() => {
-    if (!baseTokenAmount || !borrowAmount || baseTokenAmount.isZero()) {
-      return null;
-    }
-
-    const borrowAmountDecimal = new Decimal(borrowAmount || 0);
-    if (borrowAmountDecimal.lt(MIN_BORROW_AMOUNT)) {
-      return null;
-    }
-
-    return borrowAmountDecimal.mul(LIQUIDATION_UPPER_RATIO).div(baseTokenAmount);
-  }, [baseTokenAmount, borrowAmount]);
-  const liquidationPriceFormatted = useMemo(
-    () =>
-      liquidationPrice
-        ? `~${DecimalFormat.format(liquidationPrice, {
-            style: 'currency',
-            currency: '$',
-            fractionDigits: USD_UI_PRECISION,
-          })}`
-        : 'N/A',
-    [liquidationPrice],
   );
 
   const collateralizationRatio = useMemo(() => {
@@ -231,12 +195,13 @@ const OpenPosition = () => {
     return original === truncated ? original : `${truncated}...`;
   }, [borrowTokenValues.amount]);
 
+  const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
+  const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
+
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
-  const minRatioFormatted = useMemo(() => DecimalFormat.format(LIQUIDATION_UPPER_RATIO, { style: 'percentage' }), []);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
-  const collateralRatioColor = useMemo(() => getCollateralRatioColor(collateralizationRatio), [collateralizationRatio]);
   const hasInputFilled = useMemo(
     () => collateralTokenValues.amount && borrowTokenValues.amount,
     [borrowTokenValues.amount, collateralTokenValues.amount],
@@ -522,140 +487,56 @@ const OpenPosition = () => {
         />
       </div>
       <div className="raft__openPosition__data">
-        <ValuesBox
-          values={[
-            {
-              id: 'collateral',
-              label: (
+        <div className="raft__openPosition__data__position">
+          <div className="raft__openPosition__data__position__title">
+            <Typography variant="overline">POSITION AFTER</Typography>
+            <Icon variant="info" size="tiny" />
+          </div>
+          <ul className="raft__openPosition__data__position__data">
+            <li className="raft__openPosition__data__position__data__deposit">
+              <TokenLogo type={`token-${selectedCollateralToken}`} size={20} />
+              <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
+            </li>
+            <li className="raft__openPosition__data__position__data__debt">
+              <TokenLogo type={`token-${R_TOKEN}`} size={20} />
+              <ValueLabel
+                value={borrowTokenValues.amountFormatted ?? `0.00 ${R_TOKEN}`}
+                valueSize="body"
+                tickerSize="caption"
+              />
+            </li>
+            <li className="raft__openPosition__data__position__data__ratio">
+              {!collateralizationRatio || collateralizationRatio.isZero() ? (
                 <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
-                          The total collateral amount you will be depositing into Raft.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body">Total collateral&nbsp;</Typography>
+                  <div className="raft__openPosition__data__position__data__ratio__empty-status" />
+                  <Typography variant="body">N/A</Typography>
                 </>
-              ),
-              value: baseTokenAmountFormatted,
-            },
-            {
-              id: 'debt',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
-                          The total amount of R you will be borrowing from Raft using your collateral.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body">Total debt&nbsp;</Typography>
-                  <Typography variant="caption">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
-                  <Typography variant="caption">{R_TOKEN}</Typography>
-                  <Typography variant="caption">{')'}</Typography>
-                </>
-              ),
-              value: hasMinBorrow ? (
-                `${borrowTokenValues.amountFormatted ?? 'N/A'}`
               ) : (
-                <TooltipWrapper
-                  anchorClasses="raft__openPosition__error"
-                  tooltipContent={
-                    <Tooltip>
-                      <Typography variant="caption" color="text-error">
-                        Borrow below the minimum amount
-                      </Typography>
-                    </Tooltip>
-                  }
-                  placement="right"
-                >
-                  <ValueLabel value={`${borrowTokenValues.amountFormatted ?? 0}`} color="text-error" />
-                  <Icon variant="error" size="small" />
-                </TooltipWrapper>
-              ),
-            },
-            {
-              id: 'liquidationPrice',
-              label: (
                 <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
-                          The price at which your position will be available to be liquidated. Learn more about
-                          liquidations{' '}
-                          <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
-                            here
-                            <span>
-                              <Icon variant="external-link" size={10} />
-                            </span>
-                          </a>
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body">Collateral liquidation price&nbsp;</Typography>
+                  <Icon variant="arrow-up" size="tiny" />
+                  <div
+                    className={`raft__openPosition__data__position__data__ratio__status status-${collateralRatioLevel}`}
+                  />
+                  <ValueLabel value={collateralizationRatioFormatted} valueSize="body" tickerSize="caption" />
+                  <Typography variant="body" weight="medium" color="text-secondary">
+                    ({collateralRatioLabel})
+                  </Typography>
                 </>
-              ),
-              value: hasMinRatio ? liquidationPriceFormatted : 'N/A',
-            },
-            {
-              id: 'collateralizationRatio',
-              label: (
-                <>
-                  <TooltipWrapper
-                    tooltipContent={
-                      <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
-                          The percentage of R borrowed in relation to the total collateral amount.
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="left"
-                  >
-                    <Icon variant="info" size="small" />
-                  </TooltipWrapper>
-                  <Typography variant="body">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="caption">{`(Min. ${minRatioFormatted})`}</Typography>
-                </>
-              ),
-              value:
-                hasMinRatio || collateralizationRatioFormatted === 'N/A' ? (
-                  <ValueLabel color={collateralRatioColor} value={collateralizationRatioFormatted || 'N/A'} />
-                ) : (
-                  <TooltipWrapper
-                    anchorClasses="raft__openPosition__error"
-                    tooltipContent={
-                      <Tooltip>
-                        <Typography variant="caption" color="text-error">
-                          Collateralization ratio is below the minimum threshold
-                        </Typography>
-                      </Tooltip>
-                    }
-                    placement="right"
-                  >
-                    <ValueLabel value={collateralizationRatioFormatted} color="text-error" />
-                    <Icon variant="error" size="small" />
-                  </TooltipWrapper>
-                ),
-            },
-          ]}
-        />
+              )}
+            </li>
+          </ul>
+        </div>
+        <div className="raft__openPosition__data__others">
+          <div className="raft__openPosition__data__protocol-fee__title">
+            <Typography variant="overline">PROTOCOL FEES</Typography>
+            <Icon variant="info" size="tiny" />
+          </div>
+          <div className="raft__openPosition__data__protocol-fee__value">
+            <Typography variant="body" weight="medium">
+              Free
+            </Typography>
+          </div>
+        </div>
       </div>
       <div className="raft__openPosition__action">
         {isWrongNetwork ? (
