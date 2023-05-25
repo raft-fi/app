@@ -18,29 +18,14 @@
           margin-right: 16px;
         }
       }
-
-      .raft__adjustPosition__actions__close {
-        transition: opacity 0.3s ease-out;
-        opacity: 0;
-        margin-right: 32px;
-
-        &.show {
-          opacity: 1;
-        }
-      }
     }
   }
 
   .raft__adjustPosition__body {
     max-height: 0px;
-    margin-top: 0;
+    margin-top: 16px;
+    max-height: 400px;
     overflow: hidden;
-    transition: max-height 0.3s ease-out, margin-top 0.3s ease-out;
-
-    &.raft__adjustPosition-expanded {
-      margin-top: 16px;
-      max-height: 400px;
-    }
   }
 
   .raft__adjustPosition__input {

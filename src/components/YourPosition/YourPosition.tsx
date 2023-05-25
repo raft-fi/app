@@ -10,7 +10,7 @@ import {
   USD_UI_PRECISION,
 } from '../../constants';
 import { useCollateralBalance, useDebtBalance, useTokenPrices } from '../../hooks';
-import { getCollateralRatioColor, getTokenValues } from '../../utils';
+import { getCollateralRatioLevel, getTokenValues } from '../../utils';
 import { Typography } from '../shared';
 
 import './YourPosition.scss';
@@ -104,73 +104,63 @@ const YourPosition: FC = () => {
         : null,
     [collateralizationRatio],
   );
-  const collateralRatioColor = useMemo(() => getCollateralRatioColor(collateralizationRatio), [collateralizationRatio]);
+  const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
   const collateralRatioLabel = useMemo(() => {
-    switch (collateralRatioColor) {
-      case 'text-success':
+    switch (collateralRatioLevel) {
+      case 'healthy':
         return 'Healthy';
-      case 'text-warning':
+      case 'at-risk':
         return 'At risk';
-      case 'text-error':
+      case 'unhealthy':
         return 'Unhealthy';
       default:
         return null;
     }
-  }, [collateralRatioColor]);
+  }, [collateralRatioLevel]);
 
   return (
     <div className="raft__your-position">
       <div className="raft__your-position__collateral">
-        <Typography variant="caption" color="text-accent">
-          YOUR COLLATERAL
-        </Typography>
+        <Typography variant="overline">YOUR COLLATERAL</Typography>
         <div className="raft__your-position__collateral__amount">
           <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
           <div className="raft__your-position__collateral__amount__number">
-            <Typography variant="heading3">{collateralAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading1">{collateralAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{DISPLAY_BASE_TOKEN}</Typography>
           </div>
         </div>
         <div className="raft__your-position__collateral__value__number">
-          <Typography variant="caption" color="text-secondary">
-            $
-          </Typography>
-          <Typography variant="body" color="text-secondary">
+          <Typography variant="caption">$</Typography>
+          <Typography variant="body" weight="medium">
             {collateralValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
       <div className="raft__your-position__debt">
-        <Typography variant="caption" color="text-accent">
-          YOUR DEBT
-        </Typography>
+        <Typography variant="overline">YOUR DEBT</Typography>
         <div className="raft__your-position__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
           <div className="raft__your-position__debt__amount__number">
-            <Typography variant="heading3">{debtAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading1">{debtAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{R_TOKEN}</Typography>
           </div>
         </div>
         <div className="raft__your-position__debt__value__number">
-          <Typography variant="caption" color="text-secondary">
-            $
-          </Typography>
-          <Typography variant="body" color="text-secondary">
+          <Typography variant="caption">$</Typography>
+          <Typography variant="body" weight="medium">
             {debtValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
       <div className="raft__your-position__ratio">
-        <Typography variant="caption" color="text-accent">
-          COLLATERALIZATION
-        </Typography>
+        <Typography variant="overline">COLLATERALIZATION</Typography>
         <div className="raft__your-position__ratio__percent">
-          <Typography variant="heading3">{collateralizationRatioFormatted ?? '---'}</Typography>
+          <Typography variant="heading1">{collateralizationRatioFormatted ?? '---'}</Typography>
           <Typography variant="heading2">%</Typography>
         </div>
         <div className="raft__your-position__ratio__status">
-          <div className={`raft__your-position__ratio__status__color ${collateralRatioColor}`} />
-          <Typography variant="body" color="text-secondary">
+          <div className={`raft__your-position__ratio__status__color status-${collateralRatioLevel}`} />
+          <Typography variant="body" weight="medium">
             {collateralRatioLabel ?? '---'}
           </Typography>
         </div>
