@@ -36,7 +36,7 @@ const NetworkErrorModal: FC = () => {
           <Icon variant="unsupported-network" size={142} />
         </div>
         <div className="raft__networkErrorModal__title">
-          <Typography variant="heading1">Unsupported network.</Typography>
+          <Typography variant="heading3">Unsupported network.</Typography>
         </div>
         <div className="raft__networkErrorModal__subtitle">
           <Typography variant="heading2">{`Your wallet is not on ${config.networkName}.`}</Typography>

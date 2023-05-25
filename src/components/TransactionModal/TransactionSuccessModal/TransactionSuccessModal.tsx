@@ -54,7 +54,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <Icon variant="transaction-success" size={142} />
         </div>
         <div className="raft__transactionSuccessModal__title">
-          {typeof title === 'string' ? <Typography variant="heading1">{title}</Typography> : title}
+          {typeof title === 'string' ? <Typography variant="heading3">{title}</Typography> : title}
         </div>
         <div className="raft__transactionSuccessModal__subtitle">
           <Typography variant="heading2">{subtitle}</Typography>

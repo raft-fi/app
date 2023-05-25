@@ -127,7 +127,7 @@ const YourPosition: FC = () => {
         <div className="raft__your-position__collateral__amount">
           <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
           <div className="raft__your-position__collateral__amount__number">
-            <Typography variant="heading1">{collateralAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading3">{collateralAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{DISPLAY_BASE_TOKEN}</Typography>
           </div>
         </div>
@@ -147,7 +147,7 @@ const YourPosition: FC = () => {
         <div className="raft__your-position__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
           <div className="raft__your-position__debt__amount__number">
-            <Typography variant="heading1">{debtAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading3">{debtAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{R_TOKEN}</Typography>
           </div>
         </div>
@@ -165,7 +165,7 @@ const YourPosition: FC = () => {
           COLLATERALIZATION
         </Typography>
         <div className="raft__your-position__ratio__percent">
-          <Typography variant="heading1">{collateralizationRatioFormatted ?? '---'}</Typography>
+          <Typography variant="heading3">{collateralizationRatioFormatted ?? '---'}</Typography>
           <Typography variant="heading2">%</Typography>
         </div>
         <div className="raft__your-position__ratio__status">

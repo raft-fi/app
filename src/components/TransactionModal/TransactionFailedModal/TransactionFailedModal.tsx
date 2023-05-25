@@ -17,7 +17,7 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
         <Icon variant="transaction-failed" size={142} />
       </div>
       <div className="raft__transactionFailedModal__title">
-        <Typography variant="heading1">Transaction failed</Typography>
+        <Typography variant="heading3">Transaction failed</Typography>
       </div>
       <div className="raft__transactionFailedModal__errorMessage">
         <div className="raft__transactionFailedModal__errorMessage__title">

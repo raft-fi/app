@@ -106,7 +106,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
           <Icon variant="position-changed" size={142} />
         </div>
         <div className="raft__liquidationModal__title">
-          <Typography variant="heading1">Your Position has changed</Typography>
+          <Typography variant="heading3">Your Position has changed</Typography>
         </div>
         <div className="raft__liquidationModal__subtitle">
           <Typography variant="heading2">{timestampFormatted}</Typography>

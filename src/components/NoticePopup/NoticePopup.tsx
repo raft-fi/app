@@ -45,7 +45,7 @@ const NoticePopup = () => {
     <ModalWrapper open={open} onClose={handleModalClose}>
       <div className="raft__noticePopup">
         <div className="raft__noticePopup__title">
-          <Typography variant="heading3">Notice</Typography>
+          <Typography variant="heading1">Notice</Typography>
         </div>
         <div className="raft__noticePopup__description">
           <Typography variant="body" color="text-secondary">

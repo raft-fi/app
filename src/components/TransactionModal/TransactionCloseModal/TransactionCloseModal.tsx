@@ -24,7 +24,7 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, on
           <Icon variant="transaction-success" size={142} />
         </div>
         <div className="raft__transactionCloseModal__title">
-          {typeof title === 'string' ? <Typography variant="heading1">{title}</Typography> : title}
+          {typeof title === 'string' ? <Typography variant="heading3">{title}</Typography> : title}
         </div>
         <div className="raft__transactionSuccessModal__subtitle">
           <Typography variant="heading2">You've successfully closed your Position</Typography>
