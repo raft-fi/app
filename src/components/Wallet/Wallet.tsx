@@ -223,13 +223,18 @@ const Wallet = () => {
             </Typography>
           </div>
           <div className="raft__wallet__popupActions">
-            <Button variant="secondary" className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
+            <Button
+              variant="secondary"
+              size="large"
+              className="raft__wallet__popupAction"
+              onClick={onViewOnEtherscanClick}
+            >
               <Icon variant="external-link" size="small" />
               <Typography variant="button-label" color="text-secondary">
                 View on Etherscan
               </Typography>
             </Button>
-            <Button variant="secondary" className="raft__wallet__popupAction" onClick={onCopyAddress}>
+            <Button variant="secondary" size="large" className="raft__wallet__popupAction" onClick={onCopyAddress}>
               <Icon variant="copy" size="small" />
               <Typography variant="button-label" color="text-secondary">
                 Copy address
@@ -248,6 +253,7 @@ const Wallet = () => {
           <div className="raft__wallet__popupActions">
             <Button
               variant="secondary"
+              size="large"
               text="Disconnect wallet"
               className="raft__wallet__popupAction raft__wallet__popupActionMaxWidth"
               onClick={onDisconnect}

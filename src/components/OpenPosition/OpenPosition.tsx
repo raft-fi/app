@@ -680,11 +680,17 @@ const OpenPosition = () => {
           <Button
             className="raft__openPosition__action__wrongNetwork"
             variant="error"
+            size="large"
             text="Unsupported network"
             onClick={switchToSupportedNetwork}
           />
         ) : (
-          <Button variant="primary" onClick={walletConnected ? onAction : onConnectWallet} disabled={buttonDisabled}>
+          <Button
+            variant="primary"
+            size="large"
+            onClick={walletConnected ? onAction : onConnectWallet}
+            disabled={buttonDisabled}
+          >
             {actionButtonState === 'loading' && <Loading />}
             <Typography variant="button-label" color="text-primary-inverted">
               {buttonLabel}

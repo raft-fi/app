@@ -8,6 +8,11 @@ import './Button.scss';
 type ButtonVariant = 'primary' | 'secondary' | 'error';
 type ButtonSize = 'medium' | 'large';
 
+const ICON_SIZE_MAP = {
+  medium: 16,
+  large: 20,
+};
+
 type ButtonProps = ButtonWrapperProps & {
   className?: string;
   variant: ButtonVariant;
@@ -55,14 +60,14 @@ const Button: FC<PropsWithChildren<ButtonProps>> = ({
       case 'error':
         return (
           <Typography className="raft__button-text" variant="button-label" color="text-error">
-            <Icon variant="error" size="small" />
+            <Icon variant="error" size={ICON_SIZE_MAP[size]} />
             {text}
           </Typography>
         );
       default:
         return null;
     }
-  }, [text, variant]);
+  }, [size, text, variant]);
 
   return (
     <ButtonWrapper

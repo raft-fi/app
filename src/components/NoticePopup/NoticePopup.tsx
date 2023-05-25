@@ -78,7 +78,7 @@ const NoticePopup = () => {
         </div>
 
         <div className="raft__noticePopup__action">
-          <Button variant="primary" text="Agree" disabled={!doNotShowIn} onClick={handleTermsAccepted} />
+          <Button variant="primary" size="large" text="Agree" disabled={!doNotShowIn} onClick={handleTermsAccepted} />
         </div>
       </div>
     </ModalWrapper>

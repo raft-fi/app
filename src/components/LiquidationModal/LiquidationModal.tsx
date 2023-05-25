@@ -129,7 +129,7 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
         </div>
         <div className="raft__liquidationModal__actions">
           <div className="raft__liquidationModal__action">
-            <Button variant="primary" text="Got it!" onClick={onClose} />
+            <Button variant="primary" size="large" text="Got it!" onClick={onClose} />
           </div>
         </div>
       </div>

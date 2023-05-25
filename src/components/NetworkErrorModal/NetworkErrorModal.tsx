@@ -29,24 +29,27 @@ const NetworkErrorModal: FC = () => {
       <div className="raft__networkErrorModal">
         <div className="raft__networkErrorModal__header">
           <ButtonWrapper className="raft__networkErrorModal__header__close" onClick={onClose}>
-            <Icon variant="close" size="tiny" />
+            <Icon variant="close" size="small" />
           </ButtonWrapper>
         </div>
         <div className="raft__networkErrorModal__icon">
           <Icon variant="unsupported-network" size={142} />
         </div>
         <div className="raft__networkErrorModal__title">
-          <Typography variant="heading3">Unsupported network.</Typography>
+          <Typography variant="heading1">Unsupported network.</Typography>
         </div>
         <div className="raft__networkErrorModal__subtitle">
-          <Typography variant="heading2">{`Your wallet is not on ${config.networkName}.`}</Typography>
+          <Typography
+            variant="heading2"
+            color="text-secondary"
+          >{`Your wallet is not on ${config.networkName}.`}</Typography>
         </div>
         <div className="raft__networkErrorModal__actions">
           <div className="raft__networkErrorModal__action">
-            <Button variant="secondary" text="Disconnect" onClick={onDisconnect} />
+            <Button variant="secondary" size="large" text="Disconnect" onClick={onDisconnect} />
           </div>
           <div className="raft__networkErrorModal__action">
-            <Button variant="primary" text="Switch network" onClick={switchToSupportedNetwork} />
+            <Button variant="primary" size="large" text="Switch network" onClick={switchToSupportedNetwork} />
           </div>
         </div>
       </div>
