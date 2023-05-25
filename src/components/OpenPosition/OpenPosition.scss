@@ -12,14 +12,17 @@
 
   .raft__openPosition__input {
     display: flex;
+    margin-top: 40px;
 
     .raft__currencyInput {
-      &:not(:first-child) {
-        margin-left: 16px;
+      margin: 0 16px;
+
+      &:first-child {
+        margin-left: 0;
       }
 
-      .raft__currencyInput__fieldContainer {
-        border-radius: 8px 8px 0px 0px;
+      &:last-child {
+        margin-right: 0;
       }
     }
   }

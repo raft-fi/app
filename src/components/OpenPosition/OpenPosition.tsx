@@ -22,7 +22,6 @@ import {
   INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
-  R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
   USD_UI_PRECISION,
 } from '../../constants';
@@ -211,20 +210,6 @@ const OpenPosition = () => {
     [collateralizationRatio],
   );
 
-  const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
-  const rTokenBalanceFormatted = useMemo(() => {
-    if (!rTokenBalance) {
-      return '';
-    }
-
-    return DecimalFormat.format(rTokenBalance, {
-      style: 'currency',
-      currency: R_TOKEN,
-      fractionDigits: R_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [rTokenBalance]);
-
   const collateralAmountWithEllipse = useMemo(() => {
     if (!collateralTokenValues.amount) {
       return null;
@@ -292,21 +277,25 @@ const OpenPosition = () => {
     return whitelistStep + collateralApprovalStep + executionStep;
   }, [hasEnoughCollateralAllowance, hasWhitelisted]);
 
-  const buttonLabel = useMemo(() => {
-    if (!walletConnected) {
-      return 'Connect wallet';
-    }
-
+  const collateralErrorMsg = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
       return 'Insufficient funds';
     }
+  }, [hasEnoughCollateralTokenBalance]);
 
+  const debtErrorMsg = useMemo(() => {
     if (!hasMinBorrow) {
       return `You need to borrow at least ${minBorrowFormatted} R`;
     }
 
     if (!hasMinRatio) {
       return 'Collateralization ratio is below the minimum threshold';
+    }
+  }, [hasMinBorrow, hasMinRatio, minBorrowFormatted]);
+
+  const buttonLabel = useMemo(() => {
+    if (!walletConnected) {
+      return 'Connect wallet';
     }
 
     if (!hasWhitelisted) {
@@ -324,13 +313,9 @@ const OpenPosition = () => {
     return actionButtonState === 'loading' ? 'Borrowing' : 'Borrow';
   }, [
     walletConnected,
-    hasEnoughCollateralTokenBalance,
-    hasMinBorrow,
-    hasMinRatio,
     hasWhitelisted,
     hasEnoughCollateralAllowance,
     actionButtonState,
-    minBorrowFormatted,
     executionSteps,
     selectedCollateralToken,
   ]);
@@ -515,13 +500,12 @@ const OpenPosition = () => {
           selectedToken={selectedCollateralToken}
           tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
-          maxAmount={selectedCollateralTokenBalanceValues.amount}
-          maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
           previewValue={collateralAmountWithEllipse ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
           error={!hasEnoughCollateralTokenBalance || !hasMinRatio}
+          errorMsg={collateralErrorMsg}
         />
         <CurrencyInput
           label="Borrow"
@@ -530,13 +514,11 @@ const OpenPosition = () => {
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
-          maxAmount={rTokenBalance}
-          maxAmountFormatted={rTokenBalanceFormatted ?? undefined}
           previewValue={borrowAmountWithEllipse ?? undefined}
-          disableMaxAmountClick
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
           error={!hasMinBorrow || !hasMinRatio}
+          errorMsg={debtErrorMsg}
         />
       </div>
       <div className="raft__openPosition__data">

@@ -104,30 +104,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     (amount: string) => setBorrowAmount(prependPositiveSign(amount)),
     [prependPositiveSign],
   );
-  const handleCollateralIncrement = useCallback(
-    (incrementAmount: number) =>
-      setCollateralAmount(prevAmount =>
-        prependPositiveSign(Decimal.parse(prevAmount, 0).add(incrementAmount).toString()),
-      ),
-    [prependPositiveSign],
-  );
-  const handleCollateralDecrement = useCallback(
-    (decrementAmount: number) =>
-      setCollateralAmount(prevAmount =>
-        prependPositiveSign(Decimal.parse(prevAmount, 0).sub(decrementAmount).toString()),
-      ),
-    [prependPositiveSign],
-  );
-  const handleBorrowIncrement = useCallback(
-    (incrementAmount: number) =>
-      setBorrowAmount(prevAmount => prependPositiveSign(Decimal.parse(prevAmount, 0).add(incrementAmount).toString())),
-    [prependPositiveSign],
-  );
-  const handleBorrowDecrement = useCallback(
-    (decrementAmount: number) =>
-      setBorrowAmount(prevAmount => prependPositiveSign(Decimal.parse(prevAmount, 0).sub(decrementAmount).toString())),
-    [prependPositiveSign],
-  );
   const handleCollateralAmountBlur = useCallback(() => {
     const decimal = Decimal.parse(collateralAmount, 0);
     if (decimal.isZero()) {
@@ -158,15 +134,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return original === truncated ? `${positiveSign}${original}` : `${positiveSign}${truncated}...`;
   }, [borrowAmountDecimal]);
 
-  const collateralTokenBalanceValues = useMemo(
-    () =>
-      getTokenValues(
-        tokenBalanceMap[selectedCollateralToken],
-        tokenPriceMap[selectedCollateralToken],
-        selectedCollateralToken,
-      ),
-    [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
-  );
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
@@ -531,7 +498,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return whitelistStep + collateralApprovalStep + debtApprovalStep + executionStep;
   }, [hasEnoughCollateralAllowance, hasEnoughDebtAllowance, hasWhitelisted]);
 
-  const buttonLabel = useMemo(() => {
+  const collateralErrorMsg = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
       return 'Insufficient funds';
     }
@@ -540,15 +507,24 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Collateral amount to withdraw larger than current balance';
     }
 
-    if (!hasEnoughDebtTokenBalance) {
-      return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
+    if (!hasMinNewRatio) {
+      return 'Collateralization ratio is below the minimum threshold';
     }
+  }, [hasEnoughCollateralTokenBalance, hasEnoughToWithdraw, hasMinNewRatio]);
+
+  const debtErrorMsg = useMemo(() => {
     if (!hasMinBorrow) {
       return 'Borrow below the minimum amount';
     }
 
     if (!hasMinNewRatio) {
       return 'Collateralization ratio is below the minimum threshold';
+    }
+  }, [hasMinBorrow, hasMinNewRatio]);
+
+  const buttonLabel = useMemo(() => {
+    if (!hasEnoughDebtTokenBalance) {
+      return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
     }
 
     if (!hasWhitelisted) {
@@ -569,11 +545,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return 'Execute';
   }, [
-    hasEnoughCollateralTokenBalance,
-    hasEnoughToWithdraw,
     hasEnoughDebtTokenBalance,
-    hasMinBorrow,
-    hasMinNewRatio,
     hasWhitelisted,
     hasEnoughCollateralAllowance,
     hasEnoughDebtAllowance,
@@ -708,18 +680,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             selectedToken={selectedCollateralToken}
             tokens={SUPPORTED_COLLATERAL_TOKENS}
             value={collateralAmount}
-            maxAmount={collateralTokenBalanceValues.amount}
-            maxAmountFormatted={collateralTokenBalanceValues.amountFormatted ?? undefined}
             previewValue={collateralAmountWithEllipse}
             onTokenUpdate={handleCollateralTokenChange}
             onValueUpdate={handleCollateralAmountChange}
-            step={0.1}
-            onIncrementAmount={handleCollateralIncrement}
-            onDecrementAmount={handleCollateralDecrement}
             disabled={closePositionActive}
             allowNegativeNumbers={true}
             onBlur={handleCollateralAmountBlur}
             error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio || !hasEnoughToWithdraw}
+            errorMsg={collateralErrorMsg}
           />
           <CurrencyInput
             label="Adjust your debt"
@@ -728,18 +696,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             selectedToken={R_TOKEN}
             tokens={[R_TOKEN]}
             value={borrowAmount}
-            maxAmount={debtTokenBalanceValues.amount}
-            maxAmountFormatted={debtTokenBalanceValues.amountFormatted ?? undefined}
-            disableMaxAmountClick
             previewValue={borrowAmountWithEllipse}
             onValueUpdate={handleBorrowAmountChange}
-            step={100}
-            onIncrementAmount={handleBorrowIncrement}
-            onDecrementAmount={handleBorrowDecrement}
             disabled={closePositionActive}
             allowNegativeNumbers={true}
             onBlur={handleBorrowAmountBlur}
             error={!hasMinBorrow || !hasMinNewRatio}
+            errorMsg={debtErrorMsg}
             maxIntegralDigits={10}
           />
         </div>
