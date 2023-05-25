@@ -60,12 +60,24 @@
   /* we are going to have new color system, quick fix for now */
   --colorWhite: var(--raft-white);
   --colorBlack: var(--raft-black);
+
   --headerActive: var(--raft-grey-700);
   --headerInactive: var(--raft-grey-600);
+
   --borderPrimary: var(--raft-grey-300);
   --borderSecondary: var(--raft-grey-400);
+
   --surfacePrimary: var(--raft-white);
   --surfaceSecondary: var(--raft-blue-100);
+
+  --toastBackground: var(--raft-blue-200);
+  --toastText: var(--raft-blue-900);
+  --toastSuccessBackground: var(--raft-green-200);
+  --toastSuccessText: var(--raft-green-900);
+  --toastErrorBackground: var(--raft-red-200);
+  --toastErrorText: var(--raft-red-900);
+  --toastErrorBorder: var(--raft-red-300);
+
   --textPrimary: var(--raft-grey-900);
   --textSecondary: var(--raft-grey-700);
   --textAccent: var(--raft-orange-700);
@@ -73,6 +85,7 @@
   --textSuccess: var(--raft-green-700);
   --textWarning: var(--raft-yellow-600);
   --textError: var(--raft-red-600);
+
   --btnPrimary: var(--raft-orange-700);
   --btnPrimaryHover: var(--raft-orange-800);
   --btnPrimaryActive: var(--raft-orange-800);
