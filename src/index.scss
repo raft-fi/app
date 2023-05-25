@@ -65,7 +65,7 @@
   --borderPrimary: var(--raft-grey-300);
   --borderSecondary: var(--raft-grey-400);
   --surfacePrimary: var(--raft-white);
-  --surfaceSecondary: var(--raft-grey-200);
+  --surfaceSecondary: var(--raft-blue-100);
   --textPrimary: var(--raft-grey-900);
   --textSecondary: var(--raft-grey-700);
   --textAccent: var(--raft-orange-700);
@@ -100,22 +100,23 @@
   --app-width: 1366px;
   --app-padding: 0 32px;
 
-  --onboard-link-color: var(--colorPrimary);
-  --onboard-checkbox-background: var(--colorPrimary);
-  --onboard-checkbox-background: var(--colorPrimary);
-  --onboard-checkbox-color: var(--colorPrimary);
-  --onboard-warning-100: var(--colorSelectedSurface);
-  --onboard-warning-400: var(--borderPrimary);
-  --onboard-warning-700: var(--textPrimary);
-  --onboard-connect-sidebar-progress-background: var(--colorBlack);
+  --onboard-link-color: var(--textAccent);
+  --onboard-connect-sidebar-background: var(--raft-blue-100);
+  --onboard-connect-sidebar-progress-color: var(--raft-orange-600);
+  --onboard-connect-sidebar-progress-background: var(--raft-grey-800);
+  --onboard-wallet-button-background: var(--raft-blue-200);
+  --onboard-wallet-button-border-radius: 8px;
+  --onboard-wallet-button-border-color: transparent;
+  --onboard-connect-header-color: var(--raft-grey-800);
+  --onboard-close-button-color: var(--raft-grey-700);
+  --onboard-warning-100: var(--raft-orange-100);
+  --onboard-warning-700: var(--raft-grey-800);
 }
 
 @mixin w3o {
-  --w3o-background-color: #f5fdff;
-  --w3o-foreground-color: #e1f8ff;
-  --w3o-text-color: #171717;
-  --w3o-action-color: #ff8012;
+  --text-color: var(--textPrimary);
   --w3o-border-radius: 8px;
+  --w3o-border-color: transparent;
   --w3o-font-family: 'Work Sans', sans-serif;
 }
 
