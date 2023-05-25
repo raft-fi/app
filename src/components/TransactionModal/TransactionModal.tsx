@@ -3,15 +3,9 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { resetBorrowStatus, useBorrow, useTokenPrices } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
-import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { ValueLabel } from '../shared';
-import { getCollateralRatioColor } from '../../utils';
-import {
-  COLLATERAL_TOKEN_UI_PRECISION,
-  R_TOKEN_UI_PRECISION,
-  COLLATERAL_BASE_TOKEN,
-  DISPLAY_BASE_TOKEN,
-} from '../../constants';
+import { DecimalFormat } from '@tempusfinance/decimal';
+import { Typography } from '../shared';
+import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION, DISPLAY_BASE_TOKEN } from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
 
 const TransactionModal = () => {
@@ -121,21 +115,15 @@ const TransactionModal = () => {
 
     return (
       <>
-        {!debtChange.isZero() && (
-          <ValueLabel
-            value={debtValueFormatted}
-            label={!collateralChange.isZero() ? debtLabel : ''}
-            valueSize="heading2"
-            tickerSize="heading2"
-          />
-        )}
         {!collateralChange.isZero() && (
-          <ValueLabel
-            value={collateralValueFormatted}
-            label={!debtChange.isZero() ? collateralLabel : ''}
-            valueSize="heading2"
-            tickerSize="heading2"
-          />
+          <Typography variant="heading1">
+            {collateralValueFormatted} {collateralLabel}
+          </Typography>
+        )}
+        {!debtChange.isZero() && (
+          <Typography variant="heading1">
+            {debtValueFormatted} {debtLabel}
+          </Typography>
         )}
       </>
     );
@@ -165,135 +153,6 @@ const TransactionModal = () => {
     return 'Successful transaction';
   }, [borrowStatus, collateralChange, debtChange]);
 
-  /**
-   * Calculate new collateral after transaction
-   */
-  const newCollateralAfterTx = useMemo(() => {
-    if (!borrowStatus) {
-      return null;
-    }
-
-    const baseCollateralTokenPrice = tokenPriceMap[COLLATERAL_BASE_TOKEN];
-    const displayBaseTokenPrice = tokenPriceMap[DISPLAY_BASE_TOKEN];
-    const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
-
-    if (!displayBaseTokenPrice || !collateralPrice || !baseCollateralTokenPrice) {
-      return null;
-    }
-
-    const collateralChangeValue = borrowStatus.request.collateralChange.mul(collateralPrice);
-    const collateralBalanceValue = borrowStatus.request.currentUserCollateral.mul(baseCollateralTokenPrice);
-
-    return collateralBalanceValue.add(collateralChangeValue).div(displayBaseTokenPrice);
-  }, [borrowStatus, tokenPriceMap]);
-
-  /**
-   * Calculate new debt after transaction
-   */
-  const newDebtAfterTx = useMemo(() => {
-    if (!borrowStatus) {
-      return null;
-    }
-
-    return borrowStatus.request.currentUserDebt.add(borrowStatus.request.debtChange);
-  }, [borrowStatus]);
-
-  const collateralAfterTxFormatted = useMemo(() => {
-    if (!newCollateralAfterTx) {
-      return null;
-    }
-
-    // collateral should always show in stETH, so convert to stETH
-    return DecimalFormat.format(newCollateralAfterTx, {
-      style: 'currency',
-      currency: DISPLAY_BASE_TOKEN,
-      fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [newCollateralAfterTx]);
-
-  const debtAfterTxFormatted = useMemo(() => {
-    if (!newDebtAfterTx) {
-      return null;
-    }
-
-    return DecimalFormat.format(newDebtAfterTx, {
-      style: 'currency',
-      currency: R_TOKEN,
-      fractionDigits: R_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-    });
-  }, [newDebtAfterTx]);
-
-  /**
-   * Calculate new collateralization ratio after transaction
-   */
-  const collateralizationRatio = useMemo(() => {
-    if (!borrowStatus) {
-      return null;
-    }
-
-    const baseCollateralTokenPrice = tokenPriceMap[COLLATERAL_BASE_TOKEN];
-    const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
-    const rPrice = tokenPriceMap[R_TOKEN];
-
-    if (!collateralPrice || !rPrice || !baseCollateralTokenPrice) {
-      return null;
-    }
-
-    const collateralChangeValue = borrowStatus.request.collateralChange.mul(collateralPrice);
-    const collateralBalanceValue = borrowStatus.request.currentUserCollateral.mul(baseCollateralTokenPrice);
-
-    const debtBalanceValue = borrowStatus.request.currentUserDebt.mul(rPrice);
-    const debtChangeValue = borrowStatus.request.debtChange.mul(rPrice);
-
-    const totalDebtValue = debtBalanceValue.add(debtChangeValue);
-    if (totalDebtValue.isZero()) {
-      return null;
-    }
-
-    return collateralBalanceValue.add(collateralChangeValue).div(totalDebtValue);
-  }, [borrowStatus, tokenPriceMap]);
-
-  const collateralizationRatioFormatted = useMemo(() => {
-    if (!collateralizationRatio) {
-      return null;
-    }
-
-    return DecimalFormat.format(collateralizationRatio, {
-      style: 'percentage',
-      fractionDigits: 2,
-      lessThanFormat: true,
-      pad: true,
-    });
-  }, [collateralizationRatio]);
-
-  const liquidationPrice = useMemo(() => {
-    if (!borrowStatus || borrowStatus.pending || !collateralizationRatio) {
-      return null;
-    }
-
-    if (collateralizationRatio.isZero()) {
-      return 'N/A';
-    }
-
-    const displayBaseTokenPrice = tokenPriceMap[DISPLAY_BASE_TOKEN];
-    if (!displayBaseTokenPrice) {
-      return null;
-    }
-
-    const value = displayBaseTokenPrice.mul(new Decimal(1.1).div(collateralizationRatio));
-
-    return DecimalFormat.format(value, {
-      style: 'currency',
-      currency: '$',
-      fractionDigits: 2,
-      lessThanFormat: true,
-    });
-  }, [borrowStatus, collateralizationRatio, tokenPriceMap]);
-
-  const collateralRatioColor = useMemo(() => getCollateralRatioColor(collateralizationRatio), [collateralizationRatio]);
-
   const isClosePosition = useMemo(
     () => Boolean(borrowStatus?.request.closePosition),
     [borrowStatus?.request.closePosition],
@@ -309,31 +168,7 @@ const TransactionModal = () => {
           title={successModalTitle}
           subtitle={successModalSubtitle}
           onClose={onCloseModal}
-          infoHeader="Your Position"
           open={successModalOpened}
-          infoEntries={[
-            {
-              id: 'collateral',
-              label: collateralChange?.lt(0) ? 'Total collateral remaining' : 'Total collateral',
-              value: collateralAfterTxFormatted || 'N/A',
-            },
-            {
-              id: 'debt',
-              label: debtChange?.lt(0) ? 'Total debt remaining' : 'Total debt',
-              value: debtAfterTxFormatted || 'N/A',
-            },
-            {
-              // TODO - Wait for SDK to add this value
-              id: 'liquidationPrice',
-              label: 'Collateral liquidation price',
-              value: liquidationPrice || 'N/A',
-            },
-            {
-              id: 'collateralizationRatio',
-              label: 'Collateralization ratio',
-              value: <ValueLabel color={collateralRatioColor} value={collateralizationRatioFormatted || 'N/A'} />,
-            },
-          ]}
         />
       )}
       {failedModalOpened && (
