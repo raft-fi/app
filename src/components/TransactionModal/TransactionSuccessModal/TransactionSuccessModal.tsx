@@ -59,6 +59,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title
               Etherscan
             </Typography>
           </Link>
+          <Typography variant="caption">.</Typography>
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
