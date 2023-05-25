@@ -42,7 +42,7 @@ const Geoblock = () => {
         <Typography className="raft__geoblock__title" variant="heading1">
           We're sorry.
         </Typography>
-        <Typography className="raft__geoblock__subtitle" variant="heading2">
+        <Typography className="raft__geoblock__subtitle" variant="heading2" color="text-secondary">
           Raft is not available in the US.
         </Typography>
       </div>

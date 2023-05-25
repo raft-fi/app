@@ -10,9 +10,9 @@ import {
 } from 'tempus-ui';
 
 export type TypographyVariant =
-  | 'heading3'
-  | 'heading2'
   | 'heading1'
+  | 'heading2'
+  | 'heading3'
   | 'overline'
   | 'body'
   | 'body2'
@@ -30,7 +30,7 @@ export type TypographyColor =
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
 const typographyVariantMap: TypographyVariantMap = {
-  heading3: {
+  heading1: {
     fontStyle: 'normal',
     fontSize: '28px',
     lineHeight: '39.2px',
@@ -40,7 +40,7 @@ const typographyVariantMap: TypographyVariantMap = {
     fontSize: '20px',
     lineHeight: '28px',
   },
-  heading1: {
+  heading3: {
     fontStyle: 'normal',
     fontSize: '16px',
     lineHeight: '22.4px',
@@ -95,9 +95,9 @@ const typographyWeightMap: TypographyWeightMap = {
 };
 
 const typographyDefaultWeightMap: { [x: string]: TypographyWeight } = {
-  heading3: 'medium',
+  heading1: 'medium',
   heading2: 'medium',
-  heading1: 'semi-bold',
+  heading3: 'semi-bold',
   overline: 'semi-bold',
   body: 'regular',
   body2: 'regular',
