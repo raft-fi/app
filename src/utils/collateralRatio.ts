@@ -4,7 +4,7 @@ import { TypographyColor } from '../components/shared/Typography';
 import { HEALTHY_RATIO } from '../constants';
 import { Nullable } from '../interfaces';
 
-type CollateralRatioLevel = 'healthy' | 'medium' | 'dangerous';
+type CollateralRatioLevel = 'healthy' | 'risk' | 'unhealthy';
 
 export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<CollateralRatioLevel> => {
   if (!ratio) {
@@ -16,21 +16,22 @@ export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<Coll
   }
 
   if (ratio.gt(MIN_COLLATERAL_RATIO)) {
-    return 'medium';
+    return 'risk';
   }
 
-  return 'dangerous';
+  return 'unhealthy';
 };
 
+// TODO: this should be removed soon
 export const getCollateralRatioColor = (ratio: Nullable<Decimal>): TypographyColor | undefined => {
   const level = getCollateralRatioLevel(ratio);
 
   switch (level) {
     case 'healthy':
       return 'text-success';
-    case 'medium':
+    case 'risk':
       return 'text-warning';
-    case 'dangerous':
+    case 'unhealthy':
       return 'text-error';
     default:
       return undefined;

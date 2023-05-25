@@ -1,5 +1,4 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { ButtonWrapper } from 'tempus-ui';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
@@ -56,7 +55,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
-  const [expanded, setExpanded] = useState<boolean>(false);
 
   /**
    * Update action button state based on current borrow request status
@@ -688,28 +686,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     whitelistDelegate,
   ]);
 
-  const onToggleExpanded = useCallback(() => setExpanded(expanded => !expanded), []);
-
   return (
     <div className="raft__adjustPosition">
       <div className="raft__adjustPosition__header">
         <Typography variant="heading2">Adjust your Position</Typography>
         <div className="raft__adjustPosition__actions">
-          <div className={`raft__adjustPosition__actions__close ${expanded ? 'show' : ''}`}>
-            <Button
-              variant="secondary"
-              text="Close Position"
-              onClick={onToggleClosePosition}
-              selected={closePositionActive}
-              disabled={!expanded}
-            />
-          </div>
-          <ButtonWrapper onClick={onToggleExpanded}>
-            <Icon variant={expanded ? 'chevron-up' : 'chevron-down'} />
-          </ButtonWrapper>
+          <Button
+            variant="secondary"
+            text="Close Position"
+            onClick={onToggleClosePosition}
+            selected={closePositionActive}
+          />
         </div>
       </div>
-      <div className={`raft__adjustPosition__body ${expanded ? 'raft__adjustPosition-expanded' : ''}`}>
+      <div className="raft__adjustPosition__body">
         <div className="raft__adjustPosition__input">
           <CurrencyInput
             label="Adjust your collateral"

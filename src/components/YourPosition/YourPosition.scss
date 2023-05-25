@@ -1,8 +1,8 @@
 .raft__your-position {
-  background: var(--raft-blue-100);
-  border: 1px solid var(--borderPrimary);
+  /* TODO: hardcode color as suggested */
+  background: var(--raft-blue-900);
   border-radius: 8px;
-  width: 848px;
+  width: 856px;
   padding: 16px 0;
   display: flex;
   justify-content: space-between;
@@ -11,6 +11,9 @@
   .raft__your-position__collateral,
   .raft__your-position__debt,
   .raft__your-position__ratio {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-blue-500);
+
     display: flex;
     flex-direction: column;
     padding: 16px 32px;
@@ -19,13 +22,16 @@
     flex: 1;
 
     &:not(:first-child) {
-      border-left: 1px solid var(--borderPrimary);
+      /* TODO: hardcode color as suggested */
+      border-left: 1px solid var(--raft-grey-700);
     }
   }
 
   .raft__your-position__collateral__amount,
-  .raft__your-position__debt__amount,
-  .raft__your-position__ratio__amount {
+  .raft__your-position__debt__amount {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-100);
+
     display: flex;
     align-items: center;
     margin-top: 16px;
@@ -49,18 +55,27 @@
 
   .raft__your-position__collateral__value__number,
   .raft__your-position__debt__value__number {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-500);
+
     display: flex;
     align-items: baseline;
     margin-top: 8px;
   }
 
   .raft__your-position__ratio__percent {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-100);
+
     display: flex;
     align-items: baseline;
     margin-top: 16px;
   }
 
   .raft__your-position__ratio__status {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-500);
+
     display: flex;
     align-items: center;
     margin-top: 8px;
@@ -71,16 +86,16 @@
       border-radius: 50%;
       margin-right: 6px;
 
-      &.text-success {
-        background-color: var(--textSuccess);
+      &.status-healthy {
+        background-color: var(--statusHealthy);
       }
 
-      &.text-warning {
-        background-color: var(--textWarning);
+      &.status-risk {
+        background-color: var(--statusAtRisk);
       }
 
-      &.text-error {
-        background-color: var(--textError);
+      &.status-unhealthy {
+        background-color: var(--statusUnhealthy);
       }
     }
   }
