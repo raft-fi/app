@@ -108,11 +108,7 @@ const ProtocolStats = () => {
             <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} />
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
-              <Typography
-                className="raft__protocol-stats__stat__data__title"
-                variant="body-secondary"
-                color="text-accent"
-              >
+              <Typography className="raft__protocol-stats__stat__data__title" variant="caption" color="text-accent">
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
@@ -121,11 +117,7 @@ const ProtocolStats = () => {
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
-              <Typography
-                className="raft__protocol-stats__stat__data__title"
-                variant="body-secondary"
-                color="text-accent"
-              >
+              <Typography className="raft__protocol-stats__stat__data__title" variant="caption" color="text-accent">
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
@@ -134,11 +126,7 @@ const ProtocolStats = () => {
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
-              <Typography
-                className="raft__protocol-stats__stat__data__title"
-                variant="body-secondary"
-                color="text-accent"
-              >
+              <Typography className="raft__protocol-stats__stat__data__title" variant="caption" color="text-accent">
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
@@ -150,11 +138,7 @@ const ProtocolStats = () => {
             <TokenLogo type={`token-${R_TOKEN}`} />
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
-              <Typography
-                className="raft__protocol-stats__stat__data__title"
-                variant="body-secondary"
-                color="text-accent"
-              >
+              <Typography className="raft__protocol-stats__stat__data__title" variant="caption" color="text-accent">
                 Total supply
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
@@ -163,11 +147,7 @@ const ProtocolStats = () => {
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
-              <Typography
-                className="raft__protocol-stats__stat__data__title"
-                variant="body-secondary"
-                color="text-accent"
-              >
+              <Typography className="raft__protocol-stats__stat__data__title" variant="caption" color="text-accent">
                 Total value
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">
@@ -176,11 +156,7 @@ const ProtocolStats = () => {
             </div>
             <div className="raft__protocol-stats__stat__separator" />
             <div className="raft__protocol-stats__stat__data">
-              <Typography
-                className="raft__protocol-stats__stat__data__title"
-                variant="body-secondary"
-                color="text-accent"
-              >
+              <Typography className="raft__protocol-stats__stat__data__title" variant="caption" color="text-accent">
                 Price
               </Typography>
               <div className="raft__protocol-stats__stat__data__value">

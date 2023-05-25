@@ -18,14 +18,14 @@ const Footer = (): JSX.Element => {
           <div className="raft__footer__links-column">
             <div className="raft__footer__link-container">
               <LocalNav className="raft__footer__link" to="/terms-and-conditions">
-                <Typography variant="body-primary" color="text-primary-inverted">
+                <Typography variant="body" color="text-primary-inverted">
                   Terms & Conditions
                 </Typography>
               </LocalNav>
             </div>
             <div className="raft__footer__link-container">
               <LocalNav className="raft__footer__link" to="/privacy">
-                <Typography variant="body-primary" color="text-primary-inverted">
+                <Typography variant="body" color="text-primary-inverted">
                   Privacy Policy
                 </Typography>
               </LocalNav>
@@ -34,14 +34,14 @@ const Footer = (): JSX.Element => {
           <div className="raft__footer__links-column">
             <div className="raft__footer__link-container">
               <Link className="raft__footer__link" href={TWITTER_URL}>
-                <Typography variant="body-primary" color="text-primary-inverted">
+                <Typography variant="body" color="text-primary-inverted">
                   Twitter
                 </Typography>
               </Link>
             </div>
             <div className="raft__footer__link-container">
               <Link className="raft__footer__link" href={DISCORD_INVITE_URL}>
-                <Typography variant="body-primary" color="text-primary-inverted">
+                <Typography variant="body" color="text-primary-inverted">
                   Discord
                 </Typography>
               </Link>
@@ -50,14 +50,14 @@ const Footer = (): JSX.Element => {
           <div className="raft__footer__links-column">
             <div className="raft__footer__link-container">
               <Link className="raft__footer__link" href={GITHUB_URL}>
-                <Typography variant="body-primary" color="text-primary-inverted">
+                <Typography variant="body" color="text-primary-inverted">
                   GitHub
                 </Typography>
               </Link>
             </div>
             <div className="raft__footer__link-container">
               <Link className="raft__footer__link" href={GITBOOK_URL}>
-                <Typography variant="body-primary" color="text-primary-inverted">
+                <Typography variant="body" color="text-primary-inverted">
                   GitBook
                 </Typography>
               </Link>

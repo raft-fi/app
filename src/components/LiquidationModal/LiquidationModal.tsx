@@ -112,15 +112,15 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
           <Typography variant="heading2">{timestampFormatted}</Typography>
         </div>
         <div className="raft__liquidationModal__info">
-          <Typography className="raft__liquidationModal__info__title" variant="body-primary">
+          <Typography className="raft__liquidationModal__info__title" variant="body">
             Your Position
           </Typography>
           <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__liquidationModal__explorerLink">
-          <Typography variant="body-secondary">View transaction on&nbsp;</Typography>
+          <Typography variant="caption">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${liquidationTransaction.id}`}>
-            <Typography variant="body-secondary" color="text-accent">
+            <Typography variant="caption" color="text-accent">
               Etherscan
             </Typography>
           </Link>

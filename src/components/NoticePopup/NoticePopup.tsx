@@ -45,16 +45,15 @@ const NoticePopup = () => {
     <ModalWrapper open={open} onClose={handleModalClose}>
       <div className="raft__noticePopup">
         <div className="raft__noticePopup__title">
-          <Typography variant="heading1">Notice</Typography>
+          <Typography variant="heading3">Notice</Typography>
         </div>
-
         <div className="raft__noticePopup__description">
-          <Typography variant="body-primary">
+          <Typography variant="body" color="text-secondary">
             Please note that this app is not hosted by raft.fi. It is an independently deployed and maintained instance
             of the Raft protocol.
           </Typography>
 
-          <Typography variant="body-primary">
+          <Typography variant="body" color="text-secondary">
             By clicking Agree, you confirm that you have read and understood this Notice and the{' '}
             <a className="raft__link" rel="external noreferrer nofollow" target="_blank" href="/privacy">
               Privacy Policy
@@ -72,12 +71,14 @@ const NoticePopup = () => {
             id="do-not-show-in-30-days"
             checked={doNotShowIn}
             label="Don't show this notice again for 30 days"
+            labelVariant="caption"
+            labelWeight="medium"
             onChange={onDoNotShowInChange}
           />
         </div>
 
         <div className="raft__noticePopup__action">
-          <Button variant="primary" text="Agree" onClick={handleTermsAccepted} />
+          <Button variant="primary" text="Agree" disabled={!doNotShowIn} onClick={handleTermsAccepted} />
         </div>
       </div>
     </ModalWrapper>

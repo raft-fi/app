@@ -13,9 +13,10 @@ export type TypographyVariant =
   | 'heading3'
   | 'heading2'
   | 'heading1'
+  | 'overline'
+  | 'body'
+  | 'body2'
   | 'caption'
-  | 'body-primary'
-  | 'body-secondary'
   | 'input-value'
   | 'button-label';
 export type TypographyColor =
@@ -44,17 +45,22 @@ const typographyVariantMap: TypographyVariantMap = {
     fontSize: '16px',
     lineHeight: '22.4px',
   },
-  caption: {
+  overline: {
     fontStyle: 'normal',
     fontSize: '12px',
     lineHeight: '16.8px',
   },
-  'body-primary': {
+  body: {
     fontStyle: 'normal',
     fontSize: '16px',
     lineHeight: '22.4px',
   },
-  'body-secondary': {
+  body2: {
+    fontStyle: 'normal',
+    fontSize: '14px',
+    lineHeight: '19.6px',
+  },
+  caption: {
     fontStyle: 'normal',
     fontSize: '12px',
     lineHeight: '16.8px',
@@ -92,9 +98,10 @@ const typographyDefaultWeightMap: { [x: string]: TypographyWeight } = {
   heading3: 'medium',
   heading2: 'medium',
   heading1: 'semi-bold',
-  caption: 'semi-bold',
-  'body-primary': 'regular',
-  'body-secondary': 'regular',
+  overline: 'semi-bold',
+  body: 'regular',
+  body2: 'regular',
+  caption: 'regular',
   'input-value': 'bold',
   'button-label': 'medium',
 };

@@ -549,7 +549,7 @@ const OpenPosition = () => {
                   <TooltipWrapper
                     tooltipContent={
                       <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
                           The total collateral amount you will be depositing into Raft.
                         </Typography>
                       </Tooltip>
@@ -558,7 +558,7 @@ const OpenPosition = () => {
                   >
                     <Icon variant="info" size="small" />
                   </TooltipWrapper>
-                  <Typography variant="body-primary">Total collateral&nbsp;</Typography>
+                  <Typography variant="body">Total collateral&nbsp;</Typography>
                 </>
               ),
               value: baseTokenAmountFormatted,
@@ -570,7 +570,7 @@ const OpenPosition = () => {
                   <TooltipWrapper
                     tooltipContent={
                       <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
                           The total amount of R you will be borrowing from Raft using your collateral.
                         </Typography>
                       </Tooltip>
@@ -579,10 +579,10 @@ const OpenPosition = () => {
                   >
                     <Icon variant="info" size="small" />
                   </TooltipWrapper>
-                  <Typography variant="body-primary">Total debt&nbsp;</Typography>
-                  <Typography variant="body-secondary">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
-                  <Typography variant="body-secondary">{R_TOKEN}</Typography>
-                  <Typography variant="body-secondary">{')'}</Typography>
+                  <Typography variant="body">Total debt&nbsp;</Typography>
+                  <Typography variant="caption">{`(Min. ${minBorrowFormatted}`}&nbsp;</Typography>
+                  <Typography variant="caption">{R_TOKEN}</Typography>
+                  <Typography variant="caption">{')'}</Typography>
                 </>
               ),
               value: hasMinBorrow ? (
@@ -592,7 +592,7 @@ const OpenPosition = () => {
                   anchorClasses="raft__openPosition__error"
                   tooltipContent={
                     <Tooltip>
-                      <Typography variant="body-secondary" color="text-error">
+                      <Typography variant="caption" color="text-error">
                         Borrow below the minimum amount
                       </Typography>
                     </Tooltip>
@@ -611,7 +611,7 @@ const OpenPosition = () => {
                   <TooltipWrapper
                     tooltipContent={
                       <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
                           The price at which your position will be available to be liquidated. Learn more about
                           liquidations{' '}
                           <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
@@ -627,7 +627,7 @@ const OpenPosition = () => {
                   >
                     <Icon variant="info" size="small" />
                   </TooltipWrapper>
-                  <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
+                  <Typography variant="body">Collateral liquidation price&nbsp;</Typography>
                 </>
               ),
               value: hasMinRatio ? liquidationPriceFormatted : 'N/A',
@@ -639,7 +639,7 @@ const OpenPosition = () => {
                   <TooltipWrapper
                     tooltipContent={
                       <Tooltip className="raft__openPosition__infoTooltip">
-                        <Typography className="raft__openPosition__infoTooltipText" variant="body-secondary">
+                        <Typography className="raft__openPosition__infoTooltipText" variant="caption">
                           The percentage of R borrowed in relation to the total collateral amount.
                         </Typography>
                       </Tooltip>
@@ -648,8 +648,8 @@ const OpenPosition = () => {
                   >
                     <Icon variant="info" size="small" />
                   </TooltipWrapper>
-                  <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                  <Typography variant="body-secondary">{`(Min. ${minRatioFormatted})`}</Typography>
+                  <Typography variant="body">Collateralization ratio&nbsp;</Typography>
+                  <Typography variant="caption">{`(Min. ${minRatioFormatted})`}</Typography>
                 </>
               ),
               value:
@@ -660,7 +660,7 @@ const OpenPosition = () => {
                     anchorClasses="raft__openPosition__error"
                     tooltipContent={
                       <Tooltip>
-                        <Typography variant="body-secondary" color="text-error">
+                        <Typography variant="caption" color="text-error">
                           Collateralization ratio is below the minimum threshold
                         </Typography>
                       </Tooltip>

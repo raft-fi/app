@@ -121,7 +121,7 @@ const YourPosition: FC = () => {
   return (
     <div className="raft__your-position">
       <div className="raft__your-position__collateral">
-        <Typography variant="body-secondary" color="text-accent">
+        <Typography variant="caption" color="text-accent">
           YOUR COLLATERAL
         </Typography>
         <div className="raft__your-position__collateral__amount">
@@ -132,16 +132,16 @@ const YourPosition: FC = () => {
           </div>
         </div>
         <div className="raft__your-position__collateral__value__number">
-          <Typography variant="body-secondary" color="text-secondary">
+          <Typography variant="caption" color="text-secondary">
             $
           </Typography>
-          <Typography variant="body-primary" color="text-secondary">
+          <Typography variant="body" color="text-secondary">
             {collateralValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
       <div className="raft__your-position__debt">
-        <Typography variant="body-secondary" color="text-accent">
+        <Typography variant="caption" color="text-accent">
           YOUR DEBT
         </Typography>
         <div className="raft__your-position__debt__amount">
@@ -152,16 +152,16 @@ const YourPosition: FC = () => {
           </div>
         </div>
         <div className="raft__your-position__debt__value__number">
-          <Typography variant="body-secondary" color="text-secondary">
+          <Typography variant="caption" color="text-secondary">
             $
           </Typography>
-          <Typography variant="body-primary" color="text-secondary">
+          <Typography variant="body" color="text-secondary">
             {debtValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
       <div className="raft__your-position__ratio">
-        <Typography variant="body-secondary" color="text-accent">
+        <Typography variant="caption" color="text-accent">
           COLLATERALIZATION
         </Typography>
         <div className="raft__your-position__ratio__percent">
@@ -170,7 +170,7 @@ const YourPosition: FC = () => {
         </div>
         <div className="raft__your-position__ratio__status">
           <div className={`raft__your-position__ratio__status__color ${collateralRatioColor}`} />
-          <Typography variant="body-primary" color="text-secondary">
+          <Typography variant="body" color="text-secondary">
             {collateralRatioLabel ?? '---'}
           </Typography>
         </div>

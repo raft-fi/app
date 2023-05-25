@@ -30,9 +30,9 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, on
           <Typography variant="heading2">You've successfully closed your Position</Typography>
         </div>
         <div className="raft__transactionCloseModal__explorerLink">
-          <Typography variant="body-secondary">View transaction on&nbsp;</Typography>
+          <Typography variant="caption">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
-            <Typography variant="body-secondary" color="text-accent">
+            <Typography variant="caption" color="text-accent">
               Etherscan
             </Typography>
           </Link>

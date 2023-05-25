@@ -763,7 +763,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     <TooltipWrapper
                       tooltipContent={
                         <Tooltip className="raft__adjustPosition__infoTooltip">
-                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="caption">
                             The amount of collateral in your Position.
                           </Typography>
                         </Tooltip>
@@ -772,7 +772,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     >
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
-                    <Typography variant="body-primary">Your collateral&nbsp;</Typography>
+                    <Typography variant="body">Your collateral&nbsp;</Typography>
                   </>
                 ),
                 value: currentCollateralInDisplayToken?.amountFormatted || 'N/A',
@@ -788,7 +788,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     <TooltipWrapper
                       tooltipContent={
                         <Tooltip className="raft__adjustPosition__infoTooltip">
-                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="caption">
                             The amount of debt your Position has.
                           </Typography>
                         </Tooltip>
@@ -797,7 +797,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     >
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
-                    <Typography variant="body-primary">Your debt&nbsp;</Typography>
+                    <Typography variant="body">Your debt&nbsp;</Typography>
                   </>
                 ),
                 value: currentDebtTokenValues.amountFormatted || 'N/A',
@@ -810,7 +810,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                       anchorClasses="raft__adjustPosition__error"
                       tooltipContent={
                         <Tooltip>
-                          <Typography variant="body-secondary" color="text-error">
+                          <Typography variant="caption" color="text-error">
                             Borrow below the minimum amount
                           </Typography>
                         </Tooltip>
@@ -831,7 +831,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     <TooltipWrapper
                       tooltipContent={
                         <Tooltip className="raft__adjustPosition__infoTooltip">
-                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="caption">
                             The price of one unit of collateral at which your Position will be available to be
                             liquidated. Learn more about liquidations&nbsp;
                             <a href="https://docs.raft.fi/how-it-works/returning/liquidation" target="_blank">
@@ -847,7 +847,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     >
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
-                    <Typography variant="body-primary">Collateral liquidation price&nbsp;</Typography>
+                    <Typography variant="body">Collateral liquidation price&nbsp;</Typography>
                   </>
                 ),
                 value: hasMinCurrentRatio ? currentLiquidationPriceFormatted : 'N/A',
@@ -860,7 +860,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     <TooltipWrapper
                       tooltipContent={
                         <Tooltip className="raft__adjustPosition__infoTooltip">
-                          <Typography className="raft__adjustPosition__infoTooltipText" variant="body-secondary">
+                          <Typography className="raft__adjustPosition__infoTooltipText" variant="caption">
                             The percentage of R borrowed in relation to the total collateral amount.
                           </Typography>
                         </Tooltip>
@@ -869,8 +869,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                     >
                       <Icon variant="info" size="small" />
                     </TooltipWrapper>
-                    <Typography variant="body-primary">Collateralization ratio&nbsp;</Typography>
-                    <Typography variant="body-secondary">{`(Min. ${minRatioFormatted})`}</Typography>
+                    <Typography variant="body">Collateralization ratio&nbsp;</Typography>
+                    <Typography variant="caption">{`(Min. ${minRatioFormatted})`}</Typography>
                   </>
                 ),
                 value: <ValueLabel color={currentCollateralRatioColor} value={collateralizationRatioFormatted} />,
@@ -884,7 +884,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                       anchorClasses="raft__adjustPosition__error"
                       tooltipContent={
                         <Tooltip>
-                          <Typography variant="body-secondary" color="text-error">
+                          <Typography variant="caption" color="text-error">
                             Collateralization ratio is below the minimum threshold
                           </Typography>
                         </Tooltip>

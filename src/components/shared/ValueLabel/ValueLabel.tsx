@@ -11,13 +11,7 @@ interface ValueLabelProps {
   tickerSize?: TypographyVariant;
 }
 
-const ValueLabel: FC<ValueLabelProps> = ({
-  value,
-  label = '',
-  color,
-  valueSize = 'body-primary',
-  tickerSize = 'body-secondary',
-}) => {
+const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize = 'body', tickerSize = 'caption' }) => {
   if (value.startsWith('$')) {
     return (
       <div className="raft__valueLabel">

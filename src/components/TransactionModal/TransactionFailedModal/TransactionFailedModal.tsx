@@ -21,10 +21,10 @@ const TransactionFailedModal: FC<TransactionFailedModalProps> = ({ open, error, 
       </div>
       <div className="raft__transactionFailedModal__errorMessage">
         <div className="raft__transactionFailedModal__errorMessage__title">
-          <Typography variant="body-primary">Transaction summary</Typography>
+          <Typography variant="body">Transaction summary</Typography>
         </div>
         <div className="raft__transactionFailedModal__errorMessage__content">
-          <Typography variant="body-primary">{error}</Typography>
+          <Typography variant="body">{error}</Typography>
         </div>
       </div>
       <div className="raft__transactionFailedModal__actions">
