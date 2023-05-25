@@ -109,7 +109,7 @@ const YourPosition: FC = () => {
     switch (collateralRatioLevel) {
       case 'healthy':
         return 'Healthy';
-      case 'at-risk':
+      case 'risk':
         return 'At risk';
       case 'unhealthy':
         return 'Unhealthy';
