@@ -218,16 +218,22 @@ const Wallet = () => {
             ) : (
               <Icon variant="profile" size={20} />
             )}
-            <Typography variant="heading2">{shortenedAddressPopup}</Typography>
+            <Typography variant="heading2" color="text-secondary">
+              {shortenedAddressPopup}
+            </Typography>
           </div>
           <div className="raft__wallet__popupActions">
             <Button variant="secondary" className="raft__wallet__popupAction" onClick={onViewOnEtherscanClick}>
               <Icon variant="external-link" size="small" />
-              <Typography variant="body-primary">View on Etherscan</Typography>
+              <Typography variant="button-label" color="text-secondary">
+                View on Etherscan
+              </Typography>
             </Button>
             <Button variant="secondary" className="raft__wallet__popupAction" onClick={onCopyAddress}>
               <Icon variant="copy" size="small" />
-              <Typography variant="body-primary">Copy address</Typography>
+              <Typography variant="button-label" color="text-secondary">
+                Copy address
+              </Typography>
             </Button>
           </div>
           {transactionHistory && (
