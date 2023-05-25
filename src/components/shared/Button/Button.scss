@@ -67,7 +67,6 @@
   }
 
   &.raft__button-error {
-    --textError: var(--btnErrorText);
     background-color: var(--btnError);
 
     &:not([data-disabled='true']):focus,
