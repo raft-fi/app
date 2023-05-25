@@ -10,19 +10,10 @@ interface TransactionSuccessModalProps {
   open: boolean;
   title: ReactNode | string;
   subtitle: string;
-  infoHeader: string;
-  infoEntries: { id: string; label: string; value: ReactNode | string }[];
   onClose: () => void;
 }
 
-const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
-  open,
-  title,
-  subtitle,
-  infoHeader,
-  infoEntries,
-  onClose,
-}) => {
+const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title, subtitle, onClose }) => {
   const { borrowStatus } = useBorrow();
   const eip1193Provider = useEIP1193Provider();
   const config = useConfig();
@@ -54,16 +45,12 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <Icon variant="transaction-success" size={142} />
         </div>
         <div className="raft__transactionSuccessModal__title">
-          {typeof title === 'string' ? <Typography variant="heading3">{title}</Typography> : title}
+          {typeof title === 'string' ? <Typography variant="heading1">{title}</Typography> : title}
         </div>
         <div className="raft__transactionSuccessModal__subtitle">
-          <Typography variant="heading2">{subtitle}</Typography>
-        </div>
-        <div className="raft__transactionSuccessModal__info">
-          <Typography className="raft__transactionSuccessModal__info__title" variant="body">
-            {infoHeader}
+          <Typography variant="heading2" color="text-secondary">
+            {subtitle}
           </Typography>
-          <ValuesBox values={infoEntries} />
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
           <Typography variant="caption">View transaction on&nbsp;</Typography>
@@ -72,8 +59,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
               Etherscan
             </Typography>
           </Link>
-          &nbsp;
-          <Icon variant="external-link" size={10} />
+          <Typography variant="caption">.</Typography>
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
