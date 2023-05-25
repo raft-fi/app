@@ -13,14 +13,14 @@ const ICON_SIZE_MAP = {
   large: 20,
 };
 
-type ButtonProps = ButtonWrapperProps & {
+interface ButtonProps extends Omit<ButtonWrapperProps, 'size'> {
   className?: string;
   variant: ButtonVariant;
   size?: ButtonSize;
   text?: string;
   disabled?: boolean;
   onClick: () => void;
-};
+}
 
 const Button: FC<PropsWithChildren<ButtonProps>> = ({
   children,
