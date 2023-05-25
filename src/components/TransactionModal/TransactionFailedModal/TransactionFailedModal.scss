@@ -1,24 +1,25 @@
 .raft__transactionFailedModal {
   border-radius: 8px;
-  padding: 48px 24px 24px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  width: 472px;
+  width: 496px;
 
   .raft__transactionFailedModal__icon {
-    margin-bottom: 24px;
+    margin-top: 36px;
   }
 
   .raft__transactionFailedModal__title {
-    margin-bottom: 36px;
+    margin-top: 16px;
   }
 
   .raft__transactionFailedModal__errorMessage {
-    margin-bottom: 32px;
-    background: var(--surfacePrimaryHighlight);
-    border: 1px solid var(--borderPrimary);
+    margin-top: 32px;
+    background: var(--surfaceSecondary);
+    /* TODO: hardcode color as suggested */
+    border: 1px solid var(--raft-grey-200);
     border-radius: 8px;
     padding: 16px;
     box-sizing: border-box;
@@ -32,19 +33,37 @@
       overflow-wrap: break-word;
       max-height: 320px;
       overflow-y: auto;
+
+      /* width */
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      /* Track */
+      &::-webkit-scrollbar-track {
+        /* TODO: hardcode color as suggested */
+        background: var(--raft-grey-500);
+        border-radius: 4px;
+      }
     }
   }
 
   .raft__transactionFailedModal__actions {
     display: flex;
-    align-items: center;
+    justify-content: center;
+    margin-top: 32px;
     width: 100%;
 
     .raft__transactionFailedModal__action {
+      margin: 0 8px;
       width: 100%;
 
-      &:not(:last-child) {
-        margin-right: 24px;
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
       }
 
       .raft__button {
