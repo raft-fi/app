@@ -22,14 +22,12 @@
   }
 
   .raft__adjustPosition__body {
-    max-height: 0px;
     margin-top: 16px;
-    max-height: 400px;
-    overflow: hidden;
   }
 
   .raft__adjustPosition__input {
     display: flex;
+    margin-top: 40px;
 
     .raft__currencyInput {
       &:not(:first-child) {

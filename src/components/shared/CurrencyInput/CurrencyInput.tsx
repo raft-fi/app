@@ -5,11 +5,8 @@ import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
 import Menu from '../Menu';
-import Button from '../Button';
-import ValueLabel from '../ValueLabel';
 
 import './CurrencyInput.scss';
-import { Decimal } from '@tempusfinance/decimal';
 
 // ethers 6.3.0 has bugs that cannot format large number
 const MAX_INTEGRAL_DIGIT = 10;
@@ -21,13 +18,10 @@ export interface CurrencyInputProps extends BaseInputProps {
   placeholder?: string;
   precision: number;
   fiatValue: Nullable<string>;
-  maxAmount?: Nullable<Decimal>;
-  maxAmountFormatted?: string;
-  disableMaxAmountClick?: boolean;
   disabled?: boolean;
   error?: boolean;
+  errorMsg?: string;
   autoFocus?: boolean;
-  showMaxAmountIcon?: boolean;
   tokens: string[];
   selectedToken: string;
   step?: number;
@@ -36,10 +30,6 @@ export interface CurrencyInputProps extends BaseInputProps {
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
-  onIncrementAmount?: (amount: number) => void;
-  onDecrementAmount?: (amount: number) => void;
-  incrementDisabled?: boolean;
-  decrementDisabled?: boolean;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
@@ -49,26 +39,17 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     previewValue,
     placeholder = '0',
     precision,
-    maxAmount,
-    maxAmountFormatted = '',
-    disableMaxAmountClick = false,
-    fiatValue,
     disabled,
     error = false,
+    errorMsg = '',
     autoFocus,
-    showMaxAmountIcon = true,
     selectedToken,
     tokens,
-    step,
     allowNegativeNumbers = false,
     maxIntegralDigits = MAX_INTEGRAL_DIGIT,
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
-    onDecrementAmount,
-    onIncrementAmount,
-    incrementDisabled,
-    decrementDisabled,
     onFocus,
     onBlur,
   } = props;
@@ -135,149 +116,96 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     [onCloseDropdown, onTokenUpdate],
   );
 
-  const handleIncrementAmount = useCallback(() => {
-    if (!onIncrementAmount || !step) {
-      return;
-    }
-
-    onIncrementAmount(step);
-  }, [onIncrementAmount, step]);
-
-  const handleDecrementAmount = useCallback(() => {
-    if (!onDecrementAmount || !step) {
-      return;
-    }
-
-    onDecrementAmount(step);
-  }, [onDecrementAmount, step]);
-
-  const setValueToMax = useCallback(() => {
-    if (maxAmount && !disableMaxAmountClick) {
-      onValueUpdate?.(maxAmount.toString());
-    }
-  }, [disableMaxAmountClick, maxAmount, onValueUpdate]);
-
   const inputPattern = useMemo(() => {
     return allowNegativeNumbers
       ? `[+-]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`
       : `[+]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`;
   }, [allowNegativeNumbers, precision, maxIntegralDigits]);
 
-  const maxAmountComponent = useMemo(
-    () => (
-      <>
-        {showMaxAmountIcon && <Icon variant="wallet" size="tiny" />}
-        <ValueLabel valueSize="caption" tickerSize="caption" value={maxAmountFormatted ?? maxAmount?.toString()} />
-      </>
-    ),
-    [maxAmount, maxAmountFormatted, showMaxAmountIcon],
-  );
-  const maxAmountContainer = useMemo(
-    () =>
-      disableMaxAmountClick ? (
-        <div className="raft__currencyInput__maxAmountValue">{maxAmountComponent}</div>
-      ) : (
-        <ButtonWrapper
-          className="raft__currencyInput__maxAmountValue"
-          onClick={setValueToMax}
-          disabled={disableMaxAmountClick}
-        >
-          {maxAmountComponent}
-        </ButtonWrapper>
-      ),
-    [disableMaxAmountClick, maxAmountComponent, setValueToMax],
-  );
-
   return (
     <div className={`raft__currencyInput ${disabled ? ' raft__currencyInputDisabled' : ''}`}>
       <div className="raft__currencyInput__header">
-        <div className="raft__currencyInput__title">
-          <Typography variant="body">{label}</Typography>
-        </div>
-
-        <div className="raft__currencyInput__maxAmount">{maxAmount && maxAmountContainer}</div>
+        <Typography className="raft__currencyInput__title" variant="overline">
+          {label}
+        </Typography>
       </div>
-      <div className="raft__currencyInput__fieldContainer">
-        <div
-          className={`raft__currencyInput__inputContainer
+      <div
+        className={`raft__currencyInput__inputContainer
             ${disabled ? ' raft__currencyInput__inputContainerDisabled' : ''}
           ${error ? ' raft__currencyInput__inputContainerError' : ''}
           `}
-        >
-          <div className="raft__currencyInput__amountContainer" onClick={focusInput}>
-            <Typography
-              className="raft__currencyInput__amount"
-              variant="heading2"
-              color={disabled ? 'text-secondary' : 'text-primary'}
-            >
-              <BaseInput
-                ref={inputRef}
-                value={displayValue}
-                placeholder={placeholder}
-                pattern={inputPattern}
-                disabled={disabled}
-                debounce
-                autoFocus={Boolean(value) && autoFocus}
-                onChange={handleValueChange}
-                onDebounceChange={handleDebounceValueChange}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-              />
-            </Typography>
-          </div>
-          <div
-            className={`raft__currencyInput__tokenSelectorContainer ${
-              isSingleToken ? 'raft__currencyInput__tokenSelectorContainer__single' : ''
-            }`}
+      >
+        <div className="raft__currencyInput__amountContainer" onClick={focusInput}>
+          <Typography
+            className="raft__currencyInput__amount"
+            variant="input-value"
+            color={disabled ? 'text-secondary' : 'text-primary'}
           >
-            <ButtonWrapper
-              className={`raft__currencyInput__tokenSelector ${
-                isSingleToken ? 'raft__currencyInput__tokenSelector__single' : ''
-              }`}
-              onClick={onOpenDropdown}
-            >
-              <div className="raft__currencyInput__tokenLogoContainer">
-                <TokenLogo type={`token-${selectedToken}`} size="small" />
-              </div>
-              {!isSingleToken && (
-                <>
-                  <Typography className="raft__currencyInput__tokenLabel" variant="caption">
-                    {selectedToken}
-                  </Typography>
-                  <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={24} />
-                </>
-              )}
-            </ButtonWrapper>
+            <BaseInput
+              ref={inputRef}
+              value={displayValue}
+              placeholder={placeholder}
+              pattern={inputPattern}
+              disabled={disabled}
+              debounce
+              autoFocus={Boolean(value) && autoFocus}
+              onChange={handleValueChange}
+              onDebounceChange={handleDebounceValueChange}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+            />
+          </Typography>
+        </div>
+        <div
+          className={`raft__currencyInput__tokenSelectorContainer ${
+            isSingleToken ? 'raft__currencyInput__tokenSelectorContainer__single' : ''
+          }`}
+        >
+          <ButtonWrapper
+            className={`raft__currencyInput__tokenSelector ${
+              isSingleToken ? 'raft__currencyInput__tokenSelector__single' : ''
+            }`}
+            onClick={onOpenDropdown}
+          >
+            <div className="raft__currencyInput__tokenLogoContainer">
+              <TokenLogo type={`token-${selectedToken}`} size="small" />
+            </div>
             {!isSingleToken && (
-              <Menu open={dropdownOpen} onClose={onCloseDropdown}>
-                <div className="raft__currencyInput__dropdownContainer">
-                  {tokens.map(token => (
-                    <ButtonWrapper
-                      key={token}
-                      className="raft__currencyInput__dropdownItem"
-                      onClick={() => {
-                        handleTokenUpdate(token);
-                      }}
-                    >
-                      <div className="raft__currencyInput__dropdownTokenLogoContainer">
-                        <TokenLogo type={`token-${token}`} size="small" />
-                      </div>
-                      <Typography variant="caption">{token}</Typography>
-                    </ButtonWrapper>
-                  ))}
-                </div>
-              </Menu>
+              <>
+                <Typography className="raft__currencyInput__tokenLabel" variant="caption">
+                  {selectedToken}
+                </Typography>
+                <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={16} />
+              </>
             )}
-          </div>
+          </ButtonWrapper>
+          {!isSingleToken && (
+            <Menu open={dropdownOpen} onClose={onCloseDropdown}>
+              <div className="raft__currencyInput__dropdownContainer">
+                {tokens.map(token => (
+                  <ButtonWrapper
+                    key={token}
+                    className="raft__currencyInput__dropdownItem"
+                    onClick={() => {
+                      handleTokenUpdate(token);
+                    }}
+                  >
+                    <div className="raft__currencyInput__dropdownTokenLogoContainer">
+                      <TokenLogo type={`token-${token}`} size="small" />
+                    </div>
+                    <Typography variant="caption">{token}</Typography>
+                  </ButtonWrapper>
+                ))}
+              </div>
+            </Menu>
+          )}
         </div>
       </div>
-      {fiatValue && (
-        <span className={`raft__currencyInput__fiatAmount ${step ? 'raft__currencyInput__fiatAmountOffset' : ''}`}>
-          <Typography variant="caption" color={!disabled ? 'text-primary' : 'text-secondary'}>
-            {fiatValue}
-          </Typography>
-        </span>
-      )}
+      <div className="raft__currencyInput__errorContainer">
+        <Typography variant="caption" color="text-error">
+          {errorMsg}
+        </Typography>
+      </div>
       {disabled && <div className="raft__currencyInput__disabledOverlay"></div>}
     </div>
   );

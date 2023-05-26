@@ -1,202 +1,163 @@
 .raft__currencyInput {
   position: relative;
   width: 100%;
-  padding: 16px;
-  background: var(--surfacePrimary);
-  border: 1px solid var(--borderPrimary);
-  border-radius: 8px;
-  box-sizing: border-box;
-
-  margin-top: 10px; // REMOVE BEFORE PR
 
   .raft__currencyInput__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
 
     .raft__currencyInput__title {
+      /* TODO: hardcode color as suggested */
+      --textPrimary: var(--raft-grey-600);
+
       display: flex;
       align-items: center;
-    }
-
-    .raft__currencyInput__maxAmount {
-      display: flex;
-      align-items: center;
-
-      .raft__currencyInput__maxAmountValue {
-        display: flex;
-        align-items: center;
-
-        svg {
-          margin-right: 8px;
-        }
-      }
     }
   }
 
-  .raft__currencyInput__fieldContainer {
+  .raft__currencyInput__inputContainer {
+    height: 48px;
+    width: 100%;
     display: flex;
     align-items: center;
-    height: 48px;
+    justify-content: space-between;
     box-sizing: border-box;
+    /* TODO: hardcode color as suggested */
+    border-bottom: 1px solid var(--raft-grey-500);
 
-    .raft__currencyInput__inputContainer {
-      height: 48px;
+    .raft__currencyInput__amountContainer {
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-      padding: 0px 8px;
-      border-bottom: 1px solid var(--borderPrimary);
-      border-radius: 8px 8px 0px 0px;
+      min-width: 0px;
+      margin-right: 8px;
 
-      .raft__currencyInput__amountContainer {
-        width: 100%;
-        min-width: 0px;
-        margin-right: 8px;
+      .raft__currencyInput__amount {
+        /* TODO: hardcode color as suggested */
+        --text-secondary: var(--raft-grey-500);
 
-        .raft__currencyInput__amount {
-          .raft__baseInput {
-            width: 100%;
-            padding: 0px;
-            color: inherit;
-            font: inherit;
-            background-color: transparent;
-            border: none;
+        .raft__baseInput {
+          width: 100%;
+          padding: 0px;
+          color: inherit;
+          font: inherit;
+          background-color: transparent;
+          border: none;
 
-            &:focus {
-              outline: none;
-            }
+          &:focus {
+            outline: none;
+          }
 
-            &::placeholder {
-              opacity: 1;
-              color: var(--textPrimary);
-            }
+          &::placeholder {
+            opacity: 1;
+            color: var(--textPrimary);
           }
         }
       }
+    }
 
-      .raft__currencyInput__tokenSelectorContainer {
-        position: relative;
-        margin-right: -6px;
+    .raft__currencyInput__tokenSelectorContainer {
+      position: relative;
+      margin-right: -4px;
 
-        &.raft__currencyInput__tokenSelectorContainer__single {
-          margin-right: initial;
+      &.raft__currencyInput__tokenSelectorContainer__single {
+        margin-right: initial;
+      }
+
+      .raft__currencyInput__tokenSelector {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+
+        &.raft__currencyInput__tokenSelector__single {
+          cursor: default;
         }
 
-        .raft__currencyInput__tokenSelector {
+        .raft__currencyInput__tokenLabel {
+          padding-left: 8px;
+        }
+
+        .raft__currencyInput__tokenLogoContainer {
+          width: 24px;
+          height: 24px;
+          box-shadow: var(--shadowPrimary);
+          border-radius: 50%;
+        }
+
+        .raft__icon {
+          margin-left: 4px;
+        }
+      }
+
+      .raft__currencyInput__dropdownContainer {
+        background-color: var(--surfaceSecondary);
+        box-shadow: var(--shadowMenu);
+        border-radius: 8px;
+
+        .raft__currencyInput__dropdownItem {
           display: flex;
+          justify-content: flex-start;
           align-items: center;
-          cursor: pointer;
+          width: 100%;
+          padding: 12px;
+          box-sizing: border-box;
 
-          &.raft__currencyInput__tokenSelector__single {
-            cursor: default;
-          }
-
-          --chevronDownColor: var(--colorBlack);
-
-          .raft__currencyInput__tokenLabel {
-            padding-left: 8px;
-          }
-
-          .raft__currencyInput__tokenLogoContainer {
+          .raft__currencyInput__dropdownTokenLogoContainer {
             width: 24px;
             height: 24px;
             box-shadow: var(--shadowPrimary);
-            background: var(--raftWhite);
             border-radius: 50%;
+            margin-right: 12px;
+          }
+
+          &:hover {
+            background-color: var(--surfaceSecondary);
+          }
+
+          &:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+          }
+
+          &:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+          }
+
+          &:not(:last-child) {
+            /* TODO: hardcode color as suggested */
+            border-bottom: 1px solid var(--raft-grey-200);
           }
         }
-
-        .raft__currencyInput__dropdownContainer {
-          background-color: var(--surfacePrimary);
-          box-shadow: var(--shadowMenu);
-          border-radius: 8px;
-
-          .raft__currencyInput__dropdownItem {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            width: 100%;
-            padding: 12px;
-            box-sizing: border-box;
-            cursor: pointer;
-
-            --textPrimary: var(--colorBlack);
-
-            .raft__currencyInput__dropdownTokenLogoContainer {
-              width: 24px;
-              height: 24px;
-              box-shadow: var(--shadowPrimary);
-              background: var(--surfacePrimary);
-              border-radius: 50%;
-              margin-right: 12px;
-            }
-
-            svg {
-              margin-right: 12px;
-            }
-
-            &:hover {
-              background-color: var(--surfacePrimary);
-            }
-
-            &:first-child {
-              border-top-left-radius: 8px;
-              border-top-right-radius: 8px;
-            }
-
-            &:last-child {
-              border-bottom-left-radius: 8px;
-              border-bottom-right-radius: 8px;
-            }
-
-            &:not(:last-child) {
-              border-bottom: 1px solid var(--raftBackgroundBlue);
-            }
-          }
-        }
-      }
-
-      &.raft__currencyInput__inputContainerError {
-        border-color: var(--colorError);
-        background: var(--raftErrorBackgroundPastelRed);
       }
     }
 
-    .raft__currencyInput__adjustAmountButton {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 22px;
-      padding: 0 20px;
-      flex-shrink: 0;
-      border-radius: 8px;
-      background-color: var(--surfacePrimaryHighlight);
-      margin-left: 20px;
+    &.raft__currencyInput__inputContainerError {
+      /* TODO: hardcode color as suggested */
+      --textError: var(--raft-red-700);
 
-      &:first-child {
-        margin-bottom: 2px;
+      /* TODO: hardcode color as suggested */
+      border-color: var(--raft-red-700);
+    }
+
+    &.raft__currencyInput__inputContainerDisabled {
+      /* TODO: hardcode color as suggested */
+      border-color: var(--raft-grey-300);
+
+      .raft__currencyInput__tokenLogoContainer {
+        opacity: 0.7;
       }
 
-      &:last-child {
-        margin-top: 2px;
+      .raft__currencyInput__tokenLabel {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-600);
       }
     }
   }
 
-  .raft__currencyInput__fiatAmount {
-    display: flex;
-    margin-top: 8px;
+  .raft__currencyInput__errorContainer {
     height: 16px;
-  }
-
-  .raft__currencyInput__fiatAmountOffset {
-    margin-left: 60px;
+    padding-top: 4px;
   }
 
   .raft__currencyInput__disabledOverlay {

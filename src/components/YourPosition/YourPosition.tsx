@@ -11,6 +11,7 @@ import {
 } from '../../constants';
 import { useCollateralBalance, useDebtBalance, useTokenPrices } from '../../hooks';
 import { getCollateralRatioLevel, getTokenValues } from '../../utils';
+import { getCollateralRatioLabel } from '../../utils/collateralRatio';
 import { Typography } from '../shared';
 
 import './YourPosition.scss';
@@ -105,18 +106,7 @@ const YourPosition: FC = () => {
     [collateralizationRatio],
   );
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
-  const collateralRatioLabel = useMemo(() => {
-    switch (collateralRatioLevel) {
-      case 'healthy':
-        return 'Healthy';
-      case 'risk':
-        return 'At risk';
-      case 'unhealthy':
-        return 'Unhealthy';
-      default:
-        return null;
-    }
-  }, [collateralRatioLevel]);
+  const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
 
   return (
     <div className="raft__your-position">

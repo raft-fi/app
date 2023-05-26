@@ -27,6 +27,7 @@ import PositionChanged from './PositionChanged';
 import UnsupportedNetwork from './UnsupportedNetwork';
 import ArrowRightThin from './ArrowRightThin';
 import Checkmark from './Checkmark';
+import ArrowUp from './ArrowUp';
 
 type IconVariant =
   | 'discord'
@@ -43,6 +44,7 @@ type IconVariant =
   | 'external-link'
   | 'arrow-right'
   | 'arrow-down'
+  | 'arrow-up'
   | 'globe'
   | 'geoblock'
   | 'profile'
@@ -72,6 +74,7 @@ const ICON_MAP: IconMap = {
   'external-link': ExternalLink,
   'arrow-right': ArrowRight,
   'arrow-down': ArrowDown,
+  'arrow-up': ArrowUp,
   globe: Globe,
   geoblock: Geoblock,
   profile: Profile,

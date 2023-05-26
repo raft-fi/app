@@ -37,3 +37,18 @@ export const getCollateralRatioColor = (ratio: Nullable<Decimal>): TypographyCol
       return undefined;
   }
 };
+
+export const getCollateralRatioLabel = (ratio: Nullable<Decimal>): Nullable<string> => {
+  const level = getCollateralRatioLevel(ratio);
+
+  switch (level) {
+    case 'healthy':
+      return 'Healthy';
+    case 'risk':
+      return 'At risk';
+    case 'unhealthy':
+      return 'Unhealthy';
+    default:
+      return null;
+  }
+};

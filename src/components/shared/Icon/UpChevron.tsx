@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
 const UpChevron: FC<InnerIconProps> = ({ size }) => {
-  const color = 'var(--chevronUpColor, #171717)';
+  const color = 'var(--chevronUpColor, var(--textSecondary))';
 
   return (
     <svg
