@@ -1,79 +1,86 @@
-@import '../../index.scss';
-
 .raft__protocol-stats {
-  @include sectionBox;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+  width: 856px;
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  .raft__protocol-stats__header {
+  .raft__protocol-stats__collateral,
+  .raft__protocol-stats__debt,
+  .raft__protocol-stats__ratio {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    padding: 16px 32px;
+    height: 128px;
+    box-sizing: border-box;
+    flex: 1;
+
+    &:not(:first-child) {
+      border-left: 1px solid var(--borderPrimary);
+    }
   }
 
-  .raft__protocol-stats__body {
-    max-height: 0px;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
+  .raft__protocol-stats__collateral__amount,
+  .raft__protocol-stats__debt__amount {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
 
-    .raft__protocol-stats__stat {
-      margin-top: 16px;
-      background: var(--surfacePrimary);
-      border: 1px solid var(--borderPrimary);
-      border-radius: 8px;
+    .common-ui__logo {
+      margin-right: 10px;
+      border-radius: 50%;
+      box-shadow: var(--shadowPrimary);
     }
+  }
 
-    .raft__protocol-stats__stat-token {
-      display: flex;
+  .raft__protocol-stats__collateral__amount__number,
+  .raft__protocol-stats__debt__amount__number {
+    display: flex;
+    align-items: baseline;
 
-      .raft__protocol-stats__stat {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex: 1 50%;
-        margin: 16px 8px 0 8px;
-        padding: 0 16px;
-        height: 80px;
+    :last-child {
+      margin-left: 4px;
+    }
+  }
 
-        .raft__protocol-stats__stat__separator {
-          height: 56px;
-          border-left: 1px solid var(--raftWallet);
-          margin: 0 12px;
-        }
+  .raft__protocol-stats__collateral__value__number,
+  .raft__protocol-stats__debt__value__number {
+    display: flex;
+    align-items: baseline;
+    margin-top: 8px;
+  }
 
-        .common-ui__logo {
-          border-radius: 50%;
-          filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.08));
-        }
+  .raft__protocol-stats__ratio__percent {
+    display: flex;
+    align-items: baseline;
+    margin-top: 16px;
+  }
 
-        .raft__protocol-stats__stat__data {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          white-space: nowrap;
+  .raft__protocol-stats__ratio__status {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
 
-          .raft__protocol-stats__stat__data__title {
-            text-transform: uppercase;
-          }
-          .raft__protocol-stats__stat__data__value {
-            margin-top: 4px;
-          }
-        }
+    .raft__protocol-stats__ratio__status__color {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
 
-        &:first-child {
-          margin-left: 0;
-        }
-
-        &:last-child {
-          margin-right: 0;
-        }
+      &.status-healthy {
+        background-color: var(--statusHealthy);
       }
-    }
 
-    .raft__valuesBox {
-      margin-top: 16px;
-    }
+      &.status-risk {
+        background-color: var(--statusAtRisk);
+      }
 
-    &.raft__protocol-stats-expanded {
-      max-height: 400px;
+      &.status-unhealthy {
+        background-color: var(--statusUnhealthy);
+      }
     }
   }
 }
