@@ -265,8 +265,8 @@ const OpenPosition = () => {
 
     if (!hasWhitelisted) {
       return actionButtonState === 'loading'
-        ? `Whitelisting delegate (1/${executionSteps})`
-        : `Whitelist delegate (1/${executionSteps})`;
+        ? `Whitelisting stETH (1/${executionSteps})`
+        : `Whitelist stETH (1/${executionSteps})`;
     }
 
     if (!hasEnoughCollateralAllowance) {
