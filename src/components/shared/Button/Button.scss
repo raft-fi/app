@@ -55,7 +55,7 @@
       border-color: var(--btnSecondaryFocusBorder);
     }
 
-    &:not([data-disabled='true']):hover {
+    &:not([data-disabled='true']):not([data-selected='true']):hover {
       background-color: var(--btnSecondaryHover);
       border-color: var(--btnSecondaryHoverBorder);
     }
