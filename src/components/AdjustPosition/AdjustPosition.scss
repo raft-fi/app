@@ -68,6 +68,12 @@
           .raft__adjustPosition__data__position__data__amount {
             margin-right: 4px;
           }
+
+          .raft__adjustPosition__data__position__data__deposit__value {
+            display: flex;
+            align-items: baseline;
+            margin-left: 6px;
+          }
         }
 
         .raft__adjustPosition__data__position__data__debt {

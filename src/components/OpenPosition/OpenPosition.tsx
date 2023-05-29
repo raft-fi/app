@@ -451,7 +451,7 @@ const OpenPosition = () => {
         {walletConnected && (
           <Button
             variant="secondary"
-            text="Max safe borrow"
+            text="Auto safe borrow"
             disabled={maxButtonDisabled}
             onClick={handleMaxButtonClick}
           />
@@ -496,6 +496,23 @@ const OpenPosition = () => {
             <li className="raft__openPosition__data__position__data__deposit">
               <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
               <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
+              {collateralTokenValues.valueFormatted && (
+                <Typography
+                  className="raft__openPosition__data__position__data__deposit__value"
+                  variant="body"
+                  weight="medium"
+                  color="text-secondary"
+                >
+                  (
+                  <ValueLabel
+                    value={collateralTokenValues.valueFormatted}
+                    tickerSize="caption"
+                    valueSize="body"
+                    color="text-secondary"
+                  />
+                  )
+                </Typography>
+              )}
             </li>
             <li className="raft__openPosition__data__position__data__debt">
               <TokenLogo type={`token-${R_TOKEN}`} size={20} />

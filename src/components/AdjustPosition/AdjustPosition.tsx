@@ -605,6 +605,23 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             <li className="raft__adjustPosition__data__position__data__deposit">
               <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
               <ValueLabel value={newCollateralInDisplayTokenAmountFormatted} valueSize="body" tickerSize="caption" />
+              {newCollateralInDisplayToken.valueFormatted && (
+                <Typography
+                  className="raft__adjustPosition__data__position__data__deposit__value"
+                  variant="body"
+                  weight="medium"
+                  color="text-secondary"
+                >
+                  (
+                  <ValueLabel
+                    value={newCollateralInDisplayToken.valueFormatted}
+                    tickerSize="caption"
+                    valueSize="body"
+                    color="text-secondary"
+                  />
+                  )
+                </Typography>
+              )}
             </li>
             <li className="raft__adjustPosition__data__position__data__debt">
               <TokenLogo type={`token-${R_TOKEN}`} size={20} />
