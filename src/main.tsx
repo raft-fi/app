@@ -6,7 +6,6 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
 import Redeem from './components/Redeem';
-import Stats from './components/Stats';
 import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
 import NoticePopup from './components/NoticePopup';
@@ -31,15 +30,6 @@ root.render(
               <>
                 <NoticePopup />
                 <Redeem />
-              </>
-            }
-          />
-          <Route
-            path="/stats"
-            element={
-              <>
-                <NoticePopup />
-                <Stats />
               </>
             }
           />
