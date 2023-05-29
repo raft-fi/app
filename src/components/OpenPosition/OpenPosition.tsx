@@ -275,7 +275,7 @@ const OpenPosition = () => {
         : `Approve ${selectedCollateralToken} (1/${executionSteps})`;
     }
 
-    return actionButtonState === 'loading' ? 'Borrowing' : 'Borrow';
+    return actionButtonState === 'loading' ? 'Executing' : 'Borrow';
   }, [
     walletConnected,
     hasWhitelisted,
