@@ -115,7 +115,8 @@
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
 
-  --app-width: 1366px;
+  /* TODO: hardly set app width to 856px for v1 */
+  --app-width: 856px;
   --app-padding: 0 32px;
 
   --onboard-link-color: var(--textAccent);
