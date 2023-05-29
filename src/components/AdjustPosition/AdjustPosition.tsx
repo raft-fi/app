@@ -619,12 +619,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
                   size="tiny"
                 />
               )}
-              <div
-                className={`raft__adjustPosition__data__position__data__ratio__status status-${newCollateralRatioLevel}`}
-              />
+              {newCollateralRatioLevel && (
+                <div
+                  className={`raft__adjustPosition__data__position__data__ratio__status status-${newCollateralRatioLevel}`}
+                />
+              )}
               <ValueLabel value={newCollateralizationRatioFormatted} valueSize="body" tickerSize="caption" />
               <Typography variant="body" weight="medium" color="text-secondary">
-                ({newCollateralRatioLabel})
+                {newCollateralRatioLabel ? `(${newCollateralRatioLabel})` : ''}
               </Typography>
             </li>
           </ul>
