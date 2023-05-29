@@ -17,12 +17,13 @@ import {
   COLLATERAL_BASE_TOKEN,
   COLLATERAL_TOKEN_UI_PRECISION,
   DISPLAY_BASE_TOKEN,
+  INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { Nullable } from '../../interfaces';
-import { Button, CurrencyInput, Icon, Loading, Typography, ValueLabel } from '../shared';
+import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
 
 import './AdjustPosition.scss';
 
@@ -109,6 +110,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
+  const collateralAmountWithEllipse = useMemo(() => {
+    const original = collateralAmountDecimal.toString();
+    const truncated = collateralAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+    const positiveSign = collateralAmountDecimal.gt(0) ? '+' : '';
+
+    return original === truncated ? `${positiveSign}${original}` : `${positiveSign}${truncated}...`;
+  }, [collateralAmountDecimal]);
+  const borrowAmountWithEllipse = useMemo(() => {
+    const original = borrowAmountDecimal.toString();
+    const truncated = borrowAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+    const positiveSign = borrowAmountDecimal.gt(0) ? '+' : '';
+
+    return original === truncated ? `${positiveSign}${original}` : `${positiveSign}${truncated}...`;
+  }, [borrowAmountDecimal]);
 
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
@@ -554,6 +569,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           selectedToken={selectedCollateralToken}
           tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
+          previewValue={collateralAmountWithEllipse}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralAmountChange}
           disabled={closePositionActive}
@@ -569,6 +585,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
+          previewValue={borrowAmountWithEllipse}
           onValueUpdate={handleBorrowAmountChange}
           disabled={closePositionActive}
           allowNegativeNumbers={true}

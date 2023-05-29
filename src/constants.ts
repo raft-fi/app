@@ -19,3 +19,4 @@ export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH']; // app to contro
 export const DISPLAY_BASE_TOKEN = 'stETH';
 export const COLLATERAL_BASE_TOKEN = 'wstETH';
 export const ZERO_ADDRESS = '0x0';
+export const INPUT_PREVIEW_DIGITS = 4;
