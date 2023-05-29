@@ -28,12 +28,14 @@ import UnsupportedNetwork from './UnsupportedNetwork';
 import ArrowRightThin from './ArrowRightThin';
 import Checkmark from './Checkmark';
 import ArrowUp from './ArrowUp';
+import Gitbook from './Gitbook';
 
 type IconVariant =
   | 'discord'
   | 'telegram'
   | 'twitter'
   | 'github'
+  | 'gitbook'
   | 'favorite'
   | 'error'
   | 'success'
@@ -64,6 +66,7 @@ const ICON_MAP: IconMap = {
   telegram: Telegram,
   twitter: Twitter,
   github: GitHub,
+  gitbook: Gitbook,
   favorite: Favorite,
   error: Error,
   success: Success,
