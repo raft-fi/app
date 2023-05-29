@@ -80,34 +80,40 @@ const OpenPosition = () => {
     [selectedCollateralToken, tokenWhitelistMap],
   );
 
+  /**
+   * Fill in collateral and debt input fields automatically if they are empty.
+   * Debt is set to 3k (minimum) and collateral is set to that collateral ratio is around 220% or a bit more.
+   */
   useEffect(() => {
-    const rTokenPrice = tokenPriceMap[R_TOKEN];
     const collateralBalanceValid =
       tokenBalanceMap[selectedCollateralToken] && !tokenBalanceMap[selectedCollateralToken]?.isZero();
     const collateralPriceValid =
       tokenPriceMap[selectedCollateralToken] && !tokenPriceMap[selectedCollateralToken]?.isZero();
+    const rTokenPriceValid = tokenPriceMap[R_TOKEN] && !tokenPriceMap[R_TOKEN].isZero();
 
     // when input is not dirty, check whether price and balance are available
-    if (!hasChanged && rTokenPrice && !rTokenPrice.isZero() && collateralPriceValid && MIN_COLLATERAL_RATIO.gt(0)) {
+    if (!hasChanged && rTokenPriceValid && collateralPriceValid && collateralBalanceValid) {
       const collateralBalance = tokenBalanceMap[selectedCollateralToken] as Decimal;
       const collateralPrice = tokenPriceMap[selectedCollateralToken] as Decimal;
-      const minBorrowValue = rTokenPrice.mul(MIN_BORROW_AMOUNT);
-      const minCollateral = minBorrowValue.mul(HEALTHY_RATIO).div(collateralPrice);
-      // suggested amount = integer amount of collateral that is enough to borrow min amount of R
-      const normalizedCollateral = new Decimal(minCollateral.toTruncated(0)).add(1);
-      const normalizedBorrow = normalizedCollateral.mul(collateralPrice).div(rTokenPrice).div(HEALTHY_RATIO);
+      const rTokenPrice = tokenPriceMap[R_TOKEN] as Decimal;
 
-      if (!collateralBalanceValid || collateralBalance.gte(normalizedCollateral)) {
-        // if balance >= suggested amount or balance not available
-        //   fill input with suggested amount and corresponding R
-        setCollateralAmount(normalizedCollateral.toTruncated(0));
-        setBorrowAmount(normalizedBorrow.toString());
-      } else {
-        // if balance < suggested amount, fill input with balance and corresponding R
-        const maxBorrow = collateralBalance.mul(collateralPrice).div(rTokenPrice).div(HEALTHY_RATIO);
+      // Borrow amount is always set to min amount
+      const borrowAmount = new Decimal(MIN_BORROW_AMOUNT);
+      const borrowAmountValue = rTokenPrice.mul(borrowAmount);
 
-        setCollateralAmount(collateralBalance.toString());
-        setBorrowAmount(maxBorrow.toString());
+      // Calculate minimum collateral amount so that resulting collateral ratio is at least 220%
+      const collateralAmount = borrowAmountValue.mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER).div(collateralPrice);
+
+      // TODO - Add ceil() function to decimal library
+      const truncatedCollateral = new Decimal(collateralAmount.toTruncated(COLLATERAL_TOKEN_UI_PRECISION));
+      const collateralAmountCeiled = truncatedCollateral.lt(collateralAmount)
+        ? truncatedCollateral.add(`${'0.'.padEnd(COLLATERAL_TOKEN_UI_PRECISION + 1, '0')}1`)
+        : truncatedCollateral;
+
+      // Only fill in calculated values if user has enough collateral
+      if (collateralBalance.gte(collateralAmountCeiled)) {
+        setCollateralAmount(collateralAmountCeiled.toString());
+        setBorrowAmount(borrowAmount.toString());
       }
     }
   }, [
