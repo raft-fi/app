@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
-import { useCollateralBalance, useDebtBalance, useNetwork } from '../../hooks';
+import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded } from '../../hooks';
+import LoadingDashbaord from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
@@ -9,6 +10,7 @@ import TransactionModal from '../TransactionModal';
 import './Dashboard.scss';
 
 const Dashboard = () => {
+  const appLoaded = useAppLoaded();
   const collateralBalance = useCollateralBalance();
   const debtBalance = useDebtBalance();
   const { isWrongNetwork } = useNetwork();
@@ -18,6 +20,10 @@ const Dashboard = () => {
   }, [collateralBalance, debtBalance]);
 
   const shouldShowAdjustPosition = userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork;
+
+  if (!appLoaded) {
+    return <LoadingDashbaord />;
+  }
 
   return (
     <div className="raft__dashboard">
