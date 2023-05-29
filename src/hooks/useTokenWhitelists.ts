@@ -53,7 +53,7 @@ const fetchData = async (
   try {
     const position = new UserPosition(walletSigner, collateral, debt);
 
-    const result = await position.isWalletWhitelistedForCollateral(token);
+    const result = await position.isDelegateWhitelisted(token);
 
     return result;
   } catch (error) {
@@ -109,7 +109,7 @@ const periodicStream$: Observable<TokenWhitelistMap> = combineLatest([intervalBe
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
   withLatestFrom(walletAddress$, walletSigner$, collateralBalance$, debtBalance$),
-  filter<[AppEvent, Nullable<string>, Nullable<Signer>, Nullable<Decimal>, Nullable<Decimal>]>(
+  filter<[Nullable<AppEvent>, Nullable<string>, Nullable<Signer>, Nullable<Decimal>, Nullable<Decimal>]>(
     ([, walletAddress, walletSigner, collateral, debt]) =>
       Boolean(walletAddress) && Boolean(walletSigner) && Boolean(collateral) && Boolean(debt),
   ),

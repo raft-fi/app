@@ -69,7 +69,7 @@ const stream$ = combineLatest([whitelistDelegate$]).pipe(
 
       whitelistDelegateStatus$.next({ pending: true, txnId, request });
 
-      const result$ = from(userPosition.whitelistWalletForCollateral(token));
+      const result$ = from(userPosition.whitelistDelegate(token));
 
       const waitForTxReceipt$ = result$.pipe(
         concatMap(result => {
