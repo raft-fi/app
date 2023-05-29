@@ -494,7 +494,7 @@ const OpenPosition = () => {
           </div>
           <ul className="raft__openPosition__data__position__data">
             <li className="raft__openPosition__data__position__data__deposit">
-              <TokenLogo type={`token-${selectedCollateralToken}`} size={20} />
+              <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
               <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
             </li>
             <li className="raft__openPosition__data__position__data__debt">
