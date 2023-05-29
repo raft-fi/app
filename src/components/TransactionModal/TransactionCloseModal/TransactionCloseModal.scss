@@ -38,11 +38,9 @@
     align-items: center;
     margin: 32px 0;
 
-    --externalLinkColor: var(--colorPrimary);
-
     .common-ui__link {
-      text-decoration: underline;
-      color: var(--colorPrimary);
+      text-decoration: none;
+      color: var(--textAccent);
     }
   }
 

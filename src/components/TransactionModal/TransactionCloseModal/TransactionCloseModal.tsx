@@ -36,8 +36,6 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, on
               Etherscan
             </Typography>
           </Link>
-          &nbsp;
-          <Icon variant="external-link" size={10} />
         </div>
         <div className="raft__transactionCloseModal__actions">
           <div className="raft__transactionCloseModal__action">
