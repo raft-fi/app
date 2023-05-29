@@ -289,7 +289,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const newCollateralizationRatioFormatted = useMemo(
     () =>
       newCollateralizationRatio
-        ? DecimalFormat.format(newCollateralizationRatio, { style: 'percentage', fractionDigits: 2 })
+        ? DecimalFormat.format(newCollateralizationRatio, { style: 'percentage', fractionDigits: 2, pad: true })
         : 'N/A',
     [newCollateralizationRatio],
   );

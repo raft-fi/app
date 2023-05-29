@@ -175,7 +175,7 @@ const OpenPosition = () => {
   const collateralizationRatioFormatted = useMemo(
     () =>
       collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2 })
+        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2, pad: true })
         : 'N/A',
     [collateralizationRatio],
   );
@@ -281,7 +281,7 @@ const OpenPosition = () => {
         : `Approve ${selectedCollateralToken} (1/${executionSteps})`;
     }
 
-    return actionButtonState === 'loading' ? 'Executing' : 'Borrow';
+    return actionButtonState === 'loading' ? 'Executing' : 'Execute';
   }, [
     walletConnected,
     hasWhitelisted,
