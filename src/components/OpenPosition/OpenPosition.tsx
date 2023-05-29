@@ -3,7 +3,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -20,13 +20,12 @@ import {
   DISPLAY_BASE_TOKEN,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
-  INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
-import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
+import { Button, CurrencyInput, Typography, Icon, Loading, ValueLabel } from '../shared';
 
 import './OpenPosition.scss';
 
@@ -179,27 +178,6 @@ const OpenPosition = () => {
         : 'N/A',
     [collateralizationRatio],
   );
-
-  const collateralAmountWithEllipse = useMemo(() => {
-    if (!collateralTokenValues.amount) {
-      return null;
-    }
-
-    const original = collateralTokenValues.amount.toString();
-    const truncated = collateralTokenValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
-
-    return original === truncated ? original : `${truncated}...`;
-  }, [collateralTokenValues.amount]);
-  const borrowAmountWithEllipse = useMemo(() => {
-    if (!borrowTokenValues.amount) {
-      return null;
-    }
-
-    const original = borrowTokenValues.amount.toString();
-    const truncated = borrowTokenValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
-
-    return original === truncated ? original : `${truncated}...`;
-  }, [borrowTokenValues.amount]);
 
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
   const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
@@ -471,7 +449,6 @@ const OpenPosition = () => {
           selectedToken={selectedCollateralToken}
           tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
-          previewValue={collateralAmountWithEllipse ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
@@ -485,7 +462,6 @@ const OpenPosition = () => {
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
-          previewValue={borrowAmountWithEllipse ?? undefined}
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
           error={!hasMinBorrow || !hasMinRatio}
