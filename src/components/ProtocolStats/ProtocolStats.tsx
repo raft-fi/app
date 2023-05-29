@@ -132,7 +132,7 @@ const ProtocolStats = () => {
       </div>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
-          TOTAL GENERATED
+          TOTAL R GENERATED
         </Typography>
         <div className="raft__protocol-stats__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
