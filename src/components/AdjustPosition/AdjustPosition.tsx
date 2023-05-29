@@ -424,6 +424,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return transactionState === 'loading' ? `Approving R (1/${executionSteps})` : `Approve R (1/${executionSteps})`;
     }
 
+    if (closePositionActive && transactionState === 'loading') {
+      return 'Executing';
+    }
+
     return 'Execute';
   }, [
     hasEnoughDebtTokenBalance,
@@ -434,6 +438,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     transactionState,
     executionSteps,
     selectedCollateralToken,
+    closePositionActive,
   ]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
