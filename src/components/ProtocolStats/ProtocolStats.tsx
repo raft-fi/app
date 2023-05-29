@@ -95,17 +95,16 @@ const ProtocolStats = () => {
     return collateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
   }, [collateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
 
-  const collateralizationRatioFormatted = useMemo(() => {
-    if (!collateralizationRatio) {
-      return null;
-    }
-
-    return DecimalFormat.format(collateralizationRatio, {
-      style: 'percentage',
-      fractionDigits: 2,
-      pad: true,
-    });
-  }, [collateralizationRatio]);
+  const collateralizationRatioFormatted = useMemo(
+    () =>
+      collateralizationRatio
+        ? DecimalFormat.format(collateralizationRatio.mul(100), {
+            style: 'decimal',
+            fractionDigits: USD_UI_PRECISION,
+          })
+        : null,
+    [collateralizationRatio],
+  );
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
   const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
 
