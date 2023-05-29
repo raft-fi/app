@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded } from '../../hooks';
+import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded, useWallet } from '../../hooks';
 import LoadingDashbaord from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -11,6 +11,7 @@ import './Dashboard.scss';
 
 const Dashboard = () => {
   const appLoaded = useAppLoaded();
+  const wallet = useWallet();
   const collateralBalance = useCollateralBalance();
   const debtBalance = useDebtBalance();
   const { isWrongNetwork } = useNetwork();
@@ -19,7 +20,7 @@ const Dashboard = () => {
     return collateralBalance?.gt(0) || debtBalance?.gt(0);
   }, [collateralBalance, debtBalance]);
 
-  const shouldShowAdjustPosition = userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork;
 
   if (!appLoaded) {
     return <LoadingDashbaord />;
