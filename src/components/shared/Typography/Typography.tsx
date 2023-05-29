@@ -33,12 +33,12 @@ const typographyVariantMap: TypographyVariantMap = {
   heading1: {
     fontStyle: 'normal',
     fontSize: '28px',
-    lineHeight: '39.2px',
+    lineHeight: '34px',
   },
   heading2: {
     fontStyle: 'normal',
     fontSize: '20px',
-    lineHeight: '28px',
+    lineHeight: '24px',
   },
   heading3: {
     fontStyle: 'normal',
