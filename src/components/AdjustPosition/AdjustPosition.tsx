@@ -23,7 +23,7 @@ import {
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { Nullable } from '../../interfaces';
-import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
+import { Button, CurrencyInput, Icon, Loading, Typography, ValueLabel } from '../shared';
 
 import './AdjustPosition.scss';
 

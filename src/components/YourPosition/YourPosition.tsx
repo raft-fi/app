@@ -52,7 +52,7 @@ const YourPosition: FC = () => {
       return null;
     }
 
-    return collateralInDisplayToken.value.div(debtTokenValues.value).mul(100);
+    return collateralInDisplayToken.value.div(debtTokenValues.value);
   }, [collateralInDisplayToken?.value, debtTokenValues.value]);
 
   const collateralAmountFormatted = useMemo(
@@ -98,7 +98,7 @@ const YourPosition: FC = () => {
   const collateralizationRatioFormatted = useMemo(
     () =>
       collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio, {
+        ? DecimalFormat.format(collateralizationRatio.mul(100), {
             style: 'decimal',
             fractionDigits: USD_UI_PRECISION,
           })
