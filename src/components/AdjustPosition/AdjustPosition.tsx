@@ -318,8 +318,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       borrowAmountDecimal.gte(0),
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
   );
+
   const formattedMissingBorrowAmount = useMemo(() => {
-    const missingBorrowAmount = borrowAmountDecimal?.sub(debtTokenBalanceValues?.amount?.abs() || Decimal.ZERO).abs();
+    if (!tokenBalanceMap[R_TOKEN]) {
+      return null;
+    }
+
+    const missingBorrowAmount = borrowAmountDecimal.abs().sub(tokenBalanceMap[R_TOKEN]);
     const truncatedMissingBorrowAmount = new Decimal(missingBorrowAmount.toTruncated(2));
     const result = truncatedMissingBorrowAmount.lt(missingBorrowAmount)
       ? truncatedMissingBorrowAmount.add(0.01)
@@ -329,7 +334,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       style: 'decimal',
       fractionDigits: 2,
     });
-  }, [debtTokenBalanceValues.amount, borrowAmountDecimal]);
+  }, [tokenBalanceMap, borrowAmountDecimal]);
+
   const hasMinBorrow = useMemo(
     () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
     [isClosePosition, newDebtTokenValues?.amount],
