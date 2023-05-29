@@ -1,102 +1,38 @@
 .raft__footer {
+  /* TODO: hardcode color as suggested */
+  --textSecondary: var(--raft-grey-500);
+
   position: relative;
   width: 100%;
-  padding: var(--app-padding);
+  padding: 36px;
   box-sizing: border-box;
-  background-color: var(--colorBlack);
   display: flex;
   justify-content: center;
-  z-index: 1;
-  display: none;
-
-  .raft__footer__container {
-    display: flex;
-    justify-content: space-between;
-    width: var(--app-width);
-    min-height: 211px;
-    box-sizing: border-box;
-    padding: 72px 0px;
-
-    @media screen and (max-width: 1280px) {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    @media screen and (max-width: 767px) {
-      text-align: center;
-      align-items: center;
-      padding: 60px 16px;
-    }
-  }
-}
-
-.raft__footer__logo {
-  --raftLogoTextColor: var(--raftWhite);
-
-  display: flex;
   align-items: center;
-  margin-bottom: 48px;
 
-  @media screen and (max-width: 767px) {
-    justify-content: center;
-    width: 360px;
+  > :not(:first-child) {
+    margin-left: 32px;
   }
-}
 
-.raft__footer__links-container {
-  display: grid;
-  grid-template-columns: 214px 214px 120px;
+  :hover {
+    /* TODO: hardcode color as suggested */
+    --textSecondary: var(--raft-grey-700);
+  }
 
-  @media screen and (max-width: 1280px) {
-    width: 100%;
-    grid-template-columns: repeat(3, 1fr);
+  a {
+    text-decoration: none;
 
-    .raft__footer__links-column {
+    > * {
+      display: flex;
       align-items: center;
     }
   }
 
-  @media screen and (max-width: 767px) {
-    grid-template-columns: repeat(2, 1fr);
-    justify-content: center;
-  }
-
-  @media screen and (max-width: 512px) {
-    grid-template-columns: 1fr;
-  }
-
-  .raft__footer__links-column {
-    display: flex;
-    flex-direction: column;
-
-    @media screen and (max-width: 1024px) {
-      &:not(:last-child) {
-        margin-bottom: 40px;
-      }
-    }
-
-    @media screen and (max-width: 767px) {
-      width: 100%;
-    }
-
-    .raft__footer__link-container {
-      margin: 0px;
-      margin-bottom: 16px;
-      height: 25px;
-
-      @media screen and (max-width: 767px) {
-        justify-content: center;
-      }
-    }
-
-    .raft__footer__link {
-      display: inline-block;
-      cursor: pointer;
-      text-decoration: none;
-
-      > div:hover {
-        --textPrimaryInverted: var(--colorPrimary);
-      }
-    }
+  .raft__footer__separator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    /* TODO: hardcode color as suggested */
+    background-color: var(--raft-grey-500);
   }
 }

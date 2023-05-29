@@ -459,7 +459,7 @@ const OpenPosition = () => {
       </div>
       <div className="raft__openPosition__input">
         <CurrencyInput
-          label="Collateral"
+          label="YOU DEPOSIT"
           precision={18}
           fiatValue={collateralInputFiatValue}
           selectedToken={selectedCollateralToken}
@@ -473,7 +473,7 @@ const OpenPosition = () => {
           errorMsg={collateralErrorMsg}
         />
         <CurrencyInput
-          label="Borrow"
+          label="YOU GENERATE"
           precision={18}
           fiatValue={borrowInputFiatValue}
           selectedToken={R_TOKEN}

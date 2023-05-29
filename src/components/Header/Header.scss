@@ -154,3 +154,13 @@
     }
   }
 }
+
+.common-ui__header__menu {
+  /* TODO: no mobile menu for now */
+  display: none !important;
+}
+
+.common-ui__header .common-ui__header__nav-items {
+  /* TODO: always show wallet button for now */
+  display: flex !important;
+}

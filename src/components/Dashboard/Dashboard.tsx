@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded } from '../../hooks';
 import LoadingDashbaord from '../LoadingDashboard';
+import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
@@ -32,7 +33,10 @@ const Dashboard = () => {
           <AdjustPosition collateralBalance={collateralBalance} debtBalance={debtBalance} />
         </>
       ) : (
-        <OpenPosition />
+        <>
+          <ProtocolStats />
+          <OpenPosition />
+        </>
       )}
       <TransactionModal />
     </div>
