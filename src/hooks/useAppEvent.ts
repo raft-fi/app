@@ -10,12 +10,12 @@ export interface AppEvent {
   timestamp: number;
 }
 
-const [appEvent$, setAppEvent] = createSignal<AppEvent>();
+const [appEvent$, setAppEvent] = createSignal<Nullable<AppEvent>>();
 const stateAppEvent$ = state(appEvent$, null);
 
 export const emitAppEvent = setAppEvent;
 
-export function useAppEvent(): [Nullable<AppEvent>, (value: AppEvent) => void] {
+export function useAppEvent(): [Nullable<AppEvent>, (value: Nullable<AppEvent>) => void] {
   const appEvent = useStateObservable(stateAppEvent$);
   return [appEvent, emitAppEvent];
 }

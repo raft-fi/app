@@ -3,6 +3,8 @@ import { BrowserProvider } from 'ethers';
 import { BehaviorSubject, tap, Subscription } from 'rxjs';
 import { bind } from '@react-rxjs/core';
 import { Nullable } from '../interfaces';
+import { emitAppEvent } from './useAppEvent';
+import { notification$ } from './useNotification';
 
 const DEFAULT_VALUE = null;
 
@@ -17,6 +19,8 @@ const stream$ = eip1193Provider$.pipe(
   tap(eip1193Provider => {
     if (!eip1193Provider) {
       wallet$.next(null);
+      emitAppEvent(null);
+      notification$.next(null);
     } else {
       wallet$.next(new BrowserProvider(eip1193Provider));
     }
