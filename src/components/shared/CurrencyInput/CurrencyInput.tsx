@@ -117,9 +117,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
   );
 
   const inputPattern = useMemo(() => {
+    // [+-]? or [+]?: sign
+    // ([1-9][0-9]{0,${maxIntegralDigits - 1}}|0): integral part, no leading zero
+    // ([.][0-9]{0,${precision}})?: decimal part
+    // empty: enable empty string for number part (such that user can type)
     return allowNegativeNumbers
-      ? `[+-]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`
-      : `[+]?[0-9]{0,${maxIntegralDigits}}([.][0-9]{0,${precision}})?`;
+      ? `[+-]?(([1-9][0-9]{0,${maxIntegralDigits - 1}}|0)([.][0-9]{0,${precision}})?|)`
+      : `[+]?(([1-9][0-9]{0,${maxIntegralDigits - 1}}|0)([.][0-9]{0,${precision}})?|)`;
   }, [allowNegativeNumbers, precision, maxIntegralDigits]);
 
   return (
