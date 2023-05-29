@@ -23,7 +23,7 @@ import {
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { Nullable } from '../../interfaces';
-import { Button, CurrencyInput, Icon, Loading, Typography, ValueLabel } from '../shared';
+import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
 
 import './AdjustPosition.scss';
 
@@ -410,8 +410,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     if (!hasWhitelisted) {
       return transactionState === 'loading'
-        ? `Whitelisting delegate (1/${executionSteps})`
-        : `Whitelist delegate (1/${executionSteps})`;
+        ? `Whitelisting stETH (1/${executionSteps})`
+        : `Whitelist stETH (1/${executionSteps})`;
     }
 
     if (!hasEnoughCollateralAllowance) {
