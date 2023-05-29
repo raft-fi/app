@@ -319,7 +319,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
   );
   const formattedMissingBorrowAmount = useMemo(() => {
-    const missingBorrowAmount = (debtTokenBalanceValues.amount?.sub(borrowAmountDecimal.abs()) || Decimal.ZERO).abs();
+    const missingBorrowAmount = borrowAmountDecimal?.sub(debtTokenBalanceValues?.amount?.abs() || Decimal.ZERO).abs();
     const truncatedMissingBorrowAmount = new Decimal(missingBorrowAmount.toTruncated(2));
     const result = truncatedMissingBorrowAmount.lt(missingBorrowAmount)
       ? truncatedMissingBorrowAmount.add(0.01)
