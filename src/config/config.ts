@@ -1,16 +1,9 @@
-import { RaftConfig } from '@raft-fi/sdk';
-import { Config } from '../interfaces';
+import { LocalConfig } from '../interfaces';
 
-const config: Config = {
-  ethereum: {
-    positionManager: RaftConfig.addresses.positionManager,
-    positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
-    collateralTokens: {
-      wstETH: RaftConfig.addresses.wstEth,
-    },
-    raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
-    raftDebtToken: RaftConfig.addresses.raftDebtToken,
-    rToken: RaftConfig.addresses.r,
+const config: {
+  [chainName: string]: LocalConfig;
+} = {
+  mainnet: {
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Ethereum mainnet',
@@ -27,14 +20,6 @@ const config: Config = {
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
   },
   goerli: {
-    positionManager: RaftConfig.addresses.positionManager,
-    positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
-    collateralTokens: {
-      wstETH: RaftConfig.addresses.wstEth,
-    },
-    raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
-    raftDebtToken: RaftConfig.addresses.raftDebtToken,
-    rToken: RaftConfig.addresses.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Goerli testnet',

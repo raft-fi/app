@@ -11,7 +11,7 @@ export interface TokenListItem {
 }
 
 class ConfigManager {
-  private config: Config = config;
+  private config: Config = {};
 
   getConfig(): ChainConfig {
     // SDK tells which network is active
@@ -20,10 +20,42 @@ class ConfigManager {
       null as Nullable<string>,
     );
     // ENV tells which network is active
-    const configuredNetwork = import.meta.env.NETWORK;
+    const configuredNetwork = import.meta.env.VITE_NETWORK;
 
     // if ENV is set in specific, take it. otherwise take the active network from SDK
-    return this.config[configuredNetwork ?? defaultNetwork ?? FALLBACK_NETWORK];
+    const network = configuredNetwork ?? defaultNetwork ?? FALLBACK_NETWORK;
+
+    // set RaftConfig network
+    RaftConfig.setNetwork(network);
+
+    if (!this.config || !Object.keys(this.config).length) {
+      this.config = {
+        mainnet: {
+          ...config.mainnet,
+          positionManager: RaftConfig.addresses.positionManager,
+          positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
+          collateralTokens: {
+            wstETH: RaftConfig.addresses.wstEth,
+          },
+          raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
+          raftDebtToken: RaftConfig.addresses.raftDebtToken,
+          rToken: RaftConfig.addresses.r,
+        },
+        goerli: {
+          ...config.goerli,
+          positionManager: RaftConfig.addresses.positionManager,
+          positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
+          collateralTokens: {
+            wstETH: RaftConfig.addresses.wstEth,
+          },
+          raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
+          raftDebtToken: RaftConfig.addresses.raftDebtToken,
+          rToken: RaftConfig.addresses.r,
+        },
+      };
+    }
+
+    return this.config[network];
   }
 }
 
