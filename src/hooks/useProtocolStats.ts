@@ -17,6 +17,7 @@ import {
   startWith,
   withLatestFrom,
   map,
+  combineLatest,
 } from 'rxjs';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable, ProtocolStats } from '../interfaces';
@@ -31,16 +32,19 @@ const fetchData = (provider: JsonRpcProvider) => {
   try {
     const stats = Stats.getInstance(provider);
 
-    return from(stats.fetch()).pipe(
+    return combineLatest([
+      from(stats.fetchCollateralSupply()),
+      from(stats.fetchDebtSupply()),
+      from(stats.fetchOpenPositionCount()),
+    ]).pipe(
       map(() => {
-        if (!stats.collateralSupply || !stats.debtSupply || !stats.borrowingRate || !stats.openPositionCount) {
+        if (!stats.collateralSupply || !stats.debtSupply || !stats.openPositionCount) {
           return null;
         }
 
         return {
           collateralSupply: stats.collateralSupply,
           debtSupply: stats.debtSupply,
-          borrowingRate: stats.borrowingRate,
           openPositions: stats.openPositionCount,
         };
       }),
