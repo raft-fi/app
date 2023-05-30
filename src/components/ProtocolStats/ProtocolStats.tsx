@@ -159,7 +159,7 @@ const ProtocolStats = () => {
           <Typography variant="heading2">%</Typography>
         </div>
         <div className="raft__protocol-stats__ratio__status">
-          <div className={`raft__protocol-stats__ratio__status__color status-${collateralRatioLevel}`} />
+          <div className={`raft__protocol-stats__ratio__status__color status-risk-${collateralRatioLevel}`} />
           <Typography variant="body" weight="medium" color="text-secondary">
             {collateralRatioLabel ?? '---'}
           </Typography>

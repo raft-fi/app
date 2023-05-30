@@ -3,34 +3,34 @@ import { Decimal } from '@tempusfinance/decimal';
 import { HEALTHY_RATIO } from '../constants';
 import { Nullable } from '../interfaces';
 
-type CollateralRatioLevel = 'healthy' | 'risk' | 'unhealthy';
+type CollateralRatioRiskLevel = 'low' | 'medium' | 'high';
 
-export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<CollateralRatioLevel> => {
+export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<CollateralRatioRiskLevel> => {
   if (!ratio) {
     return null;
   }
 
   if (ratio.gte(HEALTHY_RATIO)) {
-    return 'healthy';
+    return 'low';
   }
 
   if (ratio.gt(MIN_COLLATERAL_RATIO)) {
-    return 'risk';
+    return 'medium';
   }
 
-  return 'unhealthy';
+  return 'high';
 };
 
 export const getCollateralRatioLabel = (ratio: Nullable<Decimal>): Nullable<string> => {
   const level = getCollateralRatioLevel(ratio);
 
   switch (level) {
-    case 'healthy':
-      return 'Healthy';
-    case 'risk':
-      return 'At risk';
-    case 'unhealthy':
-      return 'Unhealthy';
+    case 'low':
+      return 'Low Risk';
+    case 'medium':
+      return 'Medium Risk';
+    case 'high':
+      return 'High Risk';
     default:
       return null;
   }

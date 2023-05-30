@@ -86,16 +86,16 @@
       border-radius: 50%;
       margin-right: 6px;
 
-      &.status-healthy {
-        background-color: var(--statusHealthy);
+      &.status-risk-low {
+        background-color: var(--statusLowRisk);
       }
 
-      &.status-risk {
-        background-color: var(--statusRisk);
+      &.status-risk-medium {
+        background-color: var(--statusMediumRisk);
       }
 
-      &.status-unhealthy {
-        background-color: var(--statusUnhealthy);
+      &.status-risk-high {
+        background-color: var(--statusHighRisk);
       }
     }
   }
