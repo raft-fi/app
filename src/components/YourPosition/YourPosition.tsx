@@ -149,7 +149,7 @@ const YourPosition: FC = () => {
           <Typography variant="heading2">%</Typography>
         </div>
         <div className="raft__your-position__ratio__status">
-          <div className={`raft__your-position__ratio__status__color status-${collateralRatioLevel}`} />
+          <div className={`raft__your-position__ratio__status__color status-risk-${collateralRatioLevel}`} />
           <Typography variant="body" weight="medium">
             {collateralRatioLabel ?? '---'}
           </Typography>

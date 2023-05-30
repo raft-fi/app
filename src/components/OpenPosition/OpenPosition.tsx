@@ -3,7 +3,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -545,7 +545,7 @@ const OpenPosition = () => {
                 <>
                   <Icon variant="arrow-up" size="tiny" />
                   <div
-                    className={`raft__openPosition__data__position__data__ratio__status status-${collateralRatioLevel}`}
+                    className={`raft__openPosition__data__position__data__ratio__status status-risk-${collateralRatioLevel}`}
                   />
                   <ValueLabel value={collateralizationRatioFormatted} valueSize="body" tickerSize="caption" />
                   <Typography variant="body" weight="medium" color="text-secondary">
