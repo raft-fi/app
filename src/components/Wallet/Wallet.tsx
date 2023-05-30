@@ -5,7 +5,14 @@ import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
-import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork, useTransactionHistory } from '../../hooks';
+import {
+  updateWalletFromEIP1193Provider,
+  useAppLoaded,
+  useConfig,
+  useENS,
+  useNetwork,
+  useTransactionHistory,
+} from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
@@ -56,6 +63,7 @@ const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
 
 const Wallet = () => {
   const config = useConfig();
+  const appLoaded = useAppLoaded();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
@@ -175,6 +183,9 @@ const Wallet = () => {
     navigator.clipboard.writeText(connectedAddress);
   }, [connectedAddress, wallet]);
 
+  if (!appLoaded) {
+    return <div className="raft__wallet raft__wallet-loading" />;
+  }
   return (
     <div className="raft__wallet">
       {!wallet && (
