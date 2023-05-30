@@ -9,7 +9,6 @@ import { updateWalletFromEIP1193Provider, useConfig, useENS, useNetwork, useTran
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
-import NotificationCenter from '../NotificationCenter';
 import TransactionHistoryRow from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
 
@@ -271,7 +270,6 @@ const Wallet = () => {
               liquidationTransaction={lastLiquidation}
             />
           )}
-          <NotificationCenter />
         </>
       )}
     </div>

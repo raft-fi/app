@@ -11,6 +11,7 @@ import HookSubscriber from './components/HookSubscriber';
 import NoticePopup from './components/NoticePopup';
 import TermsAndConditions from './components/TermsAndConditions';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import NotificationCenter from './components/NotificationCenter';
 
 import './index.scss';
 
@@ -39,6 +40,7 @@ root.render(
               <>
                 <NoticePopup />
                 <Dashboard />
+                <NotificationCenter />
               </>
             }
           />
