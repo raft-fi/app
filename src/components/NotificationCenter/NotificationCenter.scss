@@ -3,10 +3,10 @@
   --toastify-toast-width: 240px;
 
   .Toastify__toast-container {
-    position: absolute;
-    right: 0;
+    position: fixed;
+    right: 32px;
     padding: 0;
-    top: 116px;
+    top: 32px;
 
     .Toastify__toast {
       background-color: var(--toastBackground);
