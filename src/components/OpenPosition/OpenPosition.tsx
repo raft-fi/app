@@ -85,17 +85,14 @@ const OpenPosition = () => {
    * Debt is set to 3k (minimum) and collateral is set to that collateral ratio is around 220% or a bit more.
    */
   useEffect(() => {
-    const collateralBalanceValid =
-      tokenBalanceMap[selectedCollateralToken] && !tokenBalanceMap[selectedCollateralToken]?.isZero();
-    const collateralPriceValid =
-      tokenPriceMap[selectedCollateralToken] && !tokenPriceMap[selectedCollateralToken]?.isZero();
-    const rTokenPriceValid = tokenPriceMap[R_TOKEN] && !tokenPriceMap[R_TOKEN].isZero();
+    if (!hasChanged) {
+      const collateralBalance = tokenBalanceMap[selectedCollateralToken];
+      const collateralPrice = tokenPriceMap[selectedCollateralToken];
+      const rTokenPrice = tokenPriceMap[R_TOKEN];
 
-    // when input is not dirty, check whether price and balance are available
-    if (!hasChanged && rTokenPriceValid && collateralPriceValid && collateralBalanceValid) {
-      const collateralBalance = tokenBalanceMap[selectedCollateralToken] as Decimal;
-      const collateralPrice = tokenPriceMap[selectedCollateralToken] as Decimal;
-      const rTokenPrice = tokenPriceMap[R_TOKEN] as Decimal;
+      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice) {
+        return;
+      }
 
       // Borrow amount is always set to min amount
       const borrowAmount = new Decimal(MIN_BORROW_AMOUNT);
@@ -111,7 +108,16 @@ const OpenPosition = () => {
         : truncatedCollateral;
 
       // Only fill in calculated values if user has enough collateral
-      if (collateralBalance.gte(collateralAmountCeiled)) {
+      if (collateralBalance && collateralBalance.gte(collateralAmountCeiled)) {
+        setCollateralAmount(collateralAmountCeiled.toString());
+        setBorrowAmount(borrowAmount.toString());
+        // If wallet is connected and user does not have enough collateral, rest inputs to empty state
+      } else if (wallet) {
+        setCollateralAmount('');
+        setBorrowAmount('');
+      }
+      // If wallet is not connected just set input values to calculated ones without checking balance
+      else if (!wallet) {
         setCollateralAmount(collateralAmountCeiled.toString());
         setBorrowAmount(borrowAmount.toString());
       }
@@ -123,6 +129,7 @@ const OpenPosition = () => {
     selectedCollateralTokenBalanceValues.price,
     tokenBalanceMap,
     tokenPriceMap,
+    wallet,
   ]);
 
   const baseTokenAmount = useMemo(() => {
