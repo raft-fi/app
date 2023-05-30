@@ -1,6 +1,15 @@
 .raft__wallet {
   position: relative;
 
+  &.raft__wallet-loading {
+    /* TODO: hardcode color as suggested */
+    background: var(--raft-blue-900);
+    width: 128px;
+    height: 40px;
+    opacity: 0.15;
+    border-radius: 8px;
+  }
+
   .raft__wallet__connected {
     .raft__icon__profile {
       margin-right: 8px;
