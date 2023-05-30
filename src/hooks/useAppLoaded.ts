@@ -14,7 +14,6 @@ const stream$ = interval(CHECK_INTERVAL).pipe(
     const wallet = wallet$.getValue();
     const collateralBalance = collateralBalance$.getValue();
     const debtBalance = debtBalance$.getValue();
-    console.log(wallet, collateralBalance, debtBalance);
 
     return Boolean(count && (!wallet || (wallet && collateralBalance && debtBalance)));
   }),
