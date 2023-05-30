@@ -1,16 +1,21 @@
-import { RaftConfig } from '@raft-fi/sdk';
+import { RaftConfig, SupportedNetwork } from '@raft-fi/sdk';
 import { Config } from '../interfaces';
 
+const FALLBACK_NETWORK: SupportedNetwork = 'goerli';
+export const NETWORK: SupportedNetwork = import.meta.env.VITE_NETWORK ?? FALLBACK_NETWORK;
+
+RaftConfig.setNetwork(NETWORK);
+
 const config: Config = {
-  ethereum: {
-    positionManager: RaftConfig.addresses.positionManager,
-    positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
+  mainnet: {
+    positionManager: RaftConfig.networkConfig.positionManager,
+    positionManagerStEth: RaftConfig.networkConfig.positionManagerStEth,
     collateralTokens: {
-      wstETH: RaftConfig.addresses.wstEth,
+      wstETH: RaftConfig.networkConfig.wstEth,
     },
-    raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
-    raftDebtToken: RaftConfig.addresses.raftDebtToken,
-    rToken: RaftConfig.addresses.r,
+    raftCollateralToken: RaftConfig.networkConfig.raftCollateralTokens.wstETH,
+    raftDebtToken: RaftConfig.networkConfig.raftDebtToken,
+    rToken: RaftConfig.networkConfig.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Ethereum mainnet',
@@ -27,14 +32,14 @@ const config: Config = {
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
   },
   goerli: {
-    positionManager: RaftConfig.addresses.positionManager,
-    positionManagerStEth: RaftConfig.addresses.positionManagerStEth,
+    positionManager: RaftConfig.networkConfig.positionManager,
+    positionManagerStEth: RaftConfig.networkConfig.positionManagerStEth,
     collateralTokens: {
-      wstETH: RaftConfig.addresses.wstEth,
+      wstETH: RaftConfig.networkConfig.wstEth,
     },
-    raftCollateralToken: RaftConfig.addresses.raftCollateralTokens.wstETH,
-    raftDebtToken: RaftConfig.addresses.raftDebtToken,
-    rToken: RaftConfig.addresses.r,
+    raftCollateralToken: RaftConfig.networkConfig.raftCollateralTokens.wstETH,
+    raftDebtToken: RaftConfig.networkConfig.raftDebtToken,
+    rToken: RaftConfig.networkConfig.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Goerli testnet',
