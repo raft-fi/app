@@ -90,14 +90,12 @@ const stream$ = combineLatest([borrow$]).pipe(
 
         borrowStatus$.next({ pending: true, txnId, request });
 
-        // TODO - maxFeePercentage should be same as borrowFee (should be added in SDK as default value)
         let result$: Observable<ethers.ContractTransactionResponse>;
         if (closePosition) {
           result$ = from(
             userPosition.close({
               ...options,
               collateralToken: request.collateralToken,
-              maxFeePercentage: new Decimal(0.01),
             }),
           );
         } else {
@@ -105,7 +103,6 @@ const stream$ = combineLatest([borrow$]).pipe(
             userPosition.manage(collateralChange, debtChange, {
               ...options,
               collateralToken: request.collateralToken,
-              maxFeePercentage: new Decimal(0.01),
             }),
           );
         }
