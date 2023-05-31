@@ -18,7 +18,7 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { Allowance, TOKENS, Token, TOKENS_WITH_PERMIT, R_TOKEN, UNDERLYING_COLLATERAL_TOKENS } from '@raft-fi/sdk';
+import { Allowance, TOKENS, Token, UNDERLYING_COLLATERAL_TOKENS } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { ChainConfig, Nullable } from '../interfaces';
@@ -54,11 +54,6 @@ const fetchData = async (
   provider: JsonRpcProvider,
 ): Promise<Nullable<Decimal>> => {
   try {
-    // for collateral token with permit, allowance will be MAX. permit done when processing txn
-    if (TOKENS_WITH_PERMIT.has(token) && R_TOKEN !== token) {
-      return Decimal.MAX_DECIMAL;
-    }
-
     const allowance = new Allowance(token, walletAddress, positionManagerAddress, provider);
 
     const result = await allowance.fetchAllowance();
