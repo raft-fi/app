@@ -3,7 +3,7 @@ import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN } from '@raft-fi/sdk';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
-import { getCollateralRatioLabel, getCollateralRatioLevel, getTokenValues } from '../../utils';
+import { getProtocolCollateralRatioLabel, getProtocolCollateralRatioLevel, getTokenValues } from '../../utils';
 import {
   COLLATERAL_BASE_TOKEN,
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -105,14 +105,20 @@ const ProtocolStats = () => {
         : null,
     [collateralizationRatio],
   );
-  const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
-  const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
+  const collateralRatioLevel = useMemo(
+    () => getProtocolCollateralRatioLevel(collateralizationRatio),
+    [collateralizationRatio],
+  );
+  const collateralRatioLabel = useMemo(
+    () => getProtocolCollateralRatioLabel(collateralizationRatio),
+    [collateralizationRatio],
+  );
 
   return (
     <div className="raft__protocol-stats">
       <div className="raft__protocol-stats__collateral">
         <Typography variant="overline" color="text-accent">
-          PROTOCOL SUPPLY
+          TOTAL VALUE LOCKED
         </Typography>
         <div className="raft__protocol-stats__collateral__amount">
           <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
@@ -132,7 +138,7 @@ const ProtocolStats = () => {
       </div>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
-          TOTAL R GENERATED
+          R MARKET CAP
         </Typography>
         <div className="raft__protocol-stats__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />

@@ -71,15 +71,19 @@
       margin-right: 6px;
 
       &.status-risk-low {
-        background-color: var(--statusLowRisk);
+        background-color: var(--statusLowProtocolRisk);
+      }
+
+      &.status-risk-moderate {
+        background-color: var(--statusModerateProtocolRisk);
       }
 
       &.status-risk-medium {
-        background-color: var(--statusMediumRisk);
+        background-color: var(--statusMediumProtocolRisk);
       }
 
       &.status-risk-high {
-        background-color: var(--statusHighRisk);
+        background-color: var(--statusHighProtocolRisk);
       }
     }
   }
