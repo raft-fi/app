@@ -39,6 +39,7 @@ interface ApproveStatus {
   success?: boolean;
   error?: Error;
   contractTransaction?: ethers.ContractTransactionResponse;
+  collateralPermit?: ERC20PermitSignatureStruct;
   rPermit?: ERC20PermitSignatureStruct;
   txnId: string;
 }
@@ -47,6 +48,7 @@ interface ApproveResponse {
   request: ApproveRequest;
   contractTransaction?: ethers.ContractTransactionResponse;
   transactionReceipt?: ethers.TransactionReceipt;
+  collateralPermit?: ERC20PermitSignatureStruct;
   rPermit?: ERC20PermitSignatureStruct;
   error?: Error;
   txnId: string;
@@ -92,6 +94,7 @@ const stream$ = combineLatest([approve$]).pipe(
                   map(transactionReceipt => ({
                     contractTransaction: result,
                     transactionReceipt,
+                    collateralPermit: null,
                     rPermit: null,
                   })),
                 );
@@ -102,6 +105,7 @@ const stream$ = combineLatest([approve$]).pipe(
             return of({
               contractTransaction: null,
               transactionReceipt: null,
+              collateralPermit: result.collateralPermit,
               rPermit: result.rPermit,
             });
           }),
@@ -113,6 +117,7 @@ const stream$ = combineLatest([approve$]).pipe(
               ({
                 contractTransaction: result?.contractTransaction,
                 transactionReceipt: result?.transactionReceipt,
+                collateralPermit: result?.collateralPermit,
                 rPermit: result?.rPermit,
                 request,
                 txnId,
@@ -138,7 +143,7 @@ const stream$ = combineLatest([approve$]).pipe(
     },
   ),
   map<ApproveResponse, ApproveStatus>(response => {
-    const { contractTransaction, transactionReceipt, rPermit, request, error, txnId } = response;
+    const { contractTransaction, transactionReceipt, collateralPermit, rPermit, request, error, txnId } = response;
 
     if (!rPermit) {
       if (!contractTransaction) {
@@ -157,6 +162,7 @@ const stream$ = combineLatest([approve$]).pipe(
       success: true,
       request,
       contractTransaction,
+      collateralPermit,
       rPermit,
       txnId,
     };

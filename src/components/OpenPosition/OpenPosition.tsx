@@ -3,15 +3,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import {
-  CollateralToken,
-  COLLATERAL_TOKENS,
-  ERC20PermitSignatureStruct,
-  R_TOKEN,
-  Token,
-  TOKENS,
-  TOKENS_WITH_PERMIT,
-} from '@raft-fi/sdk';
+import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -37,9 +29,9 @@ import {
 } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
 import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
+import { Nullable } from '../../interfaces';
 
 import './OpenPosition.scss';
-import { Nullable } from '../../interfaces';
 
 type TokenApprovedMap = {
   [token in Token]: Nullable<boolean>;
@@ -324,7 +316,9 @@ const OpenPosition = () => {
 
   // steps that user need to execute when component loaded
   const executionSteps = useMemo(() => {
-    // if whitelist map or allowance map not yet ready, return 1
+    // if whitelist map not yet ready,
+    // or allowance map not yet ready,
+    // return 1
     if (
       tokenWhitelistMapWhenLoaded[selectedCollateralToken] === null ||
       tokenAllowanceMapWhenLoaded[selectedCollateralToken] === null
@@ -332,17 +326,45 @@ const OpenPosition = () => {
       return 1;
     }
 
-    // not whitelisted on load, or user has proceeded whitelist, add 1
-    const whitelistStep = tokenWhitelistMapWhenLoaded[selectedCollateralToken] && !hasWhitelistProceeded ? 0 : 1;
-    // not enough allowance on load, or user has proceeded approve, and token is not with permit, add 1
-    const collateralApprovalStep =
-      (tokenAllowanceMapWhenLoaded[selectedCollateralToken]?.gte(collateralTokenValues.amount ?? Decimal.ZERO) &&
-        !hasApprovalProceeded[selectedCollateralToken]) ||
-      TOKENS_WITH_PERMIT.has(selectedCollateralToken)
-        ? 0
-        : 1;
-    // if selected token is token with permit, add 1
-    const collateralPermitStep = TOKENS_WITH_PERMIT.has(selectedCollateralToken) ? 1 : 0;
+    let whitelistStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, whitelistStep = 0
+      whitelistStep = 0;
+    } else if (hasWhitelistProceeded) {
+      // user has proceeded whitelist, whitelistStep = 1
+      whitelistStep = 1;
+    } else if (!tokenWhitelistMapWhenLoaded[selectedCollateralToken]) {
+      // not whitelisted on load, whitelistStep = 1
+      whitelistStep = 1;
+    }
+
+    let collateralApprovalStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, collateralApprovalStep = 0
+      collateralApprovalStep = 0;
+    } else if (hasApprovalProceeded[selectedCollateralToken]) {
+      // user has proceeded approve, collateralApprovalStep = 1
+      collateralApprovalStep = 1;
+    } else if (tokenAllowanceMapWhenLoaded[selectedCollateralToken]?.lt(collateralTokenValues.amount ?? Decimal.ZERO)) {
+      // not enough allowance on load, collateralApprovalStep = 1
+      collateralApprovalStep = 1;
+    }
+
+    let collateralPermitStep = 0;
+
+    if (!TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token not with permit, collateralPermitStep = 0
+      collateralPermitStep = 0;
+    } else if (tokenSignatureMap[selectedCollateralToken]) {
+      // user has proceeded approve, collateralPermitStep = 1
+      collateralPermitStep = 1;
+    } else if (collateralTokenValues.amount?.gt(0)) {
+      // input > 0, collateralPermitStep = 1
+      collateralPermitStep = 1;
+    }
+
     const executionStep = 1;
 
     return whitelistStep + collateralApprovalStep + collateralPermitStep + executionStep;
@@ -352,27 +374,51 @@ const OpenPosition = () => {
     hasWhitelistProceeded,
     selectedCollateralToken,
     tokenAllowanceMapWhenLoaded,
+    tokenSignatureMap,
     tokenWhitelistMapWhenLoaded,
   ]);
   // steps that user has proceeded since component loaded
   const executedSteps = useMemo(() => {
-    // when user has proceeded whitelist, and now still has whitelisted selectedCollateralToken, add 1
-    const whitelistStep = hasWhitelistProceeded && hasWhitelisted ? 1 : 0;
-    // when user has proceeded approve, and now still has enough allowance, add 1
-    const collateralApprovalStep =
-      hasApprovalProceeded[selectedCollateralToken] && hasEnoughCollateralAllowance ? 1 : 0;
-    // when user has sign permit signature, add 1
-    const collateralPermitStep = hasCollateralPermitSignature ? 1 : 0;
+    let whitelistStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, whitelistStep = 0
+      whitelistStep = 0;
+    } else if (hasWhitelistProceeded && hasWhitelisted) {
+      // user has proceeded whitelist and still have whitelisted, whitelistStep = 1
+      whitelistStep = 1;
+    }
+
+    let collateralApprovalStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, collateralApprovalStep = 0
+      collateralApprovalStep = 0;
+    } else if (hasApprovalProceeded[selectedCollateralToken] && hasEnoughCollateralAllowance) {
+      // user has proceeded approve and still have enough allowance, collateralApprovalStep = 1
+      collateralApprovalStep = 1;
+    }
+
+    let collateralPermitStep = 0;
+
+    if (!TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token not with permit, collateralPermitStep = 0
+      collateralPermitStep = 0;
+    } else if (tokenSignatureMap[selectedCollateralToken]) {
+      // user has proceeded approve, collateralPermitStep = 1
+      collateralPermitStep = 1;
+    }
+
     const executionStep = 1;
 
     return whitelistStep + collateralApprovalStep + collateralPermitStep + executionStep;
   }, [
     hasApprovalProceeded,
-    hasCollateralPermitSignature,
     hasEnoughCollateralAllowance,
     hasWhitelistProceeded,
     hasWhitelisted,
     selectedCollateralToken,
+    tokenSignatureMap,
   ]);
 
   const collateralErrorMsg = useMemo(() => {
@@ -452,7 +498,7 @@ const OpenPosition = () => {
         currentUserDebt: Decimal.ZERO,
         txnId: uuid(),
         options: {
-          rPermitSignature: tokenSignatureMap[selectedCollateralToken] ?? undefined,
+          collateralPermitSignature: tokenSignatureMap[selectedCollateralToken] ?? undefined,
         },
       });
     } else {
@@ -544,16 +590,21 @@ const OpenPosition = () => {
     }
 
     if (approveStatus?.success) {
-      if (approveStatus.rPermit) {
-        setTokenSignatureMap({
-          ...tokenSignatureMap,
-          [approveStatus.request.collateralToken]: approveStatus.rPermit,
-        });
+      const approvedCollateralToken = approveStatus.request.collateralToken;
+      if (approveStatus.collateralPermit) {
+        if (tokenSignatureMap[approvedCollateralToken] !== approveStatus.collateralPermit) {
+          setTokenSignatureMap({
+            ...tokenSignatureMap,
+            [approvedCollateralToken]: approveStatus.collateralPermit,
+          });
+        }
       } else {
-        setHasApprovalProceeded({
-          ...hasApprovalProceeded,
-          [approveStatus.request.collateralToken]: true,
-        });
+        if (!hasApprovalProceeded[approvedCollateralToken]) {
+          setHasApprovalProceeded({
+            ...hasApprovalProceeded,
+            [approvedCollateralToken]: true,
+          });
+        }
       }
     }
 
