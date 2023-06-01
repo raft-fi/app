@@ -2,8 +2,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
+  TokenAllowanceMap,
+  TokenWhitelistMap,
   useApprove,
   useBorrow,
   useTokenAllowances,
@@ -27,10 +29,26 @@ import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typograp
 
 import './AdjustPosition.scss';
 
+type TokenApprovedMap = {
+  [token in Token]: Nullable<boolean>;
+};
+
+type TokenSignatureMap = {
+  [token in Token]: Nullable<ERC20PermitSignatureStruct>;
+};
+
 interface AdjustPositionProps {
   collateralBalance: Decimal;
   debtBalance: Decimal;
 }
+
+const DEFAULT_MAP = TOKENS.reduce(
+  (map, token) => ({
+    ...map,
+    [token]: null,
+  }),
+  {},
+);
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
@@ -41,11 +59,54 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
 
+  const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
+    DEFAULT_MAP as TokenWhitelistMap,
+  );
+  const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
+    DEFAULT_MAP as TokenAllowanceMap,
+  );
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
+  const [hasWhitelistProceeded, setHasWhitelistProceeded] = useState<boolean>(false);
+  const [hasApprovalProceeded, setHasApprovalProceeded] = useState<TokenApprovedMap>(DEFAULT_MAP as TokenApprovedMap);
+  const [tokenSignatureMap, setTokenSignatureMap] = useState<TokenSignatureMap>(DEFAULT_MAP as TokenSignatureMap);
+
+  // store the whitelist status at the loaded time
+  useEffect(() => {
+    const map = Object.entries(tokenWhitelistMap).reduce((map, [token, whitelisted]) => {
+      if (tokenWhitelistMapWhenLoaded[token] === null) {
+        map[token] = whitelisted;
+      }
+      return map;
+    }, {} as TokenWhitelistMap);
+
+    if (!Object.entries(map).every(([token, whitelisted]) => tokenWhitelistMapWhenLoaded[token] === whitelisted)) {
+      setTokenWhitelistMapWhenLoaded(map);
+    }
+  }, [tokenWhitelistMap, tokenWhitelistMapWhenLoaded]);
+
+  // store the allowance status at the loaded time
+  useEffect(() => {
+    const map = Object.entries(tokenAllowanceMap).reduce((map, [token, allowance]) => {
+      if (tokenAllowanceMapWhenLoaded[token] === null) {
+        map[token] = allowance;
+      }
+      return map;
+    }, {} as TokenAllowanceMap);
+
+    if (
+      !Object.entries(map).every(
+        ([token, allowance]) =>
+          (tokenAllowanceMapWhenLoaded[token] === null && tokenAllowanceMap[token] === null) ||
+          tokenAllowanceMapWhenLoaded[token]?.eq(allowance),
+      )
+    ) {
+      setTokenAllowanceMapWhenLoaded(map);
+    }
+  }, [tokenAllowanceMap, tokenAllowanceMapWhenLoaded]);
 
   /**
    * Update action button state based on current borrow request status
@@ -55,6 +116,38 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return;
     }
 
+    if (whitelistDelegateStatus?.success) {
+      setHasWhitelistProceeded(true);
+    }
+
+    if (approveStatus?.success) {
+      const approvedCollateralToken = approveStatus.request.collateralToken;
+      if (approveStatus.collateralPermit || approveStatus.rPermit) {
+        if (
+          approveStatus.collateralPermit &&
+          tokenSignatureMap[approvedCollateralToken] !== approveStatus.collateralPermit
+        ) {
+          setTokenSignatureMap({
+            ...tokenSignatureMap,
+            [approvedCollateralToken]: approveStatus.collateralPermit,
+          });
+        }
+        if (approveStatus.rPermit && tokenSignatureMap[R_TOKEN] !== approveStatus.rPermit) {
+          setTokenSignatureMap({
+            ...tokenSignatureMap,
+            [R_TOKEN]: approveStatus.rPermit,
+          });
+        }
+      } else {
+        if (!hasApprovalProceeded[approvedCollateralToken]) {
+          setHasApprovalProceeded({
+            ...hasApprovalProceeded,
+            [approvedCollateralToken]: true,
+          });
+        }
+      }
+    }
+
     if (whitelistDelegateStatus?.pending || approveStatus?.pending || borrowStatus?.pending) {
       setTransactionState('loading');
     } else if (whitelistDelegateStatus?.success || approveStatus?.success || borrowStatus?.success) {
@@ -62,7 +155,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     } else {
       setTransactionState('default');
     }
-  }, [approveStatus, borrowStatus, whitelistDelegateStatus]);
+  }, [approveStatus, borrowStatus, hasApprovalProceeded, tokenSignatureMap, whitelistDelegateStatus]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -353,14 +446,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     () => Boolean(selectedCollateralTokenAllowance?.gte(collateralAmountDecimal)),
     [collateralAmountDecimal, selectedCollateralTokenAllowance],
   );
-  const hasEnoughDebtAllowance = useMemo(
-    // R token somehow can give MAX allowance which is wrong
-    // return true whenever debt amount is -ve and collateral is not wstETH
-    () =>
-      (borrowAmountDecimal.lt(0) && TOKENS_WITH_PERMIT.has(selectedCollateralToken)) ||
-      Boolean(approveStatus?.rPermit) ||
-      borrowAmountDecimal.gte(0),
-    [approveStatus?.rPermit, borrowAmountDecimal, selectedCollateralToken],
+  const hasCollateralPermitSignature = useMemo(
+    () => Boolean(tokenSignatureMap[selectedCollateralToken]),
+    [selectedCollateralToken, tokenSignatureMap],
+  );
+  const hasDebtPermitSignature = useMemo(() => Boolean(tokenSignatureMap[R_TOKEN]), [tokenSignatureMap]);
+  const needCollateralPermitSignature = useMemo(
+    () => TOKENS_WITH_PERMIT.has(selectedCollateralToken) && collateralAmountDecimal.gt(0),
+    [collateralAmountDecimal, selectedCollateralToken],
+  );
+  const needDebtPermitSignature = useMemo(
+    () => !TOKENS_WITH_PERMIT.has(selectedCollateralToken) && borrowAmountDecimal.lt(0),
+    [borrowAmountDecimal, selectedCollateralToken],
   );
   const hasEnoughToWithdraw = useMemo(() => {
     if (!newCollateralInDisplayToken.amount) {
@@ -376,14 +473,136 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio],
   );
 
+  // steps that user need to execute when component loaded
   const executionSteps = useMemo(() => {
-    const whitelistStep = hasWhitelisted ? 0 : 1;
-    const collateralApprovalStep = hasEnoughCollateralAllowance ? 0 : 1;
-    const debtApprovalStep = hasEnoughDebtAllowance ? 0 : 1;
+    // if whitelist map not yet ready,
+    // or allowance map not yet ready,
+    // return 1
+    if (
+      tokenWhitelistMapWhenLoaded[selectedCollateralToken] === null ||
+      tokenAllowanceMapWhenLoaded[selectedCollateralToken] === null
+    ) {
+      return 1;
+    }
+
+    let whitelistStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, whitelistStep = 0
+      whitelistStep = 0;
+    } else if (hasWhitelistProceeded) {
+      // user has proceeded whitelist, whitelistStep = 1
+      whitelistStep = 1;
+    } else if (!tokenWhitelistMapWhenLoaded[selectedCollateralToken]) {
+      // not whitelisted on load, whitelistStep = 1
+      whitelistStep = 1;
+    }
+
+    let collateralApprovalStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, collateralApprovalStep = 0
+      collateralApprovalStep = 0;
+    } else if (hasApprovalProceeded[selectedCollateralToken]) {
+      // user has proceeded approve, collateralApprovalStep = 1
+      collateralApprovalStep = 1;
+    } else if (tokenAllowanceMapWhenLoaded[selectedCollateralToken]?.lt(collateralAmountDecimal)) {
+      // not enough allowance on load, collateralApprovalStep = 1
+      collateralApprovalStep = 1;
+    }
+
+    let collateralPermitStep = 0;
+
+    if (!TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token not with permit, collateralPermitStep = 0
+      collateralPermitStep = 0;
+    } else if (tokenSignatureMap[selectedCollateralToken]) {
+      // user has proceeded approve, collateralPermitStep = 1
+      collateralPermitStep = 1;
+    } else if (collateralAmountDecimal.gt(0)) {
+      // input > zero, collateralPermitStep = 1
+      collateralPermitStep = 1;
+    }
+
+    let debtPermitStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, no need to permit R, debtPermitStep = 0
+      debtPermitStep = 0;
+    } else if (tokenSignatureMap[R_TOKEN]) {
+      // user has proceeded approve for R, debtPermitStep = 1
+      debtPermitStep = 1;
+    } else if (borrowAmountDecimal.lt(0)) {
+      // if R input amount is -ve, debtPermitStep = 1
+      debtPermitStep = 1;
+    }
+
     const executionStep = 1;
 
-    return whitelistStep + collateralApprovalStep + debtApprovalStep + executionStep;
-  }, [hasEnoughCollateralAllowance, hasEnoughDebtAllowance, hasWhitelisted]);
+    return whitelistStep + collateralApprovalStep + collateralPermitStep + debtPermitStep + executionStep;
+  }, [
+    borrowAmountDecimal,
+    collateralAmountDecimal,
+    hasApprovalProceeded,
+    hasWhitelistProceeded,
+    selectedCollateralToken,
+    tokenAllowanceMapWhenLoaded,
+    tokenSignatureMap,
+    tokenWhitelistMapWhenLoaded,
+  ]);
+  // steps that user has proceeded since component loaded
+  const executedSteps = useMemo(() => {
+    let whitelistStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, whitelistStep = 0
+      whitelistStep = 0;
+    } else if (hasWhitelistProceeded && hasWhitelisted) {
+      // user has proceeded whitelist and still have whitelisted, whitelistStep = 1
+      whitelistStep = 1;
+    }
+
+    let collateralApprovalStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, collateralApprovalStep = 0
+      collateralApprovalStep = 0;
+    } else if (hasApprovalProceeded[selectedCollateralToken] && hasEnoughCollateralAllowance) {
+      // user has proceeded approve and still have enough allowance, collateralApprovalStep = 1
+      collateralApprovalStep = 1;
+    }
+
+    let collateralPermitStep = 0;
+
+    if (!TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token not with permit, collateralPermitStep = 0
+      collateralPermitStep = 0;
+    } else if (tokenSignatureMap[selectedCollateralToken]) {
+      // user has proceeded approve, collateralPermitStep = 1
+      collateralPermitStep = 1;
+    }
+
+    let debtPermitStep = 0;
+
+    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
+      // token with permit, no need to permit R, debtPermitStep = 0
+      debtPermitStep = 0;
+    } else if (tokenSignatureMap[R_TOKEN]) {
+      // user has proceeded approve for R, debtPermitStep = 1
+      debtPermitStep = 1;
+    }
+
+    const executionStep = 1;
+
+    return whitelistStep + collateralApprovalStep + collateralPermitStep + debtPermitStep + executionStep;
+  }, [
+    hasApprovalProceeded,
+    hasEnoughCollateralAllowance,
+    hasWhitelistProceeded,
+    hasWhitelisted,
+    selectedCollateralToken,
+    tokenSignatureMap,
+  ]);
 
   const collateralErrorMsg = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
@@ -415,36 +634,47 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     if (!hasWhitelisted) {
-      return transactionState === 'loading'
-        ? `Whitelisting stETH (1/${executionSteps})`
-        : `Whitelist stETH (1/${executionSteps})`;
+      return whitelistDelegateStatus?.pending
+        ? `Whitelisting stETH (${executedSteps}/${executionSteps})`
+        : `Whitelist stETH (${executedSteps}/${executionSteps})`;
     }
 
-    if (!hasEnoughCollateralAllowance) {
-      return transactionState === 'loading'
-        ? `Approving ${selectedCollateralToken} (1/${executionSteps})`
-        : `Approve ${selectedCollateralToken} (1/${executionSteps})`;
+    if (
+      (!hasEnoughCollateralAllowance && !TOKENS_WITH_PERMIT.has(selectedCollateralToken)) ||
+      (!hasCollateralPermitSignature && needCollateralPermitSignature)
+    ) {
+      return approveStatus?.pending
+        ? `Approving ${selectedCollateralToken} (${executedSteps}/${executionSteps})`
+        : `Approve ${selectedCollateralToken} (${executedSteps}/${executionSteps})`;
     }
 
-    if (!hasEnoughDebtAllowance) {
-      return transactionState === 'loading' ? `Approving R (1/${executionSteps})` : `Approve R (1/${executionSteps})`;
+    if (!hasDebtPermitSignature && needDebtPermitSignature) {
+      return approveStatus?.pending
+        ? `Approving R (${executedSteps}/${executionSteps})`
+        : `Approve R (${executedSteps}/${executionSteps})`;
     }
 
-    if (closePositionActive && transactionState === 'loading') {
-      return 'Executing';
+    if (closePositionActive && borrowStatus?.pending) {
+      return `Executing (${executedSteps}/${executionSteps})`;
     }
 
-    return 'Execute';
+    return `Execute (${executedSteps}/${executionSteps})`;
   }, [
     hasEnoughDebtTokenBalance,
     hasWhitelisted,
     hasEnoughCollateralAllowance,
-    hasEnoughDebtAllowance,
-    formattedMissingBorrowAmount,
-    transactionState,
-    executionSteps,
     selectedCollateralToken,
+    hasCollateralPermitSignature,
+    needCollateralPermitSignature,
+    hasDebtPermitSignature,
+    needDebtPermitSignature,
     closePositionActive,
+    borrowStatus?.pending,
+    executedSteps,
+    executionSteps,
+    formattedMissingBorrowAmount,
+    whitelistDelegateStatus?.pending,
+    approveStatus?.pending,
   ]);
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
@@ -495,7 +725,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return;
     }
 
-    if (!hasEnoughCollateralAllowance) {
+    if (!hasEnoughCollateralAllowance && !TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
       approve({
         collateralChange: collateralAmountDecimal,
         debtChange: Decimal.ZERO,
@@ -508,7 +738,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return;
     }
 
-    if (!hasEnoughDebtAllowance) {
+    if (!hasCollateralPermitSignature && needCollateralPermitSignature) {
+      approve({
+        collateralChange: collateralAmountDecimal,
+        debtChange: Decimal.ZERO,
+        collateralToken: selectedCollateralToken,
+        currentUserCollateral: collateralBalance,
+        currentUserDebt: debtBalance,
+        closePosition: closePositionActive,
+        txnId: uuid(),
+      });
+      return;
+    }
+
+    if (!hasDebtPermitSignature && needDebtPermitSignature) {
       approve({
         collateralChange: Decimal.ZERO,
         debtChange: borrowAmountDecimal,
@@ -530,24 +773,28 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       closePosition: closePositionActive,
       txnId: uuid(),
       options: {
-        rPermitSignature: approveStatus?.rPermit,
+        collateralPermitSignature: tokenSignatureMap[selectedCollateralToken] ?? undefined,
+        rPermitSignature: tokenSignatureMap[R_TOKEN] ?? undefined,
       },
     });
   }, [
     canAdjust,
     hasWhitelisted,
     hasEnoughCollateralAllowance,
-    hasEnoughDebtAllowance,
+    hasCollateralPermitSignature,
+    needCollateralPermitSignature,
+    hasDebtPermitSignature,
+    needDebtPermitSignature,
     borrow,
-    approve,
     collateralAmountDecimal,
     borrowAmountDecimal,
     selectedCollateralToken,
     collateralBalance,
     debtBalance,
     closePositionActive,
-    approveStatus?.rPermit,
+    tokenSignatureMap,
     whitelistDelegate,
+    approve,
   ]);
 
   return (
