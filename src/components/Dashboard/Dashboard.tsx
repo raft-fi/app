@@ -1,5 +1,5 @@
-import { memo, useMemo } from 'react';
-import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded, useWallet } from '../../hooks';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded, useWallet, useBorrow } from '../../hooks';
 import LoadingDashbaord from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -15,6 +15,14 @@ const Dashboard = () => {
   const collateralBalance = useCollateralBalance();
   const debtBalance = useDebtBalance();
   const { isWrongNetwork } = useNetwork();
+  const { borrowStatus } = useBorrow();
+  const [positionComponentKey, setPositionComponentKey] = useState<string>();
+
+  useEffect(() => {
+    if (borrowStatus?.success && borrowStatus?.txnId) {
+      setPositionComponentKey(borrowStatus.txnId);
+    }
+  }, [borrowStatus?.success, borrowStatus?.txnId]);
 
   const userHasBorrowed = useMemo(() => {
     return collateralBalance?.gt(0) || debtBalance?.gt(0);
@@ -31,12 +39,16 @@ const Dashboard = () => {
       {shouldShowAdjustPosition ? (
         <>
           <YourPosition />
-          <AdjustPosition collateralBalance={collateralBalance} debtBalance={debtBalance} />
+          <AdjustPosition
+            key={`adjust-${positionComponentKey}`}
+            collateralBalance={collateralBalance}
+            debtBalance={debtBalance}
+          />
         </>
       ) : (
         <>
           <ProtocolStats />
-          <OpenPosition />
+          <OpenPosition key={`open-${positionComponentKey}`} />
         </>
       )}
       <TransactionModal />
