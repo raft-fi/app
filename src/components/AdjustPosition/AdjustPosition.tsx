@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { TokenLogo } from 'tempus-ui';
+import { Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
@@ -846,7 +846,21 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <div className="raft__adjustPosition__data__position">
           <div className="raft__adjustPosition__data__position__title">
             <Typography variant="overline">POSITION AFTER</Typography>
-            <Icon variant="info" size="tiny" />
+            <TooltipWrapper
+              tooltipContent={
+                <Tooltip className="raft__adjustPosition__infoTooltip">
+                  <Typography variant="body2">
+                    Summary of your position after the transaction is executed.{' '}
+                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
+                      docs <Icon variant="external-link" size={10} />
+                    </Link>
+                  </Typography>
+                </Tooltip>
+              }
+              placement="top"
+            >
+              <Icon variant="info" size="tiny" />
+            </TooltipWrapper>
           </div>
           <ul className="raft__adjustPosition__data__position__data">
             <li className="raft__adjustPosition__data__position__data__deposit">
@@ -904,7 +918,21 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <div className="raft__adjustPosition__data__others">
           <div className="raft__adjustPosition__data__protocol-fee__title">
             <Typography variant="overline">PROTOCOL FEES</Typography>
-            <Icon variant="info" size="tiny" />
+            <TooltipWrapper
+              tooltipContent={
+                <Tooltip className="raft__adjustPosition__infoTooltip">
+                  <Typography variant="body2">
+                    Borrowing fees associated with your transaction. Read the docs for more information.{' '}
+                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
+                      docs <Icon variant="external-link" size={10} />
+                    </Link>
+                  </Typography>
+                </Tooltip>
+              }
+              placement="top"
+            >
+              <Icon variant="info" size="tiny" />
+            </TooltipWrapper>
           </div>
           <div className="raft__adjustPosition__data__protocol-fee__value">
             <Typography variant="body" weight="medium">

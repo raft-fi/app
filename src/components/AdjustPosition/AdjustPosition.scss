@@ -192,7 +192,7 @@
 }
 
 .raft__adjustPosition__infoTooltip {
-  max-width: 282px;
+  max-width: 200px;
 
   a {
     color: var(--textAccent);
@@ -201,9 +201,5 @@
   .raft__icon__externalLink {
     margin-left: 4px;
     --externalLinkColor: var(--textAccent);
-  }
-
-  .raft__adjustPosition__infoTooltipText {
-    line-height: 19px !important;
   }
 }
