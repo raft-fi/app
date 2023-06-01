@@ -2,6 +2,7 @@
 
 .raft__adjustPosition {
   @include sectionBox;
+  padding-top: 24px;
 
   .raft__adjustPosition__header {
     display: flex;
