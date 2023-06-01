@@ -251,15 +251,24 @@ const Wallet = () => {
               </Typography>
             </Button>
           </div>
-          {transactionHistory && (
-            <div className="raft__wallet_popupTransactions">
-              <div className="raft__wallet__popupTransactionsContainer">
-                {transactionHistory.map(transaction => {
+          <div className="raft__wallet_popupTransactions">
+            <div className="raft__wallet__popupTransactionsContainer">
+              {transactionHistory?.length ? (
+                transactionHistory.map(transaction => {
                   return <TransactionHistoryRow key={transaction.id} transaction={transaction} />;
-                })}
-              </div>
+                })
+              ) : (
+                <Typography
+                  className="raft__wallet__popupTransactionsContainer__empty"
+                  variant="body"
+                  weight="medium"
+                  color="text-secondary"
+                >
+                  No transactions
+                </Typography>
+              )}
             </div>
-          )}
+          </div>
           <div className="raft__wallet__popupActions">
             <Button
               variant="secondary"

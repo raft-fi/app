@@ -24,6 +24,7 @@
   }
 
   .raft__wallet__popup {
+    min-width: 496px;
     padding: 24px;
     box-sizing: border-box;
 
@@ -43,6 +44,9 @@
     }
 
     .raft__wallet__popupAddress {
+      /* TODO: hardcode color as suggested */
+      --textSecondary: var(--raft-grey-800);
+
       display: flex;
       align-items: center;
       justify-content: center;
@@ -93,18 +97,24 @@
       padding: 16px;
       box-sizing: border-box;
       background: var(--surfaceSecondary);
-      /* TODO: hardcode color as suggested */
-      border: 1px solid var(--raft-grey-200);
+      border: 1px solid var(--borderPrimary);
       border-radius: 8px;
 
       .raft__wallet__popupTransactionsContainer {
         /* TODO: hardcode color as suggested */
-        --externalLinkColor: var(--raft-grey-500);
+        --externalLinkColor: var(--raft-grey-600);
 
-        max-height: 256px;
+        height: 256px;
         overflow-y: scroll;
         display: flex;
         flex-direction: column;
+
+        .raft__wallet__popupTransactionsContainer__empty {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+        }
 
         /* width */
         &::-webkit-scrollbar {
