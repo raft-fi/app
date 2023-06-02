@@ -46,12 +46,12 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
   );
   const fromCollateralFormatted = useMemo(
     () =>
-      DecimalFormat.format(liquidationTransaction.collateralChange.abs(), {
+      DecimalFormat.format(liquidationTransaction.underlyingCollateralChange.abs(), {
         style: 'currency',
-        currency: liquidationTransaction.collateralToken,
+        currency: liquidationTransaction.underlyingCollateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       }),
-    [liquidationTransaction.collateralChange, liquidationTransaction.collateralToken],
+    [liquidationTransaction.underlyingCollateralChange, liquidationTransaction.underlyingCollateralToken],
   );
   const fromDebtFormatted = useMemo(
     () =>
@@ -66,10 +66,10 @@ const LiquidationModal: FC<LiquidationModalProps> = ({ walletAddress, liquidatio
     () =>
       DecimalFormat.format(Decimal.ZERO, {
         style: 'currency',
-        currency: liquidationTransaction.collateralToken,
+        currency: liquidationTransaction.underlyingCollateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       }),
-    [liquidationTransaction.collateralToken],
+    [liquidationTransaction.underlyingCollateralToken],
   );
   const toDebtFormatted = useMemo(
     () =>
