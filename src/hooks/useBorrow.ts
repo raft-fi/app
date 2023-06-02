@@ -96,6 +96,7 @@ const stream$ = combineLatest([borrow$]).pipe(
             userPosition.close({
               ...options,
               collateralToken: request.collateralToken,
+              gasLimitMultiplier: new Decimal(2),
             }),
           );
         } else {
@@ -103,6 +104,7 @@ const stream$ = combineLatest([borrow$]).pipe(
             userPosition.manage(collateralChange, debtChange, {
               ...options,
               collateralToken: request.collateralToken,
+              gasLimitMultiplier: new Decimal(2),
             }),
           );
         }
