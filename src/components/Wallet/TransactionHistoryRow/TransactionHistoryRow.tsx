@@ -13,15 +13,28 @@ interface TransactionHistoryRowProps {
 const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) => {
   const config = useConfig();
 
+  const [collateralChange, collateralToken] = useMemo(() => {
+    if (transaction.collateralChange && transaction.collateralToken) {
+      return [transaction.collateralChange, transaction.collateralToken];
+    }
+
+    return [transaction.underlyingCollateralChange, transaction.underlyingCollateralToken];
+  }, [
+    transaction.collateralChange,
+    transaction.collateralToken,
+    transaction.underlyingCollateralChange,
+    transaction.underlyingCollateralToken,
+  ]);
+
   const collateralChangeFormatted = useMemo(() => {
-    return DecimalFormat.format(transaction.collateralChange.abs(), {
+    return DecimalFormat.format(collateralChange.abs(), {
       style: 'currency',
-      currency: transaction.collateralToken,
+      currency: collateralToken,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
       pad: true,
     });
-  }, [transaction.collateralChange, transaction.collateralToken]);
+  }, [collateralChange, collateralToken]);
 
   const debtChangeFormatted = useMemo(() => {
     return DecimalFormat.format(transaction.debtChange.abs(), {
@@ -37,7 +50,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
     switch (transaction.type) {
       case 'ADJUST':
         // User only deposited more collateral
-        if (transaction.collateralChange.gt(0) && transaction.debtChange.isZero()) {
+        if (collateralChange.gt(0) && transaction.debtChange.isZero()) {
           return (
             <>
               <Typography variant="body2">Deposited&nbsp;</Typography>
@@ -48,7 +61,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           );
         }
         // User only borrowed more debt (R)
-        if (transaction.collateralChange.isZero() && transaction.debtChange.gt(0)) {
+        if (collateralChange.isZero() && transaction.debtChange.gt(0)) {
           return (
             <>
               <Typography variant="body2">Borrowed&nbsp;</Typography>
@@ -59,7 +72,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           );
         }
         // User only withdrew collateral
-        if (transaction.collateralChange.lt(0) && transaction.debtChange.isZero()) {
+        if (collateralChange.lt(0) && transaction.debtChange.isZero()) {
           return (
             <>
               <Typography variant="body2">Withdrew&nbsp;</Typography>
@@ -70,7 +83,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           );
         }
         // User only repaid debt (R)
-        if (transaction.collateralChange.isZero() && transaction.debtChange.lt(0)) {
+        if (collateralChange.isZero() && transaction.debtChange.lt(0)) {
           return (
             <>
               <Typography variant="body2">Repaid&nbsp;</Typography>
@@ -88,9 +101,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
             <Typography variant="body2" weight="semi-bold">
               {debtChangeFormatted}
             </Typography>
-            <Typography variant="body2">
-              &nbsp;and {transaction.collateralChange.lt(0) ? 'withdrew' : 'deposited'}&nbsp;
-            </Typography>
+            <Typography variant="body2">&nbsp;and {collateralChange.lt(0) ? 'withdrew' : 'deposited'}&nbsp;</Typography>
             <Typography variant="body2" weight="semi-bold">
               {collateralChangeFormatted}
             </Typography>
@@ -141,13 +152,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
           </>
         );
     }
-  }, [
-    transaction.collateralChange,
-    transaction.debtChange,
-    transaction.type,
-    debtChangeFormatted,
-    collateralChangeFormatted,
-  ]);
+  }, [transaction.type, transaction.debtChange, collateralChange, debtChangeFormatted, collateralChangeFormatted]);
 
   return (
     <Link href={`${config.blockExplorerUrl}/tx/${transaction.id}`} className="raft__wallet__popupTransaction">
