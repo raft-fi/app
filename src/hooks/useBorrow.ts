@@ -60,6 +60,8 @@ interface BorrowResponse {
   txnId: string;
 }
 
+const GAS_LIMIT_MULTIPLIER = new Decimal(2);
+
 const [borrow$, borrow] = createSignal<BorrowRequest>();
 const borrowStatus$ = new BehaviorSubject<Nullable<BorrowStatus>>(null);
 
@@ -96,7 +98,7 @@ const stream$ = combineLatest([borrow$]).pipe(
             userPosition.close({
               ...options,
               collateralToken: request.collateralToken,
-              gasLimitMultiplier: new Decimal(2),
+              gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
             }),
           );
         } else {
@@ -104,7 +106,7 @@ const stream$ = combineLatest([borrow$]).pipe(
             userPosition.manage(collateralChange, debtChange, {
               ...options,
               collateralToken: request.collateralToken,
-              gasLimitMultiplier: new Decimal(2),
+              gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
             }),
           );
         }
