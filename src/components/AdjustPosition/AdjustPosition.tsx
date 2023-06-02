@@ -363,7 +363,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     const collateralAmountInDisplayToken = newCollateralInDisplayToken?.value || currentCollateralInDisplayToken?.value;
     const debtAmount = newDebtTokenValues?.value || currentDebtTokenValues?.value;
 
-    if (!collateralAmountInDisplayToken || !debtAmount || debtAmount.isZero()) {
+    if (!collateralAmountInDisplayToken || !debtAmount || debtAmount.lte(0)) {
       return null;
     }
 
@@ -411,6 +411,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       borrowAmountDecimal.gte(0),
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
   );
+  const hasNonNegativeDebt = useMemo(() => !newDebtTokenValues.amount?.lt(0), [newDebtTokenValues.amount]);
 
   const formattedMissingBorrowAmount = useMemo(() => {
     if (!tokenBalanceMap[R_TOKEN]) {
@@ -619,6 +620,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [hasEnoughCollateralTokenBalance, hasEnoughToWithdraw, hasMinNewRatio]);
 
   const debtErrorMsg = useMemo(() => {
+    if (!hasNonNegativeDebt) {
+      return 'Repayment amount larger than your outstanding debt';
+    }
+
     if (!hasMinBorrow) {
       return 'Borrow below the minimum amount';
     }
@@ -626,7 +631,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (!hasMinNewRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
-  }, [hasMinBorrow, hasMinNewRatio]);
+  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt]);
 
   const buttonLabel = useMemo(() => {
     // data not yet loaded will set executionSteps = 1, always show "Execution"
@@ -634,7 +639,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return borrowStatus?.pending ? 'Executing (1/1)' : 'Execute (1/1)';
     }
 
-    if (!hasEnoughDebtTokenBalance) {
+    if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt) {
       return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
     }
 
@@ -666,6 +671,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return `Execute (${executedSteps}/${executionSteps})`;
   }, [
     hasEnoughDebtTokenBalance,
+    hasNonNegativeDebt,
     hasWhitelisted,
     hasEnoughCollateralAllowance,
     selectedCollateralToken,
@@ -892,7 +898,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             <li className="raft__adjustPosition__data__position__data__debt">
               <TokenLogo type={`token-${R_TOKEN}`} size={20} />
               <ValueLabel
-                value={newDebtTokenValues.amountFormatted ?? `0.00 ${R_TOKEN}`}
+                value={
+                  newDebtTokenValues.amountFormatted && newDebtTokenValues.amount?.gt(0)
+                    ? newDebtTokenValues.amountFormatted
+                    : `0.00 ${R_TOKEN}`
+                }
                 valueSize="body"
                 tickerSize="caption"
               />
