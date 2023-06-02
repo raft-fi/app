@@ -442,6 +442,11 @@ const OpenPosition = () => {
       return 'Connect wallet';
     }
 
+    // data not yet loaded will set executionSteps = 1, always show "Execution"
+    if (executionSteps === 1) {
+      return borrowStatus?.pending ? 'Executing (1/1)' : 'Execute (1/1)';
+    }
+
     if (!hasWhitelisted) {
       return whitelistDelegateStatus?.pending
         ? `Whitelisting stETH (${executedSteps}/${executionSteps})`
