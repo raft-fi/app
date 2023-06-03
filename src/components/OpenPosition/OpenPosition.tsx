@@ -51,7 +51,7 @@ const DEFAULT_MAP = TOKENS.reduce(
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
-  const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
+  const { isWrongNetwork } = useNetwork();
 
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
@@ -300,8 +300,8 @@ const OpenPosition = () => {
     [collateralizationRatio],
   );
   const canBorrow = useMemo(
-    () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio,
-    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio],
+    () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio && !isWrongNetwork,
+    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork],
   );
 
   const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
@@ -318,10 +318,12 @@ const OpenPosition = () => {
   const executionSteps = useMemo(() => {
     // if whitelist map not yet ready,
     // or allowance map not yet ready,
+    // or wrong network,
     // return 1
     if (
       tokenWhitelistMapWhenLoaded[selectedCollateralToken] === null ||
-      tokenAllowanceMapWhenLoaded[selectedCollateralToken] === null
+      tokenAllowanceMapWhenLoaded[selectedCollateralToken] === null ||
+      isWrongNetwork
     ) {
       return 1;
     }
@@ -372,6 +374,7 @@ const OpenPosition = () => {
     collateralTokenValues.amount,
     hasApprovalProceeded,
     hasWhitelistProceeded,
+    isWrongNetwork,
     selectedCollateralToken,
     tokenAllowanceMapWhenLoaded,
     tokenSignatureMap,
@@ -379,6 +382,10 @@ const OpenPosition = () => {
   ]);
   // steps that user has proceeded since component loaded
   const executedSteps = useMemo(() => {
+    if (isWrongNetwork) {
+      return 1;
+    }
+
     let whitelistStep = 0;
 
     if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
@@ -417,6 +424,7 @@ const OpenPosition = () => {
     hasEnoughCollateralAllowance,
     hasWhitelistProceeded,
     hasWhitelisted,
+    isWrongNetwork,
     selectedCollateralToken,
     tokenSignatureMap,
   ]);
@@ -813,27 +821,17 @@ const OpenPosition = () => {
         </div>
       </div>
       <div className="raft__openPosition__action">
-        {isWrongNetwork ? (
-          <Button
-            className="raft__openPosition__action__wrongNetwork"
-            variant="error"
-            size="large"
-            text="Unsupported network"
-            onClick={switchToSupportedNetwork}
-          />
-        ) : (
-          <Button
-            variant="primary"
-            size="large"
-            onClick={walletConnected ? onAction : onConnectWallet}
-            disabled={buttonDisabled}
-          >
-            {actionButtonState === 'loading' && <Loading />}
-            <Typography variant="button-label" color="text-primary-inverted">
-              {buttonLabel}
-            </Typography>
-          </Button>
-        )}
+        <Button
+          variant="primary"
+          size="large"
+          onClick={walletConnected ? onAction : onConnectWallet}
+          disabled={buttonDisabled}
+        >
+          {actionButtonState === 'loading' && <Loading />}
+          <Typography variant="button-label" color="text-primary-inverted">
+            {buttonLabel}
+          </Typography>
+        </Button>
       </div>
     </div>
   );
