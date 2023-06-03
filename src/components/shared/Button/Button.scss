@@ -70,6 +70,7 @@
 
   &.raft__button-error {
     background-color: var(--btnError);
+    border-color: var(--btnErrorBorder);
 
     &:not([data-disabled='true']):focus,
     &:not([data-disabled='true']):hover,
