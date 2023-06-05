@@ -22,6 +22,7 @@ import {
   DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
+  MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -718,7 +719,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       pad: true,
     });
 
-    if (borrowingFeeAmount.gte(0.01)) {
+    if (borrowingFeeAmount.gte(MINIMUM_UI_AMOUNT_FOR_BORROW_FEE)) {
       return `~${borrowingFeeAmountFormatted}`;
     } else {
       return borrowingFeeAmountFormatted;

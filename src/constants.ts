@@ -20,3 +20,4 @@ export const DISPLAY_BASE_TOKEN = 'stETH';
 export const COLLATERAL_BASE_TOKEN = 'wstETH';
 export const ZERO_ADDRESS = '0x0';
 export const INPUT_PREVIEW_DIGITS = 4;
+export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
