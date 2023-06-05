@@ -276,6 +276,20 @@ const OpenPosition = () => {
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
   const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
 
+  const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
+  const rTokenBalanceFormatted = useMemo(() => {
+    if (!rTokenBalance) {
+      return '';
+    }
+
+    return DecimalFormat.format(rTokenBalance, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+    });
+  }, [rTokenBalance]);
+
   const minBorrowFormatted = useMemo(() => DecimalFormat.format(MIN_BORROW_AMOUNT, { style: 'decimal' }), []);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
@@ -734,6 +748,8 @@ const OpenPosition = () => {
           tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse ?? undefined}
+          maxAmount={selectedCollateralTokenBalanceValues.amount}
+          maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
           onBlur={handleCollateralTokenBlur}
@@ -748,6 +764,8 @@ const OpenPosition = () => {
           tokens={[R_TOKEN]}
           value={borrowAmount}
           previewValue={borrowAmountWithEllipse ?? undefined}
+          maxAmount={rTokenBalance}
+          maxAmountFormatted={rTokenBalanceFormatted ?? undefined}
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
           error={!hasMinBorrow || !hasMinRatio}

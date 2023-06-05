@@ -15,6 +15,31 @@
       display: flex;
       align-items: center;
     }
+
+    .raft__currencyInput__maxAmount {
+      .raft__currencyInput__maxAmountValue {
+        display: flex;
+        align-items: center;
+
+        // TODO: remove the following css and update ValueLabel
+        .raft__valueLabel{
+          > div:nth-child(1) {
+            line-height: 14px !important;
+            color: var(--raft-grey-800) !important;
+          }
+
+          > div:nth-child(2) {
+            font-size: 12px !important;
+            line-height: 14px !important;
+            color: var(--raft-grey-800) !important;
+          }
+        }
+
+        svg {
+          margin-right: 8px;
+        }
+      }
+    }
   }
 
   .raft__currencyInput__inputContainer {

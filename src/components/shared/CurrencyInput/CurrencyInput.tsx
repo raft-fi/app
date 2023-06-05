@@ -1,10 +1,12 @@
 import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo } from 'react';
+import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';
 import Icon from '../Icon';
 import Menu from '../Menu';
+import ValueLabel from '../ValueLabel';
 
 import './CurrencyInput.scss';
 
@@ -30,6 +32,8 @@ export interface CurrencyInputProps extends BaseInputProps {
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
+  maxAmount?: Nullable<Decimal>;
+  maxAmountFormatted?: string;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
@@ -47,6 +51,8 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     tokens,
     allowNegativeNumbers = false,
     maxIntegralDigits = MAX_INTEGRAL_DIGIT,
+    maxAmount,
+    maxAmountFormatted = '',
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
@@ -132,6 +138,21 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         <Typography className="raft__currencyInput__title" variant="overline">
           {label}
         </Typography>
+        <div className="raft__currencyInput__maxAmount">
+          {maxAmount && (
+            <div className="raft__currencyInput__maxAmountValue">
+              <Icon variant="wallet" size="tiny" />
+              <div className="raft__currencyInput__maxAmountValue">
+                <ValueLabel
+                  valueSize="caption"
+                  tickerSize="body2"
+                  color="text-secondary"
+                  value={maxAmountFormatted ?? maxAmount?.toString()}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <div
         className={`raft__currencyInput__inputContainer
