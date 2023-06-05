@@ -23,6 +23,8 @@ import {
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
+  INVERSE_R_BORROWING_RATE,
+  R_FEE_THRESHOLD,
 } from '../../constants';
 import { Nullable } from '../../interfaces';
 import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
@@ -412,6 +414,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [borrowAmountDecimal, debtTokenBalanceValues.amount],
   );
   const hasNonNegativeDebt = useMemo(() => !newDebtTokenValues.amount?.lt(0), [newDebtTokenValues.amount]);
+
+  const borrowingFees = useMemo(() => {
+    console.log(borrowAmountDecimal);
+    if (borrowAmountDecimal.gt(0)) {
+      if (borrowAmountDecimal.lte(R_FEE_THRESHOLD)) {
+        return '<0.01';
+      }
+
+      return `~${borrowAmountDecimal.div(INVERSE_R_BORROWING_RATE).toTruncated(2)}`;
+    }
+
+    return null;
+  }, [borrowAmountDecimal]);
 
   const formattedMissingBorrowAmount = useMemo(() => {
     if (!tokenBalanceMap[R_TOKEN]) {
@@ -951,7 +966,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           </div>
           <div className="raft__adjustPosition__data__protocol-fee__value">
             <Typography variant="body" weight="medium">
-              Free
+              {borrowingFees ? (
+                <ValueLabel value={`${borrowingFees} ${R_TOKEN}`} valueSize="body" tickerSize="caption" />
+              ) : (
+                '0'
+              )}
             </Typography>
           </div>
         </div>

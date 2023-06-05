@@ -26,6 +26,7 @@ import {
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
+  INVERSE_R_BORROWING_RATE,
 } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
 import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
@@ -646,6 +647,14 @@ const OpenPosition = () => {
     return `~${borrowTokenValues.valueFormatted}`;
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
+  const borrowingFees = useMemo(
+    () =>
+      borrowTokenValues?.amount && !borrowTokenValues.amount.isZero()
+        ? borrowTokenValues.amount.div(INVERSE_R_BORROWING_RATE).toTruncated(2)
+        : null,
+    [borrowTokenValues.amount],
+  );
+
   const handleMaxButtonClick = useCallback(() => {
     if (
       selectedCollateralTokenBalanceValues.amount &&
@@ -815,7 +824,11 @@ const OpenPosition = () => {
           </div>
           <div className="raft__openPosition__data__protocol-fee__value">
             <Typography variant="body" weight="medium">
-              Free
+              {borrowingFees ? (
+                <ValueLabel value={`~${borrowingFees} ${R_TOKEN}`} valueSize="body" tickerSize="caption" />
+              ) : (
+                '0'
+              )}
             </Typography>
           </div>
         </div>
