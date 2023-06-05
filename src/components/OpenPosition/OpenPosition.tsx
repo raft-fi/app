@@ -16,6 +16,7 @@ import {
   useWhitelistDelegate,
   TokenWhitelistMap,
   TokenAllowanceMap,
+  useCollateralBorrowingRate,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -25,6 +26,7 @@ import {
   INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
+  R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
@@ -58,6 +60,7 @@ const OpenPosition = () => {
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
+  const borrowingRate = useCollateralBorrowingRate();
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
   const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
@@ -646,6 +649,34 @@ const OpenPosition = () => {
     return `~${borrowTokenValues.valueFormatted}`;
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
+  const borrowingFeeAmount = useMemo(() => {
+    if (!borrowingRate) {
+      return null;
+    }
+
+    return Decimal.parse(borrowAmount, 0).mul(borrowingRate);
+  }, [borrowAmount, borrowingRate]);
+
+  const borrowingFeeAmountFormatted = useMemo(() => {
+    if (!borrowingFeeAmount) {
+      return null;
+    }
+
+    const borrowingFeeAmountFormatted = DecimalFormat.format(borrowingFeeAmount, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+
+    if (borrowingFeeAmount.gte(0.01)) {
+      return `~${borrowingFeeAmountFormatted}`;
+    } else {
+      return borrowingFeeAmountFormatted;
+    }
+  }, [borrowingFeeAmount]);
+
   const handleMaxButtonClick = useCallback(() => {
     if (
       selectedCollateralTokenBalanceValues.amount &&
@@ -814,9 +845,11 @@ const OpenPosition = () => {
             </TooltipWrapper>
           </div>
           <div className="raft__openPosition__data__protocol-fee__value">
-            <Typography variant="body" weight="medium">
-              Free
-            </Typography>
+            <ValueLabel
+              value={borrowingFeeAmountFormatted ?? `0.00 ${R_TOKEN}`}
+              valueSize="body"
+              tickerSize="caption"
+            />
           </div>
         </div>
       </div>

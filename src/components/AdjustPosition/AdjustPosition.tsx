@@ -8,6 +8,7 @@ import {
   TokenWhitelistMap,
   useApprove,
   useBorrow,
+  useCollateralBorrowingRate,
   useTokenAllowances,
   useTokenBalances,
   useTokenPrices,
@@ -21,7 +22,9 @@ import {
   DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
+  MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
+  R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { Nullable } from '../../interfaces';
@@ -58,6 +61,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenPriceMap = useTokenPrices();
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
+  const borrowingRate = useCollateralBorrowingRate();
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -690,6 +694,38 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
+  const borrowingFeeAmount = useMemo(() => {
+    if (!borrowingRate) {
+      return null;
+    }
+
+    return borrowAmountDecimal.mul(borrowingRate);
+  }, [borrowAmountDecimal, borrowingRate]);
+
+  const borrowingFeeAmountFormatted = useMemo(() => {
+    if (!borrowingFeeAmount) {
+      return null;
+    }
+
+    if (borrowAmountDecimal.lte(0)) {
+      return 'Free';
+    }
+
+    const borrowingFeeAmountFormatted = DecimalFormat.format(borrowingFeeAmount, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+
+    if (borrowingFeeAmount.gte(MINIMUM_UI_AMOUNT_FOR_BORROW_FEE)) {
+      return `~${borrowingFeeAmountFormatted}`;
+    } else {
+      return borrowingFeeAmountFormatted;
+    }
+  }, [borrowAmountDecimal, borrowingFeeAmount]);
+
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
       if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
@@ -950,9 +986,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
             </TooltipWrapper>
           </div>
           <div className="raft__adjustPosition__data__protocol-fee__value">
-            <Typography variant="body" weight="medium">
-              Free
-            </Typography>
+            <ValueLabel
+              value={borrowingFeeAmountFormatted ?? `0.00 ${R_TOKEN}`}
+              valueSize="body"
+              tickerSize="caption"
+            />
           </div>
         </div>
       </div>
