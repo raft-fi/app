@@ -11,6 +11,7 @@ import {
   subscribeTokenAllowances,
   subscribeTokenWhitelists,
   subscribeAppLoaded,
+  subscribeCollateralBorrowingRate,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -29,6 +30,7 @@ const HookSubscriber: FC = () => {
     subscribeTransactionHistory();
     subscribeTokenAllowances();
     subscribeTokenWhitelists();
+    subscribeCollateralBorrowingRate();
   }, []);
 
   return null;

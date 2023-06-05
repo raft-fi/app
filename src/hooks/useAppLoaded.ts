@@ -3,6 +3,7 @@ import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rx
 import { collateralBalance$ } from './useCollateralBalance';
 import { debtBalance$ } from './useDebtBalance';
 import { wallet$ } from './useWallet';
+import { collateralBorrowingRate$ } from './useCollateralBorrowingRate';
 
 const DEFAULT_VALUE = false;
 const CHECK_INTERVAL = 1000;
@@ -14,8 +15,9 @@ const stream$ = interval(CHECK_INTERVAL).pipe(
     const wallet = wallet$.getValue();
     const collateralBalance = collateralBalance$.getValue();
     const debtBalance = debtBalance$.getValue();
+    const borrowingRate = collateralBorrowingRate$.getValue();
 
-    return Boolean(count && (!wallet || (wallet && collateralBalance && debtBalance)));
+    return Boolean(count && borrowingRate && (!wallet || (wallet && collateralBalance && debtBalance)));
   }),
   tap(loaded => appLoaded$.next(loaded)),
   takeWhile(loaded => !loaded),
