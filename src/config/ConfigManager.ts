@@ -8,6 +8,7 @@ class ConfigManager {
 
   constructor() {
     RaftConfig.setNetwork(NETWORK);
+    RaftConfig.setSubgraphEndpoint(import.meta.env.VITE_SUBGRAPH_URL);
   }
 
   getConfig(): ChainConfig {
