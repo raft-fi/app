@@ -5,6 +5,7 @@ const FALLBACK_NETWORK: SupportedNetwork = 'goerli';
 export const NETWORK: SupportedNetwork = import.meta.env.VITE_NETWORK ?? FALLBACK_NETWORK;
 
 RaftConfig.setNetwork(NETWORK);
+RaftConfig.setSubgraphEndpoint(import.meta.env.VITE_SUBGRAPH_URL);
 
 const config: Config = {
   mainnet: {
