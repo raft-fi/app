@@ -14,7 +14,7 @@ import { Typography } from '../shared';
 
 import './ProtocolStats.scss';
 
-const collateralThreshold = 10000; // 10k
+const collateralThreshold = 1000; // 1k
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
