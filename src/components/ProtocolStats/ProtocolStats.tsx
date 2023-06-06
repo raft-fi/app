@@ -14,6 +14,8 @@ import { Typography } from '../shared';
 
 import './ProtocolStats.scss';
 
+const collateralThreshold = 1000; // 1k
+
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
@@ -41,16 +43,22 @@ const ProtocolStats = () => {
     return getTokenValues(protocolStats.debtSupply, tokenPriceMap[R_TOKEN], R_TOKEN);
   }, [protocolStats, tokenPriceMap]);
 
-  const collateralTotalSupplyAmountFormatted = useMemo(
-    () =>
-      collateralTotalSupplyValues?.amount
-        ? DecimalFormat.format(collateralTotalSupplyValues.amount, {
-            style: 'decimal',
-            fractionDigits: 0,
-          })
-        : null,
-    [collateralTotalSupplyValues?.amount],
-  );
+  const collateralTotalSupplyAmountFormatted = useMemo(() => {
+    if (collateralTotalSupplyValues?.amount) {
+      let fractionDigits = COLLATERAL_TOKEN_UI_PRECISION;
+
+      if (collateralTotalSupplyValues?.amount.gte(collateralThreshold)) {
+        fractionDigits = 0;
+      }
+
+      return DecimalFormat.format(collateralTotalSupplyValues.amount, {
+        style: 'decimal',
+        fractionDigits,
+      });
+    }
+
+    return null;
+  }, [collateralTotalSupplyValues?.amount]);
   const collateralTotalSupplyValueFormatted = useMemo(
     () =>
       collateralTotalSupplyValues?.value
