@@ -1,0 +1,102 @@
+.raft__your-position {
+  /* TODO: hardcode color as suggested */
+  background: var(--raft-blue-900);
+  border-radius: 8px;
+  width: 856px;
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .raft__your-position__collateral,
+  .raft__your-position__debt,
+  .raft__your-position__ratio {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-blue-500);
+
+    display: flex;
+    flex-direction: column;
+    padding: 16px 32px;
+    height: 128px;
+    box-sizing: border-box;
+    flex: 1;
+
+    &:not(:first-child) {
+      /* TODO: hardcode color as suggested */
+      border-left: 1px solid var(--raft-grey-700);
+    }
+  }
+
+  .raft__your-position__collateral__amount,
+  .raft__your-position__debt__amount {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-100);
+
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+
+    .common-ui__logo {
+      margin-right: 10px;
+      border-radius: 50%;
+      box-shadow: var(--shadowPrimary);
+    }
+  }
+
+  .raft__your-position__collateral__amount__number,
+  .raft__your-position__debt__amount__number {
+    display: flex;
+    align-items: baseline;
+
+    :last-child {
+      margin-left: 4px;
+    }
+  }
+
+  .raft__your-position__collateral__value__number,
+  .raft__your-position__debt__value__number {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-500);
+
+    display: flex;
+    align-items: baseline;
+    margin-top: 8px;
+  }
+
+  .raft__your-position__ratio__percent {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-100);
+
+    display: flex;
+    align-items: baseline;
+    margin-top: 16px;
+  }
+
+  .raft__your-position__ratio__status {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-500);
+
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+
+    .raft__your-position__ratio__status__color {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+
+      &.status-risk-low {
+        background-color: var(--statusLowRisk);
+      }
+
+      &.status-risk-medium {
+        background-color: var(--statusMediumRisk);
+      }
+
+      &.status-risk-high {
+        background-color: var(--statusHighRisk);
+      }
+    }
+  }
+}

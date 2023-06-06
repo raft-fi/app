@@ -1,0 +1,65 @@
+.raft__transactionSuccessModal {
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 496px;
+
+  .raft__transactionSuccessModal__icon {
+    margin-top: 36px;
+  }
+
+  .raft__transactionSuccessModal__title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .raft__transactionSuccessModal__subtitle {
+    margin-top: 16px;
+  }
+
+  .raft__transactionSuccessModal__explorerLink {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-top: 24px;
+
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-600);
+
+    .common-ui__link {
+      text-decoration: none;
+      color: var(--textAccent);
+    }
+  }
+
+  .raft__transactionSuccessModal__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+    width: 100%;
+
+    .raft__transactionSuccessModal__action {
+      margin: 0 8px;
+      width: 100%;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      .raft__button {
+        width: 100%;
+      }
+    }
+  }
+}

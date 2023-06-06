@@ -1,0 +1,54 @@
+.raft__valuesBox {
+  padding: 16px;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+
+  .raft__valuesBox__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px dashed var(--borderPrimary);
+    }
+
+    .raft__valuesBox__itemLabel {
+      display: flex;
+      align-items: flex-end;
+
+      div:nth-child(2) {
+        margin-left: 8px;
+      }
+    }
+
+    .raft__valuesBox__itemValue {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .raft__valuesBox__itemValueMultiple {
+      .raft__valueLabel {
+        width: 150px;
+      }
+
+      .raft__valueLabel:not(:first-child) {
+        justify-content: flex-end;
+      }
+
+      .raft__icon__arrowRightThin {
+        margin: 0px 16px;
+      }
+    }
+  }
+}

@@ -1,0 +1,199 @@
+.raft__currencyInput {
+  position: relative;
+  width: 100%;
+
+  .raft__currencyInput__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    .raft__currencyInput__title {
+      /* TODO: hardcode color as suggested */
+      --textPrimary: var(--raft-grey-600);
+
+      display: flex;
+      align-items: center;
+    }
+
+    .raft__currencyInput__maxAmount {
+      .raft__currencyInput__maxAmountValue {
+        display: flex;
+        align-items: center;
+
+        // TODO: remove the following css and update ValueLabel
+        .raft__valueLabel{
+          > div:nth-child(1) {
+            line-height: 14px !important;
+            color: var(--raft-grey-800) !important;
+          }
+
+          > div:nth-child(2) {
+            font-size: 12px !important;
+            line-height: 14px !important;
+            color: var(--raft-grey-800) !important;
+          }
+        }
+
+        svg {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  .raft__currencyInput__inputContainer {
+    height: 48px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    /* TODO: hardcode color as suggested */
+    border-bottom: 1px solid var(--raft-grey-500);
+
+    .raft__currencyInput__amountContainer {
+      width: 100%;
+      min-width: 0px;
+      margin-right: 8px;
+
+      .raft__currencyInput__amount {
+        /* TODO: hardcode color as suggested */
+        --text-secondary: var(--raft-grey-500);
+
+        .raft__baseInput {
+          width: 100%;
+          padding: 0px;
+          color: inherit;
+          font: inherit;
+          background-color: transparent;
+          border: none;
+
+          &:focus {
+            outline: none;
+          }
+
+          &::placeholder {
+            opacity: 1;
+            color: var(--textPrimary);
+          }
+        }
+      }
+    }
+
+    .raft__currencyInput__tokenSelectorContainer {
+      position: relative;
+      margin-right: -4px;
+
+      &.raft__currencyInput__tokenSelectorContainer__single {
+        margin-right: initial;
+      }
+
+      .raft__currencyInput__tokenSelector {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+
+        &.raft__currencyInput__tokenSelector__single {
+          cursor: default;
+        }
+
+        .raft__currencyInput__tokenLabel {
+          padding-left: 8px;
+        }
+
+        .raft__currencyInput__tokenLogoContainer {
+          width: 24px;
+          height: 24px;
+          box-shadow: var(--shadowPrimary);
+          border-radius: 50%;
+        }
+
+        .raft__icon {
+          margin-left: 4px;
+        }
+      }
+
+      .raft__currencyInput__dropdownContainer {
+        background-color: var(--surfaceSecondary);
+        box-shadow: var(--shadowMenu);
+        border-radius: 8px;
+
+        .raft__currencyInput__dropdownItem {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          width: 100%;
+          padding: 12px;
+          box-sizing: border-box;
+
+          .raft__currencyInput__dropdownTokenLogoContainer {
+            width: 24px;
+            height: 24px;
+            box-shadow: var(--shadowPrimary);
+            border-radius: 50%;
+            margin-right: 12px;
+          }
+
+          &:hover {
+            background-color: var(--surfaceSecondary);
+          }
+
+          &:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+          }
+
+          &:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+          }
+
+          &:not(:last-child) {
+            /* TODO: hardcode color as suggested */
+            border-bottom: 1px solid var(--raft-grey-200);
+          }
+        }
+      }
+    }
+
+    &.raft__currencyInput__inputContainerError {
+      /* TODO: hardcode color as suggested */
+      --textError: var(--raft-red-700);
+
+      /* TODO: hardcode color as suggested */
+      border-color: var(--raft-red-700);
+    }
+
+    &.raft__currencyInput__inputContainerDisabled {
+      /* TODO: hardcode color as suggested */
+      border-color: var(--raft-grey-300);
+
+      .raft__currencyInput__tokenLogoContainer {
+        opacity: 0.7;
+      }
+
+      .raft__currencyInput__tokenLabel {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-600);
+      }
+    }
+  }
+
+  .raft__currencyInput__errorContainer {
+    height: 16px;
+    padding-top: 4px;
+  }
+
+  .raft__currencyInput__disabledOverlay {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
+}
+
+.raft__currencyInputDisabled {
+  opacity: 0.5;
+}

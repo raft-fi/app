@@ -1,0 +1,167 @@
+.raft__header {
+  position: relative;
+  width: 100%;
+  padding: var(--app-padding);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  z-index: 3;
+
+  .raft__header__nav-item a,
+  .raft__header__menu-link {
+    text-decoration: none;
+  }
+
+  .raft__header__link-active {
+    --textPrimary: var(--headerActive);
+  }
+
+  .raft__header__container {
+    width: var(--app-width);
+
+    .common-ui__header {
+      --headerLogoWidthMobile: initial;
+      --headerNavItemRightMargin: 32px;
+      --headerHeight: 115px;
+
+      position: relative;
+      z-index: 3;
+
+      .raft__header__link-active {
+        --textPrimary: var(--headerActive);
+      }
+
+      .raft__header__link-inactive {
+        --textPrimary: var(--headerInactive);
+
+        &:hover {
+          --textPrimary: var(--headerActive);
+        }
+      }
+
+      .raft__header__menu-link {
+        --textPrimary: var(--headerInactive);
+
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 72px;
+
+        .raft__header__menu-link-label {
+          display: flex;
+          align-items: center;
+
+          > * {
+            margin-right: 8px;
+          }
+        }
+
+        &.common-ui__btn {
+          justify-content: space-between;
+        }
+      }
+
+      .raft__locale-switcher {
+        margin-right: 44px;
+        position: relative;
+
+        .raft__locale-switcher__button {
+          --chevronDownColor: var(--headerInactive);
+          --chevronUpColor: var(--headerInactive);
+          --globeColor: var(--headerInactive);
+          --textPrimary: var(--headerInactive);
+
+          &:hover {
+            --chevronDownColor: var(--headerActive);
+            --chevronUpColor: var(--headerActive);
+            --globeColor: var(--headerActive);
+            --textPrimary: var(--headerActive);
+
+            .raft__header__link-inactive {
+              --textPrimary: var(--headerActive);
+            }
+          }
+        }
+
+        > button {
+          > :not(:first-child) {
+            margin-left: 8px;
+          }
+
+          > :last-child {
+            margin-left: 4px;
+          }
+        }
+
+        .raft__locale-switcher__backdrop {
+          position: fixed;
+          width: 100vw;
+          height: 100vh;
+          top: 0;
+          left: 0;
+          z-index: 10;
+          cursor: default;
+        }
+
+        .raft__locale-switcher__menu {
+          position: absolute;
+          background-color: var(--surfacePrimary);
+          box-shadow: var(--shadowMenu);
+          width: 180px;
+          top: 50px;
+          left: 0;
+          border-radius: 8px;
+          z-index: 11;
+
+          > ul {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            list-style: none;
+
+            > li {
+              > button {
+                --textPrimary: var(--colorBlack);
+
+                padding: 28px 16px;
+                position: relative;
+              }
+
+              &:hover {
+                background-color: var(--surfacePrimary);
+              }
+
+              &:first-of-type {
+                border-radius: 8px 8px 0 0;
+              }
+
+              &:last-of-type {
+                border-radius: 0 0 8px 8px;
+              }
+
+              &:not(:last-child) {
+                border-bottom: 1px solid var(--raftBackgroundBlue);
+              }
+            }
+          }
+
+          button {
+            width: 100%;
+            justify-content: flex-start;
+          }
+        }
+      }
+    }
+  }
+}
+
+.common-ui__header__menu {
+  /* TODO: no mobile menu for now */
+  display: none !important;
+}
+
+.common-ui__header .common-ui__header__nav-items {
+  /* TODO: always show wallet button for now */
+  display: flex !important;
+}

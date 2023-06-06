@@ -15,12 +15,27 @@ import Error from './Error';
 import Success from './Success';
 import ArrowDown from './ArrowDown';
 import Globe from './Globe';
+import Geoblock from './Geoblock';
+import Profile from './Profile';
+import Wallet from './Wallet';
+import Close from './Close';
+import Copy from './Copy';
+import Info from './Info';
+import TransactionFailed from './TransactionFailed';
+import TransactionSuccess from './TransactionSuccess';
+import PositionChanged from './PositionChanged';
+import UnsupportedNetwork from './UnsupportedNetwork';
+import ArrowRightThin from './ArrowRightThin';
+import Checkmark from './Checkmark';
+import ArrowUp from './ArrowUp';
+import Gitbook from './Gitbook';
 
 type IconVariant =
   | 'discord'
   | 'telegram'
   | 'twitter'
   | 'github'
+  | 'gitbook'
   | 'favorite'
   | 'error'
   | 'success'
@@ -31,13 +46,27 @@ type IconVariant =
   | 'external-link'
   | 'arrow-right'
   | 'arrow-down'
-  | 'globe';
+  | 'arrow-up'
+  | 'globe'
+  | 'geoblock'
+  | 'profile'
+  | 'wallet'
+  | 'close'
+  | 'copy'
+  | 'info'
+  | 'transaction-failed'
+  | 'transaction-success'
+  | 'position-changed'
+  | 'unsupported-network'
+  | 'arrow-right-thin'
+  | 'checkmark';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
   telegram: Telegram,
   twitter: Twitter,
   github: GitHub,
+  gitbook: Gitbook,
   favorite: Favorite,
   error: Error,
   success: Success,
@@ -48,7 +77,20 @@ const ICON_MAP: IconMap = {
   'external-link': ExternalLink,
   'arrow-right': ArrowRight,
   'arrow-down': ArrowDown,
+  'arrow-up': ArrowUp,
   globe: Globe,
+  geoblock: Geoblock,
+  profile: Profile,
+  wallet: Wallet,
+  close: Close,
+  copy: Copy,
+  info: Info,
+  'transaction-failed': TransactionFailed,
+  'transaction-success': TransactionSuccess,
+  'position-changed': PositionChanged,
+  'unsupported-network': UnsupportedNetwork,
+  'arrow-right-thin': ArrowRightThin,
+  checkmark: Checkmark,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;

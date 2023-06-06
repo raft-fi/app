@@ -1,0 +1,50 @@
+.raft__networkErrorModal {
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 496px;
+
+  .raft__networkErrorModal__header {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+
+    .raft__networkErrorModal__header__close {
+      /* TODO: hardcode color as suggested */
+      --closeColor: var(--raft-grey-600);
+    }
+  }
+
+  .raft__networkErrorModal__icon {
+    margin-bottom: 16px;
+  }
+
+  .raft__networkErrorModal__title {
+    margin-bottom: 16px;
+  }
+
+  .raft__networkErrorModal__subtitle {
+    margin-bottom: 32px;
+  }
+
+  .raft__networkErrorModal__actions {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .raft__networkErrorModal__action {
+      width: 100%;
+
+      &:not(:last-child) {
+        margin-right: 24px;
+      }
+
+      .raft__button {
+        width: 100%;
+      }
+    }
+  }
+}

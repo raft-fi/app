@@ -1,0 +1,94 @@
+.raft__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+
+  &.raft__button-size-medium {
+    height: 40px;
+    padding: 16px;
+  }
+
+  &.raft__button-size-large {
+    height: 48px;
+    padding: 16px 24px;
+  }
+
+  &.raft__button-primary {
+    --textPrimary: var(--textPrimaryInverted);
+    background-color: var(--btnPrimary);
+
+    &[data-disabled='true'] {
+      --textPrimary: var(--btnPrimaryDisabledText);
+      background-color: var(--btnPrimaryDisabled);
+    }
+
+    &:not([data-disabled='true']):focus {
+      border-color: var(--colorWhite);
+    }
+
+    &:not([data-disabled='true']):hover {
+      background-color: var(--btnPrimaryHover);
+    }
+
+    &[data-selected='true'],
+    &:not([data-disabled='true']):active {
+      background-color: var(--btnPrimaryActive);
+    }
+  }
+
+  &.raft__button-secondary {
+    background-color: var(--btnSecondary);
+    border-color: var(--btnSecondaryBorder);
+
+    &[data-disabled='true'] {
+      --textSecondary: var(--btnSecondaryDisabledText);
+      background-color: var(--btnSecondaryDisabled);
+      border-color: var(--btnSecondaryDisabledBorder);
+    }
+
+    &:not([data-disabled='true']):focus {
+      border-color: var(--btnSecondaryFocusBorder);
+    }
+
+    &:not([data-disabled='true']):not([data-selected='true']):hover {
+      background-color: var(--btnSecondaryHover);
+      border-color: var(--btnSecondaryHoverBorder);
+    }
+
+    &[data-selected='true'],
+    &:not([data-disabled='true']):active {
+      --textSecondary: var(--btnSecondaryActiveText);
+      background-color: var(--btnSecondaryActive);
+      border-color: var(--btnSecondaryActiveBorder);
+    }
+  }
+
+  &.raft__button-error {
+    background-color: var(--btnError);
+    border-color: var(--btnErrorBorder);
+
+    &:not([data-disabled='true']):focus,
+    &:not([data-disabled='true']):hover,
+    &:not([data-disabled='true']):active {
+      border-color: var(--btnErrorFocusBorder);
+    }
+
+    .raft__button-text {
+      display: flex;
+      align-items: center;
+
+      > svg {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  &[data-disabled='true'] {
+    cursor: default;
+  }
+}

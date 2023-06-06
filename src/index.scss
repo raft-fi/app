@@ -1,0 +1,187 @@
+@mixin colors {
+  /* color palette */
+  --raft-orange-900: #621e04;
+  --raft-orange-800: #d94308;
+  --raft-orange-700: #f76329;
+  --raft-orange-600: #f97e4e;
+  --raft-orange-500: #f98d62;
+  --raft-orange-400: #fba989;
+  --raft-orange-300: #fcd6c5;
+  --raft-orange-200: #fde4d8;
+  --raft-orange-100: #fef1eb;
+  --raft-grey-900: #191f27;
+  --raft-grey-800: #313a48;
+  --raft-grey-700: #5b6776;
+  --raft-grey-600: #7f8ea1;
+  --raft-grey-500: #9fb1c1;
+  --raft-grey-400: #c0cad2;
+  --raft-grey-300: #ccd5de;
+  --raft-grey-200: #dae1e7;
+  --raft-grey-100: #f6f7f9;
+  --raft-blue-900: #003652;
+  --raft-blue-800: #006da3;
+  --raft-blue-700: #008dd5;
+  --raft-blue-600: #0aadff;
+  --raft-blue-500: #5cc9ff;
+  --raft-blue-400: #99ddff;
+  --raft-blue-300: #c2ebff;
+  --raft-blue-200: #ebf8ff;
+  --raft-blue-100: #f5fbff;
+  --raft-green-900: #023b0f;
+  --raft-green-800: #05761d;
+  --raft-green-700: #07ad2c;
+  --raft-green-600: #09d736;
+  --raft-green-500: #14f545;
+  --raft-green-400: #89faa2;
+  --raft-green-300: #c4fdd0;
+  --raft-green-200: #ebfeef;
+  --raft-green-100: #f5fff7;
+  --raft-yellow-900: #524700;
+  --raft-yellow-800: #a38d00;
+  --raft-yellow-700: #e0c200;
+  --raft-yellow-600: #ffe11f;
+  --raft-yellow-500: #ffe74c;
+  --raft-yellow-400: #ffef85;
+  --raft-yellow-300: #fff4ad;
+  --raft-yellow-200: #fffad6;
+  --raft-yellow-100: #fffef5;
+  --raft-red-900: #5e080c;
+  --raft-red-800: #ab0d15;
+  --raft-red-700: #e4111c;
+  --raft-red-600: #f1414a;
+  --raft-red-500: #f4676e;
+  --raft-red-400: #f78d92;
+  --raft-red-300: #fab3b6;
+  --raft-red-200: #fcd9db;
+  --raft-red-100: #fef5f6;
+  --raft-white: #ffffff;
+  --raft-black: #000000;
+
+  /* we are going to have new color system, quick fix for now */
+  --colorWhite: var(--raft-white);
+  --colorBlack: var(--raft-black);
+
+  --headerActive: var(--raft-grey-700);
+  --headerInactive: var(--raft-grey-600);
+
+  --borderPrimary: var(--raft-grey-300);
+  --borderSecondary: var(--raft-grey-400);
+  --borderError: var(--raft-red-400);
+
+  --surfacePrimary: var(--raft-white);
+  --surfaceSecondary: var(--raft-blue-100);
+  --surfaceError: var(--raft-red-200);
+
+  --textPrimary: var(--raft-grey-900);
+  --textSecondary: var(--raft-grey-700);
+  --textAccent: var(--raft-orange-700);
+  --textPrimaryInverted: var(--raft-white);
+  --textSuccess: var(--raft-green-800);
+  --textWarning: var(--raft-yellow-600);
+  --textError: var(--raft-red-800);
+
+  --toastBackground: var(--raft-blue-200);
+  --toastText: var(--raft-blue-900);
+  --toastSuccessBackground: var(--raft-green-200);
+  --toastSuccessText: var(--raft-green-800);
+  --toastErrorBackground: var(--surfaceError);
+  --toastErrorText: var(--textError);
+  --toastErrorBorder: var(--borderError);
+
+  --btnPrimary: var(--raft-orange-700);
+  --btnPrimaryHover: var(--raft-orange-800);
+  --btnPrimaryActive: var(--raft-orange-800);
+  --btnPrimaryDisabled: var(--raft-orange-400);
+  --btnPrimaryDisabledText: var(--raft-orange-100);
+  --btnSecondary: var(--raft-white);
+  --btnSecondaryBorder: var(--raft-grey-300);
+  --btnSecondaryFocusBorder: var(--raft-orange-600);
+  --btnSecondaryHover: var(--raft-grey-100);
+  --btnSecondaryHoverBorder: var(--raft-grey-500);
+  --btnSecondaryActive: var(--raft-white);
+  --btnSecondaryActiveBorder: var(--raft-orange-700);
+  --btnSecondaryActiveText: var(--raft-orange-700);
+  --btnSecondaryDisabled: var(--raft-white);
+  --btnSecondaryDisabledBorder: var(--raft-grey-200);
+  --btnSecondaryDisabledText: var(--raft-grey-400);
+  --btnError: var(--surfaceError);
+  --btnErrorBorder: var(--borderError);
+  --btnErrorFocusBorder: var(--raft-red-700);
+
+  --statusLowRisk: var(--raft-green-700);
+  --statusMediumRisk: var(--raft-yellow-600);
+  --statusHighRisk: var(--raft-red-600);
+  --statusLowProtocolRisk: var(--raft-green-700);
+  --statusModerateProtocolRisk: var(--raft-yellow-600);
+  --statusMediumProtocolRisk: var(--raft-red-600);
+  --statusHighProtocolRisk: var(--raft-red-900);
+
+  --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
+
+  /* TODO: hardly set app width to 856px for v1 */
+  --app-width: 856px;
+  --app-padding: 0 32px;
+
+  --onboard-link-color: var(--textAccent);
+  --onboard-connect-sidebar-background: var(--raft-blue-100);
+  --onboard-connect-sidebar-progress-color: var(--raft-orange-600);
+  --onboard-connect-sidebar-progress-background: var(--raft-grey-800);
+  --onboard-wallet-button-background: var(--raft-blue-200);
+  --onboard-wallet-button-border-radius: 8px;
+  --onboard-wallet-button-border-color: transparent;
+  --onboard-connect-header-color: var(--raft-grey-800);
+  --onboard-close-button-color: var(--raft-grey-700);
+  --onboard-warning-100: var(--raft-orange-100);
+  --onboard-warning-700: var(--raft-grey-800);
+}
+
+@mixin w3o {
+  --text-color: var(--textPrimary);
+  --w3o-border-radius: 8px;
+  --w3o-border-color: transparent;
+  --w3o-font-family: 'Work Sans', sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  overflow-y: scroll;
+  background-color: var(--raft-blue-100);
+
+  @include colors;
+  @include w3o;
+}
+
+// Prevent page scroll when modal is open
+body.modal-open {
+  position: fixed;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.raft__app__root {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin sectionBox {
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+  padding: 32px;
+  width: 856px;
+  box-sizing: border-box;
+}

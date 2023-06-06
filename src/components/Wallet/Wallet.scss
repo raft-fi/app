@@ -1,0 +1,168 @@
+.raft__wallet {
+  position: relative;
+
+  &.raft__wallet-loading {
+    /* TODO: hardcode color as suggested */
+    background: var(--raft-blue-900);
+    width: 128px;
+    height: 40px;
+    opacity: 0.15;
+    border-radius: 8px;
+  }
+
+  .raft__wallet__connected {
+    .raft__icon__profile {
+      margin-right: 8px;
+    }
+
+    .raft__wallet__connected__avatar {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      border-radius: 50%;
+    }
+  }
+
+  .raft__wallet__popup {
+    min-width: 496px;
+    padding: 24px;
+    box-sizing: border-box;
+
+    .raft__wallet__popupHeader {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+
+      .raft__wallet__popupClose {
+        /* TODO: hardcode color as suggested */
+        --closeColor: var(--raft-grey-600);
+
+        &:hover {
+          --closeColor: var(--textAccent);
+        }
+      }
+    }
+
+    .raft__wallet__popupAddress {
+      /* TODO: hardcode color as suggested */
+      --textSecondary: var(--raft-grey-800);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 16px;
+
+      .raft__wallet__popupAddress__avatar {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        border-radius: 50%;
+      }
+
+      .raft__icon__profile {
+        margin-right: 8px;
+      }
+    }
+
+    .raft__wallet__popupActions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+
+      .raft__wallet__popupAction {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        padding: 14px 20px;
+        white-space: nowrap;
+        flex: 1;
+
+        .raft__icon {
+          margin-right: 8px;
+        }
+
+        &:not(:first-child) {
+          margin-left: 16px;
+        }
+      }
+
+      .raft__wallet__popupActionMaxWidth {
+        width: 100%;
+      }
+    }
+
+    .raft__wallet_popupTransactions {
+      margin-top: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+      background: var(--surfaceSecondary);
+      border: 1px solid var(--borderPrimary);
+      border-radius: 8px;
+
+      .raft__wallet__popupTransactionsContainer {
+        /* TODO: hardcode color as suggested */
+        --externalLinkColor: var(--raft-grey-600);
+
+        height: 256px;
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+
+        .raft__wallet__popupTransactionsContainer__empty {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+        }
+
+        /* width */
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        /* Track */
+        &::-webkit-scrollbar-track {
+          /* TODO: hardcode color as suggested */
+          background: var(--raft-grey-500);
+          border-radius: 4px;
+        }
+
+        /* Handle */
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+        }
+
+        /* Handle on hover */
+        &::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.3);
+        }
+
+        .raft__wallet__popupTransaction {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 12px 0px;
+          margin-right: 16px;
+
+          &:first-child {
+            padding-top: 0px;
+          }
+
+          &:last-child {
+            padding-bottom: 0px;
+          }
+
+          &:not(:last-child) {
+            border-bottom: 1px dashed var(--borderSecondary);
+          }
+
+          .raft__icon__externalLink {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,78 +1,90 @@
 import { FC, memo } from 'react';
 import {
   Typography as TypographyBase,
-  TypographyColor,
   TypographyBaseProps,
   TypographyType,
   TypographyTypeMap,
   TypographyVariantMap,
+  TypographyColorMap,
   TypographyWeightMap,
 } from 'tempus-ui';
 
 export type TypographyVariant =
-  | 'hero-title'
-  | 'hero-subtitle'
-  | 'header'
-  | 'section-header'
-  | 'subheader'
-  | 'title'
-  | 'subtitle'
-  | 'body-primary'
-  | 'body-secondary'
-  | 'body-tertiary';
+  | 'heading1'
+  | 'heading2'
+  | 'heading3'
+  | 'overline'
+  | 'body'
+  | 'body2'
+  | 'caption'
+  | 'input-value'
+  | 'button-label';
+export type TypographyColor =
+  | 'text-primary'
+  | 'text-secondary'
+  | 'text-accent'
+  | 'text-primary-inverted'
+  | 'text-success'
+  | 'text-warning'
+  | 'text-error';
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
 const typographyVariantMap: TypographyVariantMap = {
-  'hero-title': {
+  heading1: {
     fontStyle: 'normal',
-    fontSize: '106px',
-    lineHeight: '53px',
+    fontSize: '28px',
+    lineHeight: '34px',
   },
-  'hero-subtitle': {
+  heading2: {
     fontStyle: 'normal',
-    fontSize: '48px',
+    fontSize: '20px',
     lineHeight: '24px',
   },
-  header: {
+  heading3: {
     fontStyle: 'normal',
-    fontSize: '40px',
-    lineHeight: '48px',
+    fontSize: '16px',
+    lineHeight: '22.4px',
   },
-  'section-header': {
+  overline: {
     fontStyle: 'normal',
-    fontSize: '36px',
-    lineHeight: '44px',
+    fontSize: '12px',
+    lineHeight: '16.8px',
   },
-  subheader: {
+  body: {
     fontStyle: 'normal',
-    fontSize: '32px',
-    lineHeight: '40px',
+    fontSize: '16px',
+    lineHeight: '22.4px',
   },
-  title: {
+  body2: {
     fontStyle: 'normal',
-    fontSize: '24px',
-    lineHeight: '32px',
+    fontSize: '14px',
+    lineHeight: '19.6px',
   },
-  subtitle: {
+  caption: {
+    fontStyle: 'normal',
+    fontSize: '12px',
+    lineHeight: '16.8px',
+  },
+  'input-value': {
     fontStyle: 'normal',
     fontSize: '20px',
     lineHeight: '28px',
   },
-  'body-primary': {
+  'button-label': {
     fontStyle: 'normal',
-    fontSize: '18px',
-    lineHeight: '24px',
+    fontSize: '16px',
+    lineHeight: '22.4px',
   },
-  'body-secondary': {
-    fontStyle: 'normal',
-    fontSize: '14px',
-    lineHeight: '16px',
-  },
-  'body-tertiary': {
-    fontStyle: 'normal',
-    fontSize: '10px',
-    lineHeight: '16px',
-  },
+};
+
+const typographyColorMap: TypographyColorMap = {
+  'text-primary': 'var(--textPrimary)',
+  'text-secondary': 'var(--textSecondary)',
+  'text-accent': 'var(--textAccent)',
+  'text-primary-inverted': 'var(--textPrimaryInverted)',
+  'text-success': 'var(--textSuccess)',
+  'text-warning': 'var(--textWarning)',
+  'text-error': 'var(--textError)',
 };
 
 const typographyWeightMap: TypographyWeightMap = {
@@ -82,21 +94,37 @@ const typographyWeightMap: TypographyWeightMap = {
   bold: 700,
 };
 
-const typographyTypeMap: TypographyTypeMap = {
-  regular: 'BioRhyme, sans-serif',
-  mono: 'Work Sans, sans-serif',
+const typographyDefaultWeightMap: { [x: string]: TypographyWeight } = {
+  heading1: 'medium',
+  heading2: 'medium',
+  heading3: 'semi-bold',
+  overline: 'semi-bold',
+  body: 'regular',
+  body2: 'regular',
+  caption: 'regular',
+  'input-value': 'bold',
+  'button-label': 'medium',
 };
 
-export interface TypographyProps
-  extends TypographyBaseProps<TypographyVariant, TypographyColor, TypographyWeight, TypographyType> {}
+const typographyTypeMap: TypographyTypeMap = {
+  regular: 'Work Sans, sans-serif',
+};
 
-const Typography: FC<TypographyProps> = props => (
-  <TypographyBase<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>
-    {...props}
-    variantMap={typographyVariantMap}
-    weightMap={typographyWeightMap}
-    typeMap={typographyTypeMap}
-  />
-);
+export type TypographyProps = TypographyBaseProps<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>;
 
-export default memo(Typography);
+const Typography: FC<TypographyProps> = props => {
+  const weight = props.weight ?? typographyDefaultWeightMap[props.variant] ?? 'regular';
+
+  return (
+    <TypographyBase<TypographyVariant, TypographyColor, TypographyWeight, TypographyType>
+      {...props}
+      weight={weight}
+      variantMap={typographyVariantMap}
+      colorMap={typographyColorMap}
+      weightMap={typographyWeightMap}
+      typeMap={typographyTypeMap}
+    />
+  );
+};
+
+export default memo(Typography) as FC<TypographyProps>;

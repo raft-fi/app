@@ -1,0 +1,44 @@
+.raft__footer {
+  /* TODO: hardcode color as suggested */
+  --textSecondary: var(--raft-grey-500);
+
+  position: relative;
+  width: 100%;
+  padding: 48px 0px 32px 0px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  > :not(.common-ui__link):not(:first-child) {
+    margin-left: 32px;
+  }
+
+  > .common-ui__link:not(:last-child) {
+    margin-left: 0;
+    margin-right: 24px;
+  }
+
+  :hover {
+    /* TODO: hardcode color as suggested */
+    --textSecondary: var(--raft-grey-700);
+  }
+
+  a {
+    text-decoration: none;
+
+    > * {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .raft__footer__separator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    /* TODO: hardcode color as suggested */
+    background-color: var(--raft-grey-500);
+    margin-right: 32px;
+  }
+}

@@ -1,0 +1,74 @@
+.raft__transactionFailedModal {
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 496px;
+
+  .raft__transactionFailedModal__icon {
+    margin-top: 36px;
+  }
+
+  .raft__transactionFailedModal__title {
+    margin-top: 16px;
+  }
+
+  .raft__transactionFailedModal__errorMessage {
+    margin-top: 32px;
+    background: var(--surfaceSecondary);
+    /* TODO: hardcode color as suggested */
+    border: 1px solid var(--raft-grey-200);
+    border-radius: 8px;
+    padding: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
+
+    .raft__transactionFailedModal__errorMessage__title {
+      margin-bottom: 16px;
+    }
+
+    .raft__transactionFailedModal__errorMessage__content {
+      overflow-wrap: break-word;
+      max-height: 320px;
+      overflow-y: auto;
+
+      /* width */
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      /* Track */
+      &::-webkit-scrollbar-track {
+        /* TODO: hardcode color as suggested */
+        background: var(--raft-grey-500);
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .raft__transactionFailedModal__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+    width: 100%;
+
+    .raft__transactionFailedModal__action {
+      margin: 0 8px;
+      width: 100%;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      .raft__button {
+        width: 100%;
+      }
+    }
+  }
+}

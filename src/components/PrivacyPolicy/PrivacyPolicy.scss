@@ -1,0 +1,45 @@
+.raft__legal__page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .raft__legal__contentContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    background-color: var(--raftWhite);
+
+    .raft__legal__content {
+      display: flex;
+      margin: 40px 0px;
+      flex-direction: column;
+      width: 856px;
+
+      .raft__legal__title {
+        font-size: 24px;
+        line-height: 28px;
+        font-weight: 600;
+        font-family: Work Sans, sans-serif;
+        margin-bottom: 38px;
+      }
+
+      .raft__legal__text {
+        font-size: 18px;
+        line-height: 24px;
+        font-weight: 400;
+        font-family: Work Sans, sans-serif;
+        color: var(--textPrimary);
+        margin-bottom: 38px;
+      }
+
+      a {
+        color: var(--textAccent);
+      }
+
+      a:visited {
+        color: var(--textAccent);
+      }
+    }
+  }
+}

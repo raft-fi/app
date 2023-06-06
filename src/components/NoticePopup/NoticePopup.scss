@@ -1,0 +1,42 @@
+.raft__noticePopup {
+  width: 856px;
+  padding: 32px 64px;
+  box-sizing: border-box;
+
+  .raft__noticePopup__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .raft__noticePopup__description {
+    > div {
+      margin-top: 20px;
+    }
+
+    .raft__link {
+      color: var(--textAccent);
+      text-decoration: underline;
+    }
+  }
+
+  .raft__noticePopup__checkbox {
+    /* TODO: hardcode color as suggested */
+    --textPrimary: var(--raft-grey-800);
+
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  .raft__noticePopup__action {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+
+    .raft__button-primary {
+      width: 316px;
+    }
+  }
+}
