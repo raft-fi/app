@@ -14,7 +14,7 @@ import { Typography } from '../shared';
 
 import './ProtocolStats.scss';
 
-const collateralThreshold = 1000000; // 10 million
+const collateralThreshold = 10000; // 10k
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
@@ -48,7 +48,7 @@ const ProtocolStats = () => {
       let fractionDigits = COLLATERAL_TOKEN_UI_PRECISION;
 
       if (collateralTotalSupplyValues?.amount.gte(collateralThreshold)) {
-        fractionDigits = COLLATERAL_TOKEN_UI_PRECISION - 2;
+        fractionDigits = 0;
       }
 
       return DecimalFormat.format(collateralTotalSupplyValues.amount, {
