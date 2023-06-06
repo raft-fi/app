@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite --host --force",
     "start": "vite --host",
-    "build": "tsc && vite build",
+    "build-production": "tsc && vite build --mode production",
+    "build-stage-goerli": "tsc && vite build --mode stage-goerli",
+    "build-stage-mainnet": "tsc && vite build --mode stage-mainnet",
+    "deploy-production": "firebase deploy --only hosting:raft-fi-app",
+    "deploy-stage-goerli": "firebase deploy --only hosting:raft-fi-app-stage",
+    "deploy-stage-mainnet": "firebase deploy --only hosting:raft-fi-app-mainnet",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
