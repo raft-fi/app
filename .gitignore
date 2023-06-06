@@ -27,3 +27,5 @@ build
 .firebase
 .env.development
 .env.production
+.env.stage-goerli
+.env.stage-mainnet
