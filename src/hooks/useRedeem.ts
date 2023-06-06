@@ -42,6 +42,7 @@ interface RedeemStatus {
     gasFee: Decimal;
   };
   txnId: string;
+  statusType: 'redeem';
 }
 
 interface RedeemResponse {
@@ -80,7 +81,7 @@ const stream$ = combineLatest([redeem$]).pipe(
 
       const protocol = Protocol.getInstance(provider);
 
-      redeemStatus$.next({ pending: true, txnId, request });
+      redeemStatus$.next({ pending: true, txnId, request, statusType: 'redeem' });
 
       const result$ = from(
         protocol.redeemCollateral(underlyingCollateralToken, debtAmount, walletSigner, {
@@ -153,6 +154,7 @@ const stream$ = combineLatest([redeem$]).pipe(
       request,
       contractTransaction,
       txnId,
+      statusType: 'redeem',
     };
   }),
   tap(status => {

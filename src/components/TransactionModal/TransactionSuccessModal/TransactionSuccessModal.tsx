@@ -2,7 +2,7 @@ import { FC, ReactNode, useCallback } from 'react';
 import { Link } from 'tempus-ui';
 import { ZERO_ADDRESS } from '../../../constants';
 import { useBorrow, useConfig, useEIP1193Provider } from '../../../hooks';
-import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../../shared';
+import { Button, Icon, ModalWrapper, Typography } from '../../shared';
 
 import './TransactionSuccessModal.scss';
 
@@ -10,16 +10,23 @@ interface TransactionSuccessModalProps {
   open: boolean;
   title: ReactNode | string;
   subtitle: string;
+  tokenToAdd: {
+    label: string;
+    address: string;
+    symbol: string;
+    decimals: number;
+    image: string;
+  };
   onClose: () => void;
 }
 
-const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title, subtitle, onClose }) => {
+const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title, subtitle, tokenToAdd, onClose }) => {
   const { borrowStatus } = useBorrow();
   const eip1193Provider = useEIP1193Provider();
   const config = useConfig();
   const txHash = borrowStatus?.contractTransaction?.hash ?? ZERO_ADDRESS;
 
-  const onAddRToWallet = useCallback(() => {
+  const onAddTokenToWallet = useCallback(() => {
     if (eip1193Provider) {
       // https://eips.ethereum.org/EIPS/eip-747
       eip1193Provider.request({
@@ -27,16 +34,16 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title
         params: {
           type: 'ERC20',
           options: {
-            address: config.rToken,
-            symbol: 'R',
-            decimals: 18,
-            image: 'https://raft.fi/rtoken.png',
+            address: tokenToAdd.address,
+            symbol: tokenToAdd.symbol,
+            decimals: tokenToAdd.decimals,
+            image: tokenToAdd.image,
           },
           // @web-onboard wrongly treats this as unknown[] but it should not
         } as unknown as unknown[],
       });
     }
-  }, [config.rToken, eip1193Provider]);
+  }, [eip1193Provider, tokenToAdd.address, tokenToAdd.decimals, tokenToAdd.image, tokenToAdd.symbol]);
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
@@ -53,17 +60,17 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title
           </Typography>
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
-          <Typography variant="caption">View transaction on&nbsp;</Typography>
+          <Typography variant="body">View transaction on&nbsp;</Typography>
           <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
-            <Typography variant="caption" color="text-accent">
+            <Typography variant="body" color="text-accent" weight="medium">
               Etherscan
             </Typography>
           </Link>
-          <Typography variant="caption">.</Typography>
+          <Typography variant="body">.</Typography>
         </div>
         <div className="raft__transactionSuccessModal__actions">
           <div className="raft__transactionSuccessModal__action">
-            <Button variant="secondary" size="large" text="Add R to wallet" onClick={onAddRToWallet} />
+            <Button variant="secondary" size="large" text={tokenToAdd.label} onClick={onAddTokenToWallet} />
           </div>
           <div className="raft__transactionSuccessModal__action">
             <Button variant="primary" size="large" text="Continue" onClick={onClose} />
