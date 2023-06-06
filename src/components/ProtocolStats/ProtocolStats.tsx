@@ -46,7 +46,7 @@ const ProtocolStats = () => {
       collateralTotalSupplyValues?.amount
         ? DecimalFormat.format(collateralTotalSupplyValues.amount, {
             style: 'decimal',
-            fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+            fractionDigits: 0,
           })
         : null,
     [collateralTotalSupplyValues?.amount],
