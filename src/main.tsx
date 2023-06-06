@@ -22,23 +22,15 @@ root.render(
       <div className="raft__app__root">
         <HookSubscriber />
         <Header />
+        <NoticePopup />
         <Routes>
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route
-            path="/redeem"
-            element={
-              <>
-                <NoticePopup />
-                <Redeem />
-              </>
-            }
-          />
+          <Route path="/redeem" element={<Redeem />} />
           <Route
             path="/"
             element={
               <>
-                <NoticePopup />
                 <Dashboard />
                 <NotificationCenter />
               </>

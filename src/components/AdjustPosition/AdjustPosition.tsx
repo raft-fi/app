@@ -859,7 +859,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <CurrencyInput
           label="ADJUST YOUR COLLATERAL"
           precision={18}
-          fiatValue={null}
           selectedToken={selectedCollateralToken}
           tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
@@ -875,7 +874,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         <CurrencyInput
           label="ADJUST YOUR DEBT"
           precision={18}
-          fiatValue={null}
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}

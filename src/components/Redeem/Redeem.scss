@@ -1,3 +1,94 @@
-.raft__redeem {
-  height: 800px;
+.raft__redeem__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: 10px;
+
+  .raft__redeem {
+    padding: 32px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #ccd5de;
+    border-radius: 8px;
+    width: 530px;
+
+    .raft__redeem__input {
+      margin-top: 40px;
+    }
+
+    .raft__redeem__warningContainer {
+      margin-top: 24px;
+      margin-bottom: 36px;
+    }
+
+    .raft__redeem__collateralData {
+      display: flex;
+      flex-direction: column;
+
+      .raft__redeem__collateralDataTitle {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-700);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-700);
+
+        display: flex;
+        align-items: center;
+
+        &:not(:first-child) {
+          margin-top: 42px;
+        }
+
+        .raft__icon__info {
+          margin-left: 6px;
+        }
+      }
+
+      .raft__redeem__collateralDataRow {
+        display: flex;
+        margin-top: 8px;
+
+        .raft__redeem__collateralDataRowData {
+          display: flex;
+          align-items: center;
+
+          .raft__icon,
+          .common-ui__logo {
+            margin-right: 8px;
+          }
+
+          .raft__redeem__collateralDataRowValue {
+            display: flex;
+            align-items: baseline;
+            margin-left: 4px;
+          }
+        }
+      }
+    }
+
+    .raft__redeem__action {
+      margin-top: 42px;
+
+      .raft__button {
+        width: 100%;
+      }
+
+      .raft__loading__container {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.raft__redeem__infoTooltip {
+  max-width: 200px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    margin-left: 4px;
+    --externalLinkColor: var(--textAccent);
+  }
 }

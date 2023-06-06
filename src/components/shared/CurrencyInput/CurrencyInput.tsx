@@ -19,7 +19,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   previewValue?: string;
   placeholder?: string;
   precision: number;
-  fiatValue: Nullable<string>;
+  fiatValue?: string;
   disabled?: boolean;
   error?: boolean;
   errorMsg?: string;
@@ -226,11 +226,13 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           )}
         </div>
       </div>
-      <div className="raft__currencyInput__errorContainer">
-        <Typography variant="caption" color="text-error">
-          {errorMsg}
-        </Typography>
-      </div>
+      {errorMsg && (
+        <div className="raft__currencyInput__errorContainer">
+          <Typography variant="caption" color="text-error">
+            {errorMsg}
+          </Typography>
+        </div>
+      )}
       {disabled && <div className="raft__currencyInput__disabledOverlay"></div>}
     </div>
   );
