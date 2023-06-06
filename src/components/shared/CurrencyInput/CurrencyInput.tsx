@@ -1,4 +1,4 @@
-import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo } from 'react';
+import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo, ReactNode } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
@@ -14,7 +14,7 @@ import './CurrencyInput.scss';
 const MAX_INTEGRAL_DIGIT = 10;
 
 export interface CurrencyInputProps extends BaseInputProps {
-  label: string;
+  label: ReactNode | string;
   value: string;
   previewValue?: string;
   placeholder?: string;
