@@ -15,17 +15,28 @@ type TokenValues = {
   value: Nullable<Decimal>;
   amountFormatted: Nullable<string>;
   amountFormattedMultiplier: Nullable<string>;
+  amountFormattedApproximate: Nullable<string>;
   priceFormatted: Nullable<string>;
   priceFormattedIntegral: Nullable<string>;
   valueFormatted: Nullable<string>;
   valueFormattedMultiplier: Nullable<string>;
 };
 
-const formatCurrency = (value: Decimal, currency = '$', precision = USD_UI_PRECISION) =>
+const formatCurrency = (
+  value: Decimal,
+  currency = '$',
+  precision = USD_UI_PRECISION,
+  approximate = false,
+  lessThanFormat = false,
+  pad = false,
+) =>
   DecimalFormat.format(value, {
     style: 'currency',
     currency: currency,
     fractionDigits: precision,
+    approximate: approximate,
+    lessThanFormat: lessThanFormat,
+    pad: pad,
   });
 
 const formatCurrencyMultiplier = (value: Decimal) =>
@@ -44,6 +55,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
       value: null,
       amountFormatted: null,
       amountFormattedMultiplier: null,
+      amountFormattedApproximate: null,
       priceFormatted: null,
       priceFormattedIntegral: null,
       valueFormatted: null,
@@ -67,6 +79,14 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
           fractionDigits: MULTIPLIER_UI_PRECISION,
           noMultiplierFractionDigits: R_TOKEN_UI_PRECISION,
         }),
+        amountFormattedApproximate: formatCurrency(
+          tokenAmount,
+          token,
+          tokenAmount.isZero() ? 0 : R_TOKEN_UI_PRECISION,
+          tokenAmount.isZero() ? false : true,
+          true,
+          true,
+        ),
         // only for R price we want to format it in 4 decimal places
         priceFormatted: price ? formatCurrency(price, '$', R_PRICE_UI_PRECISION) : null,
         priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
@@ -87,6 +107,14 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
           fractionDigits: MULTIPLIER_UI_PRECISION,
           noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         }),
+        amountFormattedApproximate: formatCurrency(
+          tokenAmount,
+          token,
+          tokenAmount.isZero() ? 0 : COLLATERAL_TOKEN_UI_PRECISION,
+          tokenAmount.isZero() ? false : true,
+          true,
+          true,
+        ),
         priceFormatted: price ? formatCurrency(price) : null,
         priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,

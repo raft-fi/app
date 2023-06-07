@@ -215,9 +215,9 @@ const Redeem = () => {
           <div className="raft__redeem__collateralDataRow">
             <div className="raft__redeem__collateralDataRowData">
               <TokenLogo type={`token-${COLLATERAL_BASE_TOKEN}`} size={20} />
-              {collateralToReceiveValues.amountFormatted && (
+              {collateralToReceiveValues.amountFormattedApproximate && (
                 <ValueLabel
-                  value={`${debtAmountDecimal.isZero() ? '' : '~'}${collateralToReceiveValues.amountFormatted}`}
+                  value={collateralToReceiveValues.amountFormattedApproximate}
                   valueSize="body"
                   tickerSize="caption"
                 />
