@@ -619,7 +619,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const buttonLabel = useMemo(() => {
     // data not yet loaded will set executionSteps = 1, always show "Execution"
     if (executionSteps === 1) {
-      return borrowStatus?.pending ? 'Executing (1/1)' : 'Execute (1/1)';
+      return borrowStatus?.pending ? 'Executing' : 'Execute';
     }
 
     if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt) {
