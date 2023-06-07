@@ -7,7 +7,7 @@ import {
   USD_UI_PRECISION,
 } from '../constants';
 import { Nullable } from '../interfaces';
-import { Token } from '@raft-fi/sdk';
+import { R_TOKEN, Token } from '@raft-fi/sdk';
 
 type TokenValues = {
   amount: Nullable<Decimal>;
@@ -20,6 +20,7 @@ type TokenValues = {
   priceFormattedIntegral: Nullable<string>;
   valueFormatted: Nullable<string>;
   valueFormattedMultiplier: Nullable<string>;
+  valueFormattedApproximate: Nullable<string>;
 };
 
 const formatCurrency = (
@@ -60,6 +61,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
       priceFormattedIntegral: null,
       valueFormatted: null,
       valueFormattedMultiplier: null,
+      valueFormattedApproximate: null,
     };
   }
 
@@ -92,6 +94,16 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
         valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
+        valueFormattedApproximate: tokenValue
+          ? formatCurrency(
+              tokenValue,
+              '$',
+              tokenValue.isZero() ? 0 : USD_UI_PRECISION,
+              tokenAmount.isZero() ? false : true,
+              true,
+              true,
+            )
+          : null,
       };
     case 'ETH':
     case 'stETH':
@@ -119,6 +131,16 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
         valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
         valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
+        valueFormattedApproximate: tokenValue
+          ? formatCurrency(
+              tokenValue,
+              '$',
+              tokenValue.isZero() ? 0 : USD_UI_PRECISION,
+              tokenAmount.isZero() ? false : true,
+              true,
+              true,
+            )
+          : null,
       };
   }
 };

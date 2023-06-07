@@ -222,10 +222,10 @@ const Redeem = () => {
                   tickerSize="caption"
                 />
               )}
-              {collateralToReceiveValues.valueFormatted && (
+              {collateralToReceiveValues.valueFormattedApproximate && (
                 <div className="raft__redeem__collateralDataRowValue">
                   <ValueLabel
-                    value={`(${debtAmountDecimal.isZero() ? '' : '~'}${collateralToReceiveValues.valueFormatted})`}
+                    value={`(${collateralToReceiveValues.valueFormattedApproximate})`}
                     tickerSize="caption"
                     valueSize="body"
                     color="text-secondary"
