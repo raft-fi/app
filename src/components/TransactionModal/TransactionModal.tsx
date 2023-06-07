@@ -113,15 +113,15 @@ const TransactionModal = () => {
     let collateralLabel: string;
 
     if (debtChange.lt(0)) {
-      debtLabel = 'repayment';
+      debtLabel = 'repaid';
     } else {
-      debtLabel = 'borrow';
+      debtLabel = 'generated';
     }
 
     if (collateralChange.lt(0)) {
-      collateralLabel = 'withdrawal';
+      collateralLabel = 'withdrew';
     } else {
-      collateralLabel = 'deposit';
+      collateralLabel = 'deposited';
     }
 
     const debtValueFormatted = DecimalFormat.format(debtChange.abs(), {
@@ -184,7 +184,7 @@ const TransactionModal = () => {
       return 'Successfully deposited';
     }
     if (collateralChange.isZero() && debtChange.gt(0)) {
-      return 'Successfully borrowed';
+      return 'Successfully generated';
     }
 
     return 'Successful transaction';
