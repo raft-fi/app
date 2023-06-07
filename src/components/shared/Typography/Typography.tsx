@@ -49,6 +49,7 @@ const typographyVariantMap: TypographyVariantMap = {
     fontStyle: 'normal',
     fontSize: '12px',
     lineHeight: '16.8px',
+    letterSpacing: '0.03em',
   },
   body: {
     fontStyle: 'normal',
