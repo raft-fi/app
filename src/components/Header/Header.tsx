@@ -40,7 +40,7 @@ const Header = () => {
               currentPage === 'your-position' ? 'raft__header__link-active' : 'raft__header__link-inactive'
             }`}
           >
-            Your position
+            Your Position
           </Typography>
         </Link>
       </div>,
