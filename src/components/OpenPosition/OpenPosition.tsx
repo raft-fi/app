@@ -454,7 +454,7 @@ const OpenPosition = () => {
 
   const debtErrorMsg = useMemo(() => {
     if (!hasMinBorrow) {
-      return `You need to borrow at least ${minBorrowFormatted} R`;
+      return `You need to generate at least ${minBorrowFormatted} R`;
     }
 
     if (!hasMinRatio) {
