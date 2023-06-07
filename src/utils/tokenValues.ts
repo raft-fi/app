@@ -99,7 +99,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
               tokenValue,
               '$',
               tokenValue.isZero() ? 0 : USD_UI_PRECISION,
-              tokenAmount.isZero() ? false : true,
+              tokenValue.isZero() ? false : true,
               true,
               true,
             )
@@ -136,7 +136,7 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
               tokenValue,
               '$',
               tokenValue.isZero() ? 0 : USD_UI_PRECISION,
-              tokenAmount.isZero() ? false : true,
+              tokenValue.isZero() ? false : true,
               true,
               true,
             )
