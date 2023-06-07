@@ -4,7 +4,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_BASE_TOKEN } from '../../constants';
-import { useCollateralRedemptionRate, useRedeem, useTokenPrices, useWallet } from '../../hooks';
+import { useCollateralRedemptionRate, useRedeem, useTokenBalances, useTokenPrices, useWallet } from '../../hooks';
 import { getTokenValues } from '../../utils';
 import {
   Button,
@@ -19,10 +19,12 @@ import {
 } from '../shared';
 
 import './Redeem.scss';
+import { R_TOKEN } from '@raft-fi/sdk';
 
 const Redeem = () => {
   const [, connect] = useConnectWallet();
 
+  const tokenBalances = useTokenBalances();
   const tokenPrices = useTokenPrices();
   const redemptionRate = useCollateralRedemptionRate();
   const wallet = useWallet();
@@ -68,8 +70,22 @@ const Redeem = () => {
 
   const hasInputFilled = useMemo(() => debtAmountDecimal && !debtAmountDecimal.isZero(), [debtAmountDecimal]);
 
+  const rTokenValues = useMemo(() => {
+    return getTokenValues(tokenBalances[R_TOKEN], tokenPrices[R_TOKEN], R_TOKEN);
+  }, [tokenBalances, tokenPrices]);
+
+  const hasEnoughRTokenBalance = useMemo(() => {
+    if (!debtAmountDecimal || !rTokenValues.amount) {
+      return false;
+    }
+
+    return debtAmountDecimal.lte(rTokenValues.amount);
+  }, [debtAmountDecimal, rTokenValues.amount]);
+
   // TODO - Handle all possible errors and update accordingly
-  const canRedeem = useMemo(() => hasInputFilled, [hasInputFilled]);
+  const canRedeem = useMemo(() => {
+    return hasInputFilled && hasEnoughRTokenBalance;
+  }, [hasEnoughRTokenBalance, hasInputFilled]);
 
   const buttonDisabled = useMemo(
     () => transactionState === 'loading' || (walletConnected && !canRedeem),
@@ -114,6 +130,16 @@ const Redeem = () => {
     });
   }, [redemptionRate]);
 
+  const onMaxAmountClick = useCallback(() => {
+    setDebtAmount(rTokenValues.amount?.toString() || '');
+  }, [rTokenValues.amount]);
+
+  const errorMessage = useMemo(() => {
+    if (!hasEnoughRTokenBalance) {
+      return 'Insufficient funds';
+    }
+  }, [hasEnoughRTokenBalance]);
+
   return (
     <div className="raft__redeem__container">
       <div className="raft__redeem">
@@ -128,6 +154,11 @@ const Redeem = () => {
             tokens={['R']}
             value={debtAmount}
             onValueUpdate={setDebtAmount}
+            maxAmount={rTokenValues.amount}
+            maxAmountFormatted={rTokenValues.amountFormatted || ''}
+            onMaxAmountClick={onMaxAmountClick}
+            error={!hasEnoughRTokenBalance}
+            errorMsg={errorMessage}
           />
         </div>
         <div className="raft__redeem__warningContainer">
@@ -157,13 +188,17 @@ const Redeem = () => {
             <div className="raft__redeem__collateralDataRowData">
               <TokenLogo type={`token-${COLLATERAL_BASE_TOKEN}`} size={20} />
               {collateralToReceiveValues.amountFormatted && (
-                <ValueLabel value={collateralToReceiveValues.amountFormatted} valueSize="body" tickerSize="caption" />
+                <ValueLabel
+                  value={`${debtAmountDecimal.isZero() ? '' : '~'}${collateralToReceiveValues.amountFormatted}`}
+                  valueSize="body"
+                  tickerSize="caption"
+                />
               )}
               {collateralToReceiveValues.valueFormatted && (
                 <div className="raft__redeem__collateralDataRowValue">
                   (
                   <ValueLabel
-                    value={`~${collateralToReceiveValues.valueFormatted}`}
+                    value={`${debtAmountDecimal.isZero() ? '' : '~'}${collateralToReceiveValues.valueFormatted}`}
                     tickerSize="caption"
                     valueSize="body"
                     color="text-secondary"
@@ -220,4 +255,5 @@ const Redeem = () => {
 };
 
 export default memo(Redeem);
-// 0.00000333
+
+// 0.00003267

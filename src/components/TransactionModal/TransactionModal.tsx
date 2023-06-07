@@ -227,6 +227,7 @@ const TransactionModal = () => {
           onClose={onCloseModal}
           open={successModalOpened}
           tokenToAdd={tokenToAdd}
+          txHash={currentStatus?.contractTransaction?.hash}
         />
       )}
       {failedModalOpened && (

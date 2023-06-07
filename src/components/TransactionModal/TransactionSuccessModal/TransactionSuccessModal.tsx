@@ -1,7 +1,6 @@
 import { FC, ReactNode, useCallback } from 'react';
 import { Link } from 'tempus-ui';
-import { ZERO_ADDRESS } from '../../../constants';
-import { useBorrow, useConfig, useEIP1193Provider } from '../../../hooks';
+import { useConfig, useEIP1193Provider } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography } from '../../shared';
 
 import './TransactionSuccessModal.scss';
@@ -10,6 +9,7 @@ interface TransactionSuccessModalProps {
   open: boolean;
   title: ReactNode | string;
   subtitle: string;
+  txHash?: string;
   tokenToAdd: {
     label: string;
     address: string;
@@ -20,11 +20,16 @@ interface TransactionSuccessModalProps {
   onClose: () => void;
 }
 
-const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({ open, title, subtitle, tokenToAdd, onClose }) => {
-  const { borrowStatus } = useBorrow();
+const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
+  open,
+  title,
+  subtitle,
+  tokenToAdd,
+  txHash = '',
+  onClose,
+}) => {
   const eip1193Provider = useEIP1193Provider();
   const config = useConfig();
-  const txHash = borrowStatus?.contractTransaction?.hash ?? ZERO_ADDRESS;
 
   const onAddTokenToWallet = useCallback(() => {
     if (eip1193Provider) {
