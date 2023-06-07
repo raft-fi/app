@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from 'ethers';
 import { bind } from '@react-rxjs/core';
-import { Stats } from '@raft-fi/sdk';
+import { Protocol } from '@raft-fi/sdk';
 import {
   from,
   of,
@@ -30,7 +30,7 @@ const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(
 
 const fetchData = (provider: JsonRpcProvider) => {
   try {
-    const stats = Stats.getInstance(provider);
+    const stats = Protocol.getInstance(provider);
 
     return combineLatest([
       from(stats.fetchCollateralSupply()),

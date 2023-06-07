@@ -46,6 +46,7 @@ interface BorrowStatus {
     gasFee: Decimal;
   };
   txnId: string;
+  statusType: 'borrow';
 }
 
 interface BorrowResponse {
@@ -90,7 +91,7 @@ const stream$ = combineLatest([borrow$]).pipe(
 
         const userPosition = new UserPosition(walletSigner, currentUserCollateral, currentUserDebt);
 
-        borrowStatus$.next({ pending: true, txnId, request });
+        borrowStatus$.next({ pending: true, txnId, request, statusType: 'borrow' });
 
         let result$: Observable<ethers.ContractTransactionResponse>;
         if (closePosition) {
@@ -176,6 +177,7 @@ const stream$ = combineLatest([borrow$]).pipe(
       request,
       contractTransaction,
       txnId,
+      statusType: 'borrow',
     };
   }),
   tap(status => {

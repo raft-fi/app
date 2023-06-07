@@ -12,6 +12,7 @@ import NoticePopup from './components/NoticePopup';
 import TermsAndConditions from './components/TermsAndConditions';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import NotificationCenter from './components/NotificationCenter';
+import TransactionModal from './components/TransactionModal';
 
 import './index.scss';
 
@@ -22,23 +23,16 @@ root.render(
       <div className="raft__app__root">
         <HookSubscriber />
         <Header />
+        <NoticePopup />
+        <TransactionModal />
         <Routes>
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route
-            path="/redeem"
-            element={
-              <>
-                <NoticePopup />
-                <Redeem />
-              </>
-            }
-          />
+          <Route path="/redeem" element={<Redeem />} />
           <Route
             path="/"
             element={
               <>
-                <NoticePopup />
                 <Dashboard />
                 <NotificationCenter />
               </>

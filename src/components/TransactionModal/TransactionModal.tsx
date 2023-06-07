@@ -1,56 +1,78 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { R_TOKEN } from '@raft-fi/sdk';
-import { resetBorrowStatus, useBorrow, useTokenPrices } from '../../hooks';
+import { R_TOKEN, RaftConfig } from '@raft-fi/sdk';
+import { resetBorrowStatus, resetRedeemStatus, useBorrow, useRedeem, useTokenPrices } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { Typography } from '../shared';
-import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION, DISPLAY_BASE_TOKEN } from '../../constants';
+import {
+  COLLATERAL_TOKEN_UI_PRECISION,
+  R_TOKEN_UI_PRECISION,
+  DISPLAY_BASE_TOKEN,
+  COLLATERAL_BASE_TOKEN,
+} from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
 
 const TransactionModal = () => {
   const { borrowStatus, borrow } = useBorrow();
+  const { redeemStatus, redeem } = useRedeem();
   const tokenPriceMap = useTokenPrices();
 
   const [successModalOpened, setSuccessModalOpened] = useState<boolean>(false);
   const [failedModalOpened, setFailedModalOpened] = useState<boolean>(false);
 
+  const currentStatus = useMemo(() => {
+    return borrowStatus || redeemStatus;
+  }, [borrowStatus, redeemStatus]);
+
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
    */
   useEffect(() => {
-    if (!borrowStatus || borrowStatus.pending) {
+    if (!currentStatus || currentStatus.pending) {
       setSuccessModalOpened(false);
       setFailedModalOpened(false);
       return;
     }
 
-    if (borrowStatus.success) {
+    if (currentStatus.success) {
       setSuccessModalOpened(true);
     }
-    if (borrowStatus.error) {
+    if (currentStatus.error) {
       // error code ACTION_REJECTED means rejected by metamask user (not sure for other wallets)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((borrowStatus.error as any).code !== 'ACTION_REJECTED') {
+      if ((currentStatus.error as any).code !== 'ACTION_REJECTED') {
         setFailedModalOpened(true);
       }
     }
-  }, [borrowStatus]);
+  }, [currentStatus]);
 
   const onCloseModal = useCallback(() => {
-    // By resetting the borrow status we can close the modal
-    resetBorrowStatus();
-  }, []);
+    if (!currentStatus) {
+      return;
+    }
+
+    // By resetting the status we can close the modal
+    if (currentStatus.statusType === 'borrow') {
+      resetBorrowStatus();
+    } else if (currentStatus.statusType === 'redeem') {
+      resetRedeemStatus();
+    }
+  }, [currentStatus]);
 
   const onRetryTransaction = useCallback(() => {
-    if (!borrowStatus) {
+    if (!currentStatus) {
       return;
     }
 
     setFailedModalOpened(false);
 
-    borrow(borrowStatus.request);
-  }, [borrow, borrowStatus]);
+    if (currentStatus.statusType === 'borrow') {
+      borrow(currentStatus.request);
+    } else if (currentStatus.statusType === 'redeem') {
+      redeem(currentStatus.request);
+    }
+  }, [borrow, redeem, currentStatus]);
 
   const debtChange = useMemo(() => {
     if (!borrowStatus) {
@@ -72,6 +94,17 @@ const TransactionModal = () => {
    * Generate success modal title based on borrow request params
    */
   const successModalTitle = useMemo(() => {
+    if (redeemStatus) {
+      const debtValueFormatted = DecimalFormat.format(redeemStatus.request.debtAmount, {
+        style: 'currency',
+        currency: R_TOKEN,
+        fractionDigits: R_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+
+      return <Typography variant="heading1">{debtValueFormatted} redeemed</Typography>;
+    }
+
     if (!borrowStatus || !debtChange || !collateralChange) {
       return '';
     }
@@ -127,12 +160,16 @@ const TransactionModal = () => {
         )}
       </>
     );
-  }, [borrowStatus, collateralChange, debtChange, tokenPriceMap]);
+  }, [borrowStatus, collateralChange, debtChange, redeemStatus, tokenPriceMap]);
 
   /**
    * Generate success modal subtitle based on borrow request params
    */
   const successModalSubtitle = useMemo(() => {
+    if (redeemStatus) {
+      return 'Successful transaction';
+    }
+
     if (!borrowStatus || !debtChange || !collateralChange) {
       return '';
     }
@@ -151,12 +188,32 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [borrowStatus, collateralChange, debtChange]);
+  }, [borrowStatus, collateralChange, debtChange, redeemStatus]);
 
   const isClosePosition = useMemo(
     () => Boolean(borrowStatus?.request.closePosition),
     [borrowStatus?.request.closePosition],
   );
+
+  const tokenToAdd = useMemo(() => {
+    if (borrowStatus) {
+      return {
+        label: 'Add R to wallet',
+        address: RaftConfig.getTokenAddress(R_TOKEN) || '',
+        symbol: R_TOKEN,
+        decimals: 18,
+        image: 'https://raft.fi/rtoken.png',
+      };
+    }
+
+    return {
+      label: 'Add wstETH to wallet',
+      address: RaftConfig.getTokenAddress(COLLATERAL_BASE_TOKEN) || '',
+      symbol: COLLATERAL_BASE_TOKEN,
+      decimals: 18,
+      image: '', // TODO - Add wstETH image on raft.fi website
+    };
+  }, [borrowStatus]);
 
   return (
     <>
@@ -169,11 +226,13 @@ const TransactionModal = () => {
           subtitle={successModalSubtitle}
           onClose={onCloseModal}
           open={successModalOpened}
+          tokenToAdd={tokenToAdd}
+          txHash={currentStatus?.contractTransaction?.hash}
         />
       )}
       {failedModalOpened && (
         <TransactionFailedModal
-          error={borrowStatus?.error ? borrowStatus.error.message : 'Something went wrong!'}
+          error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
           onClose={onCloseModal}
           onTryAgain={onRetryTransaction}
           open={failedModalOpened}

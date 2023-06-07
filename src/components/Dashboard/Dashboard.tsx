@@ -5,7 +5,6 @@ import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
-import TransactionModal from '../TransactionModal';
 
 import './Dashboard.scss';
 
@@ -51,7 +50,6 @@ const Dashboard = () => {
           <OpenPosition key={`open-${positionComponentKey}`} />
         </>
       )}
-      <TransactionModal />
     </div>
   );
 };

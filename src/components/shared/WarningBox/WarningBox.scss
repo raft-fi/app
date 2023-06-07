@@ -1,0 +1,10 @@
+.raft__warningBox {
+  background: var(--surfaceWarning);
+  border: 1px solid var(--borderWarning);
+  border-radius: 8px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+
+  /* TODO: hardcode color as suggested */
+  --textWarning: var(--raft-yellow-900);
+}

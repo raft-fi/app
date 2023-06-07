@@ -4,6 +4,7 @@ import { collateralBalance$ } from './useCollateralBalance';
 import { debtBalance$ } from './useDebtBalance';
 import { wallet$ } from './useWallet';
 import { collateralBorrowingRate$ } from './useCollateralBorrowingRate';
+import { collateralRedemptionRate$ } from './useCollateralRedemptionRate';
 
 const DEFAULT_VALUE = false;
 const CHECK_INTERVAL = 1000;
@@ -16,8 +17,11 @@ const stream$ = interval(CHECK_INTERVAL).pipe(
     const collateralBalance = collateralBalance$.getValue();
     const debtBalance = debtBalance$.getValue();
     const borrowingRate = collateralBorrowingRate$.getValue();
+    const redeemingRate = collateralRedemptionRate$.getValue();
 
-    return Boolean(count && borrowingRate && (!wallet || (wallet && collateralBalance && debtBalance)));
+    return Boolean(
+      count && borrowingRate && redeemingRate && (!wallet || (wallet && collateralBalance && debtBalance)),
+    );
   }),
   tap(loaded => appLoaded$.next(loaded)),
   takeWhile(loaded => !loaded),
