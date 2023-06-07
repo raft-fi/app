@@ -26,7 +26,6 @@ export type TypographyColor =
   | 'text-primary-inverted'
   | 'text-success'
   | 'text-warning'
-  | 'text-warning-box'
   | 'text-error';
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
@@ -86,7 +85,6 @@ const typographyColorMap: TypographyColorMap = {
   'text-success': 'var(--textSuccess)',
   'text-warning': 'var(--textWarning)',
   'text-error': 'var(--textError)',
-  'text-warning-box': 'var(--textWarningBox)',
 };
 
 const typographyWeightMap: TypographyWeightMap = {

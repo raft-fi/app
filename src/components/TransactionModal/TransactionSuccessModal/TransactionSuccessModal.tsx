@@ -39,16 +39,13 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         params: {
           type: 'ERC20',
           options: {
-            address: tokenToAdd.address,
-            symbol: tokenToAdd.symbol,
-            decimals: tokenToAdd.decimals,
-            image: tokenToAdd.image,
+            ...tokenToAdd,
           },
           // @web-onboard wrongly treats this as unknown[] but it should not
         } as unknown as unknown[],
       });
     }
-  }, [eip1193Provider, tokenToAdd.address, tokenToAdd.decimals, tokenToAdd.image, tokenToAdd.symbol]);
+  }, [eip1193Provider, tokenToAdd]);
 
   return (
     <ModalWrapper open={open} onClose={onClose}>

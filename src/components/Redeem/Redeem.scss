@@ -8,8 +8,8 @@
   .raft__redeem {
     padding: 32px;
     box-sizing: border-box;
-    background: #ffffff;
-    border: 1px solid #ccd5de;
+    background: var(--surfacePrimary);
+    border: 1px solid var(--borderPrimary);
     border-radius: 8px;
     width: 530px;
 
@@ -18,7 +18,7 @@
     }
 
     .raft__redeem__warningContainer {
-      margin-top: 24px;
+      margin-top: 12px;
       margin-bottom: 36px;
     }
 
@@ -52,7 +52,6 @@
           display: flex;
           align-items: center;
 
-          .raft__icon,
           .common-ui__logo {
             margin-right: 8px;
           }
@@ -81,7 +80,7 @@
 }
 
 .raft__redeem__infoTooltip {
-  max-width: 200px;
+  max-width: 220px;
 
   a {
     color: var(--textAccent);
@@ -89,6 +88,7 @@
 
   .raft__icon__externalLink {
     margin-left: 4px;
+
     --externalLinkColor: var(--textAccent);
   }
 }

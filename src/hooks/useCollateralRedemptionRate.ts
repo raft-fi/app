@@ -17,7 +17,7 @@ import {
 } from 'rxjs';
 import { Decimal } from '@tempusfinance/decimal';
 import { JsonRpcProvider } from 'ethers';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { COLLATERAL_BASE_TOKEN, DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { provider$ } from './useProvider';
 
@@ -54,7 +54,7 @@ const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(
 const periodicStream$: Observable<Nullable<Decimal>> = intervalBeat$.pipe(
   withLatestFrom(provider$),
   mergeMap<[number, JsonRpcProvider], Observable<Nullable<Decimal>>>(([, provider]) => {
-    return fetchData('wstETH', provider);
+    return fetchData(COLLATERAL_BASE_TOKEN, provider);
   }),
 );
 

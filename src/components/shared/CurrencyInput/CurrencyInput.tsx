@@ -230,13 +230,11 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           )}
         </div>
       </div>
-      {errorMsg && (
-        <div className="raft__currencyInput__errorContainer">
-          <Typography variant="caption" color="text-error">
-            {errorMsg}
-          </Typography>
-        </div>
-      )}
+      <div className="raft__currencyInput__errorContainer">
+        <Typography variant="caption" color="text-error">
+          {errorMsg}
+        </Typography>
+      </div>
       {disabled && <div className="raft__currencyInput__disabledOverlay"></div>}
     </div>
   );

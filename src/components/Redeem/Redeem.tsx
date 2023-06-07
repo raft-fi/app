@@ -2,9 +2,17 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
+import { R_TOKEN } from '@raft-fi/sdk';
 import { Link, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_BASE_TOKEN } from '../../constants';
-import { useCollateralRedemptionRate, useRedeem, useTokenBalances, useTokenPrices, useWallet } from '../../hooks';
+import {
+  useAppLoaded,
+  useCollateralRedemptionRate,
+  useRedeem,
+  useTokenBalances,
+  useTokenPrices,
+  useWallet,
+} from '../../hooks';
 import { getTokenValues } from '../../utils';
 import {
   Button,
@@ -19,11 +27,12 @@ import {
 } from '../shared';
 
 import './Redeem.scss';
-import { R_TOKEN } from '@raft-fi/sdk';
+import LoadingRedeem from '../LoadingRedeem';
 
 const Redeem = () => {
   const [, connect] = useConnectWallet();
 
+  const appLoaded = useAppLoaded();
   const tokenBalances = useTokenBalances();
   const tokenPrices = useTokenPrices();
   const redemptionRate = useCollateralRedemptionRate();
@@ -39,40 +48,11 @@ const Redeem = () => {
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
-  /**
-   * Update action button state based on current redeem request status
-   */
-  useEffect(() => {
-    if (!redeemStatus) {
-      return;
-    }
-
-    if (redeemStatus.pending) {
-      setTransactionState('loading');
-    } else if (redeemStatus.success) {
-      setTransactionState('success');
-    } else {
-      setTransactionState('default');
-    }
-  }, [redeemStatus]);
-
-  const onRedeem = useCallback(() => {
-    redeem({
-      debtAmount: debtAmountDecimal,
-      txnId: uuid(),
-      underlyingCollateralToken: COLLATERAL_BASE_TOKEN,
-    });
-  }, [debtAmountDecimal, redeem]);
-
-  const onConnectWallet = useCallback(() => {
-    connect();
-  }, [connect]);
-
-  const hasInputFilled = useMemo(() => debtAmountDecimal && !debtAmountDecimal.isZero(), [debtAmountDecimal]);
-
   const rTokenValues = useMemo(() => {
     return getTokenValues(tokenBalances[R_TOKEN], tokenPrices[R_TOKEN], R_TOKEN);
   }, [tokenBalances, tokenPrices]);
+
+  const hasInputFilled = useMemo(() => debtAmountDecimal && !debtAmountDecimal.isZero(), [debtAmountDecimal]);
 
   const hasEnoughRTokenBalance = useMemo(() => {
     if (!debtAmountDecimal || !rTokenValues.amount) {
@@ -82,23 +62,15 @@ const Redeem = () => {
     return debtAmountDecimal.lte(rTokenValues.amount);
   }, [debtAmountDecimal, rTokenValues.amount]);
 
-  // TODO - Handle all possible errors and update accordingly
   const canRedeem = useMemo(() => {
     return hasInputFilled && hasEnoughRTokenBalance;
   }, [hasEnoughRTokenBalance, hasInputFilled]);
 
-  const buttonDisabled = useMemo(
-    () => transactionState === 'loading' || (walletConnected && !canRedeem),
-    [canRedeem, transactionState, walletConnected],
-  );
-
-  const buttonLabel = useMemo(() => {
-    if (!walletConnected) {
-      return 'Connect wallet';
+  const errorMessage = useMemo(() => {
+    if (!hasEnoughRTokenBalance && walletConnected) {
+      return 'Insufficient funds';
     }
-
-    return 'Redeem'; // TODO - Handle all possible errors and update label accordingly
-  }, [walletConnected]);
+  }, [hasEnoughRTokenBalance, walletConnected]);
 
   const collateralToReceive = useMemo(() => {
     const collateralBaseTokenPrice = tokenPrices[COLLATERAL_BASE_TOKEN];
@@ -130,15 +102,71 @@ const Redeem = () => {
     });
   }, [redemptionRate]);
 
+  const buttonDisabled = useMemo(
+    () => transactionState === 'loading' || (walletConnected && !canRedeem),
+    [canRedeem, transactionState, walletConnected],
+  );
+
+  const buttonLabel = useMemo(() => {
+    if (!walletConnected) {
+      return 'Connect wallet';
+    }
+
+    if (!hasEnoughRTokenBalance) {
+      return 'Insufficient funds';
+    }
+
+    if (transactionState === 'loading') {
+      return 'Executing';
+    }
+
+    return 'Redeem'; // TODO - Handle all possible errors and update label accordingly
+  }, [hasEnoughRTokenBalance, transactionState, walletConnected]);
+
+  const onConnectWallet = useCallback(() => {
+    connect();
+  }, [connect]);
+
+  const onRedeem = useCallback(() => {
+    if (debtAmountDecimal.isZero()) {
+      return;
+    }
+
+    redeem({
+      debtAmount: debtAmountDecimal,
+      txnId: uuid(),
+      underlyingCollateralToken: COLLATERAL_BASE_TOKEN,
+    });
+  }, [debtAmountDecimal, redeem]);
+
   const onMaxAmountClick = useCallback(() => {
     setDebtAmount(rTokenValues.amount?.toString() || '');
   }, [rTokenValues.amount]);
 
-  const errorMessage = useMemo(() => {
-    if (!hasEnoughRTokenBalance) {
-      return 'Insufficient funds';
+  /**
+   * Update action button state based on current redeem request status
+   */
+  useEffect(() => {
+    if (!redeemStatus) {
+      return;
     }
-  }, [hasEnoughRTokenBalance]);
+
+    if (redeemStatus.pending) {
+      setTransactionState('loading');
+    } else if (redeemStatus.success) {
+      setTransactionState('success');
+    } else {
+      setTransactionState('default');
+    }
+  }, [redeemStatus]);
+
+  if (!appLoaded) {
+    return (
+      <div className="raft__redeem__container">
+        <LoadingRedeem />
+      </div>
+    );
+  }
 
   return (
     <div className="raft__redeem__container">
@@ -157,7 +185,7 @@ const Redeem = () => {
             maxAmount={rTokenValues.amount}
             maxAmountFormatted={rTokenValues.amountFormatted || ''}
             onMaxAmountClick={onMaxAmountClick}
-            error={!hasEnoughRTokenBalance}
+            error={!hasEnoughRTokenBalance && walletConnected}
             errorMsg={errorMessage}
           />
         </div>
@@ -172,8 +200,8 @@ const Redeem = () => {
               tooltipContent={
                 <Tooltip className="raft__redeem__infoTooltip">
                   <Typography variant="body2">
-                    Summary of your position after the transaction is executed.{' '}
-                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
+                    The amount of collateral that will be received after redeeming. Read the docs for more information.{' '}
+                    <Link href="https://docs.raft.fi/how-it-works/returning/redemption">
                       docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
@@ -196,14 +224,12 @@ const Redeem = () => {
               )}
               {collateralToReceiveValues.valueFormatted && (
                 <div className="raft__redeem__collateralDataRowValue">
-                  (
                   <ValueLabel
-                    value={`${debtAmountDecimal.isZero() ? '' : '~'}${collateralToReceiveValues.valueFormatted}`}
+                    value={`(${debtAmountDecimal.isZero() ? '' : '~'}${collateralToReceiveValues.valueFormatted})`}
                     tickerSize="caption"
                     valueSize="body"
                     color="text-secondary"
                   />
-                  )
                 </div>
               )}
             </div>
@@ -211,15 +237,11 @@ const Redeem = () => {
 
           <div className="raft__redeem__collateralDataTitle">
             <Typography variant="overline">PROTOCOL FEES</Typography>
+            {/* TODO - Update tooltip content */}
             <TooltipWrapper
               tooltipContent={
                 <Tooltip className="raft__redeem__infoTooltip">
-                  <Typography variant="body2">
-                    Summary of your position after the transaction is executed.{' '}
-                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      docs <Icon variant="external-link" size={10} />
-                    </Link>
-                  </Typography>
+                  <Typography variant="body2">TODO</Typography>
                 </Tooltip>
               }
               placement="top"
@@ -255,5 +277,3 @@ const Redeem = () => {
 };
 
 export default memo(Redeem);
-
-// 0.00003267
