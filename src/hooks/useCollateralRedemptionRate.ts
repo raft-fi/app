@@ -21,6 +21,8 @@ import { COLLATERAL_BASE_TOKEN, DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '.
 import { Nullable } from '../interfaces';
 import { provider$ } from './useProvider';
 
+const CL_DEVIATION = 0.01; // 1%
+
 // TODO - We currently only have one underlying collateral (wstETH), once we add more,
 //we need to store redemption rate for each underlying collateral separately
 
@@ -61,8 +63,8 @@ const periodicStream$: Observable<Nullable<Decimal>> = intervalBeat$.pipe(
 // merge all stream$ into one if there are multiple
 const stream$ = merge(periodicStream$).pipe(
   debounce<Nullable<Decimal>>(() => interval(DEBOUNCE_IN_MS)),
-  tap(balance => {
-    collateralRedemptionRate$.next(balance);
+  tap(rate => {
+    collateralRedemptionRate$.next(rate ? rate.add(CL_DEVIATION) : null);
   }),
 );
 
