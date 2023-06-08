@@ -782,7 +782,7 @@ const OpenPosition = () => {
                   <Typography variant="body2">
                     Summary of your position after the transaction is executed.{' '}
                     <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      docs <Icon variant="external-link" size={10} />
+                      Docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
                 </Tooltip>
@@ -854,7 +854,7 @@ const OpenPosition = () => {
                   <Typography variant="body2">
                     Borrowing fees associated with your transaction. Read the docs for more information.{' '}
                     <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      docs <Icon variant="external-link" size={10} />
+                      Docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
                 </Tooltip>
