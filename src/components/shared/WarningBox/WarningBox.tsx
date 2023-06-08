@@ -12,7 +12,7 @@ const WarningBox: FC<WarningBoxProps> = ({ text }) => {
   return (
     <div className="raft__warningBox">
       <Icon variant="warning" size={20} />
-      <Typography variant="body2" color="text-warning">
+      <Typography variant="body2" color="text-error">
         {text}
       </Typography>
     </div>
