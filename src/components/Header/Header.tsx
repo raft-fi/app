@@ -35,7 +35,7 @@ const Header = () => {
       <div key="navitem-your-position" className="raft__header__nav-item">
         <Link to="/">
           <Typography
-            variant="heading2"
+            variant="menu-item"
             className={`${
               currentPage === 'your-position' ? 'raft__header__link-active' : 'raft__header__link-inactive'
             }`}
@@ -47,7 +47,7 @@ const Header = () => {
       <div key="navitem-redeem" className="raft__header__nav-item">
         <Link to="/redeem">
           <Typography
-            variant="heading2"
+            variant="menu-item"
             className={`${currentPage === 'redeem' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
             Redeem
