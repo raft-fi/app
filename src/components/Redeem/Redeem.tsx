@@ -190,7 +190,7 @@ const Redeem = () => {
           />
         </div>
         <div className="raft__redeem__warningContainer">
-          <WarningBox text="Warning: Redemption of R at peg will result in significant financial loss." />
+          <WarningBox text="Redemption of R at peg will result in significant financial loss." />
         </div>
 
         <div className="raft__redeem__collateralData">
