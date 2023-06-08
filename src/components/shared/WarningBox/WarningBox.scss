@@ -7,9 +7,6 @@
   display: flex;
   align-items: center;
 
-  /* TODO: hardcode color as suggested */
-  --textWarning: var(--raft-yellow-800);
-
   .raft__icon__warning {
     flex-shrink: 0;
     margin-right: 12px;
