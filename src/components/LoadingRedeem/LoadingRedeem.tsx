@@ -19,8 +19,8 @@ const LoadingRedeem = () => (
       </g>
       <defs>
         <linearGradient id="paint0_linear_1055_16721" x1="265" y1="0" x2="265" y2="529" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#C0CAD2" stop-opacity="0.12" />
-          <stop offset="1" stop-color="#9FB1C1" stop-opacity="0.17" />
+          <stop stopColor="#C0CAD2" stopOpacity="0.12" />
+          <stop offset="1" stopColor="#9FB1C1" stopOpacity="0.17" />
         </linearGradient>
       </defs>
     </svg>

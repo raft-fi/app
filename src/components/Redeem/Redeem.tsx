@@ -236,12 +236,17 @@ const Redeem = () => {
           </div>
 
           <div className="raft__redeem__collateralDataTitle">
-            <Typography variant="overline">PROTOCOL FEES</Typography>
+            <Typography variant="overline">REDEMPTION FEE</Typography>
             {/* TODO - Update tooltip content */}
             <TooltipWrapper
               tooltipContent={
                 <Tooltip className="raft__redeem__infoTooltip">
-                  <Typography variant="body2">TODO</Typography>
+                  <Typography variant="body2">
+                    Redemption fee associated with your transaction. Read the docs for more information.{' '}
+                    <Link href="https://docs.raft.fi/how-it-works/returning/redemption">
+                      docs <Icon variant="external-link" size={10} />
+                    </Link>
+                  </Typography>
                 </Tooltip>
               }
               placement="top"
