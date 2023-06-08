@@ -236,7 +236,7 @@ const Redeem = () => {
           </div>
 
           <div className="raft__redeem__collateralDataTitle">
-            <Typography variant="overline">REDEMPTION FEES</Typography>
+            <Typography variant="overline">REDEMPTION FEE</Typography>
             {/* TODO - Update tooltip content */}
             <TooltipWrapper
               tooltipContent={
