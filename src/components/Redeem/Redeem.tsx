@@ -202,7 +202,7 @@ const Redeem = () => {
                   <Typography variant="body2">
                     The amount of collateral that will be received after redeeming. Read the docs for more information.{' '}
                     <Link href="https://docs.raft.fi/how-it-works/returning/redemption">
-                      docs <Icon variant="external-link" size={10} />
+                      Docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
                 </Tooltip>
@@ -244,7 +244,7 @@ const Redeem = () => {
                   <Typography variant="body2">
                     Redemption fee associated with your transaction. Read the docs for more information.{' '}
                     <Link href="https://docs.raft.fi/how-it-works/returning/redemption">
-                      docs <Icon variant="external-link" size={10} />
+                      Docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
                 </Tooltip>

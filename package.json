@@ -21,7 +21,7 @@
   "dependencies": {
     "@emotion/styled": "^11.10.6",
     "@mui/material": "^5.11.1",
-    "@raft-fi/sdk": "^0.3.2",
+    "@raft-fi/sdk": "0.3.2",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
     "@tempusfinance/decimal": "^0.0.12",
