@@ -826,7 +826,9 @@ const OpenPosition = () => {
               {!collateralizationRatio || collateralizationRatio.isZero() ? (
                 <>
                   <div className="raft__openPosition__data__position__data__ratio__empty-status" />
-                  <Typography variant="body">N/A</Typography>
+                  <Typography variant="body" weight="medium">
+                    N/A
+                  </Typography>
                 </>
               ) : (
                 <>
