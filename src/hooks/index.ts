@@ -20,4 +20,3 @@ export * from './useWhitelistDelegate';
 export * from './useAppLoaded';
 export * from './useCollateralBorrowingRate';
 export * from './useRedeem';
-export * from './useCollateralRedemptionRate';

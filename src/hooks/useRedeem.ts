@@ -36,7 +36,7 @@ interface RedeemStatus {
   request: RedeemRequest;
   success?: boolean;
   error?: Error;
-  contractTransaction?: ethers.ContractTransactionResponse;
+  contractTransaction?: ethers.TransactionResponse;
   transactionData?: {
     amount: Decimal;
     gasFee: Decimal;
@@ -47,7 +47,7 @@ interface RedeemStatus {
 
 interface RedeemResponse {
   request: RedeemRequest;
-  contractTransaction?: ethers.ContractTransactionResponse;
+  contractTransaction?: ethers.TransactionResponse;
   transactionReceipt?: ethers.TransactionReceipt;
   transactionData?: {
     amount: Decimal;
