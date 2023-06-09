@@ -39,7 +39,7 @@
           margin-top: 42px;
         }
 
-        .raft__icon__info {
+        .raft__tooltip-wrapper-anchor {
           margin-left: 6px;
         }
       }
@@ -87,8 +87,6 @@
   }
 
   .raft__icon__externalLink {
-    margin-left: 4px;
-
     --externalLinkColor: var(--textAccent);
   }
 }
