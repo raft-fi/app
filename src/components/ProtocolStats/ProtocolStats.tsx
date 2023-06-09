@@ -2,7 +2,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN } from '@raft-fi/sdk';
-import { useProtocolStats, useTokenPrices } from '../../hooks';
+import { useCollateralConversionRate, useProtocolStats, useTokenPrices } from '../../hooks';
 import { getProtocolCollateralRatioLabel, getProtocolCollateralRatioLevel, getTokenValues } from '../../utils';
 import {
   COLLATERAL_BASE_TOKEN,
@@ -19,22 +19,26 @@ const collateralThreshold = 1000; // 1k
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
+  const collateralConversionRate = useCollateralConversionRate();
 
-  const displayBaseTokenValues = useMemo(() => {
-    return getTokenValues(Decimal.ONE, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
-  }, [tokenPriceMap]);
-
-  const collateralTotalSupplyValues = useMemo(() => {
-    if (!protocolStats || !displayBaseTokenValues.price || !tokenPriceMap[COLLATERAL_BASE_TOKEN]) {
+  const displayCollateralTotalSupplyValues = useMemo(() => {
+    if (!protocolStats || !collateralConversionRate) {
       return null;
     }
 
-    const amount = tokenPriceMap[COLLATERAL_BASE_TOKEN].mul(protocolStats.collateralSupply).div(
-      displayBaseTokenValues.price,
-    );
+    const amount = protocolStats.collateralSupply.mul(collateralConversionRate);
 
     return getTokenValues(amount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
-  }, [displayBaseTokenValues?.price, protocolStats, tokenPriceMap]);
+  }, [collateralConversionRate, protocolStats, tokenPriceMap]);
+
+  const underlyingCollateralTotalSupplyValues = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return getTokenValues(protocolStats.collateralSupply, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN);
+  }, [protocolStats, tokenPriceMap]);
+
   const debtTotalSupplyValues = useMemo(() => {
     if (!protocolStats) {
       return null;
@@ -43,31 +47,32 @@ const ProtocolStats = () => {
     return getTokenValues(protocolStats.debtSupply, tokenPriceMap[R_TOKEN], R_TOKEN);
   }, [protocolStats, tokenPriceMap]);
 
-  const collateralTotalSupplyAmountFormatted = useMemo(() => {
-    if (collateralTotalSupplyValues?.amount) {
+  const displayCollateralTotalSupplyAmountFormatted = useMemo(() => {
+    if (displayCollateralTotalSupplyValues?.amount) {
       let fractionDigits = COLLATERAL_TOKEN_UI_PRECISION;
 
-      if (collateralTotalSupplyValues?.amount.gte(collateralThreshold)) {
+      if (displayCollateralTotalSupplyValues?.amount.gte(collateralThreshold)) {
         fractionDigits = 0;
       }
 
-      return DecimalFormat.format(collateralTotalSupplyValues.amount, {
+      return DecimalFormat.format(displayCollateralTotalSupplyValues.amount, {
         style: 'decimal',
         fractionDigits,
       });
     }
 
     return null;
-  }, [collateralTotalSupplyValues?.amount]);
-  const collateralTotalSupplyValueFormatted = useMemo(
+  }, [displayCollateralTotalSupplyValues?.amount]);
+
+  const underlyingCollateralTotalSupplyValueFormatted = useMemo(
     () =>
-      collateralTotalSupplyValues?.value
-        ? DecimalFormat.format(collateralTotalSupplyValues.value, {
+      underlyingCollateralTotalSupplyValues?.value
+        ? DecimalFormat.format(underlyingCollateralTotalSupplyValues.value, {
             style: 'decimal',
             fractionDigits: USD_UI_PRECISION,
           })
         : null,
-    [collateralTotalSupplyValues?.value],
+    [underlyingCollateralTotalSupplyValues?.value],
   );
 
   const debtTotalSupplyAmountFormatted = useMemo(
@@ -92,16 +97,16 @@ const ProtocolStats = () => {
   );
 
   const collateralizationRatio = useMemo(() => {
-    if (!collateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
+    if (!displayCollateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
       return null;
     }
 
-    if (collateralTotalSupplyValues.value.isZero()) {
+    if (displayCollateralTotalSupplyValues.value.isZero()) {
       return Decimal.ZERO;
     }
 
-    return collateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
-  }, [collateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
+    return displayCollateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
+  }, [displayCollateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
 
   const collateralizationRatioFormatted = useMemo(
     () =>
@@ -131,7 +136,7 @@ const ProtocolStats = () => {
         <div className="raft__protocol-stats__collateral__amount">
           <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
           <div className="raft__protocol-stats__collateral__amount__number">
-            <Typography variant="heading1">{collateralTotalSupplyAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading1">{displayCollateralTotalSupplyAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{DISPLAY_BASE_TOKEN}</Typography>
           </div>
         </div>
@@ -140,7 +145,7 @@ const ProtocolStats = () => {
             $
           </Typography>
           <Typography variant="body" weight="medium" color="text-secondary">
-            {collateralTotalSupplyValueFormatted ?? '---'}
+            {underlyingCollateralTotalSupplyValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>
