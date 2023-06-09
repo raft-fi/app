@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, R_TOKEN, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
