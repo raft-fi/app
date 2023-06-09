@@ -167,7 +167,7 @@ const TransactionModal = () => {
    */
   const successModalSubtitle = useMemo(() => {
     if (redeemStatus) {
-      return 'Successful transaction';
+      return 'Successful redemption';
     }
 
     if (!borrowStatus || !debtChange || !collateralChange) {
