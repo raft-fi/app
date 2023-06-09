@@ -35,6 +35,14 @@
       .raft__adjustPosition__input-withdraw,
       .raft__adjustPosition__input-borrow,
       .raft__adjustPosition__input-repay {
+        &[data-selected='false'] {
+          &:hover {
+            div {
+              --textPrimary: var(--textAccent);
+            }
+          }
+        }
+
         &[data-selected='true'] {
           --textPrimary: var(--textAccent);
 
