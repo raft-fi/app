@@ -1,3 +1,5 @@
+import { TOKENS } from '@raft-fi/sdk';
+
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
 export const GITHUB_URL = 'https://github.com/raft-fi';
@@ -21,3 +23,11 @@ export const COLLATERAL_BASE_TOKEN = 'wstETH';
 export const ZERO_ADDRESS = '0x0';
 export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
+
+export const DEFAULT_MAP = TOKENS.reduce(
+  (map, token) => ({
+    ...map,
+    [token]: null,
+  }),
+  {},
+);

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
 import { CollateralToken, R_TOKEN, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
@@ -20,6 +19,7 @@ import {
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
+  DEFAULT_MAP,
   DISPLAY_BASE_TOKEN,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
@@ -30,18 +30,12 @@ import {
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
 import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
-import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
-import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
+import { getTokenValues, isCollateralToken } from '../../utils';
+import { Button, CurrencyInput, Typography } from '../shared';
+import { OpenPositionAfter } from './OpenPositionAfter';
+import { OpenPositionAction } from './OpenPositionAction';
 
 import './OpenPosition.scss';
-
-const DEFAULT_MAP = TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {},
-);
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -213,16 +207,6 @@ const OpenPosition = () => {
     collateralTokenValues.value,
     selectedCollateralToken,
   ]);
-  const baseTokenAmountFormatted = useMemo(
-    () =>
-      DecimalFormat.format(baseTokenAmount ?? Decimal.ZERO, {
-        style: 'currency',
-        currency: DISPLAY_BASE_TOKEN,
-        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-        lessThanFormat: true,
-      }),
-    [baseTokenAmount],
-  );
 
   const collateralizationRatio = useMemo(() => {
     if (collateralTokenValues.value === null || borrowTokenValues.value === null || borrowTokenValues.value.isZero()) {
@@ -236,13 +220,6 @@ const OpenPosition = () => {
 
     return collateralTokenValues.value.div(borrowTokenValues.value);
   }, [borrowAmount, borrowTokenValues.value, collateralTokenValues.value]);
-  const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2, pad: true })
-        : 'N/A',
-    [collateralizationRatio],
-  );
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!collateralTokenValues.amount) {
@@ -264,9 +241,6 @@ const OpenPosition = () => {
 
     return original === truncated ? original : `${truncated}...`;
   }, [borrowTokenValues.amount]);
-
-  const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
-  const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
 
   const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
   const rTokenBalanceFormatted = useMemo(() => {
@@ -491,11 +465,6 @@ const OpenPosition = () => {
     approveStatus?.pending,
     selectedCollateralToken,
   ]);
-
-  const buttonDisabled = useMemo(
-    () => actionButtonState === 'loading' || (walletConnected && !canBorrow),
-    [canBorrow, actionButtonState, walletConnected],
-  );
 
   const onConnectWallet = useCallback(() => {
     connect();
@@ -764,120 +733,20 @@ const OpenPosition = () => {
           errorMsg={debtErrorMsg}
         />
       </div>
-      <div className="raft__openPosition__data">
-        <div className="raft__openPosition__data__position">
-          <div className="raft__openPosition__data__position__title">
-            <Typography variant="overline">POSITION AFTER</Typography>
-            <TooltipWrapper
-              tooltipContent={
-                <Tooltip className="raft__openPosition__infoTooltip">
-                  <Typography variant="body2">
-                    Summary of your position after the transaction is executed.{' '}
-                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      Docs <Icon variant="external-link" size={10} />
-                    </Link>
-                  </Typography>
-                </Tooltip>
-              }
-              placement="top"
-            >
-              <Icon variant="info" size="tiny" />
-            </TooltipWrapper>
-          </div>
-          <ul className="raft__openPosition__data__position__data">
-            <li className="raft__openPosition__data__position__data__deposit">
-              <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
-              <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
-              {collateralTokenValues.valueFormatted && (
-                <Typography
-                  className="raft__openPosition__data__position__data__deposit__value"
-                  variant="body"
-                  weight="medium"
-                  color="text-secondary"
-                >
-                  (
-                  <ValueLabel
-                    value={collateralTokenValues.valueFormatted}
-                    tickerSize="caption"
-                    valueSize="body"
-                    color="text-secondary"
-                  />
-                  )
-                </Typography>
-              )}
-            </li>
-            <li className="raft__openPosition__data__position__data__debt">
-              <TokenLogo type={`token-${R_TOKEN}`} size={20} />
-              <ValueLabel
-                value={borrowTokenValues.amountFormatted ?? `0.00 ${R_TOKEN}`}
-                valueSize="body"
-                tickerSize="caption"
-              />
-            </li>
-            <li className="raft__openPosition__data__position__data__ratio">
-              {!collateralizationRatio || collateralizationRatio.isZero() ? (
-                <>
-                  <div className="raft__openPosition__data__position__data__ratio__empty-status" />
-                  <Typography variant="body" weight="medium">
-                    N/A
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Icon variant="arrow-up" size="tiny" />
-                  <div
-                    className={`raft__openPosition__data__position__data__ratio__status status-risk-${collateralRatioLevel}`}
-                  />
-                  <ValueLabel value={collateralizationRatioFormatted} valueSize="body" tickerSize="caption" />
-                  <Typography variant="body" weight="medium" color="text-secondary">
-                    ({collateralRatioLabel})
-                  </Typography>
-                </>
-              )}
-            </li>
-          </ul>
-        </div>
-        <div className="raft__openPosition__data__others">
-          <div className="raft__openPosition__data__protocol-fee__title">
-            <Typography variant="overline">PROTOCOL FEES</Typography>
-            <TooltipWrapper
-              tooltipContent={
-                <Tooltip className="raft__openPosition__infoTooltip">
-                  <Typography variant="body2">
-                    Borrowing fees associated with your transaction. Read the docs for more information.{' '}
-                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      Docs <Icon variant="external-link" size={10} />
-                    </Link>
-                  </Typography>
-                </Tooltip>
-              }
-              placement="top"
-            >
-              <Icon variant="info" size="tiny" />
-            </TooltipWrapper>
-          </div>
-          <div className="raft__openPosition__data__protocol-fee__value">
-            <ValueLabel
-              value={borrowingFeeAmountFormatted ?? `0.00 ${R_TOKEN}`}
-              valueSize="body"
-              tickerSize="caption"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="raft__openPosition__action">
-        <Button
-          variant="primary"
-          size="large"
-          onClick={walletConnected ? onAction : onConnectWallet}
-          disabled={buttonDisabled}
-        >
-          {actionButtonState === 'loading' && <Loading />}
-          <Typography variant="button-label" color="text-primary-inverted">
-            {buttonLabel}
-          </Typography>
-        </Button>
-      </div>
+      <OpenPositionAfter
+        baseTokenAmount={baseTokenAmount}
+        collateralTokenValueFormatted={collateralTokenValues.valueFormatted}
+        borrowTokenAmountFormatted={borrowTokenValues.amountFormatted}
+        collateralizationRatio={collateralizationRatio}
+        borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
+      />
+      <OpenPositionAction
+        actionButtonState={actionButtonState}
+        canBorrow={canBorrow}
+        buttonLabel={buttonLabel}
+        walletConnected={walletConnected}
+        onClick={walletConnected ? onAction : onConnectWallet}
+      />
     </div>
   );
 };
