@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
-const Favorite: FC<InnerIconProps> = ({ size, color }) => (
+const Favorite: FC<InnerIconProps> = ({ size }) => (
   <svg width={size} height={size} viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="0.5" width="48" height="48" rx="24" fill="#FF8D3A" fillOpacity="0.22" />
     <path

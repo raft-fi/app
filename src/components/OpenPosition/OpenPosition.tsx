@@ -3,7 +3,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -29,19 +29,11 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
+import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
 import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
-import { Nullable } from '../../interfaces';
 
 import './OpenPosition.scss';
-
-type TokenApprovedMap = {
-  [token in Token]: Nullable<boolean>;
-};
-
-type TokenSignatureMap = {
-  [token in Token]: Nullable<ERC20PermitSignatureStruct>;
-};
 
 const DEFAULT_MAP = TOKENS.reduce(
   (map, token) => ({
