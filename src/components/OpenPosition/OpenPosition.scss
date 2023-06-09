@@ -45,7 +45,7 @@
         display: flex;
         align-items: center;
 
-        .raft__icon__info {
+        .raft__tooltip-wrapper-anchor {
           margin-left: 6px;
         }
       }
@@ -148,7 +148,7 @@
         display: flex;
         align-items: center;
 
-        .raft__icon__info {
+        .raft__tooltip-wrapper-anchor {
           margin-left: 6px;
         }
       }
@@ -200,7 +200,6 @@
   }
 
   .raft__icon__externalLink {
-    margin-left: 4px;
     --externalLinkColor: var(--textAccent);
   }
 }
