@@ -18,7 +18,8 @@ export type TypographyVariant =
   | 'body2'
   | 'caption'
   | 'input-value'
-  | 'button-label';
+  | 'button-label'
+  | 'menu-item';
 export type TypographyColor =
   | 'text-primary'
   | 'text-secondary'
@@ -49,6 +50,7 @@ const typographyVariantMap: TypographyVariantMap = {
     fontStyle: 'normal',
     fontSize: '12px',
     lineHeight: '16.8px',
+    letterSpacing: '0.03em',
   },
   body: {
     fontStyle: 'normal',
@@ -74,6 +76,11 @@ const typographyVariantMap: TypographyVariantMap = {
     fontStyle: 'normal',
     fontSize: '16px',
     lineHeight: '22.4px',
+  },
+  'menu-item': {
+    fontStyle: 'normal',
+    fontSize: '18px',
+    lineHeight: '25px',
   },
 };
 
@@ -104,6 +111,7 @@ const typographyDefaultWeightMap: { [x: string]: TypographyWeight } = {
   caption: 'regular',
   'input-value': 'bold',
   'button-label': 'medium',
+  'menu-item': 'medium',
 };
 
 const typographyTypeMap: TypographyTypeMap = {

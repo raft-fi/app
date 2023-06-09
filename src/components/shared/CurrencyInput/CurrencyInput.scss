@@ -6,11 +6,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 
     .raft__currencyInput__title {
       /* TODO: hardcode color as suggested */
-      --textPrimary: var(--raft-grey-600);
+      --textPrimary: var(--raft-grey-700);
 
       display: flex;
       align-items: center;
@@ -22,7 +22,7 @@
         align-items: center;
 
         // TODO: remove the following css and update ValueLabel
-        .raft__valueLabel{
+        .raft__valueLabel {
           > div:nth-child(1) {
             line-height: 14px !important;
             color: var(--raft-grey-800) !important;

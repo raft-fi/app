@@ -1,4 +1,4 @@
-import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo } from 'react';
+import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo, ReactNode } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../../interfaces';
@@ -14,12 +14,12 @@ import './CurrencyInput.scss';
 const MAX_INTEGRAL_DIGIT = 10;
 
 export interface CurrencyInputProps extends BaseInputProps {
-  label: string;
+  label: ReactNode | string;
   value: string;
   previewValue?: string;
   placeholder?: string;
   precision: number;
-  fiatValue: Nullable<string>;
+  fiatValue?: string;
   disabled?: boolean;
   error?: boolean;
   errorMsg?: string;
@@ -29,11 +29,12 @@ export interface CurrencyInputProps extends BaseInputProps {
   step?: number;
   allowNegativeNumbers?: boolean;
   maxIntegralDigits?: number;
+  maxAmount?: Nullable<Decimal>;
+  maxAmountFormatted?: string;
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
-  maxAmount?: Nullable<Decimal>;
-  maxAmountFormatted?: string;
+  onMaxAmountClick?: () => void;
 }
 
 const CurrencyInput: FC<CurrencyInputProps> = props => {
@@ -58,6 +59,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     onTokenUpdate,
     onFocus,
     onBlur,
+    onMaxAmountClick,
   } = props;
   const inputRef = createRef<HTMLInputElement>();
 
@@ -140,17 +142,19 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         </Typography>
         <div className="raft__currencyInput__maxAmount">
           {maxAmount && (
-            <div className="raft__currencyInput__maxAmountValue">
-              <Icon variant="wallet" size="tiny" />
+            <ButtonWrapper onClick={onMaxAmountClick} disabled={!onMaxAmountClick}>
               <div className="raft__currencyInput__maxAmountValue">
-                <ValueLabel
-                  valueSize="caption"
-                  tickerSize="body2"
-                  color="text-secondary"
-                  value={maxAmountFormatted ?? maxAmount?.toString()}
-                />
+                <Icon variant="wallet" size="tiny" />
+                <div className="raft__currencyInput__maxAmountValue">
+                  <ValueLabel
+                    valueSize="caption"
+                    tickerSize="body2"
+                    color="text-secondary"
+                    value={maxAmountFormatted ?? maxAmount?.toString()}
+                  />
+                </div>
               </div>
-            </div>
+            </ButtonWrapper>
           )}
         </div>
       </div>

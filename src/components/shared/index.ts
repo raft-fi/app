@@ -12,6 +12,7 @@ import ValueLabel from './ValueLabel';
 import TooltipWrapper from './TooltipWrapper';
 import Tooltip from './Tooltip';
 import Checkbox from './Checkbox';
+import WarningBox from './WarningBox';
 
 export {
   Button,
@@ -28,6 +29,7 @@ export {
   TooltipWrapper,
   Tooltip,
   Checkbox,
+  WarningBox,
 };
 
 export { colors } from './Colors';

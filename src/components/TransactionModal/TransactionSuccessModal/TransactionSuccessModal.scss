@@ -5,7 +5,7 @@
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  width: 496px;
+  width: 512px;
 
   .raft__transactionSuccessModal__icon {
     margin-top: 36px;
@@ -21,6 +21,9 @@
 
   .raft__transactionSuccessModal__subtitle {
     margin-top: 16px;
+
+    /* TODO: hardcode color as suggested */
+    --textSecondary: var(--raft-grey-800);
   }
 
   .raft__transactionSuccessModal__explorerLink {
@@ -31,7 +34,7 @@
     margin-top: 24px;
 
     /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-600);
+    --textPrimary: var(--raft-grey-700);
 
     .common-ui__link {
       text-decoration: none;

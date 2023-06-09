@@ -1,4 +1,4 @@
-import { Stats, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { Protocol, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import {
   from,
@@ -28,7 +28,7 @@ export const collateralBorrowingRate$ = new BehaviorSubject<Nullable<Decimal>>(n
 
 const fetchData = (collateralToken: UnderlyingCollateralToken, provider: JsonRpcProvider) => {
   try {
-    const stats = Stats.getInstance(provider);
+    const stats = Protocol.getInstance(provider);
 
     return from(stats.fetchBorrowingRate(collateralToken)).pipe(
       catchError(error => {

@@ -454,7 +454,7 @@ const OpenPosition = () => {
 
   const debtErrorMsg = useMemo(() => {
     if (!hasMinBorrow) {
-      return `You need to borrow at least ${minBorrowFormatted} R`;
+      return `You need to generate at least ${minBorrowFormatted} R`;
     }
 
     if (!hasMinRatio) {
@@ -469,7 +469,7 @@ const OpenPosition = () => {
 
     // data not yet loaded will set executionSteps = 1, always show "Execution"
     if (executionSteps === 1) {
-      return borrowStatus?.pending ? 'Executing (1/1)' : 'Execute (1/1)';
+      return borrowStatus?.pending ? 'Executing' : 'Execute';
     }
 
     if (!hasWhitelisted) {
@@ -782,7 +782,7 @@ const OpenPosition = () => {
                   <Typography variant="body2">
                     Summary of your position after the transaction is executed.{' '}
                     <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      docs <Icon variant="external-link" size={10} />
+                      Docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
                 </Tooltip>
@@ -826,7 +826,9 @@ const OpenPosition = () => {
               {!collateralizationRatio || collateralizationRatio.isZero() ? (
                 <>
                   <div className="raft__openPosition__data__position__data__ratio__empty-status" />
-                  <Typography variant="body">N/A</Typography>
+                  <Typography variant="body" weight="medium">
+                    N/A
+                  </Typography>
                 </>
               ) : (
                 <>
@@ -852,7 +854,7 @@ const OpenPosition = () => {
                   <Typography variant="body2">
                     Borrowing fees associated with your transaction. Read the docs for more information.{' '}
                     <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      docs <Icon variant="external-link" size={10} />
+                      Docs <Icon variant="external-link" size={10} />
                     </Link>
                   </Typography>
                 </Tooltip>

@@ -27,6 +27,12 @@
       position: relative;
       z-index: 3;
 
+      .common-ui__header__logo {
+        width: 120px;
+
+        --headerLogoRightMargin: 0px;
+      }
+
       .raft__header__link-active {
         --textPrimary: var(--headerActive);
       }

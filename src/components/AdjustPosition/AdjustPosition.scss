@@ -25,6 +25,38 @@
       &:last-child {
         margin-right: 0;
       }
+
+      .raft__adjustPosition__input-deposit,
+      .raft__adjustPosition__input-borrow {
+        margin-right: 8px;
+      }
+
+      .raft__adjustPosition__input-deposit,
+      .raft__adjustPosition__input-withdraw,
+      .raft__adjustPosition__input-borrow,
+      .raft__adjustPosition__input-repay {
+        &[data-selected='false'] {
+          &:hover {
+            div {
+              --textPrimary: var(--textAccent);
+            }
+          }
+        }
+
+        &[data-selected='true'] {
+          --textPrimary: var(--textAccent);
+
+          position: relative;
+
+          &::after {
+            content: ' ';
+            border-bottom: 2px solid var(--textAccent);
+            width: 100%;
+            position: absolute;
+            top: 18px;
+          }
+        }
+      }
     }
   }
 
