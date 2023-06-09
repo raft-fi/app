@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper, Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -27,18 +27,10 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
-import { Nullable } from '../../interfaces';
+import { Nullable, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
 
 import './AdjustPosition.scss';
-
-type TokenApprovedMap = {
-  [token in Token]: Nullable<boolean>;
-};
-
-type TokenSignatureMap = {
-  [token in Token]: Nullable<ERC20PermitSignatureStruct>;
-};
 
 interface AdjustPositionProps {
   collateralBalance: Decimal;
