@@ -75,7 +75,7 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
         if (collateralChange.lt(0) && transaction.debtChange.isZero()) {
           return (
             <>
-              <Typography variant="body2">Withdrew&nbsp;</Typography>
+              <Typography variant="body2">Withdrawn&nbsp;</Typography>
               <Typography variant="body2" weight="semi-bold">
                 {collateralChangeFormatted}
               </Typography>
@@ -101,7 +101,9 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
             <Typography variant="body2" weight="semi-bold">
               {debtChangeFormatted}
             </Typography>
-            <Typography variant="body2">&nbsp;and {collateralChange.lt(0) ? 'withdrew' : 'deposited'}&nbsp;</Typography>
+            <Typography variant="body2">
+              &nbsp;and {collateralChange.lt(0) ? 'withdrawn' : 'deposited'}&nbsp;
+            </Typography>
             <Typography variant="body2" weight="semi-bold">
               {collateralChangeFormatted}
             </Typography>

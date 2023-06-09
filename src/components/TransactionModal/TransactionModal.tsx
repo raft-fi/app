@@ -119,7 +119,7 @@ const TransactionModal = () => {
     }
 
     if (collateralChange.lt(0)) {
-      collateralLabel = 'withdrew';
+      collateralLabel = 'withdrawn';
     } else {
       collateralLabel = 'deposited';
     }
@@ -167,7 +167,7 @@ const TransactionModal = () => {
    */
   const successModalSubtitle = useMemo(() => {
     if (redeemStatus) {
-      return 'Successful transaction';
+      return 'Successful redemption';
     }
 
     if (!borrowStatus || !debtChange || !collateralChange) {
@@ -175,16 +175,16 @@ const TransactionModal = () => {
     }
 
     if (collateralChange.lt(0) && debtChange.isZero()) {
-      return 'Successfully withdrawn';
+      return 'Successful withdrawal';
     }
     if (collateralChange.isZero() && debtChange.lt(0)) {
-      return 'Successfully repaid';
+      return 'Successful repayment';
     }
     if (collateralChange.gt(0) && debtChange.isZero()) {
-      return 'Successfully deposited';
+      return 'Successful deposit';
     }
     if (collateralChange.isZero() && debtChange.gt(0)) {
-      return 'Successfully generated';
+      return 'Successful generation of R';
     }
 
     return 'Successful transaction';
