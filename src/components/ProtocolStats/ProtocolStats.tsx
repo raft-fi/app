@@ -97,16 +97,16 @@ const ProtocolStats = () => {
   );
 
   const collateralizationRatio = useMemo(() => {
-    if (!displayCollateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
+    if (!underlyingCollateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
       return null;
     }
 
-    if (displayCollateralTotalSupplyValues.value.isZero()) {
+    if (underlyingCollateralTotalSupplyValues.value.isZero()) {
       return Decimal.ZERO;
     }
 
-    return displayCollateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
-  }, [displayCollateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
+    return underlyingCollateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
+  }, [underlyingCollateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
 
   const collateralizationRatioFormatted = useMemo(
     () =>
