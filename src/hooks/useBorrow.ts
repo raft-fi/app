@@ -40,7 +40,7 @@ interface BorrowStatus {
   request: BorrowRequest;
   success?: boolean;
   error?: Error;
-  contractTransaction?: ethers.ContractTransactionResponse;
+  contractTransaction?: ethers.TransactionResponse;
   transactionData?: {
     borrowedAmount: Decimal;
     gasFee: Decimal;
@@ -51,7 +51,7 @@ interface BorrowStatus {
 
 interface BorrowResponse {
   request: BorrowRequest;
-  contractTransaction?: ethers.ContractTransactionResponse;
+  contractTransaction?: ethers.TransactionResponse;
   transactionReceipt?: ethers.TransactionReceipt;
   transactionData?: {
     borrowedAmount: Decimal;
@@ -93,7 +93,7 @@ const stream$ = combineLatest([borrow$]).pipe(
 
         borrowStatus$.next({ pending: true, txnId, request, statusType: 'borrow' });
 
-        let result$: Observable<ethers.ContractTransactionResponse>;
+        let result$: Observable<ethers.TransactionResponse>;
         if (closePosition) {
           result$ = from(
             userPosition.close({

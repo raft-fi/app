@@ -2,12 +2,13 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
-import { R_TOKEN } from '@raft-fi/sdk';
+import { Protocol, R_TOKEN } from '@raft-fi/sdk';
 import { Link, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_BASE_TOKEN } from '../../constants';
 import {
   useAppLoaded,
-  useCollateralRedemptionRate,
+  useProtocolStats,
+  useProvider,
   useRedeem,
   useTokenBalances,
   useTokenPrices,
@@ -32,13 +33,16 @@ import LoadingRedeem from '../LoadingRedeem';
 const Redeem = () => {
   const [, connect] = useConnectWallet();
 
+  const provider = useProvider();
+  const protocolStats = useProtocolStats();
   const appLoaded = useAppLoaded();
   const tokenBalances = useTokenBalances();
   const tokenPrices = useTokenPrices();
-  const redemptionRate = useCollateralRedemptionRate();
   const wallet = useWallet();
   const { redeem, redeemStatus } = useRedeem();
 
+  const [redemptionRate, setRedemptionRate] = useState<string>('');
+  const [redemptionRateLoading, setRedemptionRateLoading] = useState<boolean>(false);
   const [debtAmount, setDebtAmount] = useState<string>('');
   const [transactionState, setTransactionState] = useState<string>('default');
 
@@ -99,6 +103,7 @@ const Redeem = () => {
       style: 'percentage',
       fractionDigits: 2,
       pad: true,
+      approximate: true,
     });
   }, [redemptionRate]);
 
@@ -143,6 +148,43 @@ const Redeem = () => {
     setDebtAmount(rTokenValues.amount?.toString() || '');
   }, [rTokenValues.amount]);
 
+  const calculateRedemptionRate = useCallback(
+    async (value: string) => {
+      const collateralPrice = tokenPrices[COLLATERAL_BASE_TOKEN];
+
+      if (!protocolStats || !collateralPrice) {
+        return;
+      }
+
+      const protocol = Protocol.getInstance(provider);
+
+      const result = await protocol.fetchRedemptionRate(
+        COLLATERAL_BASE_TOKEN,
+        Decimal.parse(value, 0),
+        collateralPrice,
+        protocolStats.debtSupply,
+      );
+
+      setRedemptionRate(result.toString());
+
+      setRedemptionRateLoading(false);
+    },
+    [protocolStats, provider, tokenPrices],
+  );
+
+  const handleDebtAmountChange = useCallback(
+    (value: string) => {
+      setRedemptionRateLoading(true);
+
+      if (!value) {
+        calculateRedemptionRate('0');
+      }
+
+      setDebtAmount(value);
+    },
+    [calculateRedemptionRate],
+  );
+
   /**
    * Update action button state based on current redeem request status
    */
@@ -159,6 +201,10 @@ const Redeem = () => {
       setTransactionState('default');
     }
   }, [redeemStatus]);
+
+  useEffect(() => {
+    calculateRedemptionRate('0');
+  }, [calculateRedemptionRate]);
 
   if (!appLoaded) {
     return (
@@ -181,7 +227,8 @@ const Redeem = () => {
             selectedToken="R"
             tokens={['R']}
             value={debtAmount}
-            onValueUpdate={setDebtAmount}
+            onValueUpdate={handleDebtAmountChange}
+            onValueDebounceUpdate={calculateRedemptionRate}
             maxAmount={rTokenValues.amount}
             maxAmountFormatted={rTokenValues.amountFormatted || ''}
             onMaxAmountClick={onMaxAmountClick}
@@ -257,7 +304,11 @@ const Redeem = () => {
           {redemptionRateFormatted && (
             <div className="raft__redeem__collateralDataRow">
               <div className="raft__redeem__collateralDataRowData">
-                <ValueLabel value={redemptionRateFormatted} valueSize="body" tickerSize="caption" />
+                {redemptionRateLoading ? (
+                  <Loading size={22} color="primary" />
+                ) : (
+                  <ValueLabel value={redemptionRateFormatted} valueSize="body" tickerSize="caption" />
+                )}
               </div>
             </div>
           )}
