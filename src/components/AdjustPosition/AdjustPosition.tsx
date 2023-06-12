@@ -883,7 +883,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <PositionAfter
-        baseTokenAmount={newCollateralInDisplayToken.amount}
+        displayCollateralToken={newCollateralInDisplayToken.amount}
         collateralTokenValueFormatted={newCollateralInDisplayToken.valueFormatted}
         borrowTokenAmountFormatted={newDebtTokenValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}
