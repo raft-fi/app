@@ -1,4 +1,4 @@
-import { PriceFeed, Protocol, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { PriceFeed } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import {
   from,
@@ -16,10 +16,8 @@ import {
   mergeMap,
 } from 'rxjs';
 import { Decimal } from '@tempusfinance/decimal';
-import { JsonRpcProvider } from 'ethers';
 import { COLLATERAL_BASE_TOKEN, DEBOUNCE_IN_MS, DISPLAY_BASE_TOKEN, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
-import { provider$ } from './useProvider';
 import { priceFeed$ } from './usePriceFeed';
 
 export const collateralConversionRate$ = new BehaviorSubject<Nullable<Decimal>>(null);

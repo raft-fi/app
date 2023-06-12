@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper, Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, R_TOKEN, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -19,6 +19,7 @@ import { getCollateralRatioLabel, getCollateralRatioLevel, getTokenValues, isCol
 import {
   COLLATERAL_BASE_TOKEN,
   COLLATERAL_TOKEN_UI_PRECISION,
+  DEFAULT_MAP,
   DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
   LIQUIDATION_UPPER_RATIO,
@@ -36,14 +37,6 @@ interface AdjustPositionProps {
   collateralBalance: Decimal;
   debtBalance: Decimal;
 }
-
-const DEFAULT_MAP = TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {},
-);
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
   const { borrow, borrowStatus } = useBorrow();
