@@ -12,7 +12,7 @@ import './OpenPositionAfter.scss';
 const HOW_IT_WORKS_DOCS_LINK = 'https://docs.raft.fi/how-it-works/borrowing';
 
 type OpenPositionAfterProps = {
-  baseTokenAmount: Nullable<Decimal>;
+  displayCollateralToken: Nullable<Decimal>;
   borrowingFeeAmountFormatted: string;
   borrowTokenAmountFormatted: Nullable<string>;
   collateralTokenValueFormatted: Nullable<string>;
@@ -20,7 +20,7 @@ type OpenPositionAfterProps = {
 };
 
 export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
-  baseTokenAmount,
+  displayCollateralToken,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
   collateralTokenValueFormatted,
@@ -28,13 +28,13 @@ export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
 }) => {
   const baseTokenAmountFormatted = useMemo(
     () =>
-      DecimalFormat.format(baseTokenAmount ?? Decimal.ZERO, {
+      DecimalFormat.format(displayCollateralToken ?? Decimal.ZERO, {
         style: 'currency',
         currency: DISPLAY_BASE_TOKEN,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
       }),
-    [baseTokenAmount],
+    [displayCollateralToken],
   );
 
   const collateralizationRatioFormatted = useMemo(
