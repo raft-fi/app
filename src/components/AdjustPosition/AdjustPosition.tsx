@@ -9,6 +9,7 @@ import {
   useApprove,
   useBorrow,
   useCollateralBorrowingRate,
+  useCollateralConversionRate,
   useTokenAllowances,
   useTokenBalances,
   useTokenPrices,
@@ -47,6 +48,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
   const borrowingRate = useCollateralBorrowingRate();
+  const collateralConversionRate = useCollateralConversionRate();
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -186,15 +188,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
   );
-  const collateralTokenInputValues = useMemo(
-    () => getTokenValues(collateralAmountDecimal, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
-    [collateralAmountDecimal, selectedCollateralToken, tokenPriceMap],
-  );
 
   /**
-   * Current user collateral (wstETH)
+   * Current user collateral denominated in underlying collateral token (wstETH)
    */
-  const currentCollateralTokenValues = useMemo(
+  const currentUnderlyingCollateralTokenValues = useMemo(
     () => getTokenValues(collateralBalance, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
     [collateralBalance, tokenPriceMap],
   );
@@ -216,47 +214,27 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   /**
-   * Display token (stETH) price
+   * New user collateral denominated in underlying collateral token (wstETH)
    */
-  const displayTokenTokenPrice = useMemo(() => tokenPriceMap[DISPLAY_BASE_TOKEN], [tokenPriceMap]);
-
-  /**
-   * Current user collateral denominated in display token (stETH)
-   */
-  const currentCollateralInDisplayToken = useMemo(() => {
-    if (!currentCollateralTokenValues.value || !displayTokenTokenPrice || displayTokenTokenPrice.isZero()) {
+  const newCollateralInUnderlyingTokenAmount = useMemo(() => {
+    if (!collateralConversionRate) {
       return null;
     }
 
-    const value = currentCollateralTokenValues.value.div(displayTokenTokenPrice);
-
-    return getTokenValues(value, displayTokenTokenPrice, DISPLAY_BASE_TOKEN);
-  }, [displayTokenTokenPrice, currentCollateralTokenValues.value]);
-
-  /**
-   * New user collateral denominated in display token (stETH)
-   */
-  const newCollateralInDisplayTokenValue = useMemo(() => {
-    if (
-      !collateralTokenInputValues.value ||
-      !displayTokenTokenPrice ||
-      displayTokenTokenPrice.isZero() ||
-      !currentCollateralInDisplayToken?.amount ||
-      !currentCollateralTokenValues.value
-    ) {
-      return null;
+    if (closePositionActive) {
+      return Decimal.ZERO;
     }
 
     let newValue: Nullable<Decimal> = null;
     switch (selectedCollateralToken) {
       case 'ETH':
       case 'stETH':
-        newValue = currentCollateralInDisplayToken.amount.add(collateralAmountDecimal.mul(isAddCollateral ? 1 : -1));
+        newValue = collateralBalance.add(
+          collateralAmountDecimal.mul(Decimal.ONE.div(collateralConversionRate)).mul(isAddCollateral ? 1 : -1),
+        );
         break;
       case 'wstETH':
-        newValue = currentCollateralTokenValues.value
-          .add(collateralTokenInputValues.value.mul(isAddCollateral ? 1 : -1))
-          .div(displayTokenTokenPrice);
+        newValue = collateralBalance.add(collateralAmountDecimal.mul(isAddCollateral ? 1 : -1));
         break;
     }
 
@@ -266,18 +244,40 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return newValue;
   }, [
-    collateralTokenInputValues.value,
-    displayTokenTokenPrice,
-    currentCollateralInDisplayToken?.amount,
-    currentCollateralTokenValues.value,
-    selectedCollateralToken,
+    closePositionActive,
     collateralAmountDecimal,
+    collateralBalance,
+    collateralConversionRate,
     isAddCollateral,
+    selectedCollateralToken,
   ]);
 
-  const newCollateralInDisplayToken = useMemo(
-    () => getTokenValues(newCollateralInDisplayTokenValue, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN),
-    [newCollateralInDisplayTokenValue, tokenPriceMap],
+  /**
+   * New user underlying collateral values
+   */
+  const newCollateralInUnderlyingTokenValues = useMemo(
+    () =>
+      getTokenValues(newCollateralInUnderlyingTokenAmount, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
+    [newCollateralInUnderlyingTokenAmount, tokenPriceMap],
+  );
+
+  /**
+   * New user collateral denominated in display collateral token (stETH)
+   */
+  const newCollateralInDisplayTokenAmount = useMemo(() => {
+    if (!newCollateralInUnderlyingTokenValues?.amount || !collateralConversionRate) {
+      return null;
+    }
+
+    return newCollateralInUnderlyingTokenValues.amount.mul(collateralConversionRate);
+  }, [newCollateralInUnderlyingTokenValues, collateralConversionRate]);
+
+  /**
+   * New user display collateral values
+   */
+  const newCollateralInDisplayTokenValues = useMemo(
+    () => getTokenValues(newCollateralInDisplayTokenAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN),
+    [newCollateralInDisplayTokenAmount, tokenPriceMap],
   );
 
   /**
@@ -301,7 +301,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Current collateralization ratio
    */
   const currentCollateralizationRatio = useMemo(() => {
-    if (!currentCollateralInDisplayToken?.value || !currentDebtTokenValues.value) {
+    if (!currentUnderlyingCollateralTokenValues?.value || !currentDebtTokenValues.value) {
       return null;
     }
 
@@ -309,35 +309,35 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
-    return currentCollateralInDisplayToken.value.div(currentDebtTokenValues.value);
-  }, [currentCollateralInDisplayToken?.value, currentDebtTokenValues.value]);
+    return currentUnderlyingCollateralTokenValues.value.div(currentDebtTokenValues.value);
+  }, [currentUnderlyingCollateralTokenValues?.value, currentDebtTokenValues.value]);
 
   /**
    * New collateralization ratio
    */
   const newCollateralizationRatio = useMemo(() => {
-    const collateralAmountInDisplayToken = newCollateralInDisplayToken?.value || currentCollateralInDisplayToken?.value;
-    const debtAmount = newDebtTokenValues?.value || currentDebtTokenValues?.value;
+    const collateralValue = newCollateralInUnderlyingTokenValues?.value || currentUnderlyingCollateralTokenValues.value;
+    const debtValue = newDebtTokenValues?.value || currentDebtTokenValues?.value;
 
-    if (!collateralAmountInDisplayToken || !debtAmount || debtAmount.lte(0)) {
+    if (!collateralValue || !debtValue || debtValue.lte(0)) {
       return null;
     }
 
-    if (collateralAmountInDisplayToken.isZero()) {
+    if (collateralValue.isZero()) {
       return Decimal.ZERO;
     }
 
-    return collateralAmountInDisplayToken.div(debtAmount);
+    return collateralValue.div(debtValue);
   }, [
-    currentCollateralInDisplayToken?.value,
+    currentUnderlyingCollateralTokenValues.value,
     currentDebtTokenValues?.value,
-    newCollateralInDisplayToken?.value,
+    newCollateralInUnderlyingTokenValues?.value,
     newDebtTokenValues?.value,
   ]);
 
   const isClosePosition = useMemo(
-    () => newDebtTokenValues?.amount?.isZero() && newCollateralInDisplayToken?.value?.isZero(),
-    [newCollateralInDisplayToken?.value, newDebtTokenValues?.amount],
+    () => newDebtTokenValues?.amount?.isZero() && newCollateralInDisplayTokenValues?.value?.isZero(),
+    [newCollateralInDisplayTokenValues?.value, newDebtTokenValues?.amount],
   );
   const hasEnoughCollateralTokenBalance = useMemo(
     () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal) || !isAddCollateral,
@@ -400,12 +400,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [isAddDebt, selectedCollateralToken],
   );
   const hasEnoughToWithdraw = useMemo(() => {
-    if (!newCollateralInDisplayToken.amount) {
+    if (!newCollateralInDisplayTokenValues.amount) {
       return true;
     }
 
-    return newCollateralInDisplayToken.amount.gte(0);
-  }, [newCollateralInDisplayToken.amount]);
+    return newCollateralInDisplayTokenValues.amount.gte(0);
+  }, [newCollateralInDisplayTokenValues.amount]);
 
   const canAdjust = useMemo(
     () =>
@@ -672,15 +672,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         setCollateralAmount(collateralBalance.toString());
         setIsAddCollateral(false);
       } else {
-        const selectedCollateralTokenPrice = tokenPriceMap[selectedCollateralToken];
-
-        if (
-          currentCollateralTokenValues.value &&
-          selectedCollateralTokenPrice &&
-          !selectedCollateralTokenPrice.isZero()
-        ) {
-          const collateralBalanceInSelectedCollateralToken =
-            currentCollateralTokenValues.value.div(selectedCollateralTokenPrice);
+        if (currentUnderlyingCollateralTokenValues.amount && collateralConversionRate) {
+          const collateralBalanceInSelectedCollateralToken = collateralBalance.mul(collateralConversionRate);
           setCollateralAmount(collateralBalanceInSelectedCollateralToken.toString());
           setIsAddCollateral(false);
         }
@@ -699,10 +692,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [
     closePositionActive,
     collateralBalance,
-    currentCollateralTokenValues.value,
+    collateralConversionRate,
+    currentUnderlyingCollateralTokenValues.amount,
     debtBalance,
     selectedCollateralToken,
-    tokenPriceMap,
   ]);
 
   const onAction = useCallback(() => {
@@ -883,8 +876,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <PositionAfter
-        displayCollateralToken={newCollateralInDisplayToken.amount}
-        collateralTokenValueFormatted={newCollateralInDisplayToken.valueFormatted}
+        displayCollateralToken={newCollateralInDisplayTokenValues.amount}
+        collateralTokenValueFormatted={newCollateralInUnderlyingTokenValues.valueFormatted}
         borrowTokenAmountFormatted={newDebtTokenValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}
         collateralizationRatio={newCollateralizationRatio}
