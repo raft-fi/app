@@ -43,7 +43,7 @@ const YourPosition: FC = () => {
   }, [collateralConversionRate, underlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
-    if (!displayCollateralTokenValues?.value || !debtTokenValues.value) {
+    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value) {
       return null;
     }
 
@@ -51,8 +51,8 @@ const YourPosition: FC = () => {
       return null;
     }
 
-    return displayCollateralTokenValues.value.div(debtTokenValues.value);
-  }, [displayCollateralTokenValues?.value, debtTokenValues.value]);
+    return underlyingCollateralTokenValues.value.div(debtTokenValues.value);
+  }, [underlyingCollateralTokenValues?.value, debtTokenValues.value]);
 
   const debtAmountFormatted = useMemo(
     () =>
