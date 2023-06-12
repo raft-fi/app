@@ -1,12 +1,12 @@
-.raft__openPosition__data {
+.raft__position-after__data {
   display: flex;
   margin-top: 20px;
 
-  .raft__openPosition__data__position {
+  .raft__position-after__data__position {
     flex: 1 50%;
     margin-right: 16px;
 
-    .raft__openPosition__data__position__title {
+    .raft__position-after__data__position__title {
       /* TODO: hardcode color as suggested */
       --textPrimary: var(--raft-grey-600);
       /* TODO: hardcode color as suggested */
@@ -20,14 +20,14 @@
       }
     }
 
-    .raft__openPosition__data__position__data {
+    .raft__position-after__data__position__data {
       list-style: none;
       padding: 0;
       margin: 8px 0 0 0;
 
-      .raft__openPosition__data__position__data__deposit,
-      .raft__openPosition__data__position__data__debt,
-      .raft__openPosition__data__position__data__ratio {
+      .raft__position-after__data__position__data__deposit,
+      .raft__position-after__data__position__data__debt,
+      .raft__position-after__data__position__data__ratio {
         display: flex;
         align-items: center;
 
@@ -36,25 +36,25 @@
           margin-right: 8px;
         }
 
-        .raft__openPosition__data__position__data__amount {
+        .raft__position-after__data__position__data__amount {
           margin-right: 4px;
         }
 
-        .raft__openPosition__data__position__data__deposit__value {
+        .raft__position-after__data__position__data__deposit__value {
           display: flex;
           align-items: baseline;
           margin-left: 6px;
         }
       }
 
-      .raft__openPosition__data__position__data__debt {
+      .raft__position-after__data__position__data__debt {
         margin-top: 12px;
       }
 
-      .raft__openPosition__data__position__data__ratio {
+      .raft__position-after__data__position__data__ratio {
         margin-top: 12px;
 
-        .raft__openPosition__data__position__data__ratio__empty-status {
+        .raft__position-after__data__position__data__ratio__empty-status {
           display: flex;
           justify-content: center;
           align-items: center;
@@ -79,7 +79,7 @@
           padding: 4px;
         }
 
-        .raft__openPosition__data__position__data__ratio__status {
+        .raft__position-after__data__position__data__ratio__status {
           width: 8px;
           height: 8px;
           border-radius: 50%;
@@ -105,11 +105,11 @@
     }
   }
 
-  .raft__openPosition__data__others {
+  .raft__position-after__data__others {
     flex: 1 50%;
     margin-left: 16px;
 
-    .raft__openPosition__data__protocol-fee__title {
+    .raft__position-after__data__protocol-fee__title {
       /* TODO: hardcode color as suggested */
       --textPrimary: var(--raft-grey-600);
       /* TODO: hardcode color as suggested */
@@ -123,18 +123,18 @@
       }
     }
 
-    .raft__openPosition__data__protocol-fee__value {
+    .raft__position-after__data__protocol-fee__value {
       margin-top: 8px;
     }
 
-    .raft__openPosition__data__gas-fee__title {
+    .raft__position-after__data__gas-fee__title {
       /* TODO: hardcode color as suggested */
       --textPrimary: var(--raft-grey-600);
 
       margin-top: 32px;
     }
 
-    .raft__openPosition__data__protocol-fee__value {
+    .raft__position-after__data__protocol-fee__value {
       margin-top: 8px;
     }
   }

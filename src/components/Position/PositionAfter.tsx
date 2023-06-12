@@ -7,24 +7,26 @@ import { getCollateralRatioLevel, getCollateralRatioLabel } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
 
-import './OpenPositionAfter.scss';
+import './PositionAfter.scss';
 
 const HOW_IT_WORKS_DOCS_LINK = 'https://docs.raft.fi/how-it-works/borrowing';
 
-type OpenPositionAfterProps = {
+interface PositionAfterProps {
   baseTokenAmount: Nullable<Decimal>;
-  borrowingFeeAmountFormatted: string;
+  borrowingFeeAmountFormatted: Nullable<string>;
   borrowTokenAmountFormatted: Nullable<string>;
   collateralTokenValueFormatted: Nullable<string>;
-  collateralizationRatio: Decimal;
-};
+  collateralizationRatio: Nullable<Decimal>;
+  previousCollateralizationRatio?: Nullable<Decimal>;
+}
 
-export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
+export const PositionAfter: FC<PositionAfterProps> = ({
   baseTokenAmount,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
   collateralTokenValueFormatted,
   collateralizationRatio,
+  previousCollateralizationRatio,
 }) => {
   const baseTokenAmountFormatted = useMemo(
     () =>
@@ -49,9 +51,9 @@ export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
   const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
 
   return (
-    <div className="raft__openPosition__data">
-      <div className="raft__openPosition__data__position">
-        <div className="raft__openPosition__data__position__title">
+    <div className="raft__position-after__data">
+      <div className="raft__position-after__data__position">
+        <div className="raft__position-after__data__position__title">
           <Typography variant="overline">POSITION AFTER</Typography>
           <TooltipWrapper
             tooltipContent={
@@ -69,13 +71,13 @@ export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
             <Icon variant="info" size="tiny" />
           </TooltipWrapper>
         </div>
-        <ul className="raft__openPosition__data__position__data">
-          <li className="raft__openPosition__data__position__data__deposit">
+        <ul className="raft__position-after__data__position__data">
+          <li className="raft__position-after__data__position__data__deposit">
             <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
             <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
             {collateralTokenValueFormatted && (
               <Typography
-                className="raft__openPosition__data__position__data__deposit__value"
+                className="raft__position-after__data__position__data__deposit__value"
                 variant="body"
                 weight="medium"
                 color="text-secondary"
@@ -91,23 +93,30 @@ export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
               </Typography>
             )}
           </li>
-          <li className="raft__openPosition__data__position__data__debt">
+          <li className="raft__position-after__data__position__data__debt">
             <TokenLogo type={`token-${R_TOKEN}`} size={20} />
             <ValueLabel value={borrowTokenAmountFormatted ?? `0.00 ${R_TOKEN}`} valueSize="body" tickerSize="caption" />
           </li>
-          <li className="raft__openPosition__data__position__data__ratio">
+          <li className="raft__position-after__data__position__data__ratio">
             {!collateralizationRatio || collateralizationRatio.isZero() ? (
               <>
-                <div className="raft__openPosition__data__position__data__ratio__empty-status" />
+                <div className="raft__position-after__data__position__data__ratio__empty-status" />
                 <Typography variant="body" weight="medium">
                   N/A
                 </Typography>
               </>
             ) : (
               <>
-                <Icon variant="arrow-up" size="tiny" />
+                {previousCollateralizationRatio?.equals(collateralizationRatio) ? (
+                  <div className="raft__position-after__data__position__data__ratio__empty-status" />
+                ) : (
+                  <Icon
+                    variant={previousCollateralizationRatio?.gt(collateralizationRatio) ? 'arrow-down' : 'arrow-up'}
+                    size="tiny"
+                  />
+                )}
                 <div
-                  className={`raft__openPosition__data__position__data__ratio__status status-risk-${collateralRatioLevel}`}
+                  className={`raft__position-after__data__position__data__ratio__status status-risk-${collateralRatioLevel}`}
                 />
                 <ValueLabel value={collateralizationRatioFormatted} valueSize="body" tickerSize="caption" />
                 <Typography variant="body" weight="medium" color="text-secondary">
@@ -118,8 +127,8 @@ export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
           </li>
         </ul>
       </div>
-      <div className="raft__openPosition__data__others">
-        <div className="raft__openPosition__data__protocol-fee__title">
+      <div className="raft__position-after__data__others">
+        <div className="raft__position-after__data__protocol-fee__title">
           <Typography variant="overline">PROTOCOL FEES</Typography>
           <TooltipWrapper
             tooltipContent={
@@ -137,7 +146,7 @@ export const OpenPositionAfter: FC<OpenPositionAfterProps> = ({
             <Icon variant="info" size="tiny" />
           </TooltipWrapper>
         </div>
-        <div className="raft__openPosition__data__protocol-fee__value">
+        <div className="raft__position-after__data__protocol-fee__value">
           <ValueLabel value={borrowingFeeAmountFormatted ?? `0.00 ${R_TOKEN}`} valueSize="body" tickerSize="caption" />
         </div>
       </div>

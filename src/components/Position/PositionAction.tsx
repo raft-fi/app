@@ -1,17 +1,17 @@
 import { FC, useMemo } from 'react';
 import { Button, Typography, Loading } from '../shared';
 
-import './OpenPositionAction.scss';
+import './PositionAction.scss';
 
-type OpenPositionActionProps = {
+interface PositionActionProps {
   actionButtonState: string;
   canBorrow: boolean;
   buttonLabel: string;
   walletConnected: boolean;
   onClick: () => void;
-};
+}
 
-export const OpenPositionAction: FC<OpenPositionActionProps> = ({
+export const PositionAction: FC<PositionActionProps> = ({
   actionButtonState,
   buttonLabel,
   canBorrow,
@@ -24,7 +24,7 @@ export const OpenPositionAction: FC<OpenPositionActionProps> = ({
   );
 
   return (
-    <div className="raft__openPosition__action">
+    <div className="raft__position-action">
       <Button variant="primary" size="large" onClick={onClick} disabled={buttonDisabled}>
         {actionButtonState === 'loading' && <Loading />}
         <Typography variant="button-label" color="text-primary-inverted">
