@@ -33,8 +33,7 @@ import {
 import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { getTokenValues, isCollateralToken } from '../../utils';
 import { Button, CurrencyInput, Typography } from '../shared';
-import { OpenPositionAfter } from './OpenPositionAfter';
-import { OpenPositionAction } from './OpenPositionAction';
+import { PositionAfter, PositionAction } from '../Position';
 
 import './OpenPosition.scss';
 
@@ -290,7 +289,7 @@ const OpenPosition = () => {
     [collateralizationRatio],
   );
   const canBorrow = useMemo(
-    () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio && !isWrongNetwork,
+    () => Boolean(hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio && !isWrongNetwork),
     [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork],
   );
 
@@ -744,14 +743,14 @@ const OpenPosition = () => {
           errorMsg={debtErrorMsg}
         />
       </div>
-      <OpenPositionAfter
+      <PositionAfter
         displayCollateralToken={displayCollateralToken}
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
         borrowTokenAmountFormatted={borrowTokenValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
-      <OpenPositionAction
+      <PositionAction
         actionButtonState={actionButtonState}
         canBorrow={canBorrow}
         buttonLabel={buttonLabel}
