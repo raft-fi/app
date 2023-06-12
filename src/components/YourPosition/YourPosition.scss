@@ -43,7 +43,6 @@
     }
   }
 
-  .raft__your-position__collateral__amount__number,
   .raft__your-position__debt__amount__number {
     display: flex;
     align-items: baseline;
@@ -53,7 +52,12 @@
     }
   }
 
-  .raft__your-position__collateral__value__number,
+  .raft__your-position__collateral__value__number {
+    --textSecondary: var(--raft-grey-500);
+
+    margin-top: 8px;
+  }
+
   .raft__your-position__debt__value__number {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-grey-500);
