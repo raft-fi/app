@@ -11,6 +11,8 @@ const PROTOCOL_HIGH_RISK_RATIO = 1.4;
 const PROTOCOL_MEDIUM_RISK_RATIO = 1.6;
 const PROTOCOL_MODERATE_RISK_RATIO = 2;
 
+const USER_HIGH_RISK_RATIO = 1.3;
+
 export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<CollateralRatioRiskLevel> => {
   if (!ratio) {
     return null;
@@ -20,7 +22,7 @@ export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<Coll
     return 'low';
   }
 
-  if (ratio.gt(MIN_COLLATERAL_RATIO)) {
+  if (ratio.gt(USER_HIGH_RISK_RATIO)) {
     return 'medium';
   }
 
