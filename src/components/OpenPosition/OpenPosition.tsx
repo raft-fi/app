@@ -21,7 +21,6 @@ import {
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   DEFAULT_MAP,
-  DISPLAY_BASE_TOKEN,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   INPUT_PREVIEW_DIGITS,
@@ -80,10 +79,17 @@ const OpenPosition = () => {
     () => getTokenValues(borrowAmount, tokenPriceMap[R_TOKEN], R_TOKEN),
     [borrowAmount, tokenPriceMap],
   );
-  const baseTokenValues = useMemo(
-    () => getTokenValues(borrowAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], R_TOKEN),
-    [borrowAmount, tokenPriceMap],
-  );
+  const debtTokenWithFeeValues = useMemo(() => {
+    if (!borrowTokenValues.amount || !borrowingRate) {
+      return getTokenValues(null, tokenPriceMap[R_TOKEN], R_TOKEN);
+    }
+
+    return getTokenValues(
+      borrowTokenValues.amount.mul(Decimal.ONE.add(borrowingRate)),
+      tokenPriceMap[R_TOKEN],
+      R_TOKEN,
+    );
+  }, [borrowTokenValues.amount, borrowingRate, tokenPriceMap]);
   const selectedCollateralTokenBalanceValues = useMemo(
     () =>
       getTokenValues(
@@ -101,6 +107,13 @@ const OpenPosition = () => {
     () => tokenWhitelistMap[selectedCollateralToken],
     [selectedCollateralToken, tokenWhitelistMap],
   );
+  const borrowingFeeAmount = useMemo(() => {
+    if (!borrowingRate) {
+      return null;
+    }
+
+    return Decimal.parse(borrowAmount, 0).mul(borrowingRate);
+  }, [borrowAmount, borrowingRate]);
 
   // store the whitelist status at the loaded time
   useEffect(() => {
@@ -146,7 +159,7 @@ const OpenPosition = () => {
       const collateralPrice = tokenPriceMap[selectedCollateralToken];
       const rTokenPrice = tokenPriceMap[R_TOKEN];
 
-      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice) {
+      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice || !borrowingRate) {
         return;
       }
 
@@ -155,7 +168,9 @@ const OpenPosition = () => {
       const borrowAmountValue = rTokenPrice.mul(borrowAmount);
 
       // Calculate minimum collateral amount so that resulting collateral ratio is at least 220%
-      const collateralAmount = borrowAmountValue.mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER).div(collateralPrice);
+      const collateralAmount = borrowAmountValue
+        .mul(borrowingRate.add(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER))
+        .div(collateralPrice);
 
       // TODO - Add ceil() function to decimal library
       const truncatedCollateral = new Decimal(collateralAmount.toTruncated(COLLATERAL_TOKEN_UI_PRECISION));
@@ -179,6 +194,8 @@ const OpenPosition = () => {
       }
     }
   }, [
+    borrowingFeeAmount,
+    borrowingRate,
     hasChanged,
     selectedCollateralToken,
     selectedCollateralTokenBalanceValues.amount,
@@ -214,7 +231,8 @@ const OpenPosition = () => {
     if (
       selectedCollateralTokenInputValues.value === null ||
       borrowTokenValues.value === null ||
-      borrowTokenValues.value.isZero()
+      borrowTokenValues.value.isZero() ||
+      borrowingFeeAmount === null
     ) {
       return null;
     }
@@ -224,8 +242,8 @@ const OpenPosition = () => {
       return null;
     }
 
-    return selectedCollateralTokenInputValues.value.div(borrowTokenValues.value);
-  }, [borrowAmount, borrowTokenValues.value, selectedCollateralTokenInputValues.value]);
+    return selectedCollateralTokenInputValues.value.div(borrowTokenValues.value.add(borrowingFeeAmount));
+  }, [borrowAmount, borrowTokenValues.value, borrowingFeeAmount, selectedCollateralTokenInputValues.value]);
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -634,14 +652,6 @@ const OpenPosition = () => {
     return `~${borrowTokenValues.valueFormatted}`;
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
-  const borrowingFeeAmount = useMemo(() => {
-    if (!borrowingRate) {
-      return null;
-    }
-
-    return Decimal.parse(borrowAmount, 0).mul(borrowingRate);
-  }, [borrowAmount, borrowingRate]);
-
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount) {
       return null;
@@ -746,7 +756,7 @@ const OpenPosition = () => {
       <PositionAfter
         displayCollateralToken={displayCollateralToken}
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
-        borrowTokenAmountFormatted={borrowTokenValues.amountFormatted}
+        borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
