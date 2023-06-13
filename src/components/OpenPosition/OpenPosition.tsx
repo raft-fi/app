@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -17,6 +17,7 @@ import {
   TokenAllowanceMap,
   useCollateralBorrowingRate,
   useCollateralConversionRate,
+  useProtocolStats,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -24,7 +25,6 @@ import {
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   INPUT_PREVIEW_DIGITS,
-  LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -40,6 +40,7 @@ const OpenPosition = () => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
 
+  const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
   const tokenAllowanceMap = useTokenAllowances();
@@ -74,6 +75,10 @@ const OpenPosition = () => {
     () => getTokenValues(collateralAmount, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
     [collateralAmount, selectedCollateralToken, tokenPriceMap],
   );
+
+  const borrowAmountDecimal = useMemo(() => {
+    return Decimal.parse(borrowAmount, 0);
+  }, [borrowAmount]);
 
   const borrowTokenValues = useMemo(
     () => getTokenValues(borrowAmount, tokenPriceMap[R_TOKEN], R_TOKEN),
@@ -303,12 +308,35 @@ const OpenPosition = () => {
     [borrowTokenValues.amount],
   );
   const hasMinRatio = useMemo(
-    () => !collateralizationRatio || collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
+    () => !collateralizationRatio || collateralizationRatio.gte(MIN_COLLATERAL_RATIO),
     [collateralizationRatio],
   );
+
+  const isOverMaxBorrow = useMemo(() => {
+    if (!protocolStats?.debtSupply) {
+      return true;
+    }
+
+    const totalDebt = protocolStats.debtSupply;
+
+    const maxBorrowAmount = totalDebt.div(10);
+    if (borrowAmountDecimal.gt(maxBorrowAmount)) {
+      return true;
+    }
+    return false;
+  }, [borrowAmountDecimal, protocolStats?.debtSupply]);
+
   const canBorrow = useMemo(
-    () => Boolean(hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio && !isWrongNetwork),
-    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork],
+    () =>
+      Boolean(
+        hasInputFilled &&
+          hasEnoughCollateralTokenBalance &&
+          hasMinBorrow &&
+          hasMinRatio &&
+          !isWrongNetwork &&
+          !isOverMaxBorrow,
+      ),
+    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork, isOverMaxBorrow],
   );
 
   const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
@@ -454,7 +482,11 @@ const OpenPosition = () => {
     if (!hasMinRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
-  }, [hasMinBorrow, hasMinRatio, minBorrowFormatted]);
+
+    if (isOverMaxBorrow) {
+      return 'Amount exceeds maximum debt allowed per Position';
+    }
+  }, [hasMinBorrow, hasMinRatio, isOverMaxBorrow, minBorrowFormatted]);
 
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
@@ -765,7 +797,7 @@ const OpenPosition = () => {
           maxAmountFormatted={rTokenBalanceFormatted ?? undefined}
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
-          error={!hasMinBorrow || !hasMinRatio}
+          error={!hasMinBorrow || !hasMinRatio || isOverMaxBorrow}
           errorMsg={debtErrorMsg}
         />
       </div>

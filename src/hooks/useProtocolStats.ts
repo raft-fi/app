@@ -24,7 +24,7 @@ import { Nullable, ProtocolStats } from '../interfaces';
 import { provider$ } from './useProvider';
 import { appEvent$ } from './useAppEvent';
 
-const protocolStats$ = new BehaviorSubject<Nullable<ProtocolStats>>(null);
+export const protocolStats$ = new BehaviorSubject<Nullable<ProtocolStats>>(null);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
