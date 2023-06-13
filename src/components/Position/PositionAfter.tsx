@@ -13,6 +13,7 @@ const HOW_IT_WORKS_DOCS_LINK = 'https://docs.raft.fi/how-it-works/borrowing';
 
 interface PositionAfterProps {
   displayCollateralToken: Nullable<Decimal>;
+  borrowingFeePercentageFormatted: Nullable<string>;
   borrowingFeeAmountFormatted: Nullable<string>;
   borrowTokenAmountFormatted: Nullable<string>;
   collateralTokenValueFormatted: Nullable<string>;
@@ -22,6 +23,7 @@ interface PositionAfterProps {
 
 export const PositionAfter: FC<PositionAfterProps> = ({
   displayCollateralToken,
+  borrowingFeePercentageFormatted,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
   collateralTokenValueFormatted,
@@ -146,8 +148,27 @@ export const PositionAfter: FC<PositionAfterProps> = ({
             <Icon variant="info" size="tiny" />
           </TooltipWrapper>
         </div>
-        <div className="raft__position-after__data__protocol-fee__value">
-          <ValueLabel value={borrowingFeeAmountFormatted ?? `0.00 ${R_TOKEN}`} valueSize="body" tickerSize="caption" />
+        <div className="raft__position-after__data__protocol-fee__percent">
+          {borrowingFeePercentageFormatted && (
+            <ValueLabel value={borrowingFeePercentageFormatted} valueSize="body" tickerSize="caption" />
+          )}
+          {borrowingFeeAmountFormatted && (
+            <Typography
+              className="raft__position-after__data__protocol-fee__percent-value"
+              variant="body"
+              weight="medium"
+              color="text-secondary"
+            >
+              (
+              <ValueLabel
+                value={borrowingFeeAmountFormatted}
+                tickerSize="caption"
+                valueSize="body"
+                color="text-secondary"
+              />
+              )
+            </Typography>
+          )}
         </div>
       </div>
     </div>

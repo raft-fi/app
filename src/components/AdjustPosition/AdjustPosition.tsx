@@ -656,13 +656,25 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     approveStatus?.pending,
   ]);
 
-  const borrowingFeeAmountFormatted = useMemo(() => {
-    if (!borrowingFeeAmount) {
+  const borrowingFeePercentageFormatted = useMemo(() => {
+    if (!borrowingRate || !borrowingFeeAmount) {
       return null;
     }
 
-    if (borrowingFeeAmount.isZero()) {
+    if (borrowingRate.isZero() || borrowingFeeAmount.isZero()) {
       return 'Free';
+    }
+
+    return DecimalFormat.format(borrowingRate, {
+      style: 'percentage',
+      fractionDigits: 2,
+      pad: true,
+    });
+  }, [borrowingFeeAmount, borrowingRate]);
+
+  const borrowingFeeAmountFormatted = useMemo(() => {
+    if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
+      return null;
     }
 
     const borrowingFeeAmountFormatted = DecimalFormat.format(borrowingFeeAmount, {
@@ -895,6 +907,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         borrowTokenAmountFormatted={newDebtTokenWithFeeValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}
         collateralizationRatio={newCollateralizationRatio}
+        borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
       <PositionAction
