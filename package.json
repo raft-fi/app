@@ -26,6 +26,7 @@
     "@react-rxjs/utils": "^0.9.5",
     "@tempusfinance/decimal": "^0.0.12",
     "@web3-onboard/common": "^2.3.3",
+    "@web3-onboard/gnosis": "^2.1.10",
     "@web3-onboard/injected-wallets": "^2.10.3",
     "@web3-onboard/ledger": "^2.5.1",
     "@web3-onboard/react": "^2.8.10",

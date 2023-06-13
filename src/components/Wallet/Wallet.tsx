@@ -3,6 +3,7 @@ import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
+import gnosisModule from '@web3-onboard/gnosis';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
 import {
@@ -29,9 +30,10 @@ const ledger = ledgerModule({
 const walletConnect = WalletConnectModule({
   projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
 });
+const gnosis = gnosisModule();
 
 init({
-  wallets: [injected, ledger, walletConnect],
+  wallets: [injected, ledger, walletConnect, gnosis],
   chains: [
     {
       id: '0x1',
