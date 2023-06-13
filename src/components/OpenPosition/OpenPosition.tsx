@@ -17,6 +17,7 @@ import {
   TokenWhitelistMap,
   TokenAllowanceMap,
   useCollateralBorrowingRate,
+  useProtocolStats,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -55,6 +56,7 @@ const OpenPosition = () => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
 
+  const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
   const tokenAllowanceMap = useTokenAllowances();
@@ -85,6 +87,11 @@ const OpenPosition = () => {
     () => getTokenValues(collateralAmount, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
     [collateralAmount, selectedCollateralToken, tokenPriceMap],
   );
+
+  const borrowAmountDecimal = useMemo(() => {
+    return Decimal.parse(borrowAmount, 0);
+  }, [borrowAmount]);
+
   const borrowTokenValues = useMemo(
     () => getTokenValues(borrowAmount, tokenPriceMap[R_TOKEN], R_TOKEN),
     [borrowAmount, tokenPriceMap],
@@ -316,9 +323,30 @@ const OpenPosition = () => {
     () => !collateralizationRatio || collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
     [collateralizationRatio],
   );
+
+  const isOverMaxBorrow = useMemo(() => {
+    if (!protocolStats?.debtSupply) {
+      return true;
+    }
+
+    const totalDebt = protocolStats.debtSupply;
+
+    const maxBorrowAmount = totalDebt.div(10);
+    if (borrowAmountDecimal.gt(maxBorrowAmount)) {
+      return true;
+    }
+    return false;
+  }, [borrowAmountDecimal, protocolStats?.debtSupply]);
+
   const canBorrow = useMemo(
-    () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio && !isWrongNetwork,
-    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork],
+    () =>
+      hasInputFilled &&
+      hasEnoughCollateralTokenBalance &&
+      hasMinBorrow &&
+      hasMinRatio &&
+      !isWrongNetwork &&
+      !isOverMaxBorrow,
+    [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork, isOverMaxBorrow],
   );
 
   const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
@@ -460,7 +488,11 @@ const OpenPosition = () => {
     if (!hasMinRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
-  }, [hasMinBorrow, hasMinRatio, minBorrowFormatted]);
+
+    if (isOverMaxBorrow) {
+      return 'Amount exceeds maximum debt allowed per Position';
+    }
+  }, [hasMinBorrow, hasMinRatio, isOverMaxBorrow, minBorrowFormatted]);
 
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
@@ -768,7 +800,7 @@ const OpenPosition = () => {
           maxAmountFormatted={rTokenBalanceFormatted ?? undefined}
           onValueUpdate={handleBorrowValueUpdate}
           onBlur={handleBorrowTokenBlur}
-          error={!hasMinBorrow || !hasMinRatio}
+          error={!hasMinBorrow || !hasMinRatio || isOverMaxBorrow}
           errorMsg={debtErrorMsg}
         />
       </div>
