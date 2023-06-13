@@ -189,6 +189,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [tokenBalanceMap, tokenPriceMap],
   );
 
+  const borrowingFeeAmount = useMemo(() => {
+    if (!borrowingRate) {
+      return null;
+    }
+
+    if (borrowAmountDecimal.isZero() || !isAddDebt) {
+      return Decimal.ZERO;
+    }
+
+    return borrowAmountDecimal.mul(borrowingRate);
+  }, [borrowAmountDecimal, borrowingRate, isAddDebt]);
+
   /**
    * Current user collateral denominated in underlying collateral token (wstETH)
    */
@@ -291,11 +303,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   /**
    * New user debt (R-debt)
    */
-  const newDebtTokenValues = useMemo(() => {
-    const newValue = debtBalance.add(borrowAmountDecimal.mul(isAddDebt ? 1 : -1));
+  const newDebtTokenWithFeeValues = useMemo(() => {
+    let newValue;
+
+    if (isAddDebt) {
+      newValue = debtBalance.add(borrowAmountDecimal.add(borrowingFeeAmount ?? Decimal.ZERO));
+    } else {
+      newValue = debtBalance.sub(borrowAmountDecimal);
+    }
 
     return getTokenValues(newValue, tokenPriceMap[R_TOKEN], R_TOKEN);
-  }, [borrowAmountDecimal, debtBalance, isAddDebt, tokenPriceMap]);
+  }, [borrowAmountDecimal, borrowingFeeAmount, debtBalance, isAddDebt, tokenPriceMap]);
 
   /**
    * Current collateralization ratio
@@ -317,7 +335,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    */
   const newCollateralizationRatio = useMemo(() => {
     const collateralValue = newCollateralInUnderlyingTokenValues?.value || currentUnderlyingCollateralTokenValues.value;
-    const debtValue = newDebtTokenValues?.value || currentDebtTokenValues?.value;
+    const debtValue = newDebtTokenWithFeeValues?.value || currentDebtTokenValues?.value;
 
     if (!collateralValue || !debtValue || debtValue.lte(0)) {
       return null;
@@ -329,15 +347,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return collateralValue.div(debtValue);
   }, [
-    currentUnderlyingCollateralTokenValues.value,
-    currentDebtTokenValues?.value,
     newCollateralInUnderlyingTokenValues?.value,
-    newDebtTokenValues?.value,
+    currentUnderlyingCollateralTokenValues.value,
+    newDebtTokenWithFeeValues?.value,
+    currentDebtTokenValues?.value,
   ]);
 
   const isClosePosition = useMemo(
-    () => newDebtTokenValues?.amount?.isZero() && newCollateralInDisplayTokenValues?.value?.isZero(),
-    [newCollateralInDisplayTokenValues?.value, newDebtTokenValues?.amount],
+    () => newDebtTokenWithFeeValues?.amount?.isZero() && newCollateralInDisplayTokenValues?.value?.isZero(),
+    [newCollateralInDisplayTokenValues?.value, newDebtTokenWithFeeValues?.amount],
   );
   const hasEnoughCollateralTokenBalance = useMemo(
     () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal) || !isAddCollateral,
@@ -350,7 +368,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       isAddDebt,
     [borrowAmountDecimal, debtTokenBalanceValues.amount, isAddDebt],
   );
-  const hasNonNegativeDebt = useMemo(() => !newDebtTokenValues.amount?.lt(0), [newDebtTokenValues.amount]);
+  const hasNonNegativeDebt = useMemo(
+    () => !newDebtTokenWithFeeValues.amount?.lt(0),
+    [newDebtTokenWithFeeValues.amount],
+  );
 
   const formattedMissingBorrowAmount = useMemo(() => {
     if (!tokenBalanceMap[R_TOKEN]) {
@@ -370,8 +391,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [tokenBalanceMap, borrowAmountDecimal]);
 
   const hasMinBorrow = useMemo(
-    () => !newDebtTokenValues?.amount || newDebtTokenValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
-    [isClosePosition, newDebtTokenValues?.amount],
+    () =>
+      !newDebtTokenWithFeeValues?.amount || newDebtTokenWithFeeValues.amount.gte(MIN_BORROW_AMOUNT) || isClosePosition,
+    [isClosePosition, newDebtTokenWithFeeValues?.amount],
   );
   const hasMinNewRatio = useMemo(
     () => !newCollateralizationRatio || newCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO) || isClosePosition,
@@ -634,20 +656,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     approveStatus?.pending,
   ]);
 
-  const borrowingFeeAmount = useMemo(() => {
-    if (!borrowingRate) {
-      return null;
-    }
-
-    return borrowAmountDecimal.mul(borrowingRate);
-  }, [borrowAmountDecimal, borrowingRate]);
-
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount) {
       return null;
     }
 
-    if (borrowAmountDecimal.isZero() || !isAddDebt) {
+    if (borrowingFeeAmount.isZero()) {
       return 'Free';
     }
 
@@ -664,7 +678,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     } else {
       return borrowingFeeAmountFormatted;
     }
-  }, [borrowAmountDecimal, borrowingFeeAmount, isAddDebt]);
+  }, [borrowingFeeAmount]);
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
@@ -878,7 +892,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       <PositionAfter
         displayCollateralToken={newCollateralInDisplayTokenValues.amount}
         collateralTokenValueFormatted={newCollateralInUnderlyingTokenValues.valueFormatted}
-        borrowTokenAmountFormatted={newDebtTokenValues.amountFormatted}
+        borrowTokenAmountFormatted={newDebtTokenWithFeeValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}
         collateralizationRatio={newCollateralizationRatio}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
