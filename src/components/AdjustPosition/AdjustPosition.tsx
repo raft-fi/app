@@ -486,7 +486,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return true;
     }
     return false;
-  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount]);
+  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount, isAddDebt]);
 
   const canAdjust = useMemo(
     () =>
