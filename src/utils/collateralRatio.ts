@@ -4,11 +4,12 @@ import { HEALTHY_RATIO } from '../constants';
 import { Nullable } from '../interfaces';
 
 type CollateralRatioRiskLevel = 'low' | 'medium' | 'high';
-type ProtocolCollateralRatioRiskLevel = 'low' | 'medium' | 'moderate' | 'high';
+type ProtocolCollateralRatioRiskLevel = 'low' | 'medium' | 'moderate' | 'high' | 'critical';
 
-const PROTOCOL_HIGH_RISK_RATIO = MIN_COLLATERAL_RATIO;
-const PROTOCOL_MEDIUM_RISK_RATIO = 1.5;
-const PROTOCOL_MODERATE_RISK_RATIO = 1.8;
+const PROTOCOL_CRITICAL_RISK_RATIO = MIN_COLLATERAL_RATIO;
+const PROTOCOL_HIGH_RISK_RATIO = 1.4;
+const PROTOCOL_MEDIUM_RISK_RATIO = 1.6;
+const PROTOCOL_MODERATE_RISK_RATIO = 2;
 
 export const getCollateralRatioLevel = (ratio: Nullable<Decimal>): Nullable<CollateralRatioRiskLevel> => {
   if (!ratio) {
@@ -60,7 +61,11 @@ export const getProtocolCollateralRatioLevel = (
     return 'medium';
   }
 
-  return 'high';
+  if (ratio.gt(PROTOCOL_CRITICAL_RISK_RATIO)) {
+    return 'high';
+  }
+
+  return 'critical';
 };
 
 export const getProtocolCollateralRatioLabel = (ratio: Nullable<Decimal>): Nullable<string> => {
@@ -75,6 +80,8 @@ export const getProtocolCollateralRatioLabel = (ratio: Nullable<Decimal>): Nulla
       return 'Medium Risk';
     case 'high':
       return 'High Risk';
+    case 'critical':
+      return 'Critical Risk';
     default:
       return null;
   }
