@@ -460,6 +460,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [newCollateralInDisplayToken.amount]);
 
   const isOverMaxBorrow = useMemo(() => {
+    // In case user is repaying his debt, we should ignore max borrow limit
+    if (!isAddDebt) {
+      return false;
+    }
+
     /**
      * Do not show error if user did not input anything.
      */
@@ -481,7 +486,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return true;
     }
     return false;
-  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount]);
+  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount, isAddDebt]);
 
   const canAdjust = useMemo(
     () =>
