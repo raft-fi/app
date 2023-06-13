@@ -453,6 +453,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [newCollateralInDisplayToken.amount]);
 
   const isOverMaxBorrow = useMemo(() => {
+    /**
+     * Do not show error if user did not input anything.
+     */
+    if (!borrowAmount) {
+      return false;
+    }
+
     if (!protocolStats?.debtSupply || !newDebtTokenValues.amount) {
       return true;
     }
@@ -467,7 +474,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return true;
     }
     return false;
-  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance]);
+  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount]);
 
   const canAdjust = useMemo(
     () =>
