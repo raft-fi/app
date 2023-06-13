@@ -652,8 +652,24 @@ const OpenPosition = () => {
     return `~${borrowTokenValues.valueFormatted}`;
   }, [borrowTokenValues.valueFormatted, borrowAmount]);
 
+  const borrowingFeePercentageFormatted = useMemo(() => {
+    if (!borrowingRate) {
+      return null;
+    }
+
+    if (borrowingRate.isZero()) {
+      return 'Free';
+    }
+
+    return DecimalFormat.format(borrowingRate, {
+      style: 'percentage',
+      fractionDigits: 2,
+      pad: true,
+    });
+  }, [borrowingRate]);
+
   const borrowingFeeAmountFormatted = useMemo(() => {
-    if (!borrowingFeeAmount) {
+    if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
       return null;
     }
 
@@ -758,6 +774,7 @@ const OpenPosition = () => {
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
         borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}
+        borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
       <PositionAction

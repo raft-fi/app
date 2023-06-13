@@ -123,10 +123,6 @@
       }
     }
 
-    .raft__position-after__data__protocol-fee__value {
-      margin-top: 8px;
-    }
-
     .raft__position-after__data__gas-fee__title {
       /* TODO: hardcode color as suggested */
       --textPrimary: var(--raft-grey-600);
@@ -134,8 +130,16 @@
       margin-top: 32px;
     }
 
-    .raft__position-after__data__protocol-fee__value {
+    .raft__position-after__data__protocol-fee__percent {
+      display: flex;
+      align-items: center;
       margin-top: 8px;
+
+      .raft__position-after__data__protocol-fee__percent-value {
+        display: flex;
+        align-items: baseline;
+        margin-left: 6px;
+      }
     }
   }
 }
