@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -10,6 +10,7 @@ import {
   useBorrow,
   useCollateralBorrowingRate,
   useCollateralConversionRate,
+  useProtocolStats,
   useTokenAllowances,
   useTokenBalances,
   useTokenPrices,
@@ -22,7 +23,6 @@ import {
   DEFAULT_MAP,
   DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
-  LIQUIDATION_UPPER_RATIO,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
@@ -49,6 +49,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenWhitelistMap = useTokenWhitelists();
   const borrowingRate = useCollateralBorrowingRate();
   const collateralConversionRate = useCollateralConversionRate();
+  const protocolStats = useProtocolStats();
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -396,7 +397,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [isClosePosition, newDebtTokenWithFeeValues?.amount],
   );
   const hasMinNewRatio = useMemo(
-    () => !newCollateralizationRatio || newCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO) || isClosePosition,
+    () => !newCollateralizationRatio || newCollateralizationRatio.gte(MIN_COLLATERAL_RATIO) || isClosePosition,
     [isClosePosition, newCollateralizationRatio],
   );
   const isInputNonEmpty = useMemo(
@@ -429,6 +430,35 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return newCollateralInDisplayTokenValues.amount.gte(0);
   }, [newCollateralInDisplayTokenValues.amount]);
 
+  const isOverMaxBorrow = useMemo(() => {
+    // In case user is repaying his debt, we should ignore max borrow limit
+    if (!isAddDebt) {
+      return false;
+    }
+
+    /**
+     * Do not show error if user did not input anything.
+     */
+    if (!borrowAmount) {
+      return false;
+    }
+
+    if (!protocolStats?.debtSupply || !newDebtTokenWithFeeValues.amount) {
+      return true;
+    }
+
+    /**
+     * Total debt of protocol, excluding current user's debt
+     */
+    const totalDebt = protocolStats.debtSupply.sub(debtBalance);
+
+    const maxBorrowAmount = totalDebt.div(10);
+    if (newDebtTokenWithFeeValues.amount.gt(maxBorrowAmount)) {
+      return true;
+    }
+    return false;
+  }, [newDebtTokenWithFeeValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount, isAddDebt]);
+
   const canAdjust = useMemo(
     () =>
       Boolean(
@@ -436,9 +466,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           hasEnoughCollateralTokenBalance &&
           hasEnoughDebtTokenBalance &&
           hasMinBorrow &&
-          hasMinNewRatio,
+          hasMinNewRatio &&
+          !isOverMaxBorrow,
       ),
-    [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio],
+    [
+      isInputNonEmpty,
+      hasEnoughCollateralTokenBalance,
+      hasEnoughDebtTokenBalance,
+      hasMinBorrow,
+      hasMinNewRatio,
+      isOverMaxBorrow,
+    ],
   );
 
   // steps that user need to execute when component loaded
@@ -599,7 +637,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (!hasMinNewRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
-  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt]);
+
+    if (isOverMaxBorrow) {
+      return 'Amount exceeds maximum debt allowed per Position';
+    }
+  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isOverMaxBorrow]);
 
   const buttonLabel = useMemo(() => {
     // data not yet loaded will set executionSteps = 1, always show "Execution"
@@ -896,7 +938,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onValueUpdate={setBorrowAmount}
           disabled={closePositionActive}
           onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio}
+          error={!hasMinBorrow || !hasMinNewRatio || isOverMaxBorrow}
           errorMsg={debtErrorMsg}
           maxIntegralDigits={10}
         />

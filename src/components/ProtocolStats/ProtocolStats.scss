@@ -85,6 +85,10 @@
       &.status-risk-high {
         background-color: var(--statusHighProtocolRisk);
       }
+
+      &.status-risk-critical {
+        background-color: var(--statusCriticalProtocolRisk);
+      }
     }
   }
 }
