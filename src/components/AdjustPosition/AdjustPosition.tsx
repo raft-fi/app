@@ -414,8 +414,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
   const hasDebtPermitSignature = useMemo(() => Boolean(tokenSignatureMap[R_TOKEN]), [tokenSignatureMap]);
   const needCollateralPermitSignature = useMemo(
-    () => TOKENS_WITH_PERMIT.has(selectedCollateralToken) && collateralAmountDecimal.gt(0),
-    [collateralAmountDecimal, selectedCollateralToken],
+    () => TOKENS_WITH_PERMIT.has(selectedCollateralToken) && collateralAmountDecimal.gt(0) && isAddCollateral,
+    [collateralAmountDecimal, isAddCollateral, selectedCollateralToken],
   );
   const needDebtPermitSignature = useMemo(
     () => !TOKENS_WITH_PERMIT.has(selectedCollateralToken) && !isAddDebt,
@@ -487,8 +487,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     } else if (tokenSignatureMap[selectedCollateralToken]) {
       // user has proceeded approve, collateralPermitStep = 1
       collateralPermitStep = 1;
-    } else if (collateralAmountDecimal.gt(0)) {
-      // input > zero, collateralPermitStep = 1
+    } else if (collateralAmountDecimal.gt(0) && isAddCollateral) {
+      // input > zero and depositing, collateralPermitStep = 1
       collateralPermitStep = 1;
     }
 
