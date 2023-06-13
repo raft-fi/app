@@ -9,6 +9,7 @@ import {
   useApprove,
   useBorrow,
   useCollateralBorrowingRate,
+  useProtocolStats,
   useTokenAllowances,
   useTokenBalances,
   useTokenPrices,
@@ -62,6 +63,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
   const borrowingRate = useCollateralBorrowingRate();
+  const protocolStats = useProtocolStats();
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -450,6 +452,23 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return newCollateralInDisplayToken.amount.gte(0);
   }, [newCollateralInDisplayToken.amount]);
 
+  const isOverMaxBorrow = useMemo(() => {
+    if (!protocolStats?.debtSupply || !newDebtTokenValues.amount) {
+      return true;
+    }
+
+    /**
+     * Total debt of protocol, excluding current user's debt
+     */
+    const totalDebt = protocolStats.debtSupply.sub(debtBalance);
+
+    const maxBorrowAmount = totalDebt.div(10);
+    if (newDebtTokenValues.amount.gt(maxBorrowAmount)) {
+      return true;
+    }
+    return false;
+  }, [newDebtTokenValues.amount, protocolStats?.debtSupply, debtBalance]);
+
   const canAdjust = useMemo(
     () =>
       isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinNewRatio,
@@ -614,7 +633,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (!hasMinNewRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
-  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt]);
+
+    if (isOverMaxBorrow) {
+      return 'Amount exceeds maximum debt allowed per Position';
+    }
+  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isOverMaxBorrow]);
 
   const buttonLabel = useMemo(() => {
     // data not yet loaded will set executionSteps = 1, always show "Execution"
@@ -671,7 +694,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     approveStatus?.pending,
   ]);
 
-  const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
+  const buttonDisabled = useMemo(
+    () => transactionState === 'loading' || !canAdjust || isOverMaxBorrow,
+    [canAdjust, transactionState, isOverMaxBorrow],
+  );
 
   const borrowingFeeAmount = useMemo(() => {
     if (!borrowingRate) {
@@ -916,7 +942,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onValueUpdate={setBorrowAmount}
           disabled={closePositionActive}
           onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio}
+          error={!hasMinBorrow || !hasMinNewRatio || isOverMaxBorrow}
           errorMsg={debtErrorMsg}
           maxIntegralDigits={10}
         />
