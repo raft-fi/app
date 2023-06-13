@@ -3,7 +3,15 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import {
+  CollateralToken,
+  ERC20PermitSignatureStruct,
+  MIN_COLLATERAL_RATIO,
+  R_TOKEN,
+  Token,
+  TOKENS,
+  TOKENS_WITH_PERMIT,
+} from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -25,7 +33,6 @@ import {
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   INPUT_PREVIEW_DIGITS,
-  LIQUIDATION_UPPER_RATIO,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -320,7 +327,7 @@ const OpenPosition = () => {
     [borrowTokenValues.amount],
   );
   const hasMinRatio = useMemo(
-    () => !collateralizationRatio || collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
+    () => !collateralizationRatio || collateralizationRatio.gte(MIN_COLLATERAL_RATIO),
     [collateralizationRatio],
   );
 

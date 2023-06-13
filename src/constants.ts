@@ -8,7 +8,6 @@ export const NUMBER_OF_CONFIRMATIONS_FOR_TX = 1;
 export const MIN_BORROW_AMOUNT = 3000;
 export const HEALTHY_RATIO = 2.2;
 export const HEALTHY_RATIO_BUFFER = 0.00001;
-export const LIQUIDATION_UPPER_RATIO = 1.1;
 export const LIQUIDATION_LOWER_RATIO = 1;
 export const COLLATERAL_TOKEN_UI_PRECISION = 4;
 export const R_TOKEN_UI_PRECISION = 2;

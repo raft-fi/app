@@ -2,7 +2,15 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper, Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, ERC20PermitSignatureStruct, R_TOKEN, Token, TOKENS, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import {
+  CollateralToken,
+  ERC20PermitSignatureStruct,
+  MIN_COLLATERAL_RATIO,
+  R_TOKEN,
+  Token,
+  TOKENS,
+  TOKENS_WITH_PERMIT,
+} from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -22,7 +30,6 @@ import {
   COLLATERAL_TOKEN_UI_PRECISION,
   DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
-  LIQUIDATION_UPPER_RATIO,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
@@ -419,7 +426,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     [isClosePosition, newDebtTokenValues?.amount],
   );
   const hasMinNewRatio = useMemo(
-    () => !newCollateralizationRatio || newCollateralizationRatio.gte(LIQUIDATION_UPPER_RATIO) || isClosePosition,
+    () => !newCollateralizationRatio || newCollateralizationRatio.gte(MIN_COLLATERAL_RATIO) || isClosePosition,
     [isClosePosition, newCollateralizationRatio],
   );
   const isInputNonEmpty = useMemo(
