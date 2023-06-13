@@ -160,13 +160,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const handleCollateralAmountBlur = useCallback(() => {
     const decimal = Decimal.parse(collateralAmount, 0);
     if (decimal.isZero()) {
-      setCollateralAmount('0');
+      setCollateralAmount('');
     }
   }, [collateralAmount]);
   const handleBorrowAmountBlur = useCallback(() => {
     const decimal = Decimal.parse(borrowAmount, 0);
     if (decimal.isZero()) {
-      setBorrowAmount('0');
+      setBorrowAmount('');
     }
   }, [borrowAmount]);
 
@@ -750,8 +750,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       setBorrowAmount(debtBalance.toString());
       setIsAddDebt(false);
     } else if (collateralBalance && debtBalance) {
-      setCollateralAmount('0');
-      setBorrowAmount('0');
+      setCollateralAmount('');
+      setBorrowAmount('');
       setIsAddCollateral(true);
       setIsAddDebt(true);
     }
