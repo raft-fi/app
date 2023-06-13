@@ -478,8 +478,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const canAdjust = useMemo(
     () =>
-      isInputNonEmpty && hasEnoughCollateralTokenBalance && hasEnoughDebtTokenBalance && hasMinBorrow && hasMinNewRatio,
-    [isInputNonEmpty, hasEnoughCollateralTokenBalance, hasEnoughDebtTokenBalance, hasMinBorrow, hasMinNewRatio],
+      isInputNonEmpty &&
+      hasEnoughCollateralTokenBalance &&
+      hasEnoughDebtTokenBalance &&
+      hasMinBorrow &&
+      hasMinNewRatio &&
+      !isOverMaxBorrow,
+    [
+      isInputNonEmpty,
+      hasEnoughCollateralTokenBalance,
+      hasEnoughDebtTokenBalance,
+      hasMinBorrow,
+      hasMinNewRatio,
+      isOverMaxBorrow,
+    ],
   );
 
   // steps that user need to execute when component loaded
