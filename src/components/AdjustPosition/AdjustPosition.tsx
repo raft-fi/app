@@ -713,10 +713,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     approveStatus?.pending,
   ]);
 
-  const buttonDisabled = useMemo(
-    () => transactionState === 'loading' || !canAdjust || isOverMaxBorrow,
-    [canAdjust, transactionState, isOverMaxBorrow],
-  );
+  const buttonDisabled = useMemo(() => transactionState === 'loading' || !canAdjust, [canAdjust, transactionState]);
 
   const borrowingFeeAmount = useMemo(() => {
     if (!borrowingRate) {
