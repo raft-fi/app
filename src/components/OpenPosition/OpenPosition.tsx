@@ -316,6 +316,9 @@ const OpenPosition = () => {
     () => !collateralizationRatio || collateralizationRatio.gte(LIQUIDATION_UPPER_RATIO),
     [collateralizationRatio],
   );
+
+  const overMaxBorrow = useMemo(() => {}, []);
+
   const canBorrow = useMemo(
     () => hasInputFilled && hasEnoughCollateralTokenBalance && hasMinBorrow && hasMinRatio && !isWrongNetwork,
     [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork],
