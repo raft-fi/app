@@ -29,22 +29,21 @@ body > .MuiTooltip-popper {
 
   .raft__tooltip-content.MuiTooltip-tooltip {
     border-radius: 8px;
-    box-shadow: var(--downWeakShadow);
-    border: 1px solid var(--tooltipBorder);
-    background: var(--tooltipDefaultBackground);
+    border: 1px solid var(--borderPrimary);
+    background: var(--surfaceTooltip);
     max-width: initial;
     z-index: 99998;
     padding: 0;
     margin: 0;
 
     .MuiTooltip-arrow {
-      background: var(--tooltipBorder);
+      background: var(--borderPrimary);
       width: $arrowWidth;
       height: $arrowWidth;
 
       &::before {
         position: absolute;
-        background: var(--tooltipDefaultBackground);
+        background: var(--surfaceTooltip);
         width: calc($arrowWidth - 2px);
         height: calc($arrowWidth - 2px);
         transform: initial;
