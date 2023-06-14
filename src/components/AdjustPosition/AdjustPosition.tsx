@@ -535,6 +535,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
       // token with permit, no need to permit R, debtPermitStep = 0
       debtPermitStep = 0;
+    } else if (collateralAmountDecimal.isZero()) {
+      // collateral is zero, treat it as token with permit, no need to permit R, , debtPermitStep = 0
+      debtPermitStep = 0;
     } else if (tokenSignatureMap[R_TOKEN]) {
       // user has proceeded approve for R, debtPermitStep = 1
       debtPermitStep = 1;
@@ -594,6 +597,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
       // token with permit, no need to permit R, debtPermitStep = 0
       debtPermitStep = 0;
+    } else if (collateralAmountDecimal.isZero()) {
+      // collateral is zero, treat it as token with permit, no need to permit R, , debtPermitStep = 0
+      debtPermitStep = 0;
     } else if (tokenSignatureMap[R_TOKEN]) {
       // user has proceeded approve for R, debtPermitStep = 1
       debtPermitStep = 1;
@@ -603,6 +609,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return whitelistStep + collateralApprovalStep + collateralPermitStep + debtPermitStep + executionStep;
   }, [
+    collateralAmountDecimal,
     hasApprovalProceeded,
     hasEnoughCollateralAllowance,
     hasWhitelistProceeded,
