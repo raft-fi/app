@@ -2,7 +2,7 @@ import { FC, useMemo } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
 import { R_TOKEN, Token } from '@raft-fi/sdk';
-import { COLLATERAL_TOKEN_UI_PRECISION, TOKEN_TO_DISPLAY_BASE_TOKEN_MAP } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
@@ -37,7 +37,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
     () =>
       DecimalFormat.format(displayCollateralTokenAmount ?? Decimal.ZERO, {
         style: 'currency',
-        currency: TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[displayCollateralToken],
+        currency: displayCollateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
       }),
@@ -79,7 +79,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
         <ul className="raft__position-after__data__position__data">
           <li className="raft__position-after__data__position__data__deposit">
             <TooltipWrapper tooltipContent={<TokenAddressTooltip />} placement="top">
-              <TokenLogo type={`token-${TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[displayCollateralToken]}`} size={20} />
+              <TokenLogo type={`token-${displayCollateralToken}`} size={20} />
             </TooltipWrapper>
             <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
             {collateralTokenValueFormatted && (

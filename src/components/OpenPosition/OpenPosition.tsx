@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -36,9 +36,6 @@ import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAfter, PositionAction } from '../Position';
 
 import './OpenPosition.scss';
-
-// TODO: SDK will provide this
-const TOKENS_WITH_PERMIT = new Set(['wstETH', 'WETH', 'R']);
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
