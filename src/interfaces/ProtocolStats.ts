@@ -1,7 +1,6 @@
-import { Decimal } from '@tempusfinance/decimal';
+import { CollateralTotalSupply, DebtTotalSupply } from '@raft-fi/sdk';
 
 export interface ProtocolStats {
-  collateralSupply: Decimal;
-  debtSupply: Decimal;
-  openPositions: number;
+  collateralSupply: CollateralTotalSupply[];
+  debtSupply: DebtTotalSupply[];
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, RaftConfig, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -79,13 +79,51 @@ const OpenPosition = () => {
   );
 
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
-  const debtTokenWithFeeValues = useMemo(() => {
+
+  const selectedCollateralBorrowRate = useMemo(() => {
     if (!borrowingRate) {
+      return null;
+    }
+
+    const tokenConfig = RaftConfig.networkConfig.tokenTickerToTokenConfigMap[selectedCollateralToken];
+
+    const collateralBorrowRate = borrowingRate.find(rate => rate.collateralToken === tokenConfig.underlyingTokenTicker);
+    if (!collateralBorrowRate) {
+      return null;
+    }
+
+    return collateralBorrowRate.rate;
+  }, [borrowingRate, selectedCollateralToken]);
+
+  const selectedCollateralDebtSupply = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    const tokenConfig = RaftConfig.networkConfig.tokenTickerToTokenConfigMap[selectedCollateralToken];
+
+    const collateralDebtSupply = protocolStats.debtSupply.find(
+      supply => supply.collateralToken === tokenConfig.underlyingTokenTicker,
+    );
+    if (!collateralDebtSupply) {
+      return null;
+    }
+
+    return collateralDebtSupply.amount;
+  }, [protocolStats, selectedCollateralToken]);
+
+  const debtTokenWithFeeValues = useMemo(() => {
+    if (!selectedCollateralBorrowRate) {
       return getTokenValues(null, tokenPriceMap[R_TOKEN], R_TOKEN);
     }
 
-    return getTokenValues(borrowAmountDecimal.mul(Decimal.ONE.add(borrowingRate)), tokenPriceMap[R_TOKEN], R_TOKEN);
-  }, [borrowAmountDecimal, borrowingRate, tokenPriceMap]);
+    return getTokenValues(
+      borrowAmountDecimal.mul(Decimal.ONE.add(selectedCollateralBorrowRate)),
+      tokenPriceMap[R_TOKEN],
+      R_TOKEN,
+    );
+  }, [borrowAmountDecimal, selectedCollateralBorrowRate, tokenPriceMap]);
+
   const selectedCollateralTokenBalanceValues = useMemo(
     () =>
       getTokenValues(
@@ -104,12 +142,12 @@ const OpenPosition = () => {
     [selectedCollateralToken, tokenWhitelistMap],
   );
   const borrowingFeeAmount = useMemo(() => {
-    if (!borrowingRate) {
+    if (!selectedCollateralBorrowRate) {
       return null;
     }
 
-    return Decimal.parse(borrowAmount, 0).mul(borrowingRate);
-  }, [borrowAmount, borrowingRate]);
+    return Decimal.parse(borrowAmount, 0).mul(selectedCollateralBorrowRate);
+  }, [borrowAmount, selectedCollateralBorrowRate]);
 
   // store the whitelist status at the loaded time
   useEffect(() => {
@@ -155,7 +193,7 @@ const OpenPosition = () => {
       const collateralPrice = tokenPriceMap[selectedCollateralToken];
       const rTokenPrice = tokenPriceMap[R_TOKEN];
 
-      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice || !borrowingRate) {
+      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice || !selectedCollateralBorrowRate) {
         return;
       }
 
@@ -165,7 +203,7 @@ const OpenPosition = () => {
 
       // Calculate minimum collateral amount so that resulting collateral ratio is at least 220%
       const collateralAmount = borrowAmountValue
-        .mul(borrowingRate.add(1))
+        .mul(selectedCollateralBorrowRate.add(1))
         .mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
         .div(collateralPrice);
 
@@ -192,7 +230,7 @@ const OpenPosition = () => {
     }
   }, [
     borrowingFeeAmount,
-    borrowingRate,
+    selectedCollateralBorrowRate,
     hasChanged,
     selectedCollateralToken,
     selectedCollateralTokenBalanceValues.amount,
@@ -300,18 +338,16 @@ const OpenPosition = () => {
   );
 
   const isOverMaxBorrow = useMemo(() => {
-    if (!protocolStats?.debtSupply) {
+    if (!selectedCollateralDebtSupply) {
       return true;
     }
 
-    const totalDebt = protocolStats.debtSupply;
-
-    const maxBorrowAmount = totalDebt.div(10);
+    const maxBorrowAmount = selectedCollateralDebtSupply.div(10);
     if (borrowAmountDecimal.gt(maxBorrowAmount)) {
       return true;
     }
     return false;
-  }, [borrowAmountDecimal, protocolStats?.debtSupply]);
+  }, [borrowAmountDecimal, selectedCollateralDebtSupply]);
 
   const canBorrow = useMemo(
     () =>
@@ -656,20 +692,20 @@ const OpenPosition = () => {
   }, [approveStatus, borrowStatus, hasApprovalProceeded, tokenSignatureMap, whitelistDelegateStatus]);
 
   const borrowingFeePercentageFormatted = useMemo(() => {
-    if (!borrowingRate) {
+    if (!selectedCollateralBorrowRate) {
       return null;
     }
 
-    if (borrowingRate.isZero()) {
+    if (selectedCollateralBorrowRate.isZero()) {
       return 'Free';
     }
 
-    return DecimalFormat.format(borrowingRate, {
+    return DecimalFormat.format(selectedCollateralBorrowRate, {
       style: 'percentage',
       fractionDigits: 2,
       pad: true,
     });
-  }, [borrowingRate]);
+  }, [selectedCollateralBorrowRate]);
 
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {

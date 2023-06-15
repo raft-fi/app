@@ -25,7 +25,7 @@ export const collateralConversionRate$ = new BehaviorSubject<Nullable<Decimal>>(
 // TODO: conversion rate needs to be change to support multi collateral
 const fetchData = (feed: PriceFeed) => {
   try {
-    return from(feed.getUnderlyingToCollateralRate('wstETH', 'stETH')).pipe(
+    return from(feed.getUnderlyingCollateralRate('stETH')).pipe(
       catchError(error => {
         console.error(`useCollateralConversionRate - failed to fetch conversion rate from wstETH to stETH!`, error);
         return of(null);

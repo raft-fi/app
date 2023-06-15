@@ -1,4 +1,4 @@
-import { Protocol, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { BorrowingRate, Protocol, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import {
   from,
@@ -15,7 +15,6 @@ import {
   startWith,
   mergeMap,
 } from 'rxjs';
-import { Decimal } from '@tempusfinance/decimal';
 import { JsonRpcProvider } from 'ethers';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
@@ -24,13 +23,13 @@ import { provider$ } from './useProvider';
 // TODO - We currently only have one underlying collateral (wstETH), once we add more,
 //we need to store borrowing rate for each underlying collateral separately
 
-export const collateralBorrowingRate$ = new BehaviorSubject<Nullable<Decimal>>(null);
+export const collateralBorrowingRate$ = new BehaviorSubject<Nullable<BorrowingRate[]>>(null);
 
 const fetchData = (collateralToken: UnderlyingCollateralToken, provider: JsonRpcProvider) => {
   try {
     const stats = Protocol.getInstance(provider);
 
-    return from(stats.fetchBorrowingRate(collateralToken)).pipe(
+    return from(stats.fetchBorrowingRate()).pipe(
       catchError(error => {
         console.error(
           `useCollateralBorrowingFee - failed to fetch borrowing fee for collateral '${collateralToken}'`,
@@ -51,16 +50,16 @@ const fetchData = (collateralToken: UnderlyingCollateralToken, provider: JsonRpc
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 // stream$ for periodic polling to fetch data
-const periodicStream$: Observable<Nullable<Decimal>> = intervalBeat$.pipe(
+const periodicStream$: Observable<Nullable<BorrowingRate[]>> = intervalBeat$.pipe(
   withLatestFrom(provider$),
-  mergeMap<[number, JsonRpcProvider], Observable<Nullable<Decimal>>>(([, provider]) => {
+  mergeMap<[number, JsonRpcProvider], Observable<Nullable<BorrowingRate[]>>>(([, provider]) => {
     return fetchData('wstETH', provider);
   }),
 );
 
 // merge all stream$ into one if there are multiple
 const stream$ = merge(periodicStream$).pipe(
-  debounce<Nullable<Decimal>>(() => interval(DEBOUNCE_IN_MS)),
+  debounce<Nullable<BorrowingRate[]>>(() => interval(DEBOUNCE_IN_MS)),
   tap(balance => {
     collateralBorrowingRate$.next(balance);
   }),

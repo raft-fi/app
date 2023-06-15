@@ -161,12 +161,18 @@ const Redeem = () => {
 
       const protocol = Protocol.getInstance(provider);
 
+      // TODO - Return per token values instead of single wstETH value (use will probably have an option to select which collateral to receive)
+      const wstETHSupply = protocolStats.debtSupply.find(supply => supply.collateralToken === 'wstETH');
+      if (!wstETHSupply) {
+        return null;
+      }
+
       // TODO: redemption need to support multiple underlying token
       const result = await protocol.fetchRedemptionRate(
         'wstETH',
         Decimal.parse(value, 0),
         collateralPrice,
-        protocolStats.debtSupply,
+        wstETHSupply.amount,
       );
 
       setRedemptionRate(result.toString());

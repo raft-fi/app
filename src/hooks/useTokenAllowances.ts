@@ -18,14 +18,13 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { Allowance, TOKENS, Token, UNDERLYING_COLLATERAL_TOKENS } from '@raft-fi/sdk';
+import { Allowance, RaftConfig, TOKENS, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { ChainConfig, Nullable } from '../interfaces';
+import { Nullable } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
-import { config$ } from './useConfig';
 
 export type TokenAllowanceMap = {
   [token in Token]: Nullable<Decimal>;
@@ -39,9 +38,8 @@ const DEFAULT_VALUE: TokenAllowanceMap = TOKENS.reduce(
   {} as TokenAllowanceMap,
 );
 
-const getPositionManager = (token: Token, config: ChainConfig) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  UNDERLYING_COLLATERAL_TOKENS.includes(token as any) ? config.positionManager : config.positionManagerStEth;
+const getPositionManager = (token: Token) =>
+  RaftConfig.networkConfig.tokenTickerToTokenConfigMap[token].positionManager;
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
@@ -67,36 +65,34 @@ const fetchData = async (
 
 // Fetch new allowance data every time wallet address changes
 const walletChangeStream$: Observable<TokenAllowanceMap> = walletAddress$.pipe(
-  withLatestFrom(provider$, config$),
-  mergeMap<[Nullable<string>, JsonRpcProvider, ChainConfig], Observable<TokenAllowanceMap>>(
-    ([walletAddress, provider, config]) => {
-      if (!walletAddress) {
-        return of(DEFAULT_VALUE);
-      }
-
-      const tokenAllowanceMaps = TOKENS.map(token =>
-        from(fetchData(token, walletAddress, getPositionManager(token, config), provider)).pipe(
-          map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
-        ),
-      );
-
-      return merge(...tokenAllowanceMaps);
-    },
-  ),
-);
-
-type PeriodicStreamInput = [[number], Nullable<string>, JsonRpcProvider, ChainConfig];
-
-// stream$ for periodic polling to fetch data
-const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBeat$]).pipe(
-  withLatestFrom(walletAddress$, provider$, config$),
-  mergeMap<PeriodicStreamInput, Observable<TokenAllowanceMap>>(([, walletAddress, provider, config]) => {
+  withLatestFrom(provider$),
+  mergeMap<[Nullable<string>, JsonRpcProvider], Observable<TokenAllowanceMap>>(([walletAddress, provider]) => {
     if (!walletAddress) {
       return of(DEFAULT_VALUE);
     }
 
     const tokenAllowanceMaps = TOKENS.map(token =>
-      from(fetchData(token, walletAddress, getPositionManager(token, config), provider)).pipe(
+      from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
+        map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
+      ),
+    );
+
+    return merge(...tokenAllowanceMaps);
+  }),
+);
+
+type PeriodicStreamInput = [[number], Nullable<string>, JsonRpcProvider];
+
+// stream$ for periodic polling to fetch data
+const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBeat$]).pipe(
+  withLatestFrom(walletAddress$, provider$),
+  mergeMap<PeriodicStreamInput, Observable<TokenAllowanceMap>>(([, walletAddress, provider]) => {
+    if (!walletAddress) {
+      return of(DEFAULT_VALUE);
+    }
+
+    const tokenAllowanceMaps = TOKENS.map(token =>
+      from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),
     );
@@ -107,15 +103,15 @@ const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBe
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletAddress$, provider$, config$),
-  filter((value): value is [AppEvent, string, JsonRpcProvider, ChainConfig] => {
+  withLatestFrom(walletAddress$, provider$),
+  filter((value): value is [AppEvent, string, JsonRpcProvider] => {
     const [, walletAddress] = value;
 
     return Boolean(walletAddress);
   }),
-  mergeMap(([, walletAddress, provider, config]) => {
+  mergeMap(([, walletAddress, provider]) => {
     const tokenAllowanceMaps = TOKENS.map(token =>
-      from(fetchData(token, walletAddress, getPositionManager(token, config), provider)).pipe(
+      from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),
     );

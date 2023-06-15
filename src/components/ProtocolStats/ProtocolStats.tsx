@@ -21,7 +21,13 @@ const ProtocolStats = () => {
       return null;
     }
 
-    const amount = protocolStats.collateralSupply.mul(collateralConversionRate);
+    // TODO - Return per token values instead of single wstETH value
+    const wstETHSupply = protocolStats.collateralSupply.find(supply => supply.collateralToken === 'wstETH');
+    if (!wstETHSupply) {
+      return null;
+    }
+
+    const amount = wstETHSupply.amount.mul(collateralConversionRate);
 
     // TODO: change it later, display in USD value instead
     return getTokenValues(amount, tokenPriceMap['stETH'], 'stETH');
@@ -32,8 +38,14 @@ const ProtocolStats = () => {
       return null;
     }
 
+    // TODO - Return per token values instead of single wstETH value
+    const wstETHSupply = protocolStats.collateralSupply.find(supply => supply.collateralToken === 'wstETH');
+    if (!wstETHSupply) {
+      return null;
+    }
+
     // TODO: change it later, display in USD value instead
-    return getTokenValues(protocolStats.collateralSupply, tokenPriceMap['wstETH'], 'wstETH');
+    return getTokenValues(wstETHSupply.amount, tokenPriceMap['wstETH'], 'wstETH');
   }, [protocolStats, tokenPriceMap]);
 
   const debtTotalSupplyValues = useMemo(() => {
@@ -41,7 +53,13 @@ const ProtocolStats = () => {
       return null;
     }
 
-    return getTokenValues(protocolStats.debtSupply, tokenPriceMap[R_TOKEN], R_TOKEN);
+    // TODO - Return per token values instead of single wstETH value
+    const wstETHSupply = protocolStats.debtSupply.find(supply => supply.collateralToken === 'wstETH');
+    if (!wstETHSupply) {
+      return null;
+    }
+
+    return getTokenValues(wstETHSupply.amount, tokenPriceMap[R_TOKEN], R_TOKEN);
   }, [protocolStats, tokenPriceMap]);
 
   const displayCollateralTotalSupplyAmountFormatted = useMemo(() => {

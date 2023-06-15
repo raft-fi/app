@@ -9,14 +9,6 @@ RaftConfig.setSubgraphEndpoint(import.meta.env.VITE_SUBGRAPH_URL);
 
 const config: Config = {
   mainnet: {
-    positionManager: RaftConfig.networkConfig.positionManager,
-    positionManagerStEth: RaftConfig.networkConfig.positionManagerStEth,
-    collateralTokens: {
-      wstETH: RaftConfig.networkConfig.wstEth,
-    },
-    raftCollateralToken: RaftConfig.networkConfig.raftCollateralTokens.wstETH,
-    raftDebtToken: RaftConfig.networkConfig.raftDebtToken,
-    rToken: RaftConfig.networkConfig.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Ethereum mainnet',
@@ -33,14 +25,6 @@ const config: Config = {
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
   },
   goerli: {
-    positionManager: RaftConfig.networkConfig.positionManager,
-    positionManagerStEth: RaftConfig.networkConfig.positionManagerStEth,
-    collateralTokens: {
-      wstETH: RaftConfig.networkConfig.wstEth,
-    },
-    raftCollateralToken: RaftConfig.networkConfig.raftCollateralTokens.wstETH,
-    raftDebtToken: RaftConfig.networkConfig.raftDebtToken,
-    rToken: RaftConfig.networkConfig.r,
     publicNetworkUrl: '',
     privateNetworkUrl: '',
     networkName: 'Goerli testnet',
