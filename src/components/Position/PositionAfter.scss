@@ -143,3 +143,52 @@
     }
   }
 }
+
+.raft__position-after__infoTooltip {
+  max-width: 200px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    --externalLinkColor: var(--textAccent);
+  }
+}
+
+.raft__position-after__tokenAddressTooltip {
+  /* TODO: hardcode color as suggested */
+  --externalLinkColor: var(--raft-grey-600);
+
+  width: 300px;
+  padding: 6px 16px;
+
+  ul {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    > li {
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+
+      .common-ui__logo {
+        margin-right: 8px;
+      }
+
+      .raft__position-after__tokenAddressTooltip__token {
+        width: 100px;
+      }
+
+      .raft__position-after__tokenAddressTooltip__address {
+        flex: 1;
+      }
+
+      .raft__position-after__tokenAddressTooltip__link {
+        margin-right: 16px;
+        height: 16px;
+      }
+    }
+  }
+}

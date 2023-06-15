@@ -30,6 +30,7 @@ import Checkmark from './Checkmark';
 import ArrowUp from './ArrowUp';
 import Gitbook from './Gitbook';
 import Warning from './Warning';
+import Metamask from './Metamask';
 
 type IconVariant =
   | 'discord'
@@ -61,7 +62,8 @@ type IconVariant =
   | 'unsupported-network'
   | 'arrow-right-thin'
   | 'checkmark'
-  | 'warning';
+  | 'warning'
+  | 'metamask';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -94,6 +96,7 @@ const ICON_MAP: IconMap = {
   'arrow-right-thin': ArrowRightThin,
   checkmark: Checkmark,
   warning: Warning,
+  metamask: Metamask,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;
