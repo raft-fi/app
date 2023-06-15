@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -28,6 +28,7 @@ import {
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
+  TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
 } from '../../constants';
 import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { getTokenValues, isCollateralToken } from '../../utils';
@@ -35,6 +36,9 @@ import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAfter, PositionAction } from '../Position';
 
 import './OpenPosition.scss';
+
+// TODO: SDK will provide this
+const TOKENS_WITH_PERMIT = new Set(['wstETH', 'WETH', 'R']);
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -58,6 +62,7 @@ const OpenPosition = () => {
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
+  // TODO: wait for SDK to update
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
@@ -203,13 +208,14 @@ const OpenPosition = () => {
   /**
    * Deposit amount of collateral converted to display collateral token (stETH)
    */
-  const displayCollateralToken = useMemo(() => {
+  const displayCollateralTokenAmount = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
       return Decimal.ZERO;
     }
 
     switch (selectedCollateralToken) {
       case 'ETH':
+      case 'WETH':
       case 'stETH':
       default:
         return selectedCollateralTokenInputValues.amount;
@@ -768,7 +774,8 @@ const OpenPosition = () => {
         />
       </div>
       <PositionAfter
-        displayCollateralToken={displayCollateralToken}
+        displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
+        displayCollateralTokenAmount={displayCollateralTokenAmount}
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
         borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}

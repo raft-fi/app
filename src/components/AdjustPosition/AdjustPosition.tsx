@@ -19,14 +19,13 @@ import {
 } from '../../hooks';
 import { getTokenValues, isCollateralToken } from '../../utils';
 import {
-  COLLATERAL_BASE_TOKEN,
   DEFAULT_MAP,
-  DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
+  TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
 } from '../../constants';
 import { Nullable, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
@@ -206,7 +205,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * Current user collateral denominated in underlying collateral token (wstETH)
    */
   const currentUnderlyingCollateralTokenValues = useMemo(
-    () => getTokenValues(collateralBalance, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
+    // TODO: fetch what token is in position to show corresponding underlying token
+    () => getTokenValues(collateralBalance, tokenPriceMap['wstETH'], 'wstETH'),
     [collateralBalance, tokenPriceMap],
   );
 
@@ -270,7 +270,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    */
   const newCollateralInUnderlyingTokenValues = useMemo(
     () =>
-      getTokenValues(newCollateralInUnderlyingTokenAmount, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
+      // TODO: fetch what token is in position to show corresponding underlying token
+      getTokenValues(newCollateralInUnderlyingTokenAmount, tokenPriceMap['wstETH'], 'wstETH'),
     [newCollateralInUnderlyingTokenAmount, tokenPriceMap],
   );
 
@@ -289,8 +290,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * New user display collateral values
    */
   const newCollateralInDisplayTokenValues = useMemo(
-    () => getTokenValues(newCollateralInDisplayTokenAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN),
-    [newCollateralInDisplayTokenAmount, tokenPriceMap],
+    () =>
+      getTokenValues(
+        newCollateralInDisplayTokenAmount,
+        tokenPriceMap[TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]],
+        TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken],
+      ),
+    [newCollateralInDisplayTokenAmount, selectedCollateralToken, tokenPriceMap],
   );
 
   /**
@@ -743,7 +749,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
-      if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
+      // TODO: fetch what token is in position to show corresponding underlying token
+      if (selectedCollateralToken === 'wstETH') {
         setCollateralAmount(collateralBalance.toString());
         setIsAddCollateral(false);
       } else {
@@ -951,7 +958,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
         />
       </div>
       <PositionAfter
-        displayCollateralToken={newCollateralInDisplayTokenValues.amount}
+        displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
+        displayCollateralTokenAmount={newCollateralInDisplayTokenValues.amount}
         collateralTokenValueFormatted={newCollateralInUnderlyingTokenValues.valueFormatted}
         borrowTokenAmountFormatted={newDebtTokenWithFeeValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}

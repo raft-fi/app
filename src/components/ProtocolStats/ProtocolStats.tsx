@@ -4,12 +4,7 @@ import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN } from '@raft-fi/sdk';
 import { useCollateralConversionRate, useProtocolStats, useTokenPrices } from '../../hooks';
 import { getProtocolCollateralRatioLabel, getProtocolCollateralRatioLevel, getTokenValues } from '../../utils';
-import {
-  COLLATERAL_BASE_TOKEN,
-  COLLATERAL_TOKEN_UI_PRECISION,
-  DISPLAY_BASE_TOKEN,
-  USD_UI_PRECISION,
-} from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
 import { Typography } from '../shared';
 
 import './ProtocolStats.scss';
@@ -28,7 +23,8 @@ const ProtocolStats = () => {
 
     const amount = protocolStats.collateralSupply.mul(collateralConversionRate);
 
-    return getTokenValues(amount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+    // TODO: change it later, display in USD value instead
+    return getTokenValues(amount, tokenPriceMap['stETH'], 'stETH');
   }, [collateralConversionRate, protocolStats, tokenPriceMap]);
 
   const underlyingCollateralTotalSupplyValues = useMemo(() => {
@@ -36,7 +32,8 @@ const ProtocolStats = () => {
       return null;
     }
 
-    return getTokenValues(protocolStats.collateralSupply, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN);
+    // TODO: change it later, display in USD value instead
+    return getTokenValues(protocolStats.collateralSupply, tokenPriceMap['wstETH'], 'wstETH');
   }, [protocolStats, tokenPriceMap]);
 
   const debtTotalSupplyValues = useMemo(() => {
@@ -134,10 +131,10 @@ const ProtocolStats = () => {
           TOTAL VALUE LOCKED
         </Typography>
         <div className="raft__protocol-stats__collateral__amount">
-          <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
+          <TokenLogo type="token-stETH" size="small" />
           <div className="raft__protocol-stats__collateral__amount__number">
             <Typography variant="heading1">{displayCollateralTotalSupplyAmountFormatted ?? '---'}</Typography>
-            <Typography variant="heading2">{DISPLAY_BASE_TOKEN}</Typography>
+            <Typography variant="heading2">stETH</Typography>
           </div>
         </div>
         <div className="raft__protocol-stats__collateral__value__number">

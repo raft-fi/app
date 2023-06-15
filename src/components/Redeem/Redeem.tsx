@@ -4,7 +4,6 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Protocol, R_TOKEN } from '@raft-fi/sdk';
 import { Link, TokenLogo } from 'tempus-ui';
-import { COLLATERAL_BASE_TOKEN } from '../../constants';
 import {
   useAppLoaded,
   useProtocolStats,
@@ -77,7 +76,8 @@ const Redeem = () => {
   }, [hasEnoughRTokenBalance, walletConnected]);
 
   const collateralToReceive = useMemo(() => {
-    const collateralBaseTokenPrice = tokenPrices[COLLATERAL_BASE_TOKEN];
+    // TODO: redemption need to support multiple underlying token
+    const collateralBaseTokenPrice = tokenPrices['wstETH'];
     if (!collateralBaseTokenPrice || collateralBaseTokenPrice.isZero() || !redemptionRate) {
       return null;
     }
@@ -91,7 +91,8 @@ const Redeem = () => {
   }, [debtAmountDecimal, redemptionRate, tokenPrices]);
 
   const collateralToReceiveValues = useMemo(() => {
-    return getTokenValues(collateralToReceive, tokenPrices[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN);
+    // TODO: redemption need to support multiple underlying token
+    return getTokenValues(collateralToReceive, tokenPrices['wstETH'], 'wstETH');
   }, [collateralToReceive, tokenPrices]);
 
   const redemptionRateFormatted = useMemo(() => {
@@ -140,7 +141,8 @@ const Redeem = () => {
     redeem({
       debtAmount: debtAmountDecimal,
       txnId: uuid(),
-      underlyingCollateralToken: COLLATERAL_BASE_TOKEN,
+      // TODO: redemption need to support multiple underlying token
+      underlyingCollateralToken: 'wstETH',
     });
   }, [debtAmountDecimal, redeem]);
 
@@ -150,7 +152,8 @@ const Redeem = () => {
 
   const calculateRedemptionRate = useCallback(
     async (value: string) => {
-      const collateralPrice = tokenPrices[COLLATERAL_BASE_TOKEN];
+      // TODO: redemption need to support multiple underlying token
+      const collateralPrice = tokenPrices['wstETH'];
 
       if (!protocolStats || !collateralPrice) {
         return;
@@ -158,8 +161,9 @@ const Redeem = () => {
 
       const protocol = Protocol.getInstance(provider);
 
+      // TODO: redemption need to support multiple underlying token
       const result = await protocol.fetchRedemptionRate(
-        COLLATERAL_BASE_TOKEN,
+        'wstETH',
         Decimal.parse(value, 0),
         collateralPrice,
         protocolStats.debtSupply,
@@ -261,7 +265,7 @@ const Redeem = () => {
           </div>
           <div className="raft__redeem__collateralDataRow">
             <div className="raft__redeem__collateralDataRowData">
-              <TokenLogo type={`token-${COLLATERAL_BASE_TOKEN}`} size={20} />
+              <TokenLogo type="token-wstETH" size={20} />
               {collateralToReceiveValues.amountFormattedApproximate && (
                 <ValueLabel
                   value={collateralToReceiveValues.amountFormattedApproximate}
