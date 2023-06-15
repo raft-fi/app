@@ -2,7 +2,7 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN, R_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
+import { R_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
 import { useCollateralBalance, useCollateralConversionRate, useDebtBalance, useTokenPrices } from '../../hooks';
 import { getCollateralRatioLevel, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
@@ -20,7 +20,8 @@ const YourPosition: FC = () => {
    * Amount of collateral user has denominated in underlying token (wstETH)
    */
   const underlyingCollateralTokenValues = useMemo(
-    () => getTokenValues(collateralBalance, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
+    // TODO: fetch what token is in position to show corresponding underlying token
+    () => getTokenValues(collateralBalance, tokenPriceMap['wstETH'], 'wstETH'),
     [collateralBalance, tokenPriceMap],
   );
 
@@ -39,7 +40,8 @@ const YourPosition: FC = () => {
 
     const value = underlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
-    return getTokenValues(value, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
+    // TODO: fetch what token is in position to show corresponding display token
+    return getTokenValues(value, tokenPriceMap['stETH'], 'stETH');
   }, [collateralConversionRate, underlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
@@ -92,7 +94,7 @@ const YourPosition: FC = () => {
       <div className="raft__your-position__collateral">
         <Typography variant="overline">YOUR COLLATERAL</Typography>
         <div className="raft__your-position__collateral__amount">
-          <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
+          <TokenLogo type="token-stETH" size="small" />
           {displayCollateralTokenValues?.amountFormatted ? (
             <ValueLabel
               value={displayCollateralTokenValues.amountFormatted}

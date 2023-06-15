@@ -28,6 +28,7 @@ import {
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
+  TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
 } from '../../constants';
 import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { getTokenValues, isCollateralToken } from '../../utils';
@@ -58,6 +59,7 @@ const OpenPosition = () => {
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
+  // TODO: wait for SDK to update
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
@@ -203,13 +205,14 @@ const OpenPosition = () => {
   /**
    * Deposit amount of collateral converted to display collateral token (stETH)
    */
-  const displayCollateralToken = useMemo(() => {
+  const displayCollateralTokenAmount = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
       return Decimal.ZERO;
     }
 
     switch (selectedCollateralToken) {
       case 'ETH':
+      case 'WETH':
       case 'stETH':
       default:
         return selectedCollateralTokenInputValues.amount;
@@ -768,7 +771,8 @@ const OpenPosition = () => {
         />
       </div>
       <PositionAfter
-        displayCollateralToken={displayCollateralToken}
+        displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
+        displayCollateralTokenAmount={displayCollateralTokenAmount}
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
         borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}

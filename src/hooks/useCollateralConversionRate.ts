@@ -16,28 +16,23 @@ import {
   mergeMap,
 } from 'rxjs';
 import { Decimal } from '@tempusfinance/decimal';
-import { COLLATERAL_BASE_TOKEN, DEBOUNCE_IN_MS, DISPLAY_BASE_TOKEN, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { priceFeed$ } from './usePriceFeed';
 
 export const collateralConversionRate$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
+// TODO: conversion rate needs to be change to support multi collateral
 const fetchData = (feed: PriceFeed) => {
   try {
-    return from(feed.getUnderlyingToCollateralRate(COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN)).pipe(
+    return from(feed.getUnderlyingToCollateralRate('wstETH', 'stETH')).pipe(
       catchError(error => {
-        console.error(
-          `useCollateralConversionRate - failed to fetch conversion rate from ${COLLATERAL_BASE_TOKEN} to ${DISPLAY_BASE_TOKEN}!`,
-          error,
-        );
+        console.error(`useCollateralConversionRate - failed to fetch conversion rate from wstETH to stETH!`, error);
         return of(null);
       }),
     );
   } catch (error) {
-    console.error(
-      `useCollateralConversionRate - failed to fetch conversion rate from ${COLLATERAL_BASE_TOKEN} to ${DISPLAY_BASE_TOKEN}!`,
-      error,
-    );
+    console.error(`useCollateralConversionRate - failed to fetch conversion rate from wstETH to stETH!`, error);
     return of(null);
   }
 };

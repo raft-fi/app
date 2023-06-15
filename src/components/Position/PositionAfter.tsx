@@ -1,8 +1,8 @@
 import { FC, useMemo } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
-import { R_TOKEN } from '@raft-fi/sdk';
-import { COLLATERAL_TOKEN_UI_PRECISION, DISPLAY_BASE_TOKEN } from '../../constants';
+import { R_TOKEN, Token } from '@raft-fi/sdk';
+import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
@@ -13,7 +13,8 @@ import './PositionAfter.scss';
 const HOW_IT_WORKS_DOCS_LINK = 'https://docs.raft.fi/how-it-works/borrowing';
 
 interface PositionAfterProps {
-  displayCollateralToken: Nullable<Decimal>;
+  displayCollateralToken: Token;
+  displayCollateralTokenAmount: Nullable<Decimal>;
   borrowingFeePercentageFormatted: Nullable<string>;
   borrowingFeeAmountFormatted: Nullable<string>;
   borrowTokenAmountFormatted: Nullable<string>;
@@ -24,6 +25,7 @@ interface PositionAfterProps {
 
 export const PositionAfter: FC<PositionAfterProps> = ({
   displayCollateralToken,
+  displayCollateralTokenAmount,
   borrowingFeePercentageFormatted,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
@@ -33,13 +35,13 @@ export const PositionAfter: FC<PositionAfterProps> = ({
 }) => {
   const baseTokenAmountFormatted = useMemo(
     () =>
-      DecimalFormat.format(displayCollateralToken ?? Decimal.ZERO, {
+      DecimalFormat.format(displayCollateralTokenAmount ?? Decimal.ZERO, {
         style: 'currency',
-        currency: DISPLAY_BASE_TOKEN,
+        currency: displayCollateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
       }),
-    [displayCollateralToken],
+    [displayCollateralToken, displayCollateralTokenAmount],
   );
 
   const collateralizationRatioFormatted = useMemo(
@@ -77,7 +79,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
         <ul className="raft__position-after__data__position__data">
           <li className="raft__position-after__data__position__data__deposit">
             <TooltipWrapper tooltipContent={<TokenAddressTooltip />} placement="top">
-              <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
+              <TokenLogo type={`token-${displayCollateralToken}`} size={20} />
             </TooltipWrapper>
             <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
             {collateralTokenValueFormatted && (
