@@ -35,19 +35,19 @@ const fetchData = (walletSigner: JsonRpcSigner | null) => {
 
     return from(userPosition.fetchDebt()).pipe(
       catchError(error => {
-        console.error(`useDebtBalance - failed to fetch debt balance!`, error);
+        console.error(`useDebtBalance (catchError) - failed to fetch debt balance!`, error);
         return of(null);
       }),
     );
   } catch (error) {
-    console.error(`useDebtBalance - failed to fetch debt balance!`, error);
+    console.error(`useDebtBalance (catch) - failed to fetch debt balance!`, error);
     return of(null);
   }
 };
 
 // Stream that fetches debt balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletSigner$.pipe(
-  concatMap<JsonRpcSigner | null, Observable<Nullable<Decimal>>>(signer => fetchData(signer)),
+  concatMap<Nullable<JsonRpcSigner>, Observable<Nullable<Decimal>>>(signer => fetchData(signer)),
 );
 
 // fetch when app event fire

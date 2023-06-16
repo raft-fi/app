@@ -24,7 +24,7 @@ import { walletSigner$ } from './useWalletSigner';
 
 export const collateralBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
-const fetchData = (signer: JsonRpcSigner | null) => {
+const fetchData = (signer: Nullable<JsonRpcSigner>) => {
   if (!signer) {
     return of(null);
   }
@@ -34,19 +34,19 @@ const fetchData = (signer: JsonRpcSigner | null) => {
 
     return from(userPosition.fetchCollateral()).pipe(
       catchError(error => {
-        console.error('useCollateralBalance - failed to fetch collateral balance!', error);
+        console.error('useCollateralBalance (catchError) - failed to fetch collateral balance!', error);
         return of(null);
       }),
     );
   } catch (error) {
-    console.error('useCollateralBalance - failed to fetch collateral balance!', error);
+    console.error('useCollateralBalance (catch) - failed to fetch collateral balance!', error);
     return of(null);
   }
 };
 
 // Stream that fetches collateral balance for currently connected wallet, this happens only when wallet address changes
 const walletStream$ = walletSigner$.pipe(
-  concatMap<JsonRpcSigner | null, Observable<Nullable<Decimal>>>(signer => fetchData(signer)),
+  concatMap<Nullable<JsonRpcSigner>, Observable<Nullable<Decimal>>>(signer => fetchData(signer)),
 );
 
 // fetch when app event fire

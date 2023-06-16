@@ -1,4 +1,5 @@
 import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { StrictPartial } from './interfaces';
 
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
@@ -21,8 +22,8 @@ export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 
 // app to control what is supported
-export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH'] as CollateralToken[];
-export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH'] as Token[];
+export const SUPPORTED_COLLATERAL_TOKENS: StrictPartial<CollateralToken>[] = ['stETH', 'wstETH'];
+export const SUPPORTED_TOKENS: StrictPartial<Token>[] = ['R', 'stETH', 'wstETH'];
 // TODO: read underlyingToken from SDK?
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   UnderlyingCollateralToken,
