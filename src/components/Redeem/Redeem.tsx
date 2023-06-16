@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
-import { Protocol, R_TOKEN } from '@raft-fi/sdk';
+import { Protocol, R_TOKEN, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { Link, TokenLogo } from 'tempus-ui';
 import {
   useAppLoaded,
@@ -25,9 +25,12 @@ import {
   ValueLabel,
   WarningBox,
 } from '../shared';
+import LoadingRedeem from '../LoadingRedeem';
+import { SUPPORTED_UNDERLYING_TOKENS } from '../../constants';
 
 import './Redeem.scss';
-import LoadingRedeem from '../LoadingRedeem';
+
+const DEFAULT_UNDERLYING_COLLATERAL_TOKEN: UnderlyingCollateralToken = 'wstETH';
 
 const Redeem = () => {
   const [, connect] = useConnectWallet();
@@ -42,42 +45,22 @@ const Redeem = () => {
 
   const [redemptionRate, setRedemptionRate] = useState<string>('');
   const [redemptionRateLoading, setRedemptionRateLoading] = useState<boolean>(false);
+  const [selectedUnderlyingToken, setSelectedUnderlyingToken] = useState<UnderlyingCollateralToken>(
+    DEFAULT_UNDERLYING_COLLATERAL_TOKEN,
+  );
   const [debtAmount, setDebtAmount] = useState<string>('');
   const [transactionState, setTransactionState] = useState<string>('default');
 
-  const debtAmountDecimal = useMemo(() => {
-    return Decimal.parse(debtAmount, 0);
-  }, [debtAmount]);
+  const debtAmountDecimal = useMemo(() => Decimal.parse(debtAmount, 0), [debtAmount]);
 
-  const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
-
-  const rTokenValues = useMemo(() => {
-    return getTokenValues(tokenBalances[R_TOKEN], tokenPrices[R_TOKEN], R_TOKEN);
-  }, [tokenBalances, tokenPrices]);
-
-  const hasInputFilled = useMemo(() => debtAmountDecimal && !debtAmountDecimal.isZero(), [debtAmountDecimal]);
-
-  const hasEnoughRTokenBalance = useMemo(() => {
-    if (!debtAmountDecimal || !rTokenValues.amount) {
-      return false;
-    }
-
-    return debtAmountDecimal.lte(rTokenValues.amount);
-  }, [debtAmountDecimal, rTokenValues.amount]);
-
-  const canRedeem = useMemo(() => {
-    return hasInputFilled && hasEnoughRTokenBalance;
-  }, [hasEnoughRTokenBalance, hasInputFilled]);
-
-  const errorMessage = useMemo(() => {
-    if (!hasEnoughRTokenBalance && walletConnected) {
-      return 'Insufficient funds';
-    }
-  }, [hasEnoughRTokenBalance, walletConnected]);
+  const rTokenValues = useMemo(
+    () => getTokenValues(tokenBalances[R_TOKEN], tokenPrices[R_TOKEN], R_TOKEN),
+    [tokenBalances, tokenPrices],
+  );
 
   const collateralToReceive = useMemo(() => {
-    // TODO: redemption need to support multiple underlying token
-    const collateralBaseTokenPrice = tokenPrices['wstETH'];
+    // TODO: require SDK to provide conversion rate to support multi collateral
+    const collateralBaseTokenPrice = tokenPrices[selectedUnderlyingToken];
     if (!collateralBaseTokenPrice || collateralBaseTokenPrice.isZero() || !redemptionRate) {
       return null;
     }
@@ -88,25 +71,40 @@ const Redeem = () => {
     }
 
     return debtAmountDecimal.div(collateralBaseTokenPrice).mul(feesMultiplier);
-  }, [debtAmountDecimal, redemptionRate, tokenPrices]);
+  }, [debtAmountDecimal, redemptionRate, selectedUnderlyingToken, tokenPrices]);
 
-  const collateralToReceiveValues = useMemo(() => {
-    // TODO: redemption need to support multiple underlying token
-    return getTokenValues(collateralToReceive, tokenPrices['wstETH'], 'wstETH');
-  }, [collateralToReceive, tokenPrices]);
+  // TODO: require SDK to provide conversion rate to support multi collateral
+  const collateralToReceiveValues = useMemo(
+    () => getTokenValues(collateralToReceive, tokenPrices[selectedUnderlyingToken], selectedUnderlyingToken),
+    [collateralToReceive, selectedUnderlyingToken, tokenPrices],
+  );
 
-  const redemptionRateFormatted = useMemo(() => {
-    if (!redemptionRate) {
-      return null;
+  const redemptionRateFormatted = useMemo(
+    () =>
+      redemptionRate
+        ? DecimalFormat.format(redemptionRate, {
+            style: 'percentage',
+            fractionDigits: 2,
+            pad: true,
+            approximate: true,
+          })
+        : null,
+    [redemptionRate],
+  );
+
+  const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
+  const hasInputFilled = useMemo(() => debtAmountDecimal && !debtAmountDecimal.isZero(), [debtAmountDecimal]);
+  const hasEnoughRTokenBalance = useMemo(
+    () => debtAmountDecimal && rTokenValues.amount && debtAmountDecimal.lte(rTokenValues.amount),
+    [debtAmountDecimal, rTokenValues.amount],
+  );
+  const canRedeem = useMemo(() => hasInputFilled && hasEnoughRTokenBalance, [hasEnoughRTokenBalance, hasInputFilled]);
+
+  const errorMessage = useMemo(() => {
+    if (!hasEnoughRTokenBalance && walletConnected) {
+      return 'Insufficient funds';
     }
-
-    return DecimalFormat.format(redemptionRate, {
-      style: 'percentage',
-      fractionDigits: 2,
-      pad: true,
-      approximate: true,
-    });
-  }, [redemptionRate]);
+  }, [hasEnoughRTokenBalance, walletConnected]);
 
   const buttonDisabled = useMemo(
     () => transactionState === 'loading' || (walletConnected && !canRedeem),
@@ -141,10 +139,9 @@ const Redeem = () => {
     redeem({
       debtAmount: debtAmountDecimal,
       txnId: uuid(),
-      // TODO: redemption need to support multiple underlying token
-      underlyingCollateralToken: 'wstETH',
+      underlyingCollateralToken: selectedUnderlyingToken,
     });
-  }, [debtAmountDecimal, redeem]);
+  }, [debtAmountDecimal, redeem, selectedUnderlyingToken]);
 
   const onMaxAmountClick = useCallback(() => {
     setDebtAmount(rTokenValues.amount?.toString() || '');
@@ -152,8 +149,8 @@ const Redeem = () => {
 
   const calculateRedemptionRate = useCallback(
     async (value: string) => {
-      // TODO: redemption need to support multiple underlying token
-      const collateralPrice = tokenPrices['wstETH'];
+      // TODO: require SDK to provide conversion rate to support multi collateral
+      const collateralPrice = tokenPrices[selectedUnderlyingToken];
 
       if (!protocolStats || !collateralPrice) {
         return;
@@ -169,7 +166,7 @@ const Redeem = () => {
 
       // TODO: redemption need to support multiple underlying token
       const result = await protocol.fetchRedemptionRate(
-        'wstETH',
+        selectedUnderlyingToken,
         Decimal.parse(value, 0),
         collateralPrice,
         wstETHSupply,
@@ -179,7 +176,7 @@ const Redeem = () => {
 
       setRedemptionRateLoading(false);
     },
-    [protocolStats, provider, tokenPrices],
+    [protocolStats, provider, selectedUnderlyingToken, tokenPrices],
   );
 
   const handleDebtAmountChange = useCallback(
@@ -269,9 +266,20 @@ const Redeem = () => {
               <Icon variant="info" size="tiny" />
             </TooltipWrapper>
           </div>
+          <div className="raft__redeem__collateralDataCollateral">
+            {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => (
+              <Button
+                key={`button-${underlyingToken}`}
+                variant="secondary"
+                onClick={() => setSelectedUnderlyingToken(underlyingToken)}
+              >
+                <TokenLogo type={`token-${underlyingToken}`} size={20} />
+                <Typography variant="caption">{underlyingToken}</Typography>
+              </Button>
+            ))}
+          </div>
           <div className="raft__redeem__collateralDataRow">
             <div className="raft__redeem__collateralDataRowData">
-              <TokenLogo type="token-wstETH" size={20} />
               {collateralToReceiveValues.amountFormattedApproximate && (
                 <ValueLabel
                   value={collateralToReceiveValues.amountFormattedApproximate}

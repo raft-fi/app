@@ -24,25 +24,35 @@ export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH'] as CollateralToken[];
 export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH'] as Token[];
 // TODO: read underlyingToken from SDK?
-export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS = {
+export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
+  UnderlyingCollateralToken,
+  {
+    tokens: Token[];
+    displayBaseToken: Token;
+    underlyingToken: UnderlyingCollateralToken;
+  }
+> = {
   wstETH: {
     tokens: ['stETH', 'wstETH'] as Token[],
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
   },
 };
+export const SUPPORTED_UNDERLYING_TOKENS = Object.keys(
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
+) as UnderlyingCollateralToken[];
 // token to underlying token map
 export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
   [token: string]: UnderlyingCollateralToken;
 } = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.underlyingToken } : map;
-}, {});
+}, {} as Record<Token, UnderlyingCollateralToken>);
 // token to display base token map
 export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
-}, {});
+}, {} as Record<Token, Token>);
 
 export const DEFAULT_MAP = TOKENS.reduce(
   (map, token) => ({
