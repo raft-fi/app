@@ -18,9 +18,9 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { Allowance, RaftConfig, TOKENS, Token } from '@raft-fi/sdk';
+import { Allowance, RaftConfig, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_TOKENS, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
 import { Nullable } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
@@ -30,7 +30,7 @@ export type TokenAllowanceMap = {
   [token in Token]: Nullable<Decimal>;
 };
 
-const DEFAULT_VALUE: TokenAllowanceMap = TOKENS.reduce(
+const DEFAULT_VALUE: TokenAllowanceMap = SUPPORTED_TOKENS.reduce(
   (map, token) => ({
     ...map,
     [token]: null,
@@ -38,8 +38,13 @@ const DEFAULT_VALUE: TokenAllowanceMap = TOKENS.reduce(
   {} as TokenAllowanceMap,
 );
 
-const getPositionManager = (token: Token) =>
-  RaftConfig.networkConfig.tokenTickerToTokenConfigMap[token].positionManager;
+const getPositionManager = (token: Token) => {
+  if (token === 'R') {
+    return RaftConfig.networkConfig.positionManager;
+  }
+
+  return RaftConfig.getPositionManagerAddress(TOKEN_TO_UNDERLYING_TOKEN_MAP[token], token);
+};
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
@@ -71,7 +76,7 @@ const walletChangeStream$: Observable<TokenAllowanceMap> = walletAddress$.pipe(
       return of(DEFAULT_VALUE);
     }
 
-    const tokenAllowanceMaps = TOKENS.map(token =>
+    const tokenAllowanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),
@@ -91,7 +96,7 @@ const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBe
       return of(DEFAULT_VALUE);
     }
 
-    const tokenAllowanceMaps = TOKENS.map(token =>
+    const tokenAllowanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),
@@ -110,7 +115,7 @@ const appEventsStream$ = appEvent$.pipe(
     return Boolean(walletAddress);
   }),
   mergeMap(([, walletAddress, provider]) => {
-    const tokenAllowanceMaps = TOKENS.map(token =>
+    const tokenAllowanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
       ),

@@ -31,7 +31,6 @@ const COINGECKO_TOKEN_ID_MAP: { [token in CollateralToken]: string } = {
   ETH: 'ethereum',
   stETH: 'staked-ether',
   wstETH: 'wrapped-steth',
-  WETH: 'weth',
 };
 
 const DEFAULT_VALUE: TokenPriceMap = TOKENS.reduce(

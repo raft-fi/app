@@ -29,6 +29,7 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
+  TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { getTokenValues, isCollateralToken } from '../../utils';
@@ -80,37 +81,36 @@ const OpenPosition = () => {
 
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
 
+  const selectedCollateralConfig = useMemo(() => {
+    return RaftConfig.networkConfig.underlyingTokens[TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken]]
+      .supportedCollateralTokens[selectedCollateralToken];
+  }, [selectedCollateralToken]);
+
   const selectedCollateralBorrowRate = useMemo(() => {
-    if (!borrowingRate) {
+    if (!borrowingRate || !selectedCollateralConfig) {
       return null;
     }
 
-    const tokenConfig = RaftConfig.networkConfig.tokenTickerToTokenConfigMap[selectedCollateralToken];
-
-    const collateralBorrowRate = borrowingRate.find(rate => rate.collateralToken === tokenConfig.underlyingTokenTicker);
+    const collateralBorrowRate = borrowingRate[selectedCollateralConfig.underlyingTokenTicker];
     if (!collateralBorrowRate) {
       return null;
     }
 
-    return collateralBorrowRate.rate;
-  }, [borrowingRate, selectedCollateralToken]);
+    return collateralBorrowRate;
+  }, [borrowingRate, selectedCollateralConfig]);
 
   const selectedCollateralDebtSupply = useMemo(() => {
-    if (!protocolStats) {
+    if (!protocolStats || !selectedCollateralConfig) {
       return null;
     }
 
-    const tokenConfig = RaftConfig.networkConfig.tokenTickerToTokenConfigMap[selectedCollateralToken];
-
-    const collateralDebtSupply = protocolStats.debtSupply.find(
-      supply => supply.collateralToken === tokenConfig.underlyingTokenTicker,
-    );
+    const collateralDebtSupply = protocolStats.debtSupply[selectedCollateralConfig.underlyingTokenTicker];
     if (!collateralDebtSupply) {
       return null;
     }
 
-    return collateralDebtSupply.amount;
-  }, [protocolStats, selectedCollateralToken]);
+    return collateralDebtSupply;
+  }, [protocolStats, selectedCollateralConfig]);
 
   const debtTokenWithFeeValues = useMemo(() => {
     if (!selectedCollateralBorrowRate) {
@@ -250,7 +250,6 @@ const OpenPosition = () => {
 
     switch (selectedCollateralToken) {
       case 'ETH':
-      case 'WETH':
       case 'stETH':
       default:
         return selectedCollateralTokenInputValues.amount;

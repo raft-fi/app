@@ -1,4 +1,4 @@
-import { Token, TOKENS } from '@raft-fi/sdk';
+import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
 
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
@@ -21,7 +21,8 @@ export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 
 // app to control what is supported
-export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH', 'ETH', 'WETH'] as Token[];
+export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH'] as CollateralToken[];
+export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH'] as Token[];
 // TODO: read underlyingToken from SDK?
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS = {
   wstETH: {
@@ -29,14 +30,11 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS = {
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
   },
-  WETH: {
-    tokens: ['ETH', 'WETH'] as Token[],
-    displayBaseToken: 'WETH',
-    underlyingToken: 'WETH',
-  },
 };
 // token to underlying token map
-export const TOKEN_TO_UNDERLYING_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
+export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
+  [token: string]: UnderlyingCollateralToken;
+} = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.underlyingToken } : map;
 }, {});

@@ -18,9 +18,14 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { UserPosition, Token, COLLATERAL_TOKENS, CollateralToken } from '@raft-fi/sdk';
+import { UserPosition, Token, CollateralToken } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import {
+  DEBOUNCE_IN_MS,
+  POLLING_INTERVAL_IN_MS,
+  SUPPORTED_COLLATERAL_TOKENS,
+  TOKEN_TO_UNDERLYING_TOKEN_MAP,
+} from '../constants';
 import { Nullable } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { AppEvent, appEvent$ } from './useAppEvent';
@@ -32,7 +37,7 @@ export type TokenWhitelistMap = {
   [token in Token]: Nullable<boolean>;
 };
 
-const DEFAULT_VALUE: TokenWhitelistMap = COLLATERAL_TOKENS.reduce(
+const DEFAULT_VALUE: TokenWhitelistMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
   (map, token) => ({
     ...map,
     [token]: null,
@@ -51,7 +56,7 @@ const fetchData = async (
   debt: Decimal,
 ): Promise<Nullable<boolean>> => {
   try {
-    const position = new UserPosition(walletSigner, collateral, debt);
+    const position = new UserPosition(walletSigner, collateral, debt, TOKEN_TO_UNDERLYING_TOKEN_MAP[token]);
 
     const result = await position.isDelegateWhitelisted(token);
 
@@ -75,7 +80,7 @@ const walletChangeStream$: Observable<TokenWhitelistMap> = combineLatest([
         return of(DEFAULT_VALUE);
       }
 
-      const tokenWhitelistMaps = COLLATERAL_TOKENS.map(token =>
+      const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
         from(fetchData(token, walletSigner, collateral, debt)).pipe(
           map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
         ),
@@ -96,7 +101,7 @@ const periodicStream$: Observable<TokenWhitelistMap> = combineLatest([intervalBe
       return of(DEFAULT_VALUE);
     }
 
-    const tokenWhitelistMaps = COLLATERAL_TOKENS.map(token =>
+    const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
       from(fetchData(token, walletSigner, collateral, debt)).pipe(
         map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
       ),
@@ -114,7 +119,7 @@ const appEventsStream$ = appEvent$.pipe(
       Boolean(walletAddress) && Boolean(walletSigner) && Boolean(collateral) && Boolean(debt),
   ),
   mergeMap(([, , walletSigner, collateral, debt]) => {
-    const tokenWhitelistMaps = COLLATERAL_TOKENS.map(token =>
+    const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
       from(fetchData(token, walletSigner as Signer, collateral as Decimal, debt as Decimal)).pipe(
         map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
       ),
