@@ -15,54 +15,50 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Decimal } from '@tempusfinance/decimal';
-import { JsonRpcProvider } from 'ethers';
-import { RaftDebtTokenService } from '../services';
+import { JsonRpcSigner } from 'ethers';
 import { DEBOUNCE_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { AppEvent, appEvent$ } from './useAppEvent';
-import { walletAddress$ } from './useWalletAddress';
-import { provider$ } from './useProvider';
+import { UserPosition } from '@raft-fi/sdk';
+import { walletSigner$ } from './useWalletSigner';
 
 export const debtBalance$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
-const fetchData = (walletAddress: Nullable<string>, provider: JsonRpcProvider) => {
+const fetchData = (walletSigner: JsonRpcSigner | null) => {
   // In case user disconnects the wallet we want to reset balance to null
-  if (!walletAddress) {
+  if (!walletSigner) {
     return of(null);
   }
 
   try {
-    const raftDebtService = new RaftDebtTokenService(provider);
+    const userPosition = new UserPosition(walletSigner);
 
-    return from(raftDebtService.balanceOf(walletAddress)).pipe(
+    return from(userPosition.fetchDebt()).pipe(
       catchError(error => {
-        console.error(`useDebtBalance - failed to fetch debt balance for $wallet '${walletAddress}'`, error);
+        console.error(`useDebtBalance (catchError) - failed to fetch debt balance!`, error);
         return of(null);
       }),
     );
   } catch (error) {
-    console.error(`useDebtBalance - failed to fetch debt balance for $wallet '${walletAddress}'`, error);
+    console.error(`useDebtBalance (catch) - failed to fetch debt balance!`, error);
     return of(null);
   }
 };
 
 // Stream that fetches debt balance for currently connected wallet, this happens only when wallet address changes
-const walletStream$ = walletAddress$.pipe(
-  withLatestFrom(provider$),
-  concatMap<[Nullable<string>, JsonRpcProvider], Observable<Nullable<Decimal>>>(([walletAddress, provider]) =>
-    fetchData(walletAddress, provider),
-  ),
+const walletStream$ = walletSigner$.pipe(
+  concatMap<Nullable<JsonRpcSigner>, Observable<Nullable<Decimal>>>(signer => fetchData(signer)),
 );
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletAddress$, provider$),
-  filter((value): value is [AppEvent, string, JsonRpcProvider] => {
-    const [, walletAddress] = value;
+  withLatestFrom(walletSigner$),
+  filter((value): value is [AppEvent, JsonRpcSigner] => {
+    const [, signer] = value;
 
-    return Boolean(walletAddress);
+    return Boolean(signer);
   }),
-  concatMap(([, walletAddress, provider]) => fetchData(walletAddress, provider)),
+  concatMap(([, signer]) => fetchData(signer)),
 );
 
 // merge all stream$ into one if there are multiple

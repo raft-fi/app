@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, RaftConfig, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -26,6 +26,7 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
+  TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import { Nullable, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
@@ -169,6 +170,37 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
   }, [borrowAmount]);
 
+  const selectedCollateralConfig = useMemo(() => {
+    return RaftConfig.networkConfig.underlyingTokens[TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken]]
+      .supportedCollateralTokens[selectedCollateralToken];
+  }, [selectedCollateralToken]);
+
+  const selectedCollateralBorrowRate = useMemo(() => {
+    if (!borrowingRate || !selectedCollateralConfig) {
+      return null;
+    }
+
+    const collateralBorrowRate = borrowingRate[selectedCollateralConfig.underlyingTokenTicker];
+    if (!collateralBorrowRate) {
+      return null;
+    }
+
+    return collateralBorrowRate;
+  }, [borrowingRate, selectedCollateralConfig]);
+
+  const selectedCollateralDebtSupply = useMemo(() => {
+    if (!protocolStats || !selectedCollateralConfig) {
+      return null;
+    }
+
+    const collateralDebtSupply = protocolStats.debtSupply[selectedCollateralConfig.underlyingTokenTicker];
+    if (!collateralDebtSupply) {
+      return null;
+    }
+
+    return collateralDebtSupply;
+  }, [protocolStats, selectedCollateralConfig]);
+
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
   const collateralAmountWithEllipse = useMemo(() => {
@@ -190,7 +222,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   const borrowingFeeAmount = useMemo(() => {
-    if (!borrowingRate) {
+    if (!selectedCollateralBorrowRate) {
       return null;
     }
 
@@ -198,8 +230,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return Decimal.ZERO;
     }
 
-    return borrowAmountDecimal.mul(borrowingRate);
-  }, [borrowAmountDecimal, borrowingRate, isAddDebt]);
+    return borrowAmountDecimal.mul(selectedCollateralBorrowRate);
+  }, [borrowAmountDecimal, selectedCollateralBorrowRate, isAddDebt]);
 
   /**
    * Current user collateral denominated in underlying collateral token (wstETH)
@@ -449,21 +481,21 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return false;
     }
 
-    if (!protocolStats?.debtSupply || !newDebtTokenWithFeeValues.amount) {
+    if (!selectedCollateralDebtSupply || !newDebtTokenWithFeeValues.amount) {
       return true;
     }
 
     /**
      * Total debt of protocol, excluding current user's debt
      */
-    const totalDebt = protocolStats.debtSupply.sub(debtBalance);
+    const totalDebt = selectedCollateralDebtSupply.sub(debtBalance);
 
     const maxBorrowAmount = totalDebt.div(10);
     if (newDebtTokenWithFeeValues.amount.gt(maxBorrowAmount)) {
       return true;
     }
     return false;
-  }, [newDebtTokenWithFeeValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount, isAddDebt]);
+  }, [newDebtTokenWithFeeValues.amount, selectedCollateralDebtSupply, debtBalance, borrowAmount, isAddDebt]);
 
   const canAdjust = useMemo(
     () =>
@@ -712,20 +744,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   ]);
 
   const borrowingFeePercentageFormatted = useMemo(() => {
-    if (!borrowingRate || !borrowingFeeAmount) {
+    if (!selectedCollateralBorrowRate || !borrowingFeeAmount) {
       return null;
     }
 
-    if (borrowingRate.isZero() || borrowingFeeAmount.isZero()) {
+    if (selectedCollateralBorrowRate.isZero() || borrowingFeeAmount.isZero()) {
       return 'Free';
     }
 
-    return DecimalFormat.format(borrowingRate, {
+    return DecimalFormat.format(selectedCollateralBorrowRate, {
       style: 'percentage',
       fractionDigits: 2,
       pad: true,
     });
-  }, [borrowingFeeAmount, borrowingRate]);
+  }, [borrowingFeeAmount, selectedCollateralBorrowRate]);
 
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {

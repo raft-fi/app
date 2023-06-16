@@ -1,4 +1,5 @@
-import { Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { StrictPartial } from './interfaces';
 
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
@@ -21,7 +22,8 @@ export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 
 // app to control what is supported
-export const SUPPORTED_COLLATERAL_TOKENS = ['stETH', 'wstETH', 'ETH', 'WETH'] as Token[];
+export const SUPPORTED_COLLATERAL_TOKENS: StrictPartial<CollateralToken>[] = ['stETH', 'wstETH'];
+export const SUPPORTED_TOKENS: StrictPartial<Token>[] = ['R', 'stETH', 'wstETH'];
 // TODO: read underlyingToken from SDK?
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   UnderlyingCollateralToken,
@@ -36,17 +38,14 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
   },
-  WETH: {
-    tokens: ['ETH', 'WETH'] as Token[],
-    displayBaseToken: 'WETH',
-    underlyingToken: 'WETH',
-  },
 };
 export const SUPPORTED_UNDERLYING_TOKENS = Object.keys(
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 ) as UnderlyingCollateralToken[];
 // token to underlying token map
-export const TOKEN_TO_UNDERLYING_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
+export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
+  [token: string]: UnderlyingCollateralToken;
+} = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.underlyingToken } : map;
 }, {} as Record<Token, UnderlyingCollateralToken>);
