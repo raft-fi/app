@@ -30,6 +30,8 @@ import { SUPPORTED_UNDERLYING_TOKENS } from '../../constants';
 
 import './Redeem.scss';
 
+const DEFAULT_UNDERLYING_COLLATERAL_TOKEN: UnderlyingCollateralToken = 'wstETH';
+
 const Redeem = () => {
   const [, connect] = useConnectWallet();
 
@@ -43,7 +45,9 @@ const Redeem = () => {
 
   const [redemptionRate, setRedemptionRate] = useState<string>('');
   const [redemptionRateLoading, setRedemptionRateLoading] = useState<boolean>(false);
-  const [selectedUnderlyingToken, setSelectedUnderlyingToken] = useState<UnderlyingCollateralToken>('wstETH');
+  const [selectedUnderlyingToken, setSelectedUnderlyingToken] = useState<UnderlyingCollateralToken>(
+    DEFAULT_UNDERLYING_COLLATERAL_TOKEN,
+  );
   const [debtAmount, setDebtAmount] = useState<string>('');
   const [transactionState, setTransactionState] = useState<string>('default');
 
@@ -257,7 +261,11 @@ const Redeem = () => {
           </div>
           <div className="raft__redeem__collateralDataCollateral">
             {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => (
-              <Button variant="secondary" onClick={() => setSelectedUnderlyingToken(underlyingToken)}>
+              <Button
+                key={`button-${underlyingToken}`}
+                variant="secondary"
+                onClick={() => setSelectedUnderlyingToken(underlyingToken)}
+              >
                 <TokenLogo type={`token-${underlyingToken}`} size={20} />
                 <Typography variant="caption">{underlyingToken}</Typography>
               </Button>
