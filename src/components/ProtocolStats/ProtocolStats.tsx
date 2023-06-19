@@ -2,7 +2,7 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN } from '@raft-fi/sdk';
-import { useCollateralConversionRate, useProtocolStats, useTokenPrices } from '../../hooks';
+import { useCollateralConversionRates, useProtocolStats, useTokenPrices } from '../../hooks';
 import { getProtocolCollateralRatioLabel, getProtocolCollateralRatioLevel, getTokenValues } from '../../utils';
 import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
 import { Typography } from '../shared';
@@ -14,10 +14,10 @@ const collateralThreshold = 1000; // 1k
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
-  const collateralConversionRate = useCollateralConversionRate();
+  const collateralConversionRateMap = useCollateralConversionRates();
 
   const displayCollateralTotalSupplyValues = useMemo(() => {
-    if (!protocolStats || !collateralConversionRate) {
+    if (!protocolStats || !collateralConversionRateMap?.stETH) {
       return null;
     }
 
@@ -27,11 +27,11 @@ const ProtocolStats = () => {
       return null;
     }
 
-    const amount = wstETHSupply.mul(collateralConversionRate);
+    const amount = wstETHSupply.mul(collateralConversionRateMap.stETH);
 
     // TODO: change it later, display in USD value instead
     return getTokenValues(amount, tokenPriceMap['stETH'], 'stETH');
-  }, [collateralConversionRate, protocolStats, tokenPriceMap]);
+  }, [collateralConversionRateMap, protocolStats, tokenPriceMap]);
 
   const underlyingCollateralTotalSupplyValues = useMemo(() => {
     if (!protocolStats) {

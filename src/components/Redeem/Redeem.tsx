@@ -59,7 +59,6 @@ const Redeem = () => {
   );
 
   const collateralToReceive = useMemo(() => {
-    // TODO: require SDK to provide conversion rate to support multi collateral
     const collateralBaseTokenPrice = tokenPrices[selectedUnderlyingToken];
     if (!collateralBaseTokenPrice || collateralBaseTokenPrice.isZero() || !redemptionRate) {
       return null;
@@ -73,7 +72,6 @@ const Redeem = () => {
     return debtAmountDecimal.div(collateralBaseTokenPrice).mul(feesMultiplier);
   }, [debtAmountDecimal, redemptionRate, selectedUnderlyingToken, tokenPrices]);
 
-  // TODO: require SDK to provide conversion rate to support multi collateral
   const collateralToReceiveValues = useMemo(
     () => getTokenValues(collateralToReceive, tokenPrices[selectedUnderlyingToken], selectedUnderlyingToken),
     [collateralToReceive, selectedUnderlyingToken, tokenPrices],
@@ -149,7 +147,6 @@ const Redeem = () => {
 
   const calculateRedemptionRate = useCallback(
     async (value: string) => {
-      // TODO: require SDK to provide conversion rate to support multi collateral
       const collateralPrice = tokenPrices[selectedUnderlyingToken];
 
       if (!protocolStats || !collateralPrice) {

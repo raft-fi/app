@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, RaftConfig, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN, RaftConfig, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -16,7 +16,7 @@ import {
   TokenWhitelistMap,
   TokenAllowanceMap,
   useCollateralBorrowingRate,
-  useCollateralConversionRate,
+  useCollateralConversionRates,
   useProtocolStats,
 } from '../../hooks';
 import {
@@ -31,8 +31,8 @@ import {
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
-import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
-import { getTokenValues, isCollateralToken } from '../../utils';
+import { SupportedCollateralTokens, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import { getTokenValues, isCollateralToken, isDisplayBaseToken } from '../../utils';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAfter, PositionAction } from '../Position';
 
@@ -49,7 +49,7 @@ const OpenPosition = () => {
   const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
   const borrowingRate = useCollateralBorrowingRate();
-  const collateralConversionRate = useCollateralConversionRate();
+  const collateralConversionRateMap = useCollateralConversionRates();
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
   const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
@@ -61,7 +61,7 @@ const OpenPosition = () => {
     DEFAULT_MAP as TokenAllowanceMap,
   );
   // TODO: wait for SDK to update
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralTokens>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
@@ -248,19 +248,29 @@ const OpenPosition = () => {
       return Decimal.ZERO;
     }
 
-    switch (selectedCollateralToken) {
-      case 'ETH':
-      case 'stETH':
-      default:
-        return selectedCollateralTokenInputValues.amount;
-      case 'wstETH':
-        if (!collateralConversionRate) {
-          return null;
-        }
-
-        return selectedCollateralTokenInputValues.amount.mul(collateralConversionRate);
+    // if selected collateral token = display token, return as it as
+    if (isDisplayBaseToken(selectedCollateralToken)) {
+      return selectedCollateralTokenInputValues.amount;
     }
-  }, [selectedCollateralTokenInputValues.amount, selectedCollateralToken, collateralConversionRate]);
+
+    const displayBaseToken = TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken];
+    const selectedCollateralTokenConversionRate = collateralConversionRateMap?.[selectedCollateralToken];
+    const displayBaseTokenConversionRate = collateralConversionRateMap?.[displayBaseToken];
+
+    // if conversion rate not available or zero, return null
+    if (
+      !selectedCollateralTokenConversionRate ||
+      !displayBaseTokenConversionRate ||
+      selectedCollateralTokenConversionRate.isZero()
+    ) {
+      return null;
+    }
+
+    // display token amount = input amount * display token rate / selected token rate
+    return selectedCollateralTokenInputValues.amount
+      .mul(displayBaseTokenConversionRate)
+      .div(selectedCollateralTokenConversionRate);
+  }, [selectedCollateralTokenInputValues.amount, selectedCollateralToken, collateralConversionRateMap]);
 
   const collateralizationRatio = useMemo(() => {
     if (

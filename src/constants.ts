@@ -24,7 +24,6 @@ export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 // app to control what is supported
 export const SUPPORTED_COLLATERAL_TOKENS: StrictPartial<CollateralToken>[] = ['stETH', 'wstETH'];
 export const SUPPORTED_TOKENS: StrictPartial<Token>[] = ['R', 'stETH', 'wstETH'];
-// TODO: read underlyingToken from SDK?
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   UnderlyingCollateralToken,
   {
