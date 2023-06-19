@@ -315,7 +315,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return null;
     }
 
-    // display token amount = input amount * display token rate / selected token rate
+    // display token amount = input amount * display token rate
     return newCollateralInUnderlyingTokenValues.amount.mul(displayBaseTokenConversionRate);
   }, [collateralConversionRateMap, selectedCollateralToken, newCollateralInUnderlyingTokenValues.amount]);
 
