@@ -580,6 +580,9 @@ const OpenPosition = () => {
         currentUserCollateral: Decimal.ZERO,
         currentUserDebt: Decimal.ZERO,
         txnId: uuid(),
+        options: {
+          collateralPermitSignature: tokenSignatureMap[selectedCollateralToken] ?? undefined,
+        },
       });
     } else {
       const action = hasEnoughCollateralAllowance ? borrow : approve;
@@ -603,6 +606,7 @@ const OpenPosition = () => {
     hasEnoughCollateralAllowance,
     hasWhitelisted,
     selectedCollateralToken,
+    tokenSignatureMap,
     whitelistDelegate,
   ]);
 

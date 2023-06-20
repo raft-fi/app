@@ -17,32 +17,10 @@ import { JsonRpcSigner } from 'ethers';
 import { DEBOUNCE_IN_MS } from '../constants';
 import { Nullable, Position } from '../interfaces';
 import { AppEvent, appEvent$ } from './useAppEvent';
-import { UnderlyingCollateralToken, UNDERLYING_COLLATERAL_TOKENS, UserPosition } from '@raft-fi/sdk';
+import { UserPosition } from '@raft-fi/sdk';
 import { walletSigner$ } from './useWalletSigner';
 
 export const position$ = new BehaviorSubject<Nullable<Position>>(null);
-
-// TODO: update SDK to support 1 query to get the underlying token
-const fetchPositionUnderlyingCollateralToken = async (
-  signer: JsonRpcSigner,
-): Promise<Nullable<UnderlyingCollateralToken>> => {
-  const positions = await Promise.all(
-    UNDERLYING_COLLATERAL_TOKENS.map(async token => {
-      const userPosition = new UserPosition(signer, Decimal.ZERO, Decimal.ZERO, token);
-      const collateralBalance = await userPosition.fetchCollateral();
-
-      return {
-        underlyingCollateralToken: token,
-        collateralBalance,
-        debtBalance: Decimal.ZERO,
-      };
-    }),
-  );
-
-  const position = positions.find(pos => pos.collateralBalance.gt(0));
-
-  return position ? position.underlyingCollateralToken : null;
-};
 
 const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Position>> => {
   if (!signer) {
@@ -50,10 +28,10 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
   }
 
   try {
-    const underlyingCollateralToken = await fetchPositionUnderlyingCollateralToken(signer);
+    const userPosition = await UserPosition.fromUser(signer);
 
     // no position
-    if (!underlyingCollateralToken) {
+    if (!userPosition) {
       return {
         underlyingCollateralToken: null,
         collateralBalance: Decimal.ZERO,
@@ -61,11 +39,8 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
       };
     }
 
-    const userPosition = new UserPosition(signer, Decimal.ZERO, Decimal.ZERO, underlyingCollateralToken);
-    await userPosition.fetch();
-
     return {
-      underlyingCollateralToken,
+      underlyingCollateralToken: userPosition.getUnderlyingCollateralToken(),
       collateralBalance: userPosition.getCollateral(),
       debtBalance: userPosition.getDebt(),
     };

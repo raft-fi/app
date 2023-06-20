@@ -874,6 +874,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       currentUserDebt: debtBalance,
       closePosition: closePositionActive,
       txnId: uuid(),
+      options: {
+        collateralPermitSignature: tokenSignatureMap[selectedCollateralToken] ?? undefined,
+        rPermitSignature: tokenSignatureMap[R_TOKEN] ?? undefined,
+      },
     });
   }, [
     canAdjust,
@@ -892,6 +896,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     collateralBalance,
     debtBalance,
     closePositionActive,
+    tokenSignatureMap,
     whitelistDelegate,
     approve,
   ]);
