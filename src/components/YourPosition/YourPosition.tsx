@@ -3,7 +3,7 @@ import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
-import { useCollateralBalance, useCollateralConversionRate, useDebtBalance, useTokenPrices } from '../../hooks';
+import { useCollateralBalance, useCollateralConversionRates, useDebtBalance, useTokenPrices } from '../../hooks';
 import { getCollateralRatioLevel, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
 import { Typography, ValueLabel } from '../shared';
@@ -14,7 +14,7 @@ const YourPosition: FC = () => {
   const collateralBalance = useCollateralBalance();
   const debtBalance = useDebtBalance();
   const tokenPriceMap = useTokenPrices();
-  const collateralConversionRate = useCollateralConversionRate();
+  const collateralConversionRateMap = useCollateralConversionRates();
 
   /**
    * Amount of collateral user has denominated in underlying token (wstETH)
@@ -34,6 +34,9 @@ const YourPosition: FC = () => {
    * Amount of collateral user has denominated in display base token (stETH)
    */
   const displayCollateralTokenValues = useMemo(() => {
+    // TODO: fetch what token is in position to show corresponding display token
+    const collateralConversionRate = collateralConversionRateMap?.stETH;
+
     if (!collateralConversionRate || !underlyingCollateralTokenValues.amount) {
       return null;
     }
@@ -42,7 +45,7 @@ const YourPosition: FC = () => {
 
     // TODO: fetch what token is in position to show corresponding display token
     return getTokenValues(value, tokenPriceMap['stETH'], 'stETH');
-  }, [collateralConversionRate, underlyingCollateralTokenValues.amount, tokenPriceMap]);
+  }, [collateralConversionRateMap, underlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
     if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value) {

@@ -9,7 +9,7 @@ import {
   useApprove,
   useBorrow,
   useCollateralBorrowingRate,
-  useCollateralConversionRate,
+  useCollateralConversionRates,
   useProtocolStats,
   useTokenAllowances,
   useTokenBalances,
@@ -17,7 +17,7 @@ import {
   useTokenWhitelists,
   useWhitelistDelegate,
 } from '../../hooks';
-import { getTokenValues, isCollateralToken } from '../../utils';
+import { getTokenValues, isCollateralToken, isUnderlyingCollateralToken } from '../../utils';
 import {
   DEFAULT_MAP,
   INPUT_PREVIEW_DIGITS,
@@ -28,7 +28,7 @@ import {
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
-import { Nullable, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAction, PositionAfter } from '../Position';
 
@@ -48,7 +48,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
   const borrowingRate = useCollateralBorrowingRate();
-  const collateralConversionRate = useCollateralConversionRate();
+  const collateralConversionRateMap = useCollateralConversionRates();
   const protocolStats = useProtocolStats();
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
@@ -57,6 +57,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
+  // TODO: check current position to limit what collateral token can be options
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
@@ -262,7 +263,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    * New user collateral denominated in underlying collateral token (wstETH)
    */
   const newCollateralInUnderlyingTokenAmount = useMemo(() => {
-    if (!collateralConversionRate) {
+    const collateralConversionRate = collateralConversionRateMap?.[selectedCollateralToken];
+
+    if (!collateralConversionRate || collateralConversionRate.isZero()) {
       return null;
     }
 
@@ -270,29 +273,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return Decimal.ZERO;
     }
 
-    let newValue: Nullable<Decimal> = null;
-    switch (selectedCollateralToken) {
-      case 'ETH':
-      case 'stETH':
-        newValue = collateralBalance.add(
-          collateralAmountDecimal.mul(Decimal.ONE.div(collateralConversionRate)).mul(isAddCollateral ? 1 : -1),
-        );
-        break;
-      case 'wstETH':
-        newValue = collateralBalance.add(collateralAmountDecimal.mul(isAddCollateral ? 1 : -1));
-        break;
+    if (isUnderlyingCollateralToken(selectedCollateralToken)) {
+      return collateralBalance.add(collateralAmountDecimal.mul(isAddCollateral ? 1 : -1));
+    } else {
+      return collateralBalance.add(
+        collateralAmountDecimal.mul(Decimal.ONE.div(collateralConversionRate)).mul(isAddCollateral ? 1 : -1),
+      );
     }
-
-    if (!newValue) {
-      return null;
-    }
-
-    return newValue;
   }, [
     closePositionActive,
     collateralAmountDecimal,
     collateralBalance,
-    collateralConversionRate,
+    collateralConversionRateMap,
     isAddCollateral,
     selectedCollateralToken,
   ]);
@@ -308,15 +300,24 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   /**
-   * New user collateral denominated in display collateral token (stETH)
+   * New user collateral denominated in display collateral token
    */
   const newCollateralInDisplayTokenAmount = useMemo(() => {
-    if (!newCollateralInUnderlyingTokenValues?.amount || !collateralConversionRate) {
+    if (!newCollateralInUnderlyingTokenValues.amount) {
+      return Decimal.ZERO;
+    }
+
+    const displayBaseToken = TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken];
+    const displayBaseTokenConversionRate = collateralConversionRateMap?.[displayBaseToken];
+
+    // if conversion rate not available, return null
+    if (!displayBaseTokenConversionRate) {
       return null;
     }
 
-    return newCollateralInUnderlyingTokenValues.amount.mul(collateralConversionRate);
-  }, [newCollateralInUnderlyingTokenValues, collateralConversionRate]);
+    // display token amount = input amount * display token rate
+    return newCollateralInUnderlyingTokenValues.amount.mul(displayBaseTokenConversionRate);
+  }, [collateralConversionRateMap, selectedCollateralToken, newCollateralInUnderlyingTokenValues.amount]);
 
   /**
    * New user display collateral values
@@ -781,11 +782,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
-      // TODO: fetch what token is in position to show corresponding underlying token
-      if (selectedCollateralToken === 'wstETH') {
+      if (isUnderlyingCollateralToken(selectedCollateralToken)) {
         setCollateralAmount(collateralBalance.toString());
         setIsAddCollateral(false);
       } else {
+        const collateralConversionRate = collateralConversionRateMap?.[selectedCollateralToken];
+
         if (currentUnderlyingCollateralTokenValues.amount && collateralConversionRate) {
           const collateralBalanceInSelectedCollateralToken = collateralBalance.mul(collateralConversionRate);
           setCollateralAmount(collateralBalanceInSelectedCollateralToken.toString());
@@ -806,7 +808,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [
     closePositionActive,
     collateralBalance,
-    collateralConversionRate,
+    collateralConversionRateMap,
     currentUnderlyingCollateralTokenValues.amount,
     debtBalance,
     selectedCollateralToken,
