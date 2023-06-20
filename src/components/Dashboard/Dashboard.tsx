@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react';
-import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded, useWallet, useBorrow } from '../../hooks';
+import { useNetwork, useAppLoaded, useWallet, useBorrow, usePosition } from '../../hooks';
 import LoadingDashbaord from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -11,8 +11,7 @@ import './Dashboard.scss';
 const Dashboard = () => {
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
-  const collateralBalance = useCollateralBalance();
-  const debtBalance = useDebtBalance();
+  const position = usePosition();
   const { isWrongNetwork } = useNetwork();
   const { borrowStatus } = useBorrow();
   const [positionComponentKey, setPositionComponentKey] = useState<string>();
@@ -24,10 +23,10 @@ const Dashboard = () => {
   }, [borrowStatus?.success, borrowStatus?.txnId]);
 
   const userHasBorrowed = useMemo(() => {
-    return collateralBalance?.gt(0) || debtBalance?.gt(0);
-  }, [collateralBalance, debtBalance]);
+    return position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0);
+  }, [position?.collateralBalance, position?.debtBalance]);
 
-  const shouldShowAdjustPosition = wallet && userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && userHasBorrowed && position && !isWrongNetwork;
 
   if (!appLoaded) {
     return <LoadingDashbaord />;
@@ -38,11 +37,7 @@ const Dashboard = () => {
       {shouldShowAdjustPosition ? (
         <>
           <YourPosition />
-          <AdjustPosition
-            key={`adjust-${positionComponentKey}`}
-            collateralBalance={collateralBalance}
-            debtBalance={debtBalance}
-          />
+          <AdjustPosition key={`adjust-${positionComponentKey}`} position={position} />
         </>
       ) : (
         <>

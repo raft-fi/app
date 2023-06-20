@@ -27,13 +27,13 @@ export const SUPPORTED_TOKENS: StrictPartial<Token>[] = ['R', 'stETH', 'wstETH']
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   UnderlyingCollateralToken,
   {
-    tokens: Token[];
-    displayBaseToken: Token;
+    tokens: CollateralToken[];
+    displayBaseToken: CollateralToken;
     underlyingToken: UnderlyingCollateralToken;
   }
 > = {
   wstETH: {
-    tokens: ['stETH', 'wstETH'] as Token[],
+    tokens: ['stETH', 'wstETH'] as CollateralToken[],
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
   },
@@ -47,12 +47,12 @@ export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
 } = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.underlyingToken } : map;
-}, {} as Record<Token, UnderlyingCollateralToken>);
+}, {} as Record<CollateralToken, UnderlyingCollateralToken>);
 // token to display base token map
 export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
-}, {} as Record<Token, Token>);
+}, {} as Record<CollateralToken, CollateralToken>);
 
 export const DEFAULT_MAP = TOKENS.reduce(
   (map, token) => ({

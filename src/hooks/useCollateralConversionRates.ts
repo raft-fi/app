@@ -47,16 +47,13 @@ const fetchData = (feed: PriceFeed, collateralToken: SupportedCollateralTokens) 
   try {
     return from(feed.getUnderlyingCollateralRate(TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken], collateralToken)).pipe(
       catchError(error => {
-        console.error(
-          `useCollateralConversionRate - failed to fetch conversion rate from ${TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken]} to ${collateralToken}!`,
-          error,
-        );
+        console.error(`useCollateralConversionRate - failed to fetch conversion rate for ${collateralToken}!`, error);
         return of(null);
       }),
     );
   } catch (error) {
     console.error(
-      `useCollateralConversionRate - failed to fetch conversion rate from ${TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken]} to ${collateralToken}!`,
+      `useCollateralConversionRate - error thrown when fetching conversion rate for ${collateralToken}!`,
       error,
     );
     return of(null);

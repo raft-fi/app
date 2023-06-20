@@ -2,8 +2,8 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { R_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
-import { useCollateralBalance, useCollateralConversionRates, useDebtBalance, useTokenPrices } from '../../hooks';
+import { R_TOKEN_UI_PRECISION, SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
+import { useCollateralConversionRates, usePosition, useTokenPrices } from '../../hooks';
 import { getCollateralRatioLevel, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
 import { Typography, ValueLabel } from '../shared';
@@ -11,24 +11,32 @@ import { Typography, ValueLabel } from '../shared';
 import './YourPosition.scss';
 
 const YourPosition: FC = () => {
-  const collateralBalance = useCollateralBalance();
-  const debtBalance = useDebtBalance();
+  const position = usePosition();
   const tokenPriceMap = useTokenPrices();
   const collateralConversionRateMap = useCollateralConversionRates();
 
   /**
    * Amount of collateral user has denominated in underlying token (wstETH)
    */
-  const underlyingCollateralTokenValues = useMemo(
-    // TODO: fetch what token is in position to show corresponding underlying token
-    () => getTokenValues(collateralBalance, tokenPriceMap['wstETH'], 'wstETH'),
-    [collateralBalance, tokenPriceMap],
-  );
+  const underlyingCollateralTokenValues = useMemo(() => {
+    if (!position || !position.underlyingCollateralToken) {
+      return getTokenValues(null, null, SUPPORTED_UNDERLYING_TOKENS[0]);
+    }
 
-  const debtTokenValues = useMemo(
-    () => getTokenValues(debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
-    [debtBalance, tokenPriceMap],
-  );
+    return getTokenValues(
+      position.collateralBalance,
+      tokenPriceMap[position.underlyingCollateralToken],
+      position.underlyingCollateralToken,
+    );
+  }, [position, tokenPriceMap]);
+
+  const debtTokenValues = useMemo(() => {
+    if (!position) {
+      return getTokenValues(null, tokenPriceMap[R_TOKEN], R_TOKEN);
+    }
+
+    return getTokenValues(position.debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN);
+  }, [position, tokenPriceMap]);
 
   /**
    * Amount of collateral user has denominated in display base token (stETH)

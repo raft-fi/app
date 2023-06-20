@@ -2,7 +2,14 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, RaftConfig, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import {
+  CollateralToken,
+  MIN_COLLATERAL_RATIO,
+  R_TOKEN,
+  RaftConfig,
+  UnderlyingCollateralToken,
+  TOKENS_WITH_PERMIT,
+} from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -24,22 +31,21 @@ import {
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
-  SUPPORTED_COLLATERAL_TOKENS,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
-import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import { Position, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAction, PositionAfter } from '../Position';
 
 import './AdjustPosition.scss';
 
 interface AdjustPositionProps {
-  collateralBalance: Decimal;
-  debtBalance: Decimal;
+  position: Position;
 }
 
-const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
+const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
   const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
@@ -51,14 +57,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const collateralConversionRateMap = useCollateralConversionRates();
   const protocolStats = useProtocolStats();
 
+  const { collateralBalance, debtBalance } = position;
+  const underlyingCollateralToken = position.underlyingCollateralToken as UnderlyingCollateralToken;
+  const displayBaseToken = TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[underlyingCollateralToken];
+
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
   );
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
-  // TODO: check current position to limit what collateral token can be options
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>(displayBaseToken);
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
@@ -307,7 +316,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return Decimal.ZERO;
     }
 
-    const displayBaseToken = TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken];
     const displayBaseTokenConversionRate = collateralConversionRateMap?.[displayBaseToken];
 
     // if conversion rate not available, return null
@@ -317,19 +325,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     // display token amount = input amount * display token rate
     return newCollateralInUnderlyingTokenValues.amount.mul(displayBaseTokenConversionRate);
-  }, [collateralConversionRateMap, selectedCollateralToken, newCollateralInUnderlyingTokenValues.amount]);
+  }, [newCollateralInUnderlyingTokenValues.amount, collateralConversionRateMap, displayBaseToken]);
 
   /**
    * New user display collateral values
    */
   const newCollateralInDisplayTokenValues = useMemo(
-    () =>
-      getTokenValues(
-        newCollateralInDisplayTokenAmount,
-        tokenPriceMap[TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]],
-        TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken],
-      ),
-    [newCollateralInDisplayTokenAmount, selectedCollateralToken, tokenPriceMap],
+    () => getTokenValues(newCollateralInDisplayTokenAmount, tokenPriceMap[displayBaseToken], displayBaseToken),
+    [displayBaseToken, newCollateralInDisplayTokenAmount, tokenPriceMap],
   );
 
   /**
@@ -966,7 +969,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           label={collateralLabelComponent}
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={SUPPORTED_COLLATERAL_TOKENS}
+          tokens={SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].tokens}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse}
           onTokenUpdate={handleCollateralTokenChange}
