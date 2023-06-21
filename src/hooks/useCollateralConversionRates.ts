@@ -139,7 +139,7 @@ const stream$ = merge(periodicStream$).pipe(
   tap(allCollateralConversionRates => collateralConversionRates$.next(allCollateralConversionRates)),
 );
 
-export const [useCollateralConversionRates] = bind(collateralConversionRates$, null);
+export const [useCollateralConversionRates] = bind(collateralConversionRates$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 

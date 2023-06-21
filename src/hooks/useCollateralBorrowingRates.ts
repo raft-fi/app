@@ -70,7 +70,7 @@ const stream$ = merge(periodicStream$).pipe(
   tap(allCollateralBorrowingRates => collateralBorrowingRates$.next(allCollateralBorrowingRates)),
 );
 
-export const [useCollateralBorrowingRates] = bind(collateralBorrowingRates$, null);
+export const [useCollateralBorrowingRates] = bind(collateralBorrowingRates$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 
