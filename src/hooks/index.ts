@@ -20,3 +20,4 @@ export * from './useCollateralBorrowingRates';
 export * from './useRedeem';
 export * from './useCollateralConversionRates';
 export * from './usePosition';
+export * from './useCollateralTokenConfig';

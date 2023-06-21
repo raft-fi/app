@@ -21,14 +21,12 @@ import {
 import { Allowance, RaftConfig, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_TOKENS, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
-import { Nullable } from '../interfaces';
+import { Nullable, TokenDecimalMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
 
-export type TokenAllowanceMap = {
-  [token in Token]: Nullable<Decimal>;
-};
+export type TokenAllowanceMap = TokenDecimalMap<Token>;
 
 const DEFAULT_VALUE: TokenAllowanceMap = SUPPORTED_TOKENS.reduce(
   (map, token) => ({

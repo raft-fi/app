@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import { MIN_COLLATERAL_RATIO, R_TOKEN, RaftConfig, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -18,6 +18,7 @@ import {
   useCollateralBorrowingRates,
   useCollateralConversionRates,
   useProtocolStats,
+  useCollateralTokenConfig,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
@@ -29,10 +30,9 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
-  TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
-import { SupportedCollateralTokens, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
-import { getTokenValues, isCollateralToken, isDisplayBaseToken } from '../../utils';
+import { SupportedCollateralToken, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import { getDecimalFromTokenMap, getTokenValues, isCollateralToken, isDisplayBaseToken } from '../../utils';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAfter, PositionAction } from '../Position';
 
@@ -48,11 +48,12 @@ const OpenPosition = () => {
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
-  const borrowingRate = useCollateralBorrowingRates();
+  const borrowingRateMap = useCollateralBorrowingRates();
   const collateralConversionRateMap = useCollateralConversionRates();
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
   const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
+  const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -61,7 +62,7 @@ const OpenPosition = () => {
     DEFAULT_MAP as TokenAllowanceMap,
   );
   // TODO: wait for SDK to update
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralTokens>('stETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>('stETH');
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
@@ -81,36 +82,23 @@ const OpenPosition = () => {
 
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
 
-  const selectedCollateralConfig = useMemo(() => {
-    return RaftConfig.networkConfig.underlyingTokens[TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken]]
-      .supportedCollateralTokens[selectedCollateralToken];
-  }, [selectedCollateralToken]);
+  const selectedCollateralBorrowRate = useMemo(
+    () =>
+      getDecimalFromTokenMap<UnderlyingCollateralToken>(
+        borrowingRateMap,
+        collateralTokenConfig?.underlyingTokenTicker ?? null,
+      ),
+    [borrowingRateMap, collateralTokenConfig],
+  );
 
-  const selectedCollateralBorrowRate = useMemo(() => {
-    if (!borrowingRate || !selectedCollateralConfig) {
-      return null;
-    }
-
-    const collateralBorrowRate = borrowingRate[selectedCollateralConfig.underlyingTokenTicker];
-    if (!collateralBorrowRate) {
-      return null;
-    }
-
-    return collateralBorrowRate;
-  }, [borrowingRate, selectedCollateralConfig]);
-
-  const selectedCollateralDebtSupply = useMemo(() => {
-    if (!protocolStats || !selectedCollateralConfig) {
-      return null;
-    }
-
-    const collateralDebtSupply = protocolStats.debtSupply[selectedCollateralConfig.underlyingTokenTicker];
-    if (!collateralDebtSupply) {
-      return null;
-    }
-
-    return collateralDebtSupply;
-  }, [protocolStats, selectedCollateralConfig]);
+  const selectedCollateralDebtSupply = useMemo(
+    () =>
+      getDecimalFromTokenMap<UnderlyingCollateralToken>(
+        protocolStats?.debtSupply ?? null,
+        collateralTokenConfig?.underlyingTokenTicker ?? null,
+      ),
+    [protocolStats, collateralTokenConfig],
+  );
 
   const debtTokenWithFeeValues = useMemo(() => {
     if (!selectedCollateralBorrowRate) {
@@ -148,6 +136,11 @@ const OpenPosition = () => {
 
     return Decimal.parse(borrowAmount, 0).mul(selectedCollateralBorrowRate);
   }, [borrowAmount, selectedCollateralBorrowRate]);
+
+  // when selectedCollateralToken changed, change the token config as well
+  useEffect(() => {
+    setCollateralTokenForConfig(selectedCollateralToken);
+  }, [selectedCollateralToken, setCollateralTokenForConfig]);
 
   // store the whitelist status at the loaded time
   useEffect(() => {

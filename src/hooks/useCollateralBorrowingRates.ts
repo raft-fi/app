@@ -18,15 +18,10 @@ import {
 } from 'rxjs';
 import { JsonRpcProvider } from 'ethers';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { Nullable } from '../interfaces';
+import { TokenDecimalMap } from '../interfaces';
 import { provider$ } from './useProvider';
-import { Decimal } from '@tempusfinance/decimal';
 
-// TODO - We currently only have one underlying collateral (wstETH), once we add more,
-//we need to store borrowing rate for each underlying collateral separately
-export type CollateralBorrowingRateMap = {
-  [token in UnderlyingCollateralToken]: Nullable<Decimal>;
-};
+export type CollateralBorrowingRateMap = TokenDecimalMap<UnderlyingCollateralToken>;
 
 const DEFAULT_VALUE: CollateralBorrowingRateMap = UNDERLYING_COLLATERAL_TOKENS.reduce(
   (map, token) => ({
