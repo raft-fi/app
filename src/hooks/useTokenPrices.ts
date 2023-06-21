@@ -19,12 +19,10 @@ import axios from 'axios';
 import { CollateralToken, PriceFeed, R_TOKEN, TOKENS, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { Nullable } from '../interfaces';
+import { Nullable, TokenDecimalMap } from '../interfaces';
 import { priceFeed$ } from './usePriceFeed';
 
-export type TokenPriceMap = {
-  [token in Token]: Nullable<Decimal>;
-};
+export type TokenPriceMap = TokenDecimalMap<Token>;
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids={TOKEN_ID}&vs_currencies=usd';
 const COINGECKO_TOKEN_ID_MAP: { [token in CollateralToken]: string } = {

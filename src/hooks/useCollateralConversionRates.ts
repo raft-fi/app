@@ -25,13 +25,11 @@ import {
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 } from '../constants';
-import { Nullable, SupportedCollateralTokens } from '../interfaces';
+import { SupportedCollateralToken, TokenDecimalMap } from '../interfaces';
 import { TokenPriceMap, tokenPrices$ } from './useTokenPrices';
 import { priceFeed$ } from './usePriceFeed';
 
-export type CollateralConversionRateMap = {
-  [token in SupportedCollateralTokens]: Nullable<Decimal>;
-};
+export type CollateralConversionRateMap = TokenDecimalMap<SupportedCollateralToken>;
 
 const DEFAULT_VALUE: CollateralConversionRateMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
   (map, token) => ({
@@ -43,7 +41,7 @@ const DEFAULT_VALUE: CollateralConversionRateMap = SUPPORTED_COLLATERAL_TOKENS.r
 
 export const collateralConversionRates$ = new BehaviorSubject<CollateralConversionRateMap>(DEFAULT_VALUE);
 
-const fetchData = (feed: PriceFeed, collateralToken: SupportedCollateralTokens) => {
+const fetchData = (feed: PriceFeed, collateralToken: SupportedCollateralToken) => {
   try {
     return from(feed.getUnderlyingCollateralRate(TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken], collateralToken)).pipe(
       catchError(error => {
@@ -71,7 +69,7 @@ const periodicStream$: Observable<CollateralConversionRateMap> = intervalBeat$.p
         // since wstETH price only updated per day, we need to call feed.getUnderlyingCollateralRate() only for wstETH group
         if (SUPPORTED_COLLATERAL_TOKEN_SETTINGS.wstETH.tokens.includes(token)) {
           const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS.wstETH
-            .displayBaseToken as SupportedCollateralTokens;
+            .displayBaseToken as SupportedCollateralToken;
           const underlyingToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS.wstETH.underlyingToken;
 
           // if wstETH is the display token, conversion rate = 1
@@ -141,7 +139,7 @@ const stream$ = merge(periodicStream$).pipe(
   tap(allCollateralConversionRates => collateralConversionRates$.next(allCollateralConversionRates)),
 );
 
-export const [useCollateralConversionRates] = bind(collateralConversionRates$, null);
+export const [useCollateralConversionRates] = bind(collateralConversionRates$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 

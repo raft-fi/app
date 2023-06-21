@@ -1,7 +1,7 @@
 import { bind } from '@react-rxjs/core';
 import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rxjs';
 import { wallet$ } from './useWallet';
-import { collateralBorrowingRate$ } from './useCollateralBorrowingRate';
+import { collateralBorrowingRates$ } from './useCollateralBorrowingRates';
 import { protocolStats$ } from './useProtocolStats';
 import { position$ } from './usePosition';
 
@@ -14,7 +14,7 @@ const stream$ = interval(CHECK_INTERVAL).pipe(
   map(count => {
     const wallet = wallet$.getValue();
     const position = position$.getValue();
-    const borrowingRate = collateralBorrowingRate$.getValue();
+    const borrowingRate = collateralBorrowingRates$.getValue();
     const protocolStats = protocolStats$.getValue();
 
     return Boolean(count && borrowingRate && protocolStats?.debtSupply && (!wallet || (wallet && position)));

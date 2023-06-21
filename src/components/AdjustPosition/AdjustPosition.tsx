@@ -6,7 +6,6 @@ import {
   CollateralToken,
   MIN_COLLATERAL_RATIO,
   R_TOKEN,
-  RaftConfig,
   UnderlyingCollateralToken,
   TOKENS_WITH_PERMIT,
 } from '@raft-fi/sdk';
@@ -15,8 +14,9 @@ import {
   TokenWhitelistMap,
   useApprove,
   useBorrow,
-  useCollateralBorrowingRate,
+  useCollateralBorrowingRates,
   useCollateralConversionRates,
+  useCollateralTokenConfig,
   useProtocolStats,
   useTokenAllowances,
   useTokenBalances,
@@ -24,7 +24,7 @@ import {
   useTokenWhitelists,
   useWhitelistDelegate,
 } from '../../hooks';
-import { getTokenValues, isCollateralToken, isUnderlyingCollateralToken } from '../../utils';
+import { getDecimalFromTokenMap, getTokenValues, isCollateralToken, isUnderlyingCollateralToken } from '../../utils';
 import {
   DEFAULT_MAP,
   INPUT_PREVIEW_DIGITS,
@@ -33,7 +33,6 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
-  TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import { Position, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
@@ -53,9 +52,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const tokenPriceMap = useTokenPrices();
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
-  const borrowingRate = useCollateralBorrowingRate();
+  const borrowingRateMap = useCollateralBorrowingRates();
   const collateralConversionRateMap = useCollateralConversionRates();
   const protocolStats = useProtocolStats();
+  const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
 
   const { collateralBalance, debtBalance } = position;
   const underlyingCollateralToken = position.underlyingCollateralToken as UnderlyingCollateralToken;
@@ -77,6 +77,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const [hasWhitelistProceeded, setHasWhitelistProceeded] = useState<boolean>(false);
   const [hasApprovalProceeded, setHasApprovalProceeded] = useState<TokenApprovedMap>(DEFAULT_MAP as TokenApprovedMap);
   const [tokenSignatureMap, setTokenSignatureMap] = useState<TokenSignatureMap>(DEFAULT_MAP as TokenSignatureMap);
+
+  // when selectedCollateralToken changed, change the token config as well
+  useEffect(() => {
+    setCollateralTokenForConfig(selectedCollateralToken);
+  }, [selectedCollateralToken, setCollateralTokenForConfig]);
 
   // store the whitelist status at the loaded time
   useEffect(() => {
@@ -180,36 +185,23 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     }
   }, [borrowAmount]);
 
-  const selectedCollateralConfig = useMemo(() => {
-    return RaftConfig.networkConfig.underlyingTokens[TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken]]
-      .supportedCollateralTokens[selectedCollateralToken];
-  }, [selectedCollateralToken]);
+  const selectedCollateralBorrowRate = useMemo(
+    () =>
+      getDecimalFromTokenMap<UnderlyingCollateralToken>(
+        borrowingRateMap,
+        collateralTokenConfig?.underlyingTokenTicker ?? null,
+      ),
+    [borrowingRateMap, collateralTokenConfig],
+  );
 
-  const selectedCollateralBorrowRate = useMemo(() => {
-    if (!borrowingRate || !selectedCollateralConfig) {
-      return null;
-    }
-
-    const collateralBorrowRate = borrowingRate[selectedCollateralConfig.underlyingTokenTicker];
-    if (!collateralBorrowRate) {
-      return null;
-    }
-
-    return collateralBorrowRate;
-  }, [borrowingRate, selectedCollateralConfig]);
-
-  const selectedCollateralDebtSupply = useMemo(() => {
-    if (!protocolStats || !selectedCollateralConfig) {
-      return null;
-    }
-
-    const collateralDebtSupply = protocolStats.debtSupply[selectedCollateralConfig.underlyingTokenTicker];
-    if (!collateralDebtSupply) {
-      return null;
-    }
-
-    return collateralDebtSupply;
-  }, [protocolStats, selectedCollateralConfig]);
+  const selectedCollateralDebtSupply = useMemo(
+    () =>
+      getDecimalFromTokenMap<UnderlyingCollateralToken>(
+        protocolStats?.debtSupply ?? null,
+        collateralTokenConfig?.underlyingTokenTicker ?? null,
+      ),
+    [protocolStats, collateralTokenConfig],
+  );
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);

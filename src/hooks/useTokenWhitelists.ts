@@ -25,15 +25,13 @@ import {
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../constants';
-import { Nullable, Position } from '../interfaces';
+import { Nullable, Position, TokenGenericMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
 
-export type TokenWhitelistMap = {
-  [token in Token]: Nullable<boolean>;
-};
+export type TokenWhitelistMap = TokenGenericMap<Token, Nullable<boolean>>;
 
 const DEFAULT_VALUE: TokenWhitelistMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
   (map, token) => ({
