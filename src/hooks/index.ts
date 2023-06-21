@@ -16,7 +16,7 @@ export * from './useTokenAllowances';
 export * from './useTokenWhitelists';
 export * from './useWhitelistDelegate';
 export * from './useAppLoaded';
-export * from './useCollateralBorrowingRate';
+export * from './useCollateralBorrowingRates';
 export * from './useRedeem';
 export * from './useCollateralConversionRates';
 export * from './usePosition';

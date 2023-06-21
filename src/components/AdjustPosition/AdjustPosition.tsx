@@ -15,7 +15,7 @@ import {
   TokenWhitelistMap,
   useApprove,
   useBorrow,
-  useCollateralBorrowingRate,
+  useCollateralBorrowingRates,
   useCollateralConversionRates,
   useProtocolStats,
   useTokenAllowances,
@@ -53,7 +53,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const tokenPriceMap = useTokenPrices();
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
-  const borrowingRate = useCollateralBorrowingRate();
+  const borrowingRate = useCollateralBorrowingRates();
   const collateralConversionRateMap = useCollateralConversionRates();
   const protocolStats = useProtocolStats();
 

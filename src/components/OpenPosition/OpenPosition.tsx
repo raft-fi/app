@@ -15,7 +15,7 @@ import {
   useWhitelistDelegate,
   TokenWhitelistMap,
   TokenAllowanceMap,
-  useCollateralBorrowingRate,
+  useCollateralBorrowingRates,
   useCollateralConversionRates,
   useProtocolStats,
 } from '../../hooks';
@@ -48,7 +48,7 @@ const OpenPosition = () => {
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
-  const borrowingRate = useCollateralBorrowingRate();
+  const borrowingRate = useCollateralBorrowingRates();
   const collateralConversionRateMap = useCollateralConversionRates();
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
