@@ -1,5 +1,5 @@
 import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
-import { StrictPartial } from './interfaces';
+import { StrictPartial, TokenGenericMap } from './interfaces';
 
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
@@ -42,17 +42,15 @@ export const SUPPORTED_UNDERLYING_TOKENS = Object.keys(
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 ) as UnderlyingCollateralToken[];
 // token to underlying token map
-export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
-  [token: string]: UnderlyingCollateralToken;
-} = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
+export const TOKEN_TO_UNDERLYING_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.underlyingToken } : map;
-}, {} as Record<CollateralToken, UnderlyingCollateralToken>);
+}, {} as TokenGenericMap<CollateralToken, UnderlyingCollateralToken>);
 // token to display base token map
 export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
-}, {} as Record<CollateralToken, CollateralToken>);
+}, {} as TokenGenericMap<CollateralToken, CollateralToken>);
 
 export const DEFAULT_MAP = TOKENS.reduce(
   (map, token) => ({

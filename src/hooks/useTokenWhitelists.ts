@@ -25,12 +25,11 @@ import {
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../constants';
-import { Nullable, Position } from '../interfaces';
+import { Nullable, Position, TokenGenericMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
-import { TokenGenericMap } from '../interfaces/types';
 
 export type TokenWhitelistMap = TokenGenericMap<Token, boolean>;
 
