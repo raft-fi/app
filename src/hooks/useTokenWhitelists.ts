@@ -31,7 +31,7 @@ import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
 
-export type TokenWhitelistMap = TokenGenericMap<Token, boolean>;
+export type TokenWhitelistMap = TokenGenericMap<Token, Nullable<boolean>>;
 
 const DEFAULT_VALUE: TokenWhitelistMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
   (map, token) => ({
