@@ -49,12 +49,12 @@ const fetchData = (provider: JsonRpcProvider) => {
         };
       }),
       catchError(error => {
-        console.error('useProtocolStats - failed to fetch protocol stats', error);
+        console.error('useProtocolStats (catchError) - failed to fetch protocol stats', error);
         return of(null);
       }),
     );
   } catch (error) {
-    console.error('useProtocolStats - failed to fetch protocol stats', error);
+    console.error('useProtocolStats (catch) - failed to fetch protocol stats', error);
     return of(null);
   }
 };

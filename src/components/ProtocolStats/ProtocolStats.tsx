@@ -1,127 +1,90 @@
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { R_TOKEN } from '@raft-fi/sdk';
-import { useCollateralConversionRates, useProtocolStats, useTokenPrices } from '../../hooks';
+import { R_TOKEN, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { useProtocolStats, useTokenPrices } from '../../hooks';
 import { getProtocolCollateralRatioLabel, getProtocolCollateralRatioLevel, getTokenValues } from '../../utils';
-import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
+import { SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
 import { Typography } from '../shared';
+import { TokenDecimalMap } from '../../interfaces';
 
 import './ProtocolStats.scss';
-
-const collateralThreshold = 1000; // 1k
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
-  const collateralConversionRateMap = useCollateralConversionRates();
 
-  const displayCollateralTotalSupplyValues = useMemo(() => {
-    if (!protocolStats || !collateralConversionRateMap?.stETH) {
-      return null;
-    }
-
-    // TODO - Return per token values instead of single wstETH value
-    const wstETHSupply = protocolStats.collateralSupply['wstETH'];
-    if (!wstETHSupply) {
-      return null;
-    }
-
-    const amount = wstETHSupply.mul(collateralConversionRateMap.stETH);
-
-    // TODO: change it later, display in USD value instead
-    return getTokenValues(amount, tokenPriceMap['stETH'], 'stETH');
-  }, [collateralConversionRateMap, protocolStats, tokenPriceMap]);
-
-  const underlyingCollateralTotalSupplyValues = useMemo(() => {
-    if (!protocolStats) {
-      return null;
-    }
-
-    // TODO - Return per token values instead of single wstETH value
-    const wstETHSupply = protocolStats.collateralSupply['wstETH'];
-    if (!wstETHSupply) {
-      return null;
-    }
-
-    // TODO: change it later, display in USD value instead
-    return getTokenValues(wstETHSupply, tokenPriceMap['wstETH'], 'wstETH');
-  }, [protocolStats, tokenPriceMap]);
-
-  const debtTotalSupplyValues = useMemo(() => {
-    if (!protocolStats) {
-      return null;
-    }
-
-    // TODO - Return per token values instead of single wstETH value
-    const wstETHSupply = protocolStats.debtSupply['wstETH'];
-    if (!wstETHSupply) {
-      return null;
-    }
-
-    return getTokenValues(wstETHSupply, tokenPriceMap[R_TOKEN], R_TOKEN);
-  }, [protocolStats, tokenPriceMap]);
-
-  const displayCollateralTotalSupplyAmountFormatted = useMemo(() => {
-    if (displayCollateralTotalSupplyValues?.amount) {
-      let fractionDigits = COLLATERAL_TOKEN_UI_PRECISION;
-
-      if (displayCollateralTotalSupplyValues?.amount.gte(collateralThreshold)) {
-        fractionDigits = 0;
-      }
-
-      return DecimalFormat.format(displayCollateralTotalSupplyValues.amount, {
-        style: 'decimal',
-        fractionDigits,
-      });
-    }
-
-    return null;
-  }, [displayCollateralTotalSupplyValues?.amount]);
-
-  const underlyingCollateralTotalSupplyValueFormatted = useMemo(
-    () =>
-      underlyingCollateralTotalSupplyValues?.value
-        ? DecimalFormat.format(underlyingCollateralTotalSupplyValues.value, {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
-    [underlyingCollateralTotalSupplyValues?.value],
+  const collateralSupplyMap = useMemo(
+    () => protocolStats?.collateralSupply ?? ({} as TokenDecimalMap<UnderlyingCollateralToken>),
+    [protocolStats?.collateralSupply],
+  );
+  const debtSupplyMap = useMemo(
+    () => protocolStats?.debtSupply ?? ({} as TokenDecimalMap<UnderlyingCollateralToken>),
+    [protocolStats?.debtSupply],
   );
 
-  const debtTotalSupplyAmountFormatted = useMemo(
+  const totalCollateralValue = useMemo(
     () =>
-      debtTotalSupplyValues?.amount
-        ? DecimalFormat.format(debtTotalSupplyValues.amount, {
+      SUPPORTED_UNDERLYING_TOKENS.reduce((sum, underlyingCollateralToken) => {
+        const supply = collateralSupplyMap[underlyingCollateralToken];
+        const tokenValues = getTokenValues(supply, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken);
+        return sum.add(tokenValues.value ?? Decimal.ZERO);
+      }, Decimal.ZERO),
+    [collateralSupplyMap, tokenPriceMap],
+  );
+  const totalDebtTokenValues = useMemo(() => {
+    const debtAmount = SUPPORTED_UNDERLYING_TOKENS.reduce((sum, underlyingCollateralToken) => {
+      const supply = debtSupplyMap[underlyingCollateralToken];
+      return sum.add(supply ?? Decimal.ZERO);
+    }, Decimal.ZERO);
+
+    return getTokenValues(debtAmount, tokenPriceMap.R, R_TOKEN);
+  }, [debtSupplyMap, tokenPriceMap.R]);
+
+  const totalCollateralValueMultiplierFormatted = useMemo(
+    () =>
+      DecimalFormat.format(totalCollateralValue, {
+        style: 'multiplier',
+        fractionDigits: USD_UI_PRECISION,
+      }),
+    [totalCollateralValue],
+  );
+  const totalCollateralValueDecimalFormatted = useMemo(
+    () =>
+      DecimalFormat.format(totalCollateralValue, {
+        style: 'decimal',
+        fractionDigits: USD_UI_PRECISION,
+      }),
+    [totalCollateralValue],
+  );
+  const totalDebtAmountFormatted = useMemo(
+    () =>
+      totalDebtTokenValues.amount
+        ? DecimalFormat.format(totalDebtTokenValues.amount, {
             style: 'decimal',
             fractionDigits: 0,
           })
         : null,
-    [debtTotalSupplyValues?.amount],
+    [totalDebtTokenValues.amount],
   );
-  const debtTotalSupplyValueFormatted = useMemo(
+  const totalDebtValueDecimalFormatted = useMemo(
     () =>
-      debtTotalSupplyValues?.value
-        ? DecimalFormat.format(debtTotalSupplyValues.value, {
+      totalDebtTokenValues.value
+        ? DecimalFormat.format(totalDebtTokenValues.value, {
             style: 'decimal',
             fractionDigits: USD_UI_PRECISION,
           })
         : null,
-    [debtTotalSupplyValues?.value],
+    [totalDebtTokenValues.value],
   );
 
   const collateralizationRatio = useMemo(() => {
-    if (!underlyingCollateralTotalSupplyValues?.value || !debtTotalSupplyValues?.value) {
+    if (!totalDebtTokenValues.value || totalDebtTokenValues.value.isZero()) {
       return null;
     }
 
-    if (underlyingCollateralTotalSupplyValues.value.isZero()) {
-      return Decimal.ZERO;
-    }
-
-    return underlyingCollateralTotalSupplyValues.value.div(debtTotalSupplyValues.value);
-  }, [underlyingCollateralTotalSupplyValues?.value, debtTotalSupplyValues?.value]);
+    return totalCollateralValue.div(totalDebtTokenValues.value);
+  }, [totalDebtTokenValues.value, totalCollateralValue]);
 
   const collateralizationRatioFormatted = useMemo(
     () =>
@@ -146,13 +109,13 @@ const ProtocolStats = () => {
     <div className="raft__protocol-stats">
       <div className="raft__protocol-stats__collateral">
         <Typography variant="overline" color="text-accent">
-          TOTAL VALUE LOCKED
+          PROTOCOL SUPPLY
         </Typography>
         <div className="raft__protocol-stats__collateral__amount">
           <TokenLogo type="token-stETH" size="small" />
           <div className="raft__protocol-stats__collateral__amount__number">
-            <Typography variant="heading1">{displayCollateralTotalSupplyAmountFormatted ?? '---'}</Typography>
-            <Typography variant="heading2">stETH</Typography>
+            <Typography variant="heading2">$</Typography>
+            <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
           </div>
         </div>
         <div className="raft__protocol-stats__collateral__value__number">
@@ -160,18 +123,18 @@ const ProtocolStats = () => {
             $
           </Typography>
           <Typography variant="body" weight="medium" color="text-secondary">
-            {underlyingCollateralTotalSupplyValueFormatted ?? '---'}
+            {totalCollateralValueDecimalFormatted}
           </Typography>
         </div>
       </div>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
-          R MARKET CAP
+          TOTAL GENERATED
         </Typography>
         <div className="raft__protocol-stats__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
           <div className="raft__protocol-stats__debt__amount__number">
-            <Typography variant="heading1">{debtTotalSupplyAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading1">{totalDebtAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{R_TOKEN}</Typography>
           </div>
         </div>
@@ -180,7 +143,7 @@ const ProtocolStats = () => {
             $
           </Typography>
           <Typography variant="body" weight="medium" color="text-secondary">
-            {debtTotalSupplyValueFormatted ?? '---'}
+            {totalDebtValueDecimalFormatted ?? '---'}
           </Typography>
         </div>
       </div>
