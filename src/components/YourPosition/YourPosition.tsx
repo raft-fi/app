@@ -2,11 +2,17 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { R_TOKEN_UI_PRECISION, SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
+import {
+  R_TOKEN_UI_PRECISION,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
+  SUPPORTED_UNDERLYING_TOKENS,
+  TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
+  USD_UI_PRECISION,
+} from '../../constants';
 import { useCollateralConversionRates, usePosition, useTokenPrices } from '../../hooks';
-import { getCollateralRatioLevel, getTokenValues } from '../../utils';
+import { getCollateralRatioLevel, getDecimalFromTokenMap, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
-import { Typography, ValueLabel } from '../shared';
+import { Icon, Typography, ValueLabel } from '../shared';
 
 import './YourPosition.scss';
 
@@ -15,20 +21,33 @@ const YourPosition: FC = () => {
   const tokenPriceMap = useTokenPrices();
   const collateralConversionRateMap = useCollateralConversionRates();
 
+  const underlyingCollateralToken = useMemo(
+    () => position?.underlyingCollateralToken,
+    [position?.underlyingCollateralToken],
+  );
+  const displayBaseToken = useMemo(
+    () => (underlyingCollateralToken ? TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[underlyingCollateralToken] : null),
+    [underlyingCollateralToken],
+  );
+  const isRebasing = useMemo(
+    () => underlyingCollateralToken && SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken],
+    [underlyingCollateralToken],
+  );
+
   /**
-   * Amount of collateral user has denominated in underlying token (wstETH)
+   * Amount of collateral user has denominated in underlying token
    */
   const underlyingCollateralTokenValues = useMemo(() => {
-    if (!position || !position.underlyingCollateralToken) {
+    if (!position || !underlyingCollateralToken) {
       return getTokenValues(null, null, SUPPORTED_UNDERLYING_TOKENS[0]);
     }
 
     return getTokenValues(
       position.collateralBalance,
-      tokenPriceMap[position.underlyingCollateralToken],
-      position.underlyingCollateralToken,
+      tokenPriceMap[underlyingCollateralToken],
+      underlyingCollateralToken,
     );
-  }, [position, tokenPriceMap]);
+  }, [position, tokenPriceMap, underlyingCollateralToken]);
 
   const debtTokenValues = useMemo(() => {
     if (!position) {
@@ -39,11 +58,14 @@ const YourPosition: FC = () => {
   }, [position, tokenPriceMap]);
 
   /**
-   * Amount of collateral user has denominated in display base token (stETH)
+   * Amount of collateral user has denominated in display base token
    */
   const displayCollateralTokenValues = useMemo(() => {
-    // TODO: fetch what token is in position to show corresponding display token
-    const collateralConversionRate = collateralConversionRateMap?.stETH;
+    if (!underlyingCollateralToken || !displayBaseToken) {
+      return null;
+    }
+
+    const collateralConversionRate = getDecimalFromTokenMap(collateralConversionRateMap, displayBaseToken);
 
     if (!collateralConversionRate || !underlyingCollateralTokenValues.amount) {
       return null;
@@ -51,16 +73,17 @@ const YourPosition: FC = () => {
 
     const value = underlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
-    // TODO: fetch what token is in position to show corresponding display token
-    return getTokenValues(value, tokenPriceMap['stETH'], 'stETH');
-  }, [collateralConversionRateMap, underlyingCollateralTokenValues.amount, tokenPriceMap]);
+    return getTokenValues(value, tokenPriceMap[displayBaseToken], displayBaseToken);
+  }, [
+    underlyingCollateralToken,
+    displayBaseToken,
+    collateralConversionRateMap,
+    underlyingCollateralTokenValues.amount,
+    tokenPriceMap,
+  ]);
 
   const collateralizationRatio = useMemo(() => {
-    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value) {
-      return null;
-    }
-
-    if (debtTokenValues.value.isZero()) {
+    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value || debtTokenValues.value.isZero()) {
       return null;
     }
 
@@ -105,7 +128,7 @@ const YourPosition: FC = () => {
       <div className="raft__your-position__collateral">
         <Typography variant="overline">YOUR COLLATERAL</Typography>
         <div className="raft__your-position__collateral__amount">
-          <TokenLogo type="token-stETH" size="small" />
+          <TokenLogo type={`token-${displayBaseToken}`} size="small" />
           {displayCollateralTokenValues?.amountFormatted ? (
             <ValueLabel
               value={displayCollateralTokenValues.amountFormatted}
@@ -115,6 +138,7 @@ const YourPosition: FC = () => {
           ) : (
             '---'
           )}
+          {isRebasing && <Icon variant="triangle-up" />}
         </div>
         <div className="raft__your-position__collateral__value__number">
           {underlyingCollateralTokenValues?.valueFormatted ? (

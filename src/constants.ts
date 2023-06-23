@@ -30,12 +30,14 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: CollateralToken[];
     displayBaseToken: CollateralToken;
     underlyingToken: UnderlyingCollateralToken;
+    isRebasing: boolean;
   }
 > = {
   wstETH: {
     tokens: ['stETH', 'wstETH'] as CollateralToken[],
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
+    isRebasing: true,
   },
 };
 export const SUPPORTED_UNDERLYING_TOKENS = Object.keys(

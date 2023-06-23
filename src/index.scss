@@ -121,6 +121,9 @@
   --statusHighProtocolRisk: var(--raft-red-900);
   --statusCriticalProtocolRisk: var(--raft-red-900);
 
+  --colorUp: var(--raft-green-700);
+  --colorDown: var(--raft-red-600);
+
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
 

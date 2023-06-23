@@ -61,8 +61,9 @@ const OpenPosition = () => {
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
-  // TODO: wait for SDK to update
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>('stETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(
+    SUPPORTED_COLLATERAL_TOKENS[0],
+  );
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
@@ -234,7 +235,7 @@ const OpenPosition = () => {
   ]);
 
   /**
-   * Deposit amount of collateral converted to display collateral token (stETH)
+   * Deposit amount of collateral converted to display collateral token
    */
   const displayCollateralTokenAmount = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -525,8 +526,8 @@ const OpenPosition = () => {
 
     if (!hasWhitelisted) {
       return whitelistDelegateStatus?.pending
-        ? `Whitelisting stETH (${executedSteps}/${executionSteps})`
-        : `Whitelist stETH (${executedSteps}/${executionSteps})`;
+        ? `Whitelisting ${selectedCollateralToken} (${executedSteps}/${executionSteps})`
+        : `Whitelist ${selectedCollateralToken} (${executedSteps}/${executionSteps})`;
     }
 
     if (!hasEnoughCollateralAllowance && !hasCollateralPermitSignature) {
