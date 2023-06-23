@@ -236,12 +236,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   }, [borrowAmountDecimal, selectedCollateralBorrowRate, isAddDebt]);
 
   /**
-   * Current user collateral denominated in underlying collateral token (wstETH)
+   * Current user collateral denominated in underlying collateral token
    */
   const currentUnderlyingCollateralTokenValues = useMemo(
-    // TODO: fetch what token is in position to show corresponding underlying token
-    () => getTokenValues(collateralBalance, tokenPriceMap['wstETH'], 'wstETH'),
-    [collateralBalance, tokenPriceMap],
+    () => getTokenValues(collateralBalance, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken),
+    [collateralBalance, tokenPriceMap, underlyingCollateralToken],
   );
 
   /**
@@ -261,7 +260,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   );
 
   /**
-   * New user collateral denominated in underlying collateral token (wstETH)
+   * New user collateral denominated in underlying collateral token
    */
   const newCollateralInUnderlyingTokenAmount = useMemo(() => {
     const collateralConversionRate = collateralConversionRateMap?.[selectedCollateralToken];
@@ -295,9 +294,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
    */
   const newCollateralInUnderlyingTokenValues = useMemo(
     () =>
-      // TODO: fetch what token is in position to show corresponding underlying token
-      getTokenValues(newCollateralInUnderlyingTokenAmount, tokenPriceMap['wstETH'], 'wstETH'),
-    [newCollateralInUnderlyingTokenAmount, tokenPriceMap],
+      getTokenValues(
+        newCollateralInUnderlyingTokenAmount,
+        tokenPriceMap[underlyingCollateralToken],
+        underlyingCollateralToken,
+      ),
+    [newCollateralInUnderlyingTokenAmount, tokenPriceMap, underlyingCollateralToken],
   );
 
   /**
@@ -696,8 +698,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
 
     if (!hasWhitelisted) {
       return whitelistDelegateStatus?.pending
-        ? `Whitelisting stETH (${executedSteps}/${executionSteps})`
-        : `Whitelist stETH (${executedSteps}/${executionSteps})`;
+        ? `Whitelisting ${selectedCollateralToken} (${executedSteps}/${executionSteps})`
+        : `Whitelist ${selectedCollateralToken} (${executedSteps}/${executionSteps})`;
     }
 
     if (

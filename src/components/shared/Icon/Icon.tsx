@@ -31,6 +31,7 @@ import ArrowUp from './ArrowUp';
 import Gitbook from './Gitbook';
 import Warning from './Warning';
 import Metamask from './Metamask';
+import TriangleUp from './TriangleUp';
 
 type IconVariant =
   | 'discord'
@@ -49,6 +50,7 @@ type IconVariant =
   | 'arrow-right'
   | 'arrow-down'
   | 'arrow-up'
+  | 'triangle-up'
   | 'globe'
   | 'geoblock'
   | 'profile'
@@ -82,6 +84,7 @@ const ICON_MAP: IconMap = {
   'arrow-right': ArrowRight,
   'arrow-down': ArrowDown,
   'arrow-up': ArrowUp,
+  'triangle-up': TriangleUp,
   globe: Globe,
   geoblock: Geoblock,
   profile: Profile,
