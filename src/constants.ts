@@ -22,7 +22,7 @@ export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 
 // app to control what is supported
-export const SUPPORTED_COLLATERAL_TOKENS: StrictPartial<CollateralToken>[] = ['stETH', 'wstETH'];
+export const SUPPORTED_COLLATERAL_TOKENS: StrictPartial<CollateralToken>[] = ['stETH', 'wstETH', 'rETH'];
 export const SUPPORTED_TOKENS: StrictPartial<Token>[] = ['R', 'stETH', 'wstETH'];
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   UnderlyingCollateralToken,
@@ -30,6 +30,7 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: CollateralToken[];
     displayBaseToken: CollateralToken;
     underlyingToken: UnderlyingCollateralToken;
+    redeemToken: CollateralToken;
     isRebasing: boolean;
   }
 > = {
@@ -37,7 +38,15 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['stETH', 'wstETH'] as CollateralToken[],
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
+    redeemToken: 'wstETH',
     isRebasing: true,
+  },
+  wcrETH: {
+    tokens: ['rETH'] as CollateralToken[],
+    displayBaseToken: 'rETH',
+    underlyingToken: 'wcrETH',
+    redeemToken: 'rETH',
+    isRebasing: false,
   },
 };
 export const SUPPORTED_UNDERLYING_TOKENS = Object.keys(

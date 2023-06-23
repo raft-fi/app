@@ -17,8 +17,8 @@ import {
   Observable,
   withLatestFrom,
 } from 'rxjs';
-import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { Nullable, SupportedCollateralToken } from '../interfaces';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -32,7 +32,7 @@ interface BorrowRequest {
   currentUserCollateral: Decimal;
   currentUserDebt: Decimal;
   closePosition?: boolean;
-  options?: ManagePositionOptions;
+  options?: ManagePositionOptions<SupportedCollateralToken>;
 }
 
 interface BorrowStatus {
@@ -72,6 +72,7 @@ const stream$ = combineLatest([borrow$]).pipe(
     ([[request], walletProvider, walletSigner]) => {
       const {
         txnId,
+        collateralToken,
         currentUserCollateral,
         currentUserDebt,
         collateralChange,
@@ -89,7 +90,12 @@ const stream$ = combineLatest([borrow$]).pipe(
           });
         }
 
-        const userPosition = new UserPosition(walletSigner, currentUserCollateral, currentUserDebt);
+        const userPosition = new UserPosition(
+          walletSigner,
+          currentUserCollateral,
+          currentUserDebt,
+          TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken],
+        );
 
         borrowStatus$.next({ pending: true, txnId, request, statusType: 'borrow' });
 

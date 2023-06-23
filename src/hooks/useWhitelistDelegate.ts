@@ -17,7 +17,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -65,7 +65,12 @@ const stream$ = combineLatest([whitelistDelegate$]).pipe(
         });
       }
 
-      const userPosition = new UserPosition(walletSigner, Decimal.ZERO, Decimal.ZERO);
+      const userPosition = new UserPosition(
+        walletSigner,
+        Decimal.ZERO,
+        Decimal.ZERO,
+        TOKEN_TO_UNDERLYING_TOKEN_MAP[token],
+      );
 
       whitelistDelegateStatus$.next({ pending: true, txnId, request });
 

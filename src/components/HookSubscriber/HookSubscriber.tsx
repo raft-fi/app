@@ -13,6 +13,7 @@ import {
   subscribeCollateralConversionRates,
   subscribePosition,
   subscribeCollateralTokenConfig,
+  subscribeCalculateRedemptionRate,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -33,6 +34,7 @@ const HookSubscriber: FC = () => {
     subscribeCollateralConversionRates();
     subscribePosition();
     subscribeCollateralTokenConfig();
+    subscribeCalculateRedemptionRate();
   }, []);
 
   return null;
