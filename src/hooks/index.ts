@@ -21,3 +21,4 @@ export * from './useRedeem';
 export * from './useCollateralConversionRates';
 export * from './usePosition';
 export * from './useCollateralTokenConfig';
+export * from './useCalculateRedemptionRate';

@@ -32,9 +32,17 @@ const fetchData = (walletSigner: Nullable<JsonRpcSigner>) => {
   }
 
   try {
-    const userPosition = new UserPosition(walletSigner);
+    const userPosition$ = from(UserPosition.fromUser(walletSigner));
 
-    return from(userPosition.getTransactions()).pipe(
+    return userPosition$.pipe(
+      concatMap(userPosition => {
+        if (!userPosition) {
+          console.error('useTransactionHistory - failed to fetch user position');
+          return of(null);
+        }
+
+        return userPosition.getTransactions();
+      }),
       catchError(error => {
         console.error('useTransactionHistory - failed to fetch transaction history', error);
         return of(null);

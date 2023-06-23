@@ -7,6 +7,7 @@ export type {
   TokenSignatureMap,
   TokenDecimalMap,
   SupportedCollateralToken,
+  SupportedUnderlyingCollateralToken,
 } from './types';
 export type { StrictPartial } from './StrictPartial';
 export type { Position } from './Position';
