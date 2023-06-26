@@ -5,6 +5,7 @@ import zz from './zz.json';
 
 const NAMESPACE = 'translation';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const translations: Record<SupportedLocale, { [NAMESPACE]: any }> = {
   'en-GB': {
     [NAMESPACE]: enGB,

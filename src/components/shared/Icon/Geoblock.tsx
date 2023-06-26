@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { InnerIconProps, withIcon } from 'tempus-ui';
 
-const Geoblock: FC<InnerIconProps> = ({ size, color }) => (
+const Geoblock: FC<InnerIconProps> = ({ size }) => (
   <svg width={size} height={size} viewBox="0 0 142 142" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="71.3832" cy="71.3832" r="60.3832" fill="#F76329" fillOpacity="0.25" />
     <circle cx="71" cy="71" r="71" fill="#F76329" fillOpacity="0.25" />

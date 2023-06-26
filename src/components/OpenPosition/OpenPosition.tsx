@@ -1,17 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { Link, TokenLogo } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
 import { useConnectWallet } from '@web3-onboard/react';
-import {
-  CollateralToken,
-  ERC20PermitSignatureStruct,
-  MIN_COLLATERAL_RATIO,
-  R_TOKEN,
-  Token,
-  TOKENS,
-  TOKENS_WITH_PERMIT,
-} from '@raft-fi/sdk';
+import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   useWallet,
   useBorrow,
@@ -25,11 +16,12 @@ import {
   TokenWhitelistMap,
   TokenAllowanceMap,
   useCollateralBorrowingRate,
+  useCollateralConversionRate,
   useProtocolStats,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
-  DISPLAY_BASE_TOKEN,
+  DEFAULT_MAP,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   INPUT_PREVIEW_DIGITS,
@@ -37,27 +29,12 @@ import {
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKENS,
 } from '../../constants';
-import { getCollateralRatioLevel, getCollateralRatioLabel, getTokenValues, isCollateralToken } from '../../utils';
-import { Button, CurrencyInput, Typography, Icon, Loading, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
-import { Nullable } from '../../interfaces';
+import { TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import { getTokenValues, isCollateralToken } from '../../utils';
+import { Button, CurrencyInput, Typography } from '../shared';
+import { PositionAfter, PositionAction } from '../Position';
 
 import './OpenPosition.scss';
-
-type TokenApprovedMap = {
-  [token in Token]: Nullable<boolean>;
-};
-
-type TokenSignatureMap = {
-  [token in Token]: Nullable<ERC20PermitSignatureStruct>;
-};
-
-const DEFAULT_MAP = TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {},
-);
 
 const OpenPosition = () => {
   const [, connect] = useConnectWallet();
@@ -70,6 +47,7 @@ const OpenPosition = () => {
   const tokenWhitelistMap = useTokenWhitelists();
   const wallet = useWallet();
   const borrowingRate = useCollateralBorrowingRate();
+  const collateralConversionRate = useCollateralConversionRate();
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
   const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
@@ -90,23 +68,22 @@ const OpenPosition = () => {
   const [hasApprovalProceeded, setHasApprovalProceeded] = useState<TokenApprovedMap>(DEFAULT_MAP as TokenApprovedMap);
   const [tokenSignatureMap, setTokenSignatureMap] = useState<TokenSignatureMap>(DEFAULT_MAP as TokenSignatureMap);
 
-  const collateralTokenValues = useMemo(
+  /**
+   * Deposit values of currently selected collateral token
+   */
+  const selectedCollateralTokenInputValues = useMemo(
     () => getTokenValues(collateralAmount, tokenPriceMap[selectedCollateralToken], selectedCollateralToken),
     [collateralAmount, selectedCollateralToken, tokenPriceMap],
   );
 
-  const borrowAmountDecimal = useMemo(() => {
-    return Decimal.parse(borrowAmount, 0);
-  }, [borrowAmount]);
+  const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
+  const debtTokenWithFeeValues = useMemo(() => {
+    if (!borrowingRate) {
+      return getTokenValues(null, tokenPriceMap[R_TOKEN], R_TOKEN);
+    }
 
-  const borrowTokenValues = useMemo(
-    () => getTokenValues(borrowAmount, tokenPriceMap[R_TOKEN], R_TOKEN),
-    [borrowAmount, tokenPriceMap],
-  );
-  const baseTokenValues = useMemo(
-    () => getTokenValues(borrowAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], R_TOKEN),
-    [borrowAmount, tokenPriceMap],
-  );
+    return getTokenValues(borrowAmountDecimal.mul(Decimal.ONE.add(borrowingRate)), tokenPriceMap[R_TOKEN], R_TOKEN);
+  }, [borrowAmountDecimal, borrowingRate, tokenPriceMap]);
   const selectedCollateralTokenBalanceValues = useMemo(
     () =>
       getTokenValues(
@@ -124,6 +101,13 @@ const OpenPosition = () => {
     () => tokenWhitelistMap[selectedCollateralToken],
     [selectedCollateralToken, tokenWhitelistMap],
   );
+  const borrowingFeeAmount = useMemo(() => {
+    if (!borrowingRate) {
+      return null;
+    }
+
+    return Decimal.parse(borrowAmount, 0).mul(borrowingRate);
+  }, [borrowAmount, borrowingRate]);
 
   // store the whitelist status at the loaded time
   useEffect(() => {
@@ -169,7 +153,7 @@ const OpenPosition = () => {
       const collateralPrice = tokenPriceMap[selectedCollateralToken];
       const rTokenPrice = tokenPriceMap[R_TOKEN];
 
-      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice) {
+      if (!collateralPrice || collateralPrice.isZero() || !rTokenPrice || !borrowingRate) {
         return;
       }
 
@@ -178,7 +162,10 @@ const OpenPosition = () => {
       const borrowAmountValue = rTokenPrice.mul(borrowAmount);
 
       // Calculate minimum collateral amount so that resulting collateral ratio is at least 220%
-      const collateralAmount = borrowAmountValue.mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER).div(collateralPrice);
+      const collateralAmount = borrowAmountValue
+        .mul(borrowingRate.add(1))
+        .mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
+        .div(collateralPrice);
 
       // TODO - Add ceil() function to decimal library
       const truncatedCollateral = new Decimal(collateralAmount.toTruncated(COLLATERAL_TOKEN_UI_PRECISION));
@@ -202,6 +189,8 @@ const OpenPosition = () => {
       }
     }
   }, [
+    borrowingFeeAmount,
+    borrowingRate,
     hasChanged,
     selectedCollateralToken,
     selectedCollateralTokenBalanceValues.amount,
@@ -211,8 +200,11 @@ const OpenPosition = () => {
     wallet,
   ]);
 
-  const baseTokenAmount = useMemo(() => {
-    if (!collateralTokenValues.amount || !collateralTokenValues.value) {
+  /**
+   * Deposit amount of collateral converted to display collateral token (stETH)
+   */
+  const displayCollateralToken = useMemo(() => {
+    if (!selectedCollateralTokenInputValues.amount) {
       return Decimal.ZERO;
     }
 
@@ -220,75 +212,48 @@ const OpenPosition = () => {
       case 'ETH':
       case 'stETH':
       default:
-        return collateralTokenValues.amount;
+        return selectedCollateralTokenInputValues.amount;
       case 'wstETH':
-        if (!collateralTokenValues.price || !baseTokenValues.price || baseTokenValues.price.isZero()) {
+        if (!collateralConversionRate) {
           return null;
         }
 
-        return collateralTokenValues.value.div(baseTokenValues.price);
+        return selectedCollateralTokenInputValues.amount.mul(collateralConversionRate);
     }
-  }, [
-    baseTokenValues.price,
-    collateralTokenValues.amount,
-    collateralTokenValues.price,
-    collateralTokenValues.value,
-    selectedCollateralToken,
-  ]);
-  const baseTokenAmountFormatted = useMemo(
-    () =>
-      DecimalFormat.format(baseTokenAmount ?? Decimal.ZERO, {
-        style: 'currency',
-        currency: DISPLAY_BASE_TOKEN,
-        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-        lessThanFormat: true,
-      }),
-    [baseTokenAmount],
-  );
+  }, [selectedCollateralTokenInputValues.amount, selectedCollateralToken, collateralConversionRate]);
 
   const collateralizationRatio = useMemo(() => {
-    if (collateralTokenValues.value === null || borrowTokenValues.value === null || borrowTokenValues.value.isZero()) {
+    if (
+      selectedCollateralTokenInputValues.value === null ||
+      debtTokenWithFeeValues.value === null ||
+      debtTokenWithFeeValues.value.isZero()
+    ) {
       return null;
     }
 
-    const borrowAmountDecimal = new Decimal(borrowAmount || 0);
     if (borrowAmountDecimal.lt(MIN_BORROW_AMOUNT)) {
       return null;
     }
 
-    return collateralTokenValues.value.div(borrowTokenValues.value);
-  }, [borrowAmount, borrowTokenValues.value, collateralTokenValues.value]);
-  const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2, pad: true })
-        : 'N/A',
-    [collateralizationRatio],
-  );
+    return selectedCollateralTokenInputValues.value.div(debtTokenWithFeeValues.value);
+  }, [borrowAmountDecimal, debtTokenWithFeeValues.value, selectedCollateralTokenInputValues.value]);
 
   const collateralAmountWithEllipse = useMemo(() => {
-    if (!collateralTokenValues.amount) {
+    if (!selectedCollateralTokenInputValues.amount) {
       return null;
     }
 
-    const original = collateralTokenValues.amount.toString();
-    const truncated = collateralTokenValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
+    const original = selectedCollateralTokenInputValues.amount.toString();
+    const truncated = selectedCollateralTokenInputValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
 
     return original === truncated ? original : `${truncated}...`;
-  }, [collateralTokenValues.amount]);
+  }, [selectedCollateralTokenInputValues.amount]);
   const borrowAmountWithEllipse = useMemo(() => {
-    if (!borrowTokenValues.amount) {
-      return null;
-    }
-
-    const original = borrowTokenValues.amount.toString();
-    const truncated = borrowTokenValues.amount.toTruncated(INPUT_PREVIEW_DIGITS);
+    const original = borrowAmountDecimal.toString();
+    const truncated = borrowAmountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
 
     return original === truncated ? original : `${truncated}...`;
-  }, [borrowTokenValues.amount]);
-
-  const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
-  const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
+  }, [borrowAmountDecimal]);
 
   const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
   const rTokenBalanceFormatted = useMemo(() => {
@@ -309,22 +274,22 @@ const OpenPosition = () => {
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
   const hasInputFilled = useMemo(
-    () => collateralTokenValues.amount && borrowTokenValues.amount,
-    [borrowTokenValues.amount, collateralTokenValues.amount],
+    () => selectedCollateralTokenInputValues.amount && borrowAmount,
+    [borrowAmount, selectedCollateralTokenInputValues.amount],
   );
   const hasEnoughCollateralTokenBalance = useMemo(
     () =>
       !walletConnected ||
-      !collateralTokenValues.amount ||
+      !selectedCollateralTokenInputValues.amount ||
       Boolean(
         selectedCollateralTokenBalanceValues.amount &&
-          collateralTokenValues.amount.lte(selectedCollateralTokenBalanceValues.amount),
+          selectedCollateralTokenInputValues.amount.lte(selectedCollateralTokenBalanceValues.amount),
       ),
-    [collateralTokenValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
+    [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
   );
   const hasMinBorrow = useMemo(
-    () => !borrowTokenValues.amount || borrowTokenValues.amount.gte(MIN_BORROW_AMOUNT),
-    [borrowTokenValues.amount],
+    () => !borrowAmount || borrowAmountDecimal.gte(MIN_BORROW_AMOUNT),
+    [borrowAmount, borrowAmountDecimal],
   );
   const hasMinRatio = useMemo(
     () => !collateralizationRatio || collateralizationRatio.gte(MIN_COLLATERAL_RATIO),
@@ -347,19 +312,21 @@ const OpenPosition = () => {
 
   const canBorrow = useMemo(
     () =>
-      hasInputFilled &&
-      hasEnoughCollateralTokenBalance &&
-      hasMinBorrow &&
-      hasMinRatio &&
-      !isWrongNetwork &&
-      !isOverMaxBorrow,
+      Boolean(
+        hasInputFilled &&
+          hasEnoughCollateralTokenBalance &&
+          hasMinBorrow &&
+          hasMinRatio &&
+          !isWrongNetwork &&
+          !isOverMaxBorrow,
+      ),
     [hasEnoughCollateralTokenBalance, hasInputFilled, hasMinBorrow, hasMinRatio, isWrongNetwork, isOverMaxBorrow],
   );
 
   const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
   const hasEnoughCollateralAllowance = useMemo(
-    () => Boolean(selectedCollateralTokenAllowance?.gte(collateralTokenValues.amount ?? Decimal.ZERO)),
-    [collateralTokenValues.amount, selectedCollateralTokenAllowance],
+    () => Boolean(selectedCollateralTokenAllowance?.gte(selectedCollateralTokenInputValues.amount ?? Decimal.ZERO)),
+    [selectedCollateralTokenInputValues.amount, selectedCollateralTokenAllowance],
   );
   const hasCollateralPermitSignature = useMemo(
     () => Boolean(tokenSignatureMap[selectedCollateralToken]),
@@ -401,7 +368,11 @@ const OpenPosition = () => {
     } else if (hasApprovalProceeded[selectedCollateralToken]) {
       // user has proceeded approve, collateralApprovalStep = 1
       collateralApprovalStep = 1;
-    } else if (tokenAllowanceMapWhenLoaded[selectedCollateralToken]?.lt(collateralTokenValues.amount ?? Decimal.ZERO)) {
+    } else if (
+      tokenAllowanceMapWhenLoaded[selectedCollateralToken]?.lt(
+        selectedCollateralTokenInputValues.amount ?? Decimal.ZERO,
+      )
+    ) {
       // not enough allowance on load, collateralApprovalStep = 1
       collateralApprovalStep = 1;
     }
@@ -414,7 +385,7 @@ const OpenPosition = () => {
     } else if (tokenSignatureMap[selectedCollateralToken]) {
       // user has proceeded approve, collateralPermitStep = 1
       collateralPermitStep = 1;
-    } else if (collateralTokenValues.amount?.gt(0)) {
+    } else if (selectedCollateralTokenInputValues.amount?.gt(0)) {
       // input > 0, collateralPermitStep = 1
       collateralPermitStep = 1;
     }
@@ -423,7 +394,7 @@ const OpenPosition = () => {
 
     return whitelistStep + collateralApprovalStep + collateralPermitStep + executionStep;
   }, [
-    collateralTokenValues.amount,
+    selectedCollateralTokenInputValues.amount,
     hasApprovalProceeded,
     hasWhitelistProceeded,
     isWrongNetwork,
@@ -539,11 +510,6 @@ const OpenPosition = () => {
     selectedCollateralToken,
   ]);
 
-  const buttonDisabled = useMemo(
-    () => actionButtonState === 'loading' || (walletConnected && !canBorrow),
-    [canBorrow, actionButtonState, walletConnected],
-  );
-
   const onConnectWallet = useCallback(() => {
     connect();
   }, [connect]);
@@ -606,45 +572,45 @@ const OpenPosition = () => {
 
   const handleCollateralTokenBlur = useCallback(() => {
     // if borrow input is not empty, do nth
-    if (borrowTokenValues.amount) {
+    if (borrowAmount) {
       return;
     }
 
     // if borrow input is null, borrowTokenValues.price will be null, so use the price map here
     const borrowTokenPrice = tokenPriceMap[R_TOKEN];
 
-    if (!collateralTokenValues.value || !borrowTokenPrice || borrowTokenPrice.isZero() || !HEALTHY_RATIO) {
+    if (!selectedCollateralTokenInputValues.value || !borrowTokenPrice || borrowTokenPrice.isZero() || !HEALTHY_RATIO) {
       return;
     }
 
-    const defaultBorrowAmount = collateralTokenValues.value
+    const defaultBorrowAmount = selectedCollateralTokenInputValues.value
       .div(borrowTokenPrice)
       .div(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
       .toString();
     setBorrowAmount(defaultBorrowAmount);
     setHasChanged(true);
-  }, [borrowTokenValues.amount, collateralTokenValues.value, tokenPriceMap]);
+  }, [borrowAmount, selectedCollateralTokenInputValues.value, tokenPriceMap]);
 
   const handleBorrowTokenBlur = useCallback(() => {
     // if collateral input is not empty, do nth
-    if (collateralTokenValues.amount) {
+    if (selectedCollateralTokenInputValues.amount) {
       return;
     }
 
     // if collateral input is null, collateralTokenValues.price will be null, so use the price map here
     const collateralTokenPrice = tokenPriceMap[selectedCollateralToken];
 
-    if (!borrowTokenValues.value || !collateralTokenPrice || collateralTokenPrice.isZero()) {
+    if (!debtTokenWithFeeValues.value || !collateralTokenPrice || collateralTokenPrice.isZero()) {
       return;
     }
 
-    const defaultCollateralAmount = borrowTokenValues.value
+    const defaultCollateralAmount = debtTokenWithFeeValues.value
       .mul(HEALTHY_RATIO + HEALTHY_RATIO_BUFFER)
       .div(collateralTokenPrice)
       .toString();
     setCollateralAmount(defaultCollateralAmount);
     setHasChanged(true);
-  }, [borrowTokenValues.value, collateralTokenValues.amount, selectedCollateralToken, tokenPriceMap]);
+  }, [debtTokenWithFeeValues.value, selectedCollateralTokenInputValues.amount, selectedCollateralToken, tokenPriceMap]);
 
   /**
    * Update action button state based on current approve/borrow request status
@@ -686,32 +652,24 @@ const OpenPosition = () => {
     }
   }, [approveStatus, borrowStatus, hasApprovalProceeded, tokenSignatureMap, whitelistDelegateStatus]);
 
-  const collateralInputFiatValue = useMemo(() => {
-    if (!collateralTokenValues.valueFormatted || Decimal.parse(collateralAmount, 0).isZero()) {
-      return '';
-    }
-
-    return `~${collateralTokenValues.valueFormatted}`;
-  }, [collateralTokenValues.valueFormatted, collateralAmount]);
-
-  const borrowInputFiatValue = useMemo(() => {
-    if (!borrowTokenValues.valueFormatted || Decimal.parse(borrowAmount, 0).isZero()) {
-      return '';
-    }
-
-    return `~${borrowTokenValues.valueFormatted}`;
-  }, [borrowTokenValues.valueFormatted, borrowAmount]);
-
-  const borrowingFeeAmount = useMemo(() => {
+  const borrowingFeePercentageFormatted = useMemo(() => {
     if (!borrowingRate) {
       return null;
     }
 
-    return Decimal.parse(borrowAmount, 0).mul(borrowingRate);
-  }, [borrowAmount, borrowingRate]);
+    if (borrowingRate.isZero()) {
+      return 'Free';
+    }
+
+    return DecimalFormat.format(borrowingRate, {
+      style: 'percentage',
+      fractionDigits: 2,
+      pad: true,
+    });
+  }, [borrowingRate]);
 
   const borrowingFeeAmountFormatted = useMemo(() => {
-    if (!borrowingFeeAmount) {
+    if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
       return null;
     }
 
@@ -782,7 +740,6 @@ const OpenPosition = () => {
         <CurrencyInput
           label="YOU DEPOSIT"
           precision={18}
-          fiatValue={collateralInputFiatValue}
           selectedToken={selectedCollateralToken}
           tokens={SUPPORTED_COLLATERAL_TOKENS}
           value={collateralAmount}
@@ -798,7 +755,6 @@ const OpenPosition = () => {
         <CurrencyInput
           label="YOU GENERATE"
           precision={18}
-          fiatValue={borrowInputFiatValue}
           selectedToken={R_TOKEN}
           tokens={[R_TOKEN]}
           value={borrowAmount}
@@ -811,120 +767,21 @@ const OpenPosition = () => {
           errorMsg={debtErrorMsg}
         />
       </div>
-      <div className="raft__openPosition__data">
-        <div className="raft__openPosition__data__position">
-          <div className="raft__openPosition__data__position__title">
-            <Typography variant="overline">POSITION AFTER</Typography>
-            <TooltipWrapper
-              tooltipContent={
-                <Tooltip className="raft__openPosition__infoTooltip">
-                  <Typography variant="body2">
-                    Summary of your position after the transaction is executed.{' '}
-                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      Docs <Icon variant="external-link" size={10} />
-                    </Link>
-                  </Typography>
-                </Tooltip>
-              }
-              placement="top"
-            >
-              <Icon variant="info" size="tiny" />
-            </TooltipWrapper>
-          </div>
-          <ul className="raft__openPosition__data__position__data">
-            <li className="raft__openPosition__data__position__data__deposit">
-              <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
-              <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
-              {collateralTokenValues.valueFormatted && (
-                <Typography
-                  className="raft__openPosition__data__position__data__deposit__value"
-                  variant="body"
-                  weight="medium"
-                  color="text-secondary"
-                >
-                  (
-                  <ValueLabel
-                    value={collateralTokenValues.valueFormatted}
-                    tickerSize="caption"
-                    valueSize="body"
-                    color="text-secondary"
-                  />
-                  )
-                </Typography>
-              )}
-            </li>
-            <li className="raft__openPosition__data__position__data__debt">
-              <TokenLogo type={`token-${R_TOKEN}`} size={20} />
-              <ValueLabel
-                value={borrowTokenValues.amountFormatted ?? `0.00 ${R_TOKEN}`}
-                valueSize="body"
-                tickerSize="caption"
-              />
-            </li>
-            <li className="raft__openPosition__data__position__data__ratio">
-              {!collateralizationRatio || collateralizationRatio.isZero() ? (
-                <>
-                  <div className="raft__openPosition__data__position__data__ratio__empty-status" />
-                  <Typography variant="body" weight="medium">
-                    N/A
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Icon variant="arrow-up" size="tiny" />
-                  <div
-                    className={`raft__openPosition__data__position__data__ratio__status status-risk-${collateralRatioLevel}`}
-                  />
-                  <ValueLabel value={collateralizationRatioFormatted} valueSize="body" tickerSize="caption" />
-                  <Typography variant="body" weight="medium" color="text-secondary">
-                    ({collateralRatioLabel})
-                  </Typography>
-                </>
-              )}
-            </li>
-          </ul>
-        </div>
-        <div className="raft__openPosition__data__others">
-          <div className="raft__openPosition__data__protocol-fee__title">
-            <Typography variant="overline">PROTOCOL FEES</Typography>
-            <TooltipWrapper
-              tooltipContent={
-                <Tooltip className="raft__openPosition__infoTooltip">
-                  <Typography variant="body2">
-                    Borrowing fees associated with your transaction. Read the docs for more information.{' '}
-                    <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                      Docs <Icon variant="external-link" size={10} />
-                    </Link>
-                  </Typography>
-                </Tooltip>
-              }
-              placement="top"
-            >
-              <Icon variant="info" size="tiny" />
-            </TooltipWrapper>
-          </div>
-          <div className="raft__openPosition__data__protocol-fee__value">
-            <ValueLabel
-              value={borrowingFeeAmountFormatted ?? `0.00 ${R_TOKEN}`}
-              valueSize="body"
-              tickerSize="caption"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="raft__openPosition__action">
-        <Button
-          variant="primary"
-          size="large"
-          onClick={walletConnected ? onAction : onConnectWallet}
-          disabled={buttonDisabled}
-        >
-          {actionButtonState === 'loading' && <Loading />}
-          <Typography variant="button-label" color="text-primary-inverted">
-            {buttonLabel}
-          </Typography>
-        </Button>
-      </div>
+      <PositionAfter
+        displayCollateralToken={displayCollateralToken}
+        collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
+        borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
+        collateralizationRatio={collateralizationRatio}
+        borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
+        borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
+      />
+      <PositionAction
+        actionButtonState={actionButtonState}
+        canBorrow={canBorrow}
+        buttonLabel={buttonLabel}
+        walletConnected={walletConnected}
+        onClick={walletConnected ? onAction : onConnectWallet}
+      />
     </div>
   );
 };
