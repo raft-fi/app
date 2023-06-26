@@ -51,6 +51,10 @@
     align-items: center;
     margin-top: 16px;
 
+    > svg {
+      margin-right: 10px;
+    }
+
     .common-ui__logo {
       border-radius: 50%;
       box-shadow: var(--shadowPrimary);
