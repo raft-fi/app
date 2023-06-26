@@ -6,9 +6,9 @@ const Checkmark: FC<InnerIconProps> = ({ size }) => (
     <path
       d="M1.0918 4.49983L2.85846 6.49924L7.27513 1.50073"
       stroke="white"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
