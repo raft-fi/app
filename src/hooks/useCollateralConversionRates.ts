@@ -116,9 +116,15 @@ const periodicStream$: Observable<CollateralConversionRateMap> = intervalBeat$.p
           } as CollateralConversionRateMap);
         }
 
-        return of({
-          [token]: null,
-        } as CollateralConversionRateMap);
+        // token price somehow unavailable, fetch the conversion rate from contract
+        return from(fetchData(priceFeed, token)).pipe(
+          map(
+            conversionRate =>
+              ({
+                [token]: conversionRate,
+              } as CollateralConversionRateMap),
+          ),
+        );
       });
 
       return merge(...collateralConversionRateMaps);
