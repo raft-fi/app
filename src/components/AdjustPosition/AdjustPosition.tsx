@@ -474,6 +474,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   }, [newCollateralInDisplayTokenValues.amount]);
 
   const isPositionWithinCollateralPositionCap = useMemo(() => {
+    // In case user is not adding collateral, we should ignore cap
+    if (collateralAmountDecimal.isZero() || !isAddCollateral) {
+      return true;
+    }
+
     const selectedCollateralTokenPositionCap = getDecimalFromTokenMap(
       collateralPositionCapMap,
       selectedCollateralToken,
@@ -486,13 +491,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
     return newCollateralInUnderlyingTokenValues.amount.lte(selectedCollateralTokenPositionCap);
   }, [
+    collateralAmountDecimal,
     collateralPositionCapMap,
     collateralSupply,
+    isAddCollateral,
     newCollateralInUnderlyingTokenValues.amount,
     selectedCollateralToken,
   ]);
 
   const isPositionWithinCollateralProtocolCap = useMemo(() => {
+    // In case user is not adding collateral, we should ignore cap
+    if (collateralAmountDecimal.isZero() || !isAddCollateral) {
+      return true;
+    }
+
     const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
       collateralProtocolCapMap,
       selectedCollateralToken,
@@ -514,14 +526,21 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       .add(pureCollateralSupply)
       .lte(selectedCollateralTokenProtocolCap);
   }, [
+    collateralAmountDecimal,
     collateralProtocolCapMap,
     collateralSupply,
     currentUnderlyingCollateralTokenValues.amount,
+    isAddCollateral,
     newCollateralInUnderlyingTokenValues.amount,
     selectedCollateralToken,
   ]);
 
   const isTotalSupplyWithinCollateralProtocolCap = useMemo(() => {
+    // In case user is not adding collateral, we should ignore cap
+    if (collateralAmountDecimal.isZero() || !isAddCollateral) {
+      return true;
+    }
+
     const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
       collateralProtocolCapMap,
       selectedCollateralToken,
@@ -532,7 +551,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     }
 
     return collateralSupply.lte(selectedCollateralTokenProtocolCap);
-  }, [collateralProtocolCapMap, collateralSupply, selectedCollateralToken]);
+  }, [collateralAmountDecimal, collateralProtocolCapMap, collateralSupply, isAddCollateral, selectedCollateralToken]);
 
   const isPositionWithinDebtPositionCap = useMemo(() => {
     // In case user is repaying his debt, we should ignore max borrow limit
