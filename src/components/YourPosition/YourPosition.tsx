@@ -2,17 +2,11 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import {
-  COLLATERAL_BASE_TOKEN,
-  COLLATERAL_TOKEN_UI_PRECISION,
-  DISPLAY_BASE_TOKEN,
-  R_TOKEN_UI_PRECISION,
-  USD_UI_PRECISION,
-} from '../../constants';
-import { useCollateralBalance, useDebtBalance, useTokenPrices } from '../../hooks';
+import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN, R_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
+import { useCollateralBalance, useCollateralConversionRate, useDebtBalance, useTokenPrices } from '../../hooks';
 import { getCollateralRatioLevel, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
-import { Typography } from '../shared';
+import { Typography, ValueLabel } from '../shared';
 
 import './YourPosition.scss';
 
@@ -20,31 +14,36 @@ const YourPosition: FC = () => {
   const collateralBalance = useCollateralBalance();
   const debtBalance = useDebtBalance();
   const tokenPriceMap = useTokenPrices();
+  const collateralConversionRate = useCollateralConversionRate();
 
-  const collateralTokenValues = useMemo(
+  /**
+   * Amount of collateral user has denominated in underlying token (wstETH)
+   */
+  const underlyingCollateralTokenValues = useMemo(
     () => getTokenValues(collateralBalance, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
     [collateralBalance, tokenPriceMap],
   );
+
   const debtTokenValues = useMemo(
     () => getTokenValues(debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
     [debtBalance, tokenPriceMap],
   );
-  const collateralInDisplayToken = useMemo(() => {
-    if (
-      !collateralTokenValues.value ||
-      !tokenPriceMap[DISPLAY_BASE_TOKEN] ||
-      tokenPriceMap[DISPLAY_BASE_TOKEN].isZero()
-    ) {
+
+  /**
+   * Amount of collateral user has denominated in display base token (stETH)
+   */
+  const displayCollateralTokenValues = useMemo(() => {
+    if (!collateralConversionRate || !underlyingCollateralTokenValues.amount) {
       return null;
     }
 
-    const value = collateralTokenValues.value.div(tokenPriceMap[DISPLAY_BASE_TOKEN]);
+    const value = underlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
     return getTokenValues(value, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
-  }, [collateralTokenValues.value, tokenPriceMap]);
+  }, [collateralConversionRate, underlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
-    if (!collateralInDisplayToken?.value || !debtTokenValues.value) {
+    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value) {
       return null;
     }
 
@@ -52,29 +51,9 @@ const YourPosition: FC = () => {
       return null;
     }
 
-    return collateralInDisplayToken.value.div(debtTokenValues.value);
-  }, [collateralInDisplayToken?.value, debtTokenValues.value]);
+    return underlyingCollateralTokenValues.value.div(debtTokenValues.value);
+  }, [underlyingCollateralTokenValues?.value, debtTokenValues.value]);
 
-  const collateralAmountFormatted = useMemo(
-    () =>
-      collateralInDisplayToken?.amount
-        ? DecimalFormat.format(collateralInDisplayToken.amount, {
-            style: 'decimal',
-            fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-          })
-        : null,
-    [collateralInDisplayToken?.amount],
-  );
-  const collateralValueFormatted = useMemo(
-    () =>
-      collateralInDisplayToken?.value
-        ? DecimalFormat.format(collateralInDisplayToken.value, {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
-    [collateralInDisplayToken?.value],
-  );
   const debtAmountFormatted = useMemo(
     () =>
       debtTokenValues.amount
@@ -114,16 +93,27 @@ const YourPosition: FC = () => {
         <Typography variant="overline">YOUR COLLATERAL</Typography>
         <div className="raft__your-position__collateral__amount">
           <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
-          <div className="raft__your-position__collateral__amount__number">
-            <Typography variant="heading1">{collateralAmountFormatted ?? '---'}</Typography>
-            <Typography variant="heading2">{DISPLAY_BASE_TOKEN}</Typography>
-          </div>
+          {displayCollateralTokenValues?.amountFormatted ? (
+            <ValueLabel
+              value={displayCollateralTokenValues.amountFormatted}
+              valueSize="heading1"
+              tickerSize="heading2"
+            />
+          ) : (
+            '---'
+          )}
         </div>
         <div className="raft__your-position__collateral__value__number">
-          <Typography variant="caption">$</Typography>
-          <Typography variant="body" weight="medium">
-            {collateralValueFormatted ?? '---'}
-          </Typography>
+          {underlyingCollateralTokenValues?.valueFormatted ? (
+            <ValueLabel
+              value={underlyingCollateralTokenValues.valueFormatted}
+              valueSize="body"
+              tickerSize="caption"
+              color="text-secondary"
+            />
+          ) : (
+            '---'
+          )}
         </div>
       </div>
       <div className="raft__your-position__debt">
