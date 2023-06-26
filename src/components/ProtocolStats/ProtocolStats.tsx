@@ -1,7 +1,7 @@
 import { Decimal } from '@tempusfinance/decimal';
 import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { R_TOKEN, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { R_TOKEN } from '@raft-fi/sdk';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
 import {
   formatDecimal,
@@ -11,21 +11,22 @@ import {
   getTokenValues,
 } from '../../utils';
 import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
-import { Typography } from '../shared';
-import { TokenDecimalMap } from '../../interfaces';
+import { TooltipWrapper, Typography } from '../shared';
+import { SupportedUnderlyingCollateralToken, TokenDecimalMap } from '../../interfaces';
 
 import './ProtocolStats.scss';
+import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
 
   const collateralSupplyMap = useMemo(
-    () => protocolStats?.collateralSupply ?? ({} as TokenDecimalMap<UnderlyingCollateralToken>),
+    () => protocolStats?.collateralSupply ?? ({} as TokenDecimalMap<SupportedUnderlyingCollateralToken>),
     [protocolStats?.collateralSupply],
   );
   const debtSupplyMap = useMemo(
-    () => protocolStats?.debtSupply ?? ({} as TokenDecimalMap<UnderlyingCollateralToken>),
+    () => protocolStats?.debtSupply ?? ({} as TokenDecimalMap<SupportedUnderlyingCollateralToken>),
     [protocolStats?.debtSupply],
   );
 
@@ -87,39 +88,41 @@ const ProtocolStats = () => {
 
   return (
     <div className="raft__protocol-stats">
-      <div className="raft__protocol-stats__collateral">
-        <Typography variant="overline" color="text-accent">
-          PROTOCOL SUPPLY
-        </Typography>
-        <div className="raft__protocol-stats__collateral__amount">
-          <div className="raft__protocol-stats__collateral__tokens">
-            {SUPPORTED_UNDERLYING_TOKENS.map((underlyingToken, i) => (
-              <div
-                key={`token=${underlyingToken}`}
-                className="raft__protocol-stats__collateral__token-container"
-                style={{ zIndex: SUPPORTED_UNDERLYING_TOKENS.length - i }}
-              >
-                <TokenLogo
-                  type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
-                  size="small"
-                />
-              </div>
-            ))}
+      <TooltipWrapper tooltipContent={<CollateralStatsBreakdown />} placement="bottom">
+        <div className="raft__protocol-stats__collateral">
+          <Typography variant="overline" color="text-accent">
+            PROTOCOL SUPPLY
+          </Typography>
+          <div className="raft__protocol-stats__collateral__amount">
+            <div className="raft__protocol-stats__collateral__tokens">
+              {SUPPORTED_UNDERLYING_TOKENS.map((underlyingToken, i) => (
+                <div
+                  key={`token=${underlyingToken}`}
+                  className="raft__protocol-stats__collateral__token-container"
+                  style={{ zIndex: SUPPORTED_UNDERLYING_TOKENS.length - i }}
+                >
+                  <TokenLogo
+                    type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
+                    size="small"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="raft__protocol-stats__collateral__amount__number">
+              <Typography variant="heading2">$</Typography>
+              <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
+            </div>
           </div>
-          <div className="raft__protocol-stats__collateral__amount__number">
-            <Typography variant="heading2">$</Typography>
-            <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
+          <div className="raft__protocol-stats__collateral__value__number">
+            <Typography variant="caption" color="text-secondary">
+              $
+            </Typography>
+            <Typography variant="body" weight="medium" color="text-secondary">
+              {totalCollateralValueDecimalFormatted}
+            </Typography>
           </div>
         </div>
-        <div className="raft__protocol-stats__collateral__value__number">
-          <Typography variant="caption" color="text-secondary">
-            $
-          </Typography>
-          <Typography variant="body" weight="medium" color="text-secondary">
-            {totalCollateralValueDecimalFormatted}
-          </Typography>
-        </div>
-      </div>
+      </TooltipWrapper>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
           TOTAL GENERATED
