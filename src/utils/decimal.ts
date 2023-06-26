@@ -58,13 +58,17 @@ export const formatCurrencyMultiplier = (value: Nullable<Numberish>): Nullable<s
       })
     : null;
 
-export const formatMultiplier = (value: Nullable<Numberish>, token: Token): Nullable<string> =>
+export const formatMultiplier = (value: Nullable<Numberish>, token?: Token): Nullable<string> =>
   value
     ? DecimalFormat.format(value, {
         style: 'multiplier',
         currency: token,
         fractionDigits: MULTIPLIER_UI_PRECISION,
-        noMultiplierFractionDigits: token === R_TOKEN ? R_TOKEN_UI_PRECISION : COLLATERAL_TOKEN_UI_PRECISION,
+        noMultiplierFractionDigits: token
+          ? token === R_TOKEN
+            ? R_TOKEN_UI_PRECISION
+            : COLLATERAL_TOKEN_UI_PRECISION
+          : undefined,
       })
     : null;
 
