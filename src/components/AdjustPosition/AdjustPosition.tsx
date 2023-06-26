@@ -2,13 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import {
-  CollateralToken,
-  MIN_COLLATERAL_RATIO,
-  R_TOKEN,
-  UnderlyingCollateralToken,
-  TOKENS_WITH_PERMIT,
-} from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
@@ -34,7 +28,13 @@ import {
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
 } from '../../constants';
-import { Position, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import {
+  Position,
+  SupportedCollateralToken,
+  SupportedUnderlyingCollateralToken,
+  TokenApprovedMap,
+  TokenSignatureMap,
+} from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAction, PositionAfter } from '../Position';
 
@@ -58,8 +58,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
 
   const { collateralBalance, debtBalance } = position;
-  const underlyingCollateralToken = position.underlyingCollateralToken as UnderlyingCollateralToken;
-  const displayBaseToken = TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[underlyingCollateralToken];
+  const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
+  const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -67,7 +67,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>(displayBaseToken);
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(displayBaseToken);
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
@@ -187,7 +187,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
 
   const selectedCollateralBorrowRate = useMemo(
     () =>
-      getDecimalFromTokenMap<UnderlyingCollateralToken>(
+      getDecimalFromTokenMap<SupportedUnderlyingCollateralToken>(
         borrowingRateMap,
         collateralTokenConfig?.underlyingTokenTicker ?? null,
       ),
@@ -196,7 +196,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
 
   const selectedCollateralDebtSupply = useMemo(
     () =>
-      getDecimalFromTokenMap<UnderlyingCollateralToken>(
+      getDecimalFromTokenMap<SupportedUnderlyingCollateralToken>(
         protocolStats?.debtSupply ?? null,
         collateralTokenConfig?.underlyingTokenTicker ?? null,
       ),

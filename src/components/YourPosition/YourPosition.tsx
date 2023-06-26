@@ -1,70 +1,52 @@
 import { R_TOKEN } from '@raft-fi/sdk';
-import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import {
-  R_TOKEN_UI_PRECISION,
-  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
-  SUPPORTED_UNDERLYING_TOKENS,
-  TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
-  USD_UI_PRECISION,
-} from '../../constants';
+import { R_TOKEN_UI_PRECISION, SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../constants';
 import { useCollateralConversionRates, usePosition, useTokenPrices } from '../../hooks';
-import { getCollateralRatioLevel, getDecimalFromTokenMap, getTokenValues } from '../../utils';
+import { Position, SupportedUnderlyingCollateralToken } from '../../interfaces';
+import { formatDecimal, getCollateralRatioLevel, getDecimalFromTokenMap, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
 import { Icon, Typography, ValueLabel } from '../shared';
 
 import './YourPosition.scss';
 
 const YourPosition: FC = () => {
-  const position = usePosition();
+  // already checked position and underlyingCollateralToken is not null to render this component
+  const position = usePosition() as Position;
   const tokenPriceMap = useTokenPrices();
   const collateralConversionRateMap = useCollateralConversionRates();
 
   const underlyingCollateralToken = useMemo(
-    () => position?.underlyingCollateralToken,
+    () => position?.underlyingCollateralToken as SupportedUnderlyingCollateralToken,
     [position?.underlyingCollateralToken],
   );
   const displayBaseToken = useMemo(
-    () => (underlyingCollateralToken ? TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[underlyingCollateralToken] : null),
+    () => SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken,
     [underlyingCollateralToken],
   );
   const isRebasing = useMemo(
-    () => underlyingCollateralToken && SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken],
+    () => SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].isRebasing,
     [underlyingCollateralToken],
   );
 
   /**
    * Amount of collateral user has denominated in underlying token
    */
-  const underlyingCollateralTokenValues = useMemo(() => {
-    if (!position || !underlyingCollateralToken) {
-      return getTokenValues(null, null, SUPPORTED_UNDERLYING_TOKENS[0]);
-    }
+  const underlyingCollateralTokenValues = useMemo(
+    () =>
+      getTokenValues(position.collateralBalance, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken),
+    [position, tokenPriceMap, underlyingCollateralToken],
+  );
 
-    return getTokenValues(
-      position.collateralBalance,
-      tokenPriceMap[underlyingCollateralToken],
-      underlyingCollateralToken,
-    );
-  }, [position, tokenPriceMap, underlyingCollateralToken]);
-
-  const debtTokenValues = useMemo(() => {
-    if (!position) {
-      return getTokenValues(null, tokenPriceMap[R_TOKEN], R_TOKEN);
-    }
-
-    return getTokenValues(position.debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN);
-  }, [position, tokenPriceMap]);
+  const debtTokenValues = useMemo(
+    () => getTokenValues(position.debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
+    [position, tokenPriceMap],
+  );
 
   /**
    * Amount of collateral user has denominated in display base token
    */
   const displayCollateralTokenValues = useMemo(() => {
-    if (!underlyingCollateralToken || !displayBaseToken) {
-      return null;
-    }
-
     const collateralConversionRate = getDecimalFromTokenMap(collateralConversionRateMap, displayBaseToken);
 
     if (!collateralConversionRate || !underlyingCollateralTokenValues.amount) {
@@ -74,13 +56,7 @@ const YourPosition: FC = () => {
     const value = underlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
     return getTokenValues(value, tokenPriceMap[displayBaseToken], displayBaseToken);
-  }, [
-    underlyingCollateralToken,
-    displayBaseToken,
-    collateralConversionRateMap,
-    underlyingCollateralTokenValues.amount,
-    tokenPriceMap,
-  ]);
+  }, [displayBaseToken, collateralConversionRateMap, underlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
     if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value || debtTokenValues.value.isZero()) {
@@ -91,33 +67,15 @@ const YourPosition: FC = () => {
   }, [underlyingCollateralTokenValues?.value, debtTokenValues.value]);
 
   const debtAmountFormatted = useMemo(
-    () =>
-      debtTokenValues.amount
-        ? DecimalFormat.format(debtTokenValues.amount, {
-            style: 'decimal',
-            fractionDigits: R_TOKEN_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(debtTokenValues.amount, R_TOKEN_UI_PRECISION),
     [debtTokenValues.amount],
   );
   const debtValueFormatted = useMemo(
-    () =>
-      debtTokenValues.value
-        ? DecimalFormat.format(debtTokenValues.value, {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(debtTokenValues.value, USD_UI_PRECISION),
     [debtTokenValues.value],
   );
   const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio.mul(100), {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(collateralizationRatio?.mul(100) ?? null, USD_UI_PRECISION),
     [collateralizationRatio],
   );
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);

@@ -1,5 +1,5 @@
 import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
-import { StrictPartial, TokenGenericMap } from './interfaces';
+import { SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from './interfaces';
 
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
@@ -22,46 +22,51 @@ export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 
 // app to control what is supported
-export const SUPPORTED_COLLATERAL_TOKENS: StrictPartial<CollateralToken>[] = ['stETH', 'wstETH', 'rETH'];
-export const SUPPORTED_TOKENS: StrictPartial<Token>[] = ['R', 'stETH', 'wstETH'];
+export const SUPPORTED_UNDERLYING_TOKENS = [
+  'wstETH',
+  'wcrETH',
+] as const satisfies ReadonlyArray<UnderlyingCollateralToken>;
+export const SUPPORTED_COLLATERAL_TOKENS = [
+  'stETH',
+  'wstETH',
+  'rETH',
+] as const satisfies ReadonlyArray<CollateralToken>;
+export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH', 'rETH'] as const satisfies ReadonlyArray<Token>;
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
-  UnderlyingCollateralToken,
+  SupportedUnderlyingCollateralToken,
   {
-    tokens: CollateralToken[];
-    displayBaseToken: CollateralToken;
-    underlyingToken: UnderlyingCollateralToken;
-    redeemToken: CollateralToken;
+    tokens: SupportedCollateralToken[];
+    displayBaseToken: SupportedCollateralToken;
+    underlyingToken: SupportedUnderlyingCollateralToken;
+    redeemToken: SupportedCollateralToken;
     isRebasing: boolean;
   }
 > = {
   wstETH: {
-    tokens: ['stETH', 'wstETH'] as CollateralToken[],
+    tokens: ['stETH', 'wstETH'] as SupportedCollateralToken[],
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
     redeemToken: 'wstETH',
     isRebasing: true,
   },
   wcrETH: {
-    tokens: ['rETH'] as CollateralToken[],
+    tokens: ['rETH'] as SupportedCollateralToken[],
     displayBaseToken: 'rETH',
     underlyingToken: 'wcrETH',
     redeemToken: 'rETH',
     isRebasing: false,
   },
 };
-export const SUPPORTED_UNDERLYING_TOKENS = Object.keys(
-  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
-) as UnderlyingCollateralToken[];
 // token to underlying token map
 export const TOKEN_TO_UNDERLYING_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.underlyingToken } : map;
-}, {} as TokenGenericMap<CollateralToken, UnderlyingCollateralToken>);
+}, {} as TokenGenericMap<SupportedCollateralToken, SupportedUnderlyingCollateralToken>);
 // token to display base token map
 export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
-}, {} as TokenGenericMap<CollateralToken, CollateralToken>);
+}, {} as TokenGenericMap<SupportedCollateralToken, SupportedCollateralToken>);
 
 export const DEFAULT_MAP = TOKENS.reduce(
   (map, token) => ({

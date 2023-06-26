@@ -23,8 +23,11 @@ const Dashboard = () => {
   }, [borrowStatus?.success, borrowStatus?.txnId]);
 
   const userHasBorrowed = useMemo(() => {
-    return position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0);
-  }, [position?.collateralBalance, position?.debtBalance]);
+    return (
+      (position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0)) &&
+      Boolean(position?.underlyingCollateralToken)
+    );
+  }, [position?.collateralBalance, position?.debtBalance, position?.underlyingCollateralToken]);
 
   const shouldShowAdjustPosition = wallet && userHasBorrowed && position && !isWrongNetwork;
 

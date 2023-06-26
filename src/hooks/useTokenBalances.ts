@@ -65,7 +65,7 @@ const walletChangeStream$: Observable<TokenBalanceMap> = walletAddress$.pipe(
       return of(DEFAULT_VALUE);
     }
 
-    const tokenBalanceMaps = TOKENS.map(token =>
+    const tokenBalanceMaps: Observable<TokenBalanceMap>[] = TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
 
