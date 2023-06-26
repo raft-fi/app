@@ -140,12 +140,26 @@ const stream$ = combineLatest([redeem$]).pipe(
 
     if (!contractTransaction) {
       const userRejectError = new Error('Rejected by user.');
-      return { pending: false, success: false, error: error ?? userRejectError, request, txnId } as RedeemStatus;
+      return {
+        pending: false,
+        success: false,
+        error: error ?? userRejectError,
+        request,
+        txnId,
+        statusType: 'redeem',
+      } as RedeemStatus;
     }
 
     if (!transactionReceipt) {
       const receiptFetchFailed = new Error('Failed to fetch redeem transaction receipt!');
-      return { pending: false, success: false, error: error ?? receiptFetchFailed, request, txnId } as RedeemStatus;
+      return {
+        pending: false,
+        success: false,
+        error: error ?? receiptFetchFailed,
+        request,
+        txnId,
+        statusType: 'redeem',
+      } as RedeemStatus;
     }
 
     return {
