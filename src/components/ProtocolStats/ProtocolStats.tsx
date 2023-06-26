@@ -1,10 +1,16 @@
-import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
-import { getProtocolCollateralRatioLabel, getProtocolCollateralRatioLevel, getTokenValues } from '../../utils';
-import { SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
+import {
+  formatDecimal,
+  formatMultiplier,
+  getProtocolCollateralRatioLabel,
+  getProtocolCollateralRatioLevel,
+  getTokenValues,
+} from '../../utils';
+import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
 import { Typography } from '../shared';
 import { TokenDecimalMap } from '../../interfaces';
 
@@ -42,39 +48,19 @@ const ProtocolStats = () => {
   }, [debtSupplyMap, tokenPriceMap.R]);
 
   const totalCollateralValueMultiplierFormatted = useMemo(
-    () =>
-      DecimalFormat.format(totalCollateralValue, {
-        style: 'multiplier',
-        fractionDigits: USD_UI_PRECISION,
-      }),
+    () => formatMultiplier(totalCollateralValue),
     [totalCollateralValue],
   );
   const totalCollateralValueDecimalFormatted = useMemo(
-    () =>
-      DecimalFormat.format(totalCollateralValue, {
-        style: 'decimal',
-        fractionDigits: USD_UI_PRECISION,
-      }),
+    () => formatDecimal(totalCollateralValue, USD_UI_PRECISION),
     [totalCollateralValue],
   );
   const totalDebtAmountFormatted = useMemo(
-    () =>
-      totalDebtTokenValues.amount
-        ? DecimalFormat.format(totalDebtTokenValues.amount, {
-            style: 'decimal',
-            fractionDigits: 0,
-          })
-        : null,
+    () => formatDecimal(totalDebtTokenValues.amount, 0),
     [totalDebtTokenValues.amount],
   );
   const totalDebtValueDecimalFormatted = useMemo(
-    () =>
-      totalDebtTokenValues.value
-        ? DecimalFormat.format(totalDebtTokenValues.value, {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(totalDebtTokenValues.value, USD_UI_PRECISION),
     [totalDebtTokenValues.value],
   );
 
@@ -87,13 +73,7 @@ const ProtocolStats = () => {
   }, [totalDebtTokenValues.value, totalCollateralValue]);
 
   const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio.mul(100), {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(collateralizationRatio?.mul(100) ?? null, 2),
     [collateralizationRatio],
   );
   const collateralRatioLevel = useMemo(
@@ -112,7 +92,20 @@ const ProtocolStats = () => {
           PROTOCOL SUPPLY
         </Typography>
         <div className="raft__protocol-stats__collateral__amount">
-          <TokenLogo type="token-stETH" size="small" />
+          <div className="raft__protocol-stats__collateral__tokens">
+            {SUPPORTED_UNDERLYING_TOKENS.map((underlyingToken, i) => (
+              <div
+                key={`token=${underlyingToken}`}
+                className="raft__protocol-stats__collateral__token-container"
+                style={{ zIndex: SUPPORTED_UNDERLYING_TOKENS.length - i }}
+              >
+                <TokenLogo
+                  type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
+                  size="small"
+                />
+              </div>
+            ))}
+          </div>
           <div className="raft__protocol-stats__collateral__amount__number">
             <Typography variant="heading2">$</Typography>
             <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
