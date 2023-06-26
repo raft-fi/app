@@ -1,9 +1,9 @@
 import { FC, useMemo } from 'react';
-import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
 import { R_TOKEN, Token } from '@raft-fi/sdk';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
-import { getCollateralRatioLevel, getCollateralRatioLabel } from '../../utils';
+import { getCollateralRatioLevel, getCollateralRatioLabel, formatPercentage, formatCurrency } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
 import TokenAddressTooltip from './TokenAddressTooltip';
@@ -35,20 +35,16 @@ export const PositionAfter: FC<PositionAfterProps> = ({
 }) => {
   const baseTokenAmountFormatted = useMemo(
     () =>
-      DecimalFormat.format(displayCollateralTokenAmount ?? Decimal.ZERO, {
-        style: 'currency',
+      formatCurrency(displayCollateralTokenAmount ?? Decimal.ZERO, {
         currency: displayCollateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
-      }),
+      }) as string,
     [displayCollateralToken, displayCollateralTokenAmount],
   );
 
   const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2, pad: true })
-        : 'N/A',
+    () => formatPercentage(collateralizationRatio) ?? 'N/A',
     [collateralizationRatio],
   );
 
