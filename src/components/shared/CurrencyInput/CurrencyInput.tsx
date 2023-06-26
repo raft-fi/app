@@ -19,6 +19,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   previewValue?: string;
   placeholder?: string;
   precision: number;
+  fiatValue?: string;
   disabled?: boolean;
   error?: boolean;
   errorMsg?: string;
