@@ -28,6 +28,160 @@
     }
   }
 
+  .raft__openPosition__data {
+    display: flex;
+    margin-top: 20px;
+
+    .raft__openPosition__data__position {
+      flex: 1 50%;
+      margin-right: 16px;
+
+      .raft__openPosition__data__position__title {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-600);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-600);
+
+        display: flex;
+        align-items: center;
+
+        .raft__tooltip-wrapper-anchor {
+          margin-left: 6px;
+        }
+      }
+
+      .raft__openPosition__data__position__data {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0 0;
+
+        .raft__openPosition__data__position__data__deposit,
+        .raft__openPosition__data__position__data__debt,
+        .raft__openPosition__data__position__data__ratio {
+          display: flex;
+          align-items: center;
+
+          .raft__icon,
+          .common-ui__logo {
+            margin-right: 8px;
+          }
+
+          .raft__openPosition__data__position__data__amount {
+            margin-right: 4px;
+          }
+
+          .raft__openPosition__data__position__data__deposit__value {
+            display: flex;
+            align-items: baseline;
+            margin-left: 6px;
+          }
+        }
+
+        .raft__openPosition__data__position__data__debt {
+          margin-top: 12px;
+        }
+
+        .raft__openPosition__data__position__data__ratio {
+          margin-top: 12px;
+
+          .raft__openPosition__data__position__data__ratio__empty-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+
+            &::before {
+              content: ' ';
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              /* TODO: hardcode color as suggested */
+              background: var(--raft-grey-600);
+            }
+          }
+
+          .raft__icon {
+            /* TODO: hardcode color as suggested */
+            --arrowUpColor: var(--raft-grey-600);
+
+            padding: 4px;
+          }
+
+          .raft__openPosition__data__position__data__ratio__status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+
+            &.status-risk-low {
+              background: var(--statusLowRisk);
+            }
+
+            &.status-risk-medium {
+              background: var(--statusMediumRisk);
+            }
+
+            &.status-risk-high {
+              background: var(--statusHighRisk);
+            }
+          }
+
+          .raft__valueLabel {
+            margin-right: 6px;
+          }
+        }
+      }
+    }
+
+    .raft__openPosition__data__others {
+      flex: 1 50%;
+      margin-left: 16px;
+
+      .raft__openPosition__data__protocol-fee__title {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-600);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-600);
+
+        display: flex;
+        align-items: center;
+
+        .raft__tooltip-wrapper-anchor {
+          margin-left: 6px;
+        }
+      }
+
+      .raft__openPosition__data__protocol-fee__value {
+        margin-top: 8px;
+      }
+
+      .raft__openPosition__data__gas-fee__title {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-600);
+
+        margin-top: 32px;
+      }
+
+      .raft__openPosition__data__protocol-fee__value {
+        margin-top: 8px;
+      }
+    }
+  }
+
+  .raft__openPosition__action {
+    margin-top: 44px;
+
+    .raft__button {
+      width: 100%;
+    }
+
+    .raft__loading__container {
+      margin-right: 8px;
+    }
+  }
+
   .raft__openPosition__error {
     display: flex;
     align-items: center;
