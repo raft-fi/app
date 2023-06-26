@@ -1,4 +1,4 @@
-import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
+import { BrowserProvider, JsonRpcSigner, ethers, TransactionReceipt } from 'ethers';
 import { Decimal } from '@tempusfinance/decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
@@ -118,7 +118,7 @@ const stream$ = combineLatest([borrow$]).pipe(
           );
         }
 
-        const waitForTxReceipt$ = result$.pipe(
+        const waitForTxReceipt$: Observable<Nullable<TransactionReceipt>> = result$.pipe(
           concatMap(result => {
             if (result.hash) {
               return from(walletProvider.waitForTransaction(result.hash, NUMBER_OF_CONFIRMATIONS_FOR_TX));
@@ -169,12 +169,26 @@ const stream$ = combineLatest([borrow$]).pipe(
 
     if (!contractTransaction) {
       const userRejectError = new Error('Rejected by user.');
-      return { pending: false, success: false, error: error ?? userRejectError, request, txnId } as BorrowStatus;
+      return {
+        pending: false,
+        success: false,
+        error: error ?? userRejectError,
+        request,
+        txnId,
+        statusType: 'borrow',
+      } as BorrowStatus;
     }
 
     if (!transactionReceipt) {
       const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
-      return { pending: false, success: false, error: error ?? receiptFetchFailed, request, txnId } as BorrowStatus;
+      return {
+        pending: false,
+        success: false,
+        error: error ?? receiptFetchFailed,
+        request,
+        txnId,
+        statusType: 'borrow',
+      } as BorrowStatus;
     }
 
     return {

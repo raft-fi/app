@@ -55,6 +55,7 @@ const TransactionModal = () => {
   }, [currentStatus]);
 
   const onRetryTransaction = useCallback(() => {
+    console.log('onRetryTransaction', currentStatus);
     if (!currentStatus) {
       return;
     }
