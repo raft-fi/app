@@ -2,7 +2,7 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN_UI_PRECISION, SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../constants';
-import { useCollateralConversionRates, usePosition, useTokenPrices } from '../../hooks';
+import { useCollateralConversionRates, useTokenPrices } from '../../hooks';
 import { Position, SupportedUnderlyingCollateralToken } from '../../interfaces';
 import { formatDecimal, getCollateralRatioLevel, getDecimalFromTokenMap, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
@@ -10,24 +10,18 @@ import { Icon, Typography, ValueLabel } from '../shared';
 
 import './YourPosition.scss';
 
-const YourPosition: FC = () => {
-  // already checked position and underlyingCollateralToken is not null to render this component
-  const position = usePosition() as Position;
+interface YourPositionProps {
+  position: Position;
+}
+
+const YourPosition: FC<YourPositionProps> = ({ position }) => {
   const tokenPriceMap = useTokenPrices();
   const collateralConversionRateMap = useCollateralConversionRates();
 
-  const underlyingCollateralToken = useMemo(
-    () => position?.underlyingCollateralToken as SupportedUnderlyingCollateralToken,
-    [position?.underlyingCollateralToken],
-  );
-  const displayBaseToken = useMemo(
-    () => SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken,
-    [underlyingCollateralToken],
-  );
-  const isRebasing = useMemo(
-    () => SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].isRebasing,
-    [underlyingCollateralToken],
-  );
+  // already checked underlyingCollateralToken is not null to render this component
+  const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
+  const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
+  const isRebasing = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].isRebasing;
 
   /**
    * Amount of collateral user has denominated in underlying token

@@ -39,7 +39,7 @@ const Dashboard = () => {
     <div className="raft__dashboard">
       {shouldShowAdjustPosition ? (
         <>
-          <YourPosition />
+          <YourPosition position={position} />
           <AdjustPosition key={`adjust-${positionComponentKey}`} position={position} />
         </>
       ) : (

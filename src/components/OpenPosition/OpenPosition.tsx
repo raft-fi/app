@@ -320,6 +320,11 @@ const OpenPosition = () => {
     [rTokenBalance],
   );
 
+  const collateralSupply: Nullable<Decimal> = useMemo(
+    () => protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null,
+    [protocolStats?.collateralSupply, selectedUnderlyingCollateralToken],
+  );
+
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
   const hasInputFilled = useMemo(
@@ -346,8 +351,6 @@ const OpenPosition = () => {
   );
 
   const isPositionWithinCollateralPositionCap = useMemo(() => {
-    const collateralSupply: Nullable<Decimal> =
-      protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null;
     const collateralAmountDecimal = Decimal.parse(collateralAmount, 0);
     const selectedCollateralTokenPositionCap = getDecimalFromTokenMap(
       collateralPositionCapMap,
@@ -360,17 +363,9 @@ const OpenPosition = () => {
 
     // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
     return collateralAmountDecimal.lte(selectedCollateralTokenPositionCap);
-  }, [
-    collateralAmount,
-    collateralPositionCapMap,
-    protocolStats?.collateralSupply,
-    selectedCollateralToken,
-    selectedUnderlyingCollateralToken,
-  ]);
+  }, [collateralAmount, collateralPositionCapMap, collateralSupply, selectedCollateralToken]);
 
   const isPositionWithinCollateralProtocolCap = useMemo(() => {
-    const collateralSupply: Nullable<Decimal> =
-      protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null;
     const collateralAmountDecimal = Decimal.parse(collateralAmount, 0);
     const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
       collateralProtocolCapMap,
@@ -383,17 +378,9 @@ const OpenPosition = () => {
 
     // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
     return collateralAmountDecimal.add(collateralSupply).lte(selectedCollateralTokenProtocolCap);
-  }, [
-    collateralAmount,
-    collateralProtocolCapMap,
-    protocolStats?.collateralSupply,
-    selectedCollateralToken,
-    selectedUnderlyingCollateralToken,
-  ]);
+  }, [collateralAmount, collateralProtocolCapMap, collateralSupply, selectedCollateralToken]);
 
   const isTotalSupplyWithinCollateralProtocolCap = useMemo(() => {
-    const collateralSupply: Nullable<Decimal> =
-      protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null;
     const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
       collateralProtocolCapMap,
       selectedCollateralToken,
@@ -404,12 +391,7 @@ const OpenPosition = () => {
     }
 
     return collateralSupply.lte(selectedCollateralTokenProtocolCap);
-  }, [
-    collateralProtocolCapMap,
-    protocolStats?.collateralSupply,
-    selectedCollateralToken,
-    selectedUnderlyingCollateralToken,
-  ]);
+  }, [collateralProtocolCapMap, collateralSupply, selectedCollateralToken]);
 
   const isPositionWithinDebtPositionCap = useMemo(() => {
     // only wstETH group has this requirement
