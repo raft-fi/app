@@ -1,6 +1,7 @@
 import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from './interfaces';
 
+export const RAFT_HOMEPAGE_URL = 'https://raft.fi';
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
 export const DISCORD_INVITE_URL = 'https://discord.com/invite/raft-fi';
 export const GITHUB_URL = 'https://github.com/raft-fi';
