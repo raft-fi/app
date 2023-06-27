@@ -17,7 +17,7 @@ import {
   startWith,
   withLatestFrom,
 } from 'rxjs';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable } from '../interfaces';
 import { appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
@@ -32,17 +32,9 @@ const fetchData = (walletSigner: Nullable<JsonRpcSigner>) => {
   }
 
   try {
-    const userPosition$ = from(UserPosition.fromUser(walletSigner));
+    const userPosition = new UserPosition(walletSigner, undefined, undefined, SUPPORTED_UNDERLYING_TOKENS[0]);
 
-    return userPosition$.pipe(
-      concatMap(userPosition => {
-        if (!userPosition) {
-          console.error('useTransactionHistory - failed to fetch user position');
-          return of(null);
-        }
-
-        return userPosition.getTransactions();
-      }),
+    return from(userPosition.getTransactions()).pipe(
       catchError(error => {
         console.error('useTransactionHistory - failed to fetch transaction history', error);
         return of(null);
