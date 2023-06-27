@@ -33,7 +33,11 @@ const fetchData = (walletSigner: Nullable<JsonRpcSigner>) => {
   }
 
   try {
-    const userPosition = new UserPosition(walletSigner, Decimal.ZERO, Decimal.ZERO, SUPPORTED_UNDERLYING_TOKENS[0]);
+    const dummyCollateralBalance = Decimal.ZERO;
+    const dummyDebtBalance = Decimal.ZERO;
+    const dummyUnderlyingToken = SUPPORTED_UNDERLYING_TOKENS[0];
+
+    const userPosition = new UserPosition(walletSigner, dummyCollateralBalance, dummyDebtBalance, dummyUnderlyingToken);
 
     return from(userPosition.getTransactions()).pipe(
       catchError(error => {
