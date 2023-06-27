@@ -263,12 +263,18 @@ const Redeem = () => {
               )}
               {!redemptionRateStatus.pending && collateralToReceiveValues.valueFormattedApproximate && (
                 <div className="raft__redeem__collateralDataRowValue">
+                  <Typography variant="body" color="text-secondary">
+                    (
+                  </Typography>
                   <ValueLabel
-                    value={`(${collateralToReceiveValues.valueFormattedApproximate})`}
+                    value={collateralToReceiveValues.valueFormattedApproximate}
                     tickerSize="caption"
                     valueSize="body"
                     color="text-secondary"
                   />
+                  <Typography variant="body" color="text-secondary">
+                    )
+                  </Typography>
                 </div>
               )}
             </div>
