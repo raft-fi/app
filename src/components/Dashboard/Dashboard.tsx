@@ -1,5 +1,5 @@
-import { memo, useEffect, useMemo, useState } from 'react';
-import { useNetwork, useAppLoaded, useWallet, useBorrow, usePosition } from '../../hooks';
+import { memo, useMemo } from 'react';
+import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
 import LoadingDashbaord from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -13,14 +13,6 @@ const Dashboard = () => {
   const wallet = useWallet();
   const position = usePosition();
   const { isWrongNetwork } = useNetwork();
-  const { borrowStatus } = useBorrow();
-  const [positionComponentKey, setPositionComponentKey] = useState<string>();
-
-  useEffect(() => {
-    if (borrowStatus?.success && borrowStatus?.txnId) {
-      setPositionComponentKey(borrowStatus.txnId);
-    }
-  }, [borrowStatus?.success, borrowStatus?.txnId]);
 
   const userHasBorrowed = useMemo(() => {
     return (
@@ -40,12 +32,12 @@ const Dashboard = () => {
       {shouldShowAdjustPosition ? (
         <>
           <YourPosition position={position} />
-          <AdjustPosition key={`adjust-${positionComponentKey}`} position={position} />
+          <AdjustPosition position={position} />
         </>
       ) : (
         <>
           <ProtocolStats />
-          <OpenPosition key={`open-${positionComponentKey}`} />
+          <OpenPosition />
         </>
       )}
     </div>

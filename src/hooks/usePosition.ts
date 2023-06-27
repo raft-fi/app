@@ -33,6 +33,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
     // no position
     if (!userPosition) {
       return {
+        ownerAddress: signer.address,
         underlyingCollateralToken: null,
         collateralBalance: Decimal.ZERO,
         debtBalance: Decimal.ZERO,
@@ -40,6 +41,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
     }
 
     return {
+      ownerAddress: signer.address,
       underlyingCollateralToken: userPosition.getUnderlyingCollateralToken(),
       collateralBalance: userPosition.getCollateral(),
       debtBalance: userPosition.getDebt(),
