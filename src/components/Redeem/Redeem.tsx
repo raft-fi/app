@@ -158,6 +158,17 @@ const Redeem = () => {
     [calculateRedemptionRateByInput],
   );
 
+  const handleUnderlyingTokenChange = useCallback(
+    underlyingCollateralToken => {
+      setSelectedUnderlyingToken(underlyingCollateralToken);
+      calculateRedemptionRate({
+        underlyingCollateralToken,
+        tokenAmount: debtAmountDecimal,
+      });
+    },
+    [calculateRedemptionRate, debtAmountDecimal],
+  );
+
   /**
    * Update action button state based on current redeem request status
    */
@@ -239,7 +250,7 @@ const Redeem = () => {
                 key={`button-${underlyingToken}`}
                 variant="secondary"
                 selected={underlyingToken === selectedUnderlyingToken}
-                onClick={() => setSelectedUnderlyingToken(underlyingToken)}
+                onClick={() => handleUnderlyingTokenChange(underlyingToken)}
               >
                 <TokenLogo
                   type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].redeemToken}`}
