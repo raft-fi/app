@@ -13,9 +13,9 @@ import {
 import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
 import { TooltipWrapper, Typography } from '../shared';
 import { SupportedUnderlyingCollateralToken, TokenDecimalMap } from '../../interfaces';
+import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
 import './ProtocolStats.scss';
-import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
@@ -91,7 +91,7 @@ const ProtocolStats = () => {
       <TooltipWrapper tooltipContent={<CollateralStatsBreakdown />} placement="bottom">
         <div className="raft__protocol-stats__collateral">
           <Typography variant="overline" color="text-accent">
-            PROTOCOL SUPPLY
+            TOTAL VALUE LOCKED
           </Typography>
           <div className="raft__protocol-stats__collateral__amount">
             <div className="raft__protocol-stats__collateral__tokens">
@@ -125,7 +125,7 @@ const ProtocolStats = () => {
       </TooltipWrapper>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
-          TOTAL GENERATED
+          R MARKET CAP
         </Typography>
         <div className="raft__protocol-stats__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
