@@ -39,10 +39,10 @@ const redemptionRateStatus$ = new BehaviorSubject<CalculateRedemptionRateStatus>
 const stream$ = combineLatest([calculateRedemptionRateRequest$, provider$, tokenPrices$, protocolStats$]).pipe(
   concatMap(([request, provider, tokenPrices, protocolStats]) => {
     const { underlyingCollateralToken, tokenAmount } = request;
-    const debtSupply = getDecimalFromTokenMap(protocolStats?.debtSupply ?? null, underlyingCollateralToken);
+    const totalRSupply = getDecimalFromTokenMap(protocolStats?.totalRSupply ?? null, underlyingCollateralToken);
     const tokenPrice = getDecimalFromTokenMap(tokenPrices, underlyingCollateralToken);
 
-    if (!underlyingCollateralToken || !tokenAmount || !provider || !tokenPrice || !debtSupply) {
+    if (!underlyingCollateralToken || !tokenAmount || !provider || !tokenPrice || !totalRSupply) {
       return of({
         request,
         result: null,
@@ -53,7 +53,7 @@ const stream$ = combineLatest([calculateRedemptionRateRequest$, provider$, token
       const protocol = Protocol.getInstance(provider);
       redemptionRateStatus$.next({ pending: true, request, result: null });
 
-      return from(protocol.fetchRedemptionRate(underlyingCollateralToken, tokenAmount, tokenPrice, debtSupply)).pipe(
+      return from(protocol.fetchRedemptionRate(underlyingCollateralToken, tokenAmount, tokenPrice, totalRSupply)).pipe(
         concatMap(rate =>
           of({
             request,
