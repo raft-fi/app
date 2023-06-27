@@ -5,7 +5,11 @@ import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { Typography } from '../shared';
-import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../constants';
+import {
+  COLLATERAL_TOKEN_UI_PRECISION,
+  R_TOKEN_UI_PRECISION,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
+} from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
 
 const TransactionModal = () => {
@@ -194,7 +198,8 @@ const TransactionModal = () => {
     }
 
     if (redeemStatus) {
-      const token = redeemStatus.request.underlyingCollateralToken;
+      const underlyingToken = redeemStatus.request.underlyingCollateralToken;
+      const token = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].redeemToken;
 
       return {
         label: `Add ${token} to wallet`,

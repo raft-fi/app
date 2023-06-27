@@ -97,10 +97,16 @@ const stream$ = combineLatest([borrow$]).pipe(
           TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken],
         );
 
+        const manualClosePosition =
+          collateralChange.add(currentUserCollateral).isZero() &&
+          debtChange.add(currentUserDebt).isZero() &&
+          !collateralChange.isZero() &&
+          !debtChange.isZero();
+
         borrowStatus$.next({ pending: true, txnId, request, statusType: 'borrow' });
 
         let result$: Observable<ethers.TransactionResponse>;
-        if (closePosition) {
+        if (closePosition || manualClosePosition) {
           result$ = from(
             userPosition.close({
               ...options,
