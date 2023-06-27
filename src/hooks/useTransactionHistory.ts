@@ -21,6 +21,7 @@ import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } f
 import { Nullable } from '../interfaces';
 import { appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
+import { Decimal } from '@tempusfinance/decimal';
 
 const transactionHistory$ = new BehaviorSubject<Nullable<PositionTransaction[]>>(null);
 
@@ -32,7 +33,7 @@ const fetchData = (walletSigner: Nullable<JsonRpcSigner>) => {
   }
 
   try {
-    const userPosition = new UserPosition(walletSigner, undefined, undefined, SUPPORTED_UNDERLYING_TOKENS[0]);
+    const userPosition = new UserPosition(walletSigner, Decimal.ZERO, Decimal.ZERO, SUPPORTED_UNDERLYING_TOKENS[0]);
 
     return from(userPosition.getTransactions()).pipe(
       catchError(error => {
