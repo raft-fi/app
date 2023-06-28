@@ -17,7 +17,7 @@ import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
 import './ProtocolStats.scss';
 
-const R_MARKET_CAP_THRESHOLD = 10000000; // one million
+const R_MARKET_CAP_THRESHOLD = 1000000; // one million
 
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
