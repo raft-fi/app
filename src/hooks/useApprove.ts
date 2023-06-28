@@ -17,7 +17,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -61,7 +61,7 @@ const stream$ = combineLatest([approve$]).pipe(
   withLatestFrom(wallet$, walletSigner$),
   concatMap<[[ApproveRequest], Nullable<BrowserProvider>, Nullable<JsonRpcSigner>], Observable<ApproveResponse>>(
     ([[request], walletProvider, walletSigner]) => {
-      const { txnId, currentUserCollateral, currentUserDebt, collateralChange, debtChange } = request;
+      const { txnId, currentUserCollateral, currentUserDebt, collateralToken, collateralChange, debtChange } = request;
 
       try {
         if (!walletProvider || !walletSigner) {
@@ -72,7 +72,12 @@ const stream$ = combineLatest([approve$]).pipe(
           });
         }
 
-        const userPosition = new UserPosition(walletSigner, currentUserCollateral, currentUserDebt);
+        const userPosition = new UserPosition(
+          walletSigner,
+          currentUserCollateral,
+          currentUserDebt,
+          TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken],
+        );
 
         approveStatus$.next({ pending: true, txnId, request });
 

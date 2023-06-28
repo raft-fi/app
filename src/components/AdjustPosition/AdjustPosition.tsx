@@ -1,15 +1,18 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
 import { v4 as uuid } from 'uuid';
-import { CollateralToken, MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
 import {
   TokenAllowanceMap,
   TokenWhitelistMap,
   useApprove,
   useBorrow,
-  useCollateralBorrowingRate,
-  useCollateralConversionRate,
+  useCollateralBorrowingRates,
+  useCollateralConversionRates,
+  useCollateralPositionCaps,
+  useCollateralProtocolCaps,
+  useCollateralTokenConfig,
   useProtocolStats,
   useTokenAllowances,
   useTokenBalances,
@@ -17,29 +20,42 @@ import {
   useTokenWhitelists,
   useWhitelistDelegate,
 } from '../../hooks';
-import { getTokenValues, isCollateralToken } from '../../utils';
 import {
-  COLLATERAL_BASE_TOKEN,
+  formatCurrency,
+  formatDecimal,
+  formatPercentage,
+  getDecimalFromTokenMap,
+  getTokenValues,
+  isCollateralToken,
+  isUnderlyingCollateralToken,
+} from '../../utils';
+import {
   DEFAULT_MAP,
-  DISPLAY_BASE_TOKEN,
   INPUT_PREVIEW_DIGITS,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
-  SUPPORTED_COLLATERAL_TOKENS,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
+  TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
 } from '../../constants';
-import { Nullable, TokenApprovedMap, TokenSignatureMap } from '../../interfaces';
+import {
+  Nullable,
+  Position,
+  SupportedCollateralToken,
+  SupportedUnderlyingCollateralToken,
+  TokenApprovedMap,
+  TokenSignatureMap,
+} from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAction, PositionAfter } from '../Position';
 
 import './AdjustPosition.scss';
 
 interface AdjustPositionProps {
-  collateralBalance: Decimal;
-  debtBalance: Decimal;
+  position: Position;
 }
 
-const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalance }) => {
+const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const { borrow, borrowStatus } = useBorrow();
   const { approve, approveStatus } = useApprove();
   const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
@@ -47,9 +63,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const tokenPriceMap = useTokenPrices();
   const tokenAllowanceMap = useTokenAllowances();
   const tokenWhitelistMap = useTokenWhitelists();
-  const borrowingRate = useCollateralBorrowingRate();
-  const collateralConversionRate = useCollateralConversionRate();
+  const borrowingRateMap = useCollateralBorrowingRates();
+  const collateralConversionRateMap = useCollateralConversionRates();
+  const collateralPositionCapMap = useCollateralPositionCaps();
+  const collateralProtocolCapMap = useCollateralProtocolCaps();
   const protocolStats = useProtocolStats();
+  const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
+
+  const { collateralBalance, debtBalance } = position;
+  // already checked underlyingCollateralToken is not null to render this component
+  const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
+  const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
 
   const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
     DEFAULT_MAP as TokenWhitelistMap,
@@ -57,7 +81,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
     DEFAULT_MAP as TokenAllowanceMap,
   );
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<CollateralToken>('stETH');
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(displayBaseToken);
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
@@ -67,6 +91,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   const [hasWhitelistProceeded, setHasWhitelistProceeded] = useState<boolean>(false);
   const [hasApprovalProceeded, setHasApprovalProceeded] = useState<TokenApprovedMap>(DEFAULT_MAP as TokenApprovedMap);
   const [tokenSignatureMap, setTokenSignatureMap] = useState<TokenSignatureMap>(DEFAULT_MAP as TokenSignatureMap);
+
+  // when selectedCollateralToken changed, change the token config as well
+  useEffect(() => {
+    setCollateralTokenForConfig(selectedCollateralToken);
+  }, [selectedCollateralToken, setCollateralTokenForConfig]);
 
   // store the whitelist status at the loaded time
   useEffect(() => {
@@ -170,6 +199,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
   }, [borrowAmount]);
 
+  const selectedCollateralBorrowRate = useMemo(
+    () =>
+      getDecimalFromTokenMap<SupportedUnderlyingCollateralToken>(
+        borrowingRateMap,
+        collateralTokenConfig?.underlyingTokenTicker ?? null,
+      ),
+    [borrowingRateMap, collateralTokenConfig],
+  );
+
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const borrowAmountDecimal = useMemo(() => Decimal.parse(borrowAmount, 0), [borrowAmount]);
   const collateralAmountWithEllipse = useMemo(() => {
@@ -191,7 +229,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   const borrowingFeeAmount = useMemo(() => {
-    if (!borrowingRate) {
+    if (!selectedCollateralBorrowRate) {
       return null;
     }
 
@@ -199,15 +237,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return Decimal.ZERO;
     }
 
-    return borrowAmountDecimal.mul(borrowingRate);
-  }, [borrowAmountDecimal, borrowingRate, isAddDebt]);
+    return borrowAmountDecimal.mul(selectedCollateralBorrowRate);
+  }, [borrowAmountDecimal, selectedCollateralBorrowRate, isAddDebt]);
 
   /**
-   * Current user collateral denominated in underlying collateral token (wstETH)
+   * Current user collateral denominated in underlying collateral token
    */
   const currentUnderlyingCollateralTokenValues = useMemo(
-    () => getTokenValues(collateralBalance, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
-    [collateralBalance, tokenPriceMap],
+    () => getTokenValues(collateralBalance, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken),
+    [collateralBalance, tokenPriceMap, underlyingCollateralToken],
   );
 
   /**
@@ -227,10 +265,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   );
 
   /**
-   * New user collateral denominated in underlying collateral token (wstETH)
+   * New user collateral denominated in underlying collateral token
    */
   const newCollateralInUnderlyingTokenAmount = useMemo(() => {
-    if (!collateralConversionRate) {
+    const collateralConversionRate = collateralConversionRateMap?.[selectedCollateralToken];
+
+    if (!collateralConversionRate || collateralConversionRate.isZero()) {
       return null;
     }
 
@@ -238,29 +278,18 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return Decimal.ZERO;
     }
 
-    let newValue: Nullable<Decimal> = null;
-    switch (selectedCollateralToken) {
-      case 'ETH':
-      case 'stETH':
-        newValue = collateralBalance.add(
-          collateralAmountDecimal.mul(Decimal.ONE.div(collateralConversionRate)).mul(isAddCollateral ? 1 : -1),
-        );
-        break;
-      case 'wstETH':
-        newValue = collateralBalance.add(collateralAmountDecimal.mul(isAddCollateral ? 1 : -1));
-        break;
+    if (isUnderlyingCollateralToken(selectedCollateralToken)) {
+      return collateralBalance.add(collateralAmountDecimal.mul(isAddCollateral ? 1 : -1));
+    } else {
+      return collateralBalance.add(
+        collateralAmountDecimal.mul(Decimal.ONE.div(collateralConversionRate)).mul(isAddCollateral ? 1 : -1),
+      );
     }
-
-    if (!newValue) {
-      return null;
-    }
-
-    return newValue;
   }, [
     closePositionActive,
     collateralAmountDecimal,
     collateralBalance,
-    collateralConversionRate,
+    collateralConversionRateMap,
     isAddCollateral,
     selectedCollateralToken,
   ]);
@@ -270,27 +299,39 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
    */
   const newCollateralInUnderlyingTokenValues = useMemo(
     () =>
-      getTokenValues(newCollateralInUnderlyingTokenAmount, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
-    [newCollateralInUnderlyingTokenAmount, tokenPriceMap],
+      getTokenValues(
+        newCollateralInUnderlyingTokenAmount,
+        tokenPriceMap[underlyingCollateralToken],
+        underlyingCollateralToken,
+      ),
+    [newCollateralInUnderlyingTokenAmount, tokenPriceMap, underlyingCollateralToken],
   );
 
   /**
-   * New user collateral denominated in display collateral token (stETH)
+   * New user collateral denominated in display collateral token
    */
   const newCollateralInDisplayTokenAmount = useMemo(() => {
-    if (!newCollateralInUnderlyingTokenValues?.amount || !collateralConversionRate) {
+    if (!newCollateralInUnderlyingTokenValues.amount) {
+      return Decimal.ZERO;
+    }
+
+    const displayBaseTokenConversionRate = collateralConversionRateMap?.[displayBaseToken];
+
+    // if conversion rate not available, return null
+    if (!displayBaseTokenConversionRate) {
       return null;
     }
 
-    return newCollateralInUnderlyingTokenValues.amount.mul(collateralConversionRate);
-  }, [newCollateralInUnderlyingTokenValues, collateralConversionRate]);
+    // display token amount = input amount * display token rate
+    return newCollateralInUnderlyingTokenValues.amount.mul(displayBaseTokenConversionRate);
+  }, [newCollateralInUnderlyingTokenValues.amount, collateralConversionRateMap, displayBaseToken]);
 
   /**
    * New user display collateral values
    */
   const newCollateralInDisplayTokenValues = useMemo(
-    () => getTokenValues(newCollateralInDisplayTokenAmount, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN),
-    [newCollateralInDisplayTokenAmount, tokenPriceMap],
+    () => getTokenValues(newCollateralInDisplayTokenAmount, tokenPriceMap[displayBaseToken], displayBaseToken),
+    [displayBaseToken, newCollateralInDisplayTokenAmount, tokenPriceMap],
   );
 
   /**
@@ -354,6 +395,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     currentDebtTokenValues?.value,
   ]);
 
+  const collateralSupply: Nullable<Decimal> = useMemo(
+    () => protocolStats?.collateralSupply[underlyingCollateralToken] ?? null,
+    [protocolStats?.collateralSupply, underlyingCollateralToken],
+  );
+
   const isClosePosition = useMemo(
     () => newDebtTokenWithFeeValues?.amount?.isZero() && newCollateralInDisplayTokenValues?.value?.isZero(),
     [newCollateralInDisplayTokenValues?.value, newDebtTokenWithFeeValues?.amount],
@@ -380,15 +426,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     }
 
     const missingBorrowAmount = borrowAmountDecimal.sub(tokenBalanceMap[R_TOKEN]);
-    const truncatedMissingBorrowAmount = new Decimal(missingBorrowAmount.toTruncated(2));
+    const truncatedMissingBorrowAmount = new Decimal(missingBorrowAmount.toTruncated(R_TOKEN_UI_PRECISION));
     const result = truncatedMissingBorrowAmount.lt(missingBorrowAmount)
       ? truncatedMissingBorrowAmount.add(0.01)
       : missingBorrowAmount;
 
-    return DecimalFormat.format(result, {
-      style: 'decimal',
-      fractionDigits: 2,
-    });
+    return formatDecimal(result, R_TOKEN_UI_PRECISION);
   }, [tokenBalanceMap, borrowAmountDecimal]);
 
   const hasMinBorrow = useMemo(
@@ -430,34 +473,120 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     return newCollateralInDisplayTokenValues.amount.gte(0);
   }, [newCollateralInDisplayTokenValues.amount]);
 
-  const isOverMaxBorrow = useMemo(() => {
+  const isPositionWithinCollateralPositionCap = useMemo(() => {
+    // In case user is not adding collateral, we should ignore cap
+    if (collateralAmountDecimal.isZero() || !isAddCollateral) {
+      return true;
+    }
+
+    const selectedCollateralTokenPositionCap = getDecimalFromTokenMap(
+      collateralPositionCapMap,
+      selectedCollateralToken,
+    );
+
+    if (!collateralSupply || !selectedCollateralTokenPositionCap || !newCollateralInUnderlyingTokenValues.amount) {
+      return false;
+    }
+
+    // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
+    return newCollateralInUnderlyingTokenValues.amount.lte(selectedCollateralTokenPositionCap);
+  }, [
+    collateralAmountDecimal,
+    collateralPositionCapMap,
+    collateralSupply,
+    isAddCollateral,
+    newCollateralInUnderlyingTokenValues.amount,
+    selectedCollateralToken,
+  ]);
+
+  const isPositionWithinCollateralProtocolCap = useMemo(() => {
+    // In case user is not adding collateral, we should ignore cap
+    if (collateralAmountDecimal.isZero() || !isAddCollateral) {
+      return true;
+    }
+
+    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
+      collateralProtocolCapMap,
+      selectedCollateralToken,
+    );
+
+    if (
+      !collateralSupply ||
+      !selectedCollateralTokenProtocolCap ||
+      !currentUnderlyingCollateralTokenValues.amount ||
+      !newCollateralInUnderlyingTokenValues.amount
+    ) {
+      return false;
+    }
+
+    const pureCollateralSupply = collateralSupply.sub(currentUnderlyingCollateralTokenValues.amount);
+
+    // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
+    return newCollateralInUnderlyingTokenValues.amount
+      .add(pureCollateralSupply)
+      .lte(selectedCollateralTokenProtocolCap);
+  }, [
+    collateralAmountDecimal,
+    collateralProtocolCapMap,
+    collateralSupply,
+    currentUnderlyingCollateralTokenValues.amount,
+    isAddCollateral,
+    newCollateralInUnderlyingTokenValues.amount,
+    selectedCollateralToken,
+  ]);
+
+  const isTotalSupplyWithinCollateralProtocolCap = useMemo(() => {
+    // In case user is not adding collateral, we should ignore cap
+    if (collateralAmountDecimal.isZero() || !isAddCollateral) {
+      return true;
+    }
+
+    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
+      collateralProtocolCapMap,
+      selectedCollateralToken,
+    );
+
+    if (!collateralSupply || !selectedCollateralTokenProtocolCap) {
+      return false;
+    }
+
+    return collateralSupply.lte(selectedCollateralTokenProtocolCap);
+  }, [collateralAmountDecimal, collateralProtocolCapMap, collateralSupply, isAddCollateral, selectedCollateralToken]);
+
+  const isPositionWithinDebtPositionCap = useMemo(() => {
     // In case user is repaying his debt, we should ignore max borrow limit
     if (!isAddDebt) {
-      return false;
+      return true;
     }
 
-    /**
-     * Do not show error if user did not input anything.
-     */
+    // Do not show error if user did not input anything.
     if (!borrowAmount) {
-      return false;
-    }
-
-    if (!protocolStats?.debtSupply || !newDebtTokenWithFeeValues.amount) {
       return true;
     }
 
-    /**
-     * Total debt of protocol, excluding current user's debt
-     */
-    const totalDebt = protocolStats.debtSupply.sub(debtBalance);
+    // only wstETH group has this requirement
+    if (selectedCollateralToken === 'wstETH') {
+      const debtSupply = protocolStats?.debtSupply.wstETH;
 
-    const maxBorrowAmount = totalDebt.div(10);
-    if (newDebtTokenWithFeeValues.amount.gt(maxBorrowAmount)) {
-      return true;
+      if (!debtSupply || !newDebtTokenWithFeeValues.amount) {
+        return false;
+      }
+
+      const pureDebtSupply = debtSupply.sub(debtBalance);
+
+      const maxBorrowAmount = pureDebtSupply.div(10);
+      return newDebtTokenWithFeeValues.amount.lte(maxBorrowAmount);
     }
-    return false;
-  }, [newDebtTokenWithFeeValues.amount, protocolStats?.debtSupply, debtBalance, borrowAmount, isAddDebt]);
+
+    return true;
+  }, [
+    borrowAmount,
+    debtBalance,
+    isAddDebt,
+    newDebtTokenWithFeeValues.amount,
+    protocolStats?.debtSupply.wstETH,
+    selectedCollateralToken,
+  ]);
 
   const canAdjust = useMemo(
     () =>
@@ -467,7 +596,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           hasEnoughDebtTokenBalance &&
           hasMinBorrow &&
           hasMinNewRatio &&
-          !isOverMaxBorrow,
+          isPositionWithinCollateralPositionCap &&
+          isPositionWithinCollateralProtocolCap &&
+          isTotalSupplyWithinCollateralProtocolCap &&
+          isPositionWithinDebtPositionCap,
       ),
     [
       isInputNonEmpty,
@@ -475,7 +607,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       hasEnoughDebtTokenBalance,
       hasMinBorrow,
       hasMinNewRatio,
-      isOverMaxBorrow,
+      isPositionWithinCollateralPositionCap,
+      isPositionWithinCollateralProtocolCap,
+      isTotalSupplyWithinCollateralProtocolCap,
+      isPositionWithinDebtPositionCap,
     ],
   );
 
@@ -623,6 +758,21 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Insufficient funds';
     }
 
+    if (!isPositionWithinCollateralPositionCap) {
+      const collateralPositionCapFormatted = formatCurrency(collateralPositionCapMap[selectedCollateralToken], {
+        currency: selectedCollateralToken,
+        fractionDigits: 0,
+      });
+      return (
+        `Deposit amount exceeds the position collateral cap of ${collateralPositionCapFormatted}. ` +
+        `Please reduce the deposit amount.`
+      );
+    }
+
+    if (!isPositionWithinCollateralProtocolCap) {
+      return `The deposit amount exceeds collateral capacity. Please reduce the deposit amount and try again`;
+    }
+
     if (!hasEnoughToWithdraw) {
       return 'Collateral amount to withdraw larger than current balance';
     }
@@ -630,7 +780,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     if (!hasMinNewRatio) {
       return 'Collateralization ratio is below the minimum threshold';
     }
-  }, [hasEnoughCollateralTokenBalance, hasEnoughToWithdraw, hasMinNewRatio]);
+  }, [
+    collateralPositionCapMap,
+    hasEnoughCollateralTokenBalance,
+    hasEnoughToWithdraw,
+    hasMinNewRatio,
+    isPositionWithinCollateralPositionCap,
+    isPositionWithinCollateralProtocolCap,
+    selectedCollateralToken,
+  ]);
 
   const debtErrorMsg = useMemo(() => {
     if (!hasNonNegativeDebt) {
@@ -645,15 +803,23 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
       return 'Collateralization ratio is below the minimum threshold';
     }
 
-    if (isOverMaxBorrow) {
+    if (!isPositionWithinDebtPositionCap) {
       return 'Amount exceeds maximum debt allowed per Position';
     }
-  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isOverMaxBorrow]);
+  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isPositionWithinDebtPositionCap]);
 
   const buttonLabel = useMemo(() => {
     // data not yet loaded will set executionSteps = 1, always show "Execution"
     if (executionSteps === 1) {
       return borrowStatus?.pending ? 'Executing' : 'Execute';
+    }
+
+    if (!isTotalSupplyWithinCollateralProtocolCap) {
+      const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
+        currency: selectedCollateralToken,
+        fractionDigits: 0,
+      });
+      return `Protocol collateral cap of ${collateralProtocolCapFormatted} reached. Please check again later.`;
     }
 
     if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt) {
@@ -662,8 +828,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     if (!hasWhitelisted) {
       return whitelistDelegateStatus?.pending
-        ? `Whitelisting stETH (${executedSteps}/${executionSteps})`
-        : `Whitelist stETH (${executedSteps}/${executionSteps})`;
+        ? `Whitelisting ${selectedCollateralToken} (${executedSteps}/${executionSteps})`
+        : `Whitelist ${selectedCollateralToken} (${executedSteps}/${executionSteps})`;
     }
 
     if (
@@ -687,6 +853,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
     return `Execute (${executedSteps}/${executionSteps})`;
   }, [
+    executionSteps,
+    isTotalSupplyWithinCollateralProtocolCap,
     hasEnoughDebtTokenBalance,
     hasNonNegativeDebt,
     hasWhitelisted,
@@ -699,35 +867,30 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
     closePositionActive,
     borrowStatus?.pending,
     executedSteps,
-    executionSteps,
+    collateralProtocolCapMap,
     formattedMissingBorrowAmount,
     whitelistDelegateStatus?.pending,
     approveStatus?.pending,
   ]);
 
   const borrowingFeePercentageFormatted = useMemo(() => {
-    if (!borrowingRate || !borrowingFeeAmount) {
+    if (!selectedCollateralBorrowRate || !borrowingFeeAmount) {
       return null;
     }
 
-    if (borrowingRate.isZero() || borrowingFeeAmount.isZero()) {
+    if (selectedCollateralBorrowRate.isZero() || borrowingFeeAmount.isZero()) {
       return 'Free';
     }
 
-    return DecimalFormat.format(borrowingRate, {
-      style: 'percentage',
-      fractionDigits: 2,
-      pad: true,
-    });
-  }, [borrowingFeeAmount, borrowingRate]);
+    return formatPercentage(selectedCollateralBorrowRate);
+  }, [borrowingFeeAmount, selectedCollateralBorrowRate]);
 
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
       return null;
     }
 
-    const borrowingFeeAmountFormatted = DecimalFormat.format(borrowingFeeAmount, {
-      style: 'currency',
+    const borrowingFeeAmountFormatted = formatCurrency(borrowingFeeAmount, {
       currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
       lessThanFormat: true,
@@ -743,10 +906,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
-      if (selectedCollateralToken === COLLATERAL_BASE_TOKEN) {
+      if (isUnderlyingCollateralToken(selectedCollateralToken)) {
         setCollateralAmount(collateralBalance.toString());
         setIsAddCollateral(false);
       } else {
+        const collateralConversionRate = collateralConversionRateMap?.[selectedCollateralToken];
+
         if (currentUnderlyingCollateralTokenValues.amount && collateralConversionRate) {
           const collateralBalanceInSelectedCollateralToken = collateralBalance.mul(collateralConversionRate);
           setCollateralAmount(collateralBalanceInSelectedCollateralToken.toString());
@@ -767,7 +932,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
   }, [
     closePositionActive,
     collateralBalance,
-    collateralConversionRate,
+    collateralConversionRateMap,
     currentUnderlyingCollateralTokenValues.amount,
     debtBalance,
     selectedCollateralToken,
@@ -925,14 +1090,20 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           label={collateralLabelComponent}
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={SUPPORTED_COLLATERAL_TOKENS}
+          tokens={SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].tokens}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={setCollateralAmount}
           disabled={closePositionActive}
           onBlur={handleCollateralAmountBlur}
-          error={!hasEnoughCollateralTokenBalance || !hasMinNewRatio || !hasEnoughToWithdraw}
+          error={
+            !hasEnoughCollateralTokenBalance ||
+            !hasMinNewRatio ||
+            !hasEnoughToWithdraw ||
+            !isPositionWithinCollateralPositionCap ||
+            !isPositionWithinCollateralProtocolCap
+          }
           errorMsg={collateralErrorMsg}
         />
         <CurrencyInput
@@ -945,13 +1116,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ collateralBalance, debtBalanc
           onValueUpdate={setBorrowAmount}
           disabled={closePositionActive}
           onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio || isOverMaxBorrow}
+          error={!hasMinBorrow || !hasMinNewRatio || !isPositionWithinDebtPositionCap}
           errorMsg={debtErrorMsg}
           maxIntegralDigits={10}
         />
       </div>
       <PositionAfter
-        displayCollateralToken={newCollateralInDisplayTokenValues.amount}
+        displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
+        displayCollateralTokenAmount={newCollateralInDisplayTokenValues.amount}
         collateralTokenValueFormatted={newCollateralInUnderlyingTokenValues.valueFormatted}
         borrowTokenAmountFormatted={newDebtTokenWithFeeValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}

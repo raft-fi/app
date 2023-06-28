@@ -1,10 +1,18 @@
 import { ERC20PermitSignatureStruct, Token } from '@raft-fi/sdk';
+import { Decimal } from '@tempusfinance/decimal';
+import { SUPPORTED_COLLATERAL_TOKENS, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable } from './Nullable';
 
-export type TokenApprovedMap = {
-  [token in Token]: Nullable<boolean>;
+export type TokenGenericMap<T extends Token = Token, V = object> = {
+  [token in T]: V;
 };
 
-export type TokenSignatureMap = {
-  [token in Token]: Nullable<ERC20PermitSignatureStruct>;
-};
+export type TokenApprovedMap = TokenGenericMap<Token, Nullable<boolean>>;
+
+export type TokenSignatureMap = TokenGenericMap<Token, Nullable<ERC20PermitSignatureStruct>>;
+
+export type TokenDecimalMap<T extends Token = Token> = TokenGenericMap<T, Nullable<Decimal>>;
+
+export type SupportedCollateralToken = (typeof SUPPORTED_COLLATERAL_TOKENS)[number];
+export type SupportedUnderlyingCollateralToken = (typeof SUPPORTED_UNDERLYING_TOKENS)[number];
+export type SupportedToken = (typeof SUPPORTED_TOKENS)[number];

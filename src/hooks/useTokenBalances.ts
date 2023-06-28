@@ -21,14 +21,12 @@ import {
 import { Balance, TOKENS, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { Nullable } from '../interfaces';
+import { Nullable, TokenDecimalMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
 
-export type TokenBalanceMap = {
-  [token in Token]: Nullable<Decimal>;
-};
+export type TokenBalanceMap = TokenDecimalMap<Token>;
 
 const DEFAULT_VALUE: TokenBalanceMap = TOKENS.reduce(
   (map, token) => ({
@@ -67,7 +65,7 @@ const walletChangeStream$: Observable<TokenBalanceMap> = walletAddress$.pipe(
       return of(DEFAULT_VALUE);
     }
 
-    const tokenBalanceMaps = TOKENS.map(token =>
+    const tokenBalanceMaps: Observable<TokenBalanceMap>[] = TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
 

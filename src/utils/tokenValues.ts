@@ -1,13 +1,13 @@
-import { Numberish, Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { Numberish, Decimal } from '@tempusfinance/decimal';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
-  MULTIPLIER_UI_PRECISION,
   R_PRICE_UI_PRECISION,
   R_TOKEN_UI_PRECISION,
   USD_UI_PRECISION,
 } from '../constants';
 import { Nullable } from '../interfaces';
 import { Token } from '@raft-fi/sdk';
+import { formatCurrency, formatCurrencyMultiplier, formatMultiplier } from './decimal';
 
 type TokenValues = {
   amount: Nullable<Decimal>;
@@ -22,31 +22,6 @@ type TokenValues = {
   valueFormattedMultiplier: Nullable<string>;
   valueFormattedApproximate: Nullable<string>;
 };
-
-const formatCurrency = (
-  value: Decimal,
-  currency = '$',
-  precision = USD_UI_PRECISION,
-  approximate = false,
-  lessThanFormat = false,
-  pad = false,
-) =>
-  DecimalFormat.format(value, {
-    style: 'currency',
-    currency: currency,
-    fractionDigits: precision,
-    approximate: approximate,
-    lessThanFormat: lessThanFormat,
-    pad: pad,
-  });
-
-const formatCurrencyMultiplier = (value: Decimal) =>
-  DecimalFormat.format(value, {
-    style: 'multiplier',
-    currency: '$',
-    fractionDigits: MULTIPLIER_UI_PRECISION,
-    noMultiplierFractionDigits: USD_UI_PRECISION,
-  });
 
 export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Decimal>, token: Token): TokenValues => {
   if (!amount && amount !== 0) {
@@ -74,73 +49,64 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
         amount: tokenAmount,
         price,
         value: tokenValue,
-        amountFormatted: formatCurrency(tokenAmount, token, tokenAmount.isZero() ? 0 : R_TOKEN_UI_PRECISION),
-        amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
-          style: 'multiplier',
+        amountFormatted: formatCurrency(tokenAmount, {
           currency: token,
-          fractionDigits: MULTIPLIER_UI_PRECISION,
-          noMultiplierFractionDigits: R_TOKEN_UI_PRECISION,
+          fractionDigits: tokenAmount.isZero() ? 0 : R_TOKEN_UI_PRECISION,
         }),
-        amountFormattedApproximate: formatCurrency(
-          tokenAmount,
-          token,
-          tokenAmount.isZero() ? 0 : R_TOKEN_UI_PRECISION,
-          tokenAmount.isZero() ? false : true,
-          true,
-          true,
-        ),
+        amountFormattedMultiplier: formatMultiplier(tokenAmount, token),
+        amountFormattedApproximate: formatCurrency(tokenAmount, {
+          currency: token,
+          fractionDigits: tokenAmount.isZero() ? 0 : R_TOKEN_UI_PRECISION,
+          approximate: tokenAmount.isZero() ? false : true,
+          lessThanFormat: true,
+          pad: true,
+        }),
         // only for R price we want to format it in 4 decimal places
-        priceFormatted: price ? formatCurrency(price, '$', R_PRICE_UI_PRECISION) : null,
-        priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
-        valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
-        valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
-        valueFormattedApproximate: tokenValue
-          ? formatCurrency(
-              tokenValue,
-              '$',
-              tokenValue.isZero() ? 0 : USD_UI_PRECISION,
-              tokenValue.isZero() ? false : true,
-              true,
-              true,
-            )
-          : null,
+        priceFormatted: formatCurrency(price, { currency: '$', fractionDigits: R_PRICE_UI_PRECISION }),
+        priceFormattedIntegral: formatCurrency(price, { currency: '$', fractionDigits: 0 }),
+        valueFormatted: formatCurrency(tokenValue),
+        valueFormattedMultiplier: formatCurrencyMultiplier(tokenValue),
+        valueFormattedApproximate: formatCurrency(tokenValue, {
+          currency: '$',
+          fractionDigits: tokenValue?.isZero() ? 0 : USD_UI_PRECISION,
+          approximate: tokenValue?.isZero() ? false : true,
+          lessThanFormat: true,
+          pad: true,
+        }),
       };
     case 'ETH':
     case 'stETH':
     case 'wstETH':
+    case 'rETH':
+    case 'wcrETH':
+    default:
       return {
         amount: tokenAmount,
         price,
         value: tokenValue,
-        amountFormatted: formatCurrency(tokenAmount, token, tokenAmount.isZero() ? 0 : COLLATERAL_TOKEN_UI_PRECISION),
-        amountFormattedMultiplier: DecimalFormat.format(tokenAmount, {
-          style: 'multiplier',
+        amountFormatted: formatCurrency(tokenAmount, {
           currency: token,
-          fractionDigits: MULTIPLIER_UI_PRECISION,
-          noMultiplierFractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+          fractionDigits: tokenAmount.isZero() ? 0 : COLLATERAL_TOKEN_UI_PRECISION,
         }),
-        amountFormattedApproximate: formatCurrency(
-          tokenAmount,
-          token,
-          tokenAmount.isZero() ? 0 : COLLATERAL_TOKEN_UI_PRECISION,
-          tokenAmount.isZero() ? false : true,
-          true,
-          true,
-        ),
-        priceFormatted: price ? formatCurrency(price) : null,
-        priceFormattedIntegral: price ? formatCurrency(price, '$', 0) : null,
-        valueFormatted: tokenValue ? formatCurrency(tokenValue) : null,
-        valueFormattedMultiplier: tokenValue ? formatCurrencyMultiplier(tokenValue) : null,
-        valueFormattedApproximate: tokenValue
-          ? formatCurrency(
-              tokenValue,
-              '$',
-              tokenValue.isZero() ? 0 : USD_UI_PRECISION,
-              tokenValue.isZero() ? false : true,
-              true,
-              true,
-            )
-          : null,
+        amountFormattedMultiplier: formatMultiplier(tokenAmount, token),
+        amountFormattedApproximate: formatCurrency(tokenAmount, {
+          currency: token,
+          fractionDigits: tokenAmount.isZero() ? 0 : COLLATERAL_TOKEN_UI_PRECISION,
+          approximate: tokenAmount.isZero() ? false : true,
+          lessThanFormat: true,
+          pad: true,
+        }),
+        priceFormatted: formatCurrency(price),
+        priceFormattedIntegral: formatCurrency(price, { currency: '$', fractionDigits: 0 }),
+        valueFormatted: formatCurrency(tokenValue),
+        valueFormattedMultiplier: formatCurrencyMultiplier(tokenValue),
+        valueFormattedApproximate: formatCurrency(tokenValue, {
+          currency: '$',
+          fractionDigits: tokenValue?.isZero() ? 0 : USD_UI_PRECISION,
+          approximate: tokenValue?.isZero() ? false : true,
+          lessThanFormat: true,
+          pad: true,
+        }),
       };
   }
 };

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { R_TOKEN, RaftConfig } from '@raft-fi/sdk';
-import { resetBorrowStatus, resetRedeemStatus, useBorrow, useRedeem, useTokenPrices } from '../../hooks';
+import { resetBorrowStatus, resetRedeemStatus, useBorrow, useRedeem } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { DecimalFormat } from '@tempusfinance/decimal';
@@ -8,15 +8,13 @@ import { Typography } from '../shared';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   R_TOKEN_UI_PRECISION,
-  DISPLAY_BASE_TOKEN,
-  COLLATERAL_BASE_TOKEN,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 } from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
 
 const TransactionModal = () => {
   const { borrowStatus, borrow } = useBorrow();
   const { redeemStatus, redeem } = useRedeem();
-  const tokenPriceMap = useTokenPrices();
 
   const [successModalOpened, setSuccessModalOpened] = useState<boolean>(false);
   const [failedModalOpened, setFailedModalOpened] = useState<boolean>(false);
@@ -131,13 +129,6 @@ const TransactionModal = () => {
       lessThanFormat: true,
     });
 
-    const displayBaseTokenPrice = tokenPriceMap[DISPLAY_BASE_TOKEN];
-    const collateralPrice = tokenPriceMap[borrowStatus.request.collateralToken];
-
-    if (!displayBaseTokenPrice || !collateralPrice) {
-      return null;
-    }
-
     // for modal title, show what's user actually deposit/withdraw, no need to convert
     const collateralValueFormatted = DecimalFormat.format(borrowStatus.request.collateralChange.abs(), {
       style: 'currency',
@@ -160,7 +151,7 @@ const TransactionModal = () => {
         )}
       </>
     );
-  }, [borrowStatus, collateralChange, debtChange, redeemStatus, tokenPriceMap]);
+  }, [borrowStatus, collateralChange, debtChange, redeemStatus]);
 
   /**
    * Generate success modal subtitle based on borrow request params
@@ -206,14 +197,21 @@ const TransactionModal = () => {
       };
     }
 
-    return {
-      label: 'Add wstETH to wallet',
-      address: RaftConfig.getTokenAddress(COLLATERAL_BASE_TOKEN) || '',
-      symbol: COLLATERAL_BASE_TOKEN,
-      decimals: 18,
-      image: '', // TODO - Add wstETH image on raft.fi website
-    };
-  }, [borrowStatus]);
+    if (redeemStatus) {
+      const underlyingToken = redeemStatus.request.underlyingCollateralToken;
+      const token = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].redeemToken;
+
+      return {
+        label: `Add ${token} to wallet`,
+        address: RaftConfig.getTokenAddress(token) || '',
+        symbol: token,
+        decimals: 18,
+        image: '', // TODO - Add wstETH image on raft.fi website
+      };
+    }
+
+    return null;
+  }, [borrowStatus, redeemStatus]);
 
   return (
     <>

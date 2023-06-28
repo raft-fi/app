@@ -17,10 +17,11 @@ import {
   startWith,
   withLatestFrom,
 } from 'rxjs';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable } from '../interfaces';
 import { appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
+import { Decimal } from '@tempusfinance/decimal';
 
 const transactionHistory$ = new BehaviorSubject<Nullable<PositionTransaction[]>>(null);
 
@@ -32,7 +33,11 @@ const fetchData = (walletSigner: Nullable<JsonRpcSigner>) => {
   }
 
   try {
-    const userPosition = new UserPosition(walletSigner);
+    const dummyCollateralBalance = Decimal.ZERO;
+    const dummyDebtBalance = Decimal.ZERO;
+    const dummyUnderlyingToken = SUPPORTED_UNDERLYING_TOKENS[0];
+
+    const userPosition = new UserPosition(walletSigner, dummyCollateralBalance, dummyDebtBalance, dummyUnderlyingToken);
 
     return from(userPosition.getTransactions()).pipe(
       catchError(error => {

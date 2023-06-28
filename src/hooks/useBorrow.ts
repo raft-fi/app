@@ -1,4 +1,4 @@
-import { BrowserProvider, JsonRpcSigner, ethers } from 'ethers';
+import { BrowserProvider, JsonRpcSigner, ethers, TransactionReceipt } from 'ethers';
 import { Decimal } from '@tempusfinance/decimal';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
@@ -17,8 +17,8 @@ import {
   Observable,
   withLatestFrom,
 } from 'rxjs';
-import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { Nullable, SupportedCollateralToken } from '../interfaces';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -32,7 +32,7 @@ interface BorrowRequest {
   currentUserCollateral: Decimal;
   currentUserDebt: Decimal;
   closePosition?: boolean;
-  options?: ManagePositionOptions;
+  options?: ManagePositionOptions<SupportedCollateralToken>;
 }
 
 interface BorrowStatus {
@@ -72,6 +72,7 @@ const stream$ = combineLatest([borrow$]).pipe(
     ([[request], walletProvider, walletSigner]) => {
       const {
         txnId,
+        collateralToken,
         currentUserCollateral,
         currentUserDebt,
         collateralChange,
@@ -89,12 +90,23 @@ const stream$ = combineLatest([borrow$]).pipe(
           });
         }
 
-        const userPosition = new UserPosition(walletSigner, currentUserCollateral, currentUserDebt);
+        const userPosition = new UserPosition(
+          walletSigner,
+          currentUserCollateral,
+          currentUserDebt,
+          TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken],
+        );
+
+        const manualClosePosition =
+          collateralChange.add(currentUserCollateral).isZero() &&
+          debtChange.add(currentUserDebt).isZero() &&
+          !collateralChange.isZero() &&
+          !debtChange.isZero();
 
         borrowStatus$.next({ pending: true, txnId, request, statusType: 'borrow' });
 
         let result$: Observable<ethers.TransactionResponse>;
-        if (closePosition) {
+        if (closePosition || manualClosePosition) {
           result$ = from(
             userPosition.close({
               ...options,
@@ -112,7 +124,7 @@ const stream$ = combineLatest([borrow$]).pipe(
           );
         }
 
-        const waitForTxReceipt$ = result$.pipe(
+        const waitForTxReceipt$: Observable<Nullable<TransactionReceipt>> = result$.pipe(
           concatMap(result => {
             if (result.hash) {
               return from(walletProvider.waitForTransaction(result.hash, NUMBER_OF_CONFIRMATIONS_FOR_TX));
@@ -163,12 +175,26 @@ const stream$ = combineLatest([borrow$]).pipe(
 
     if (!contractTransaction) {
       const userRejectError = new Error('Rejected by user.');
-      return { pending: false, success: false, error: error ?? userRejectError, request, txnId } as BorrowStatus;
+      return {
+        pending: false,
+        success: false,
+        error: error ?? userRejectError,
+        request,
+        txnId,
+        statusType: 'borrow',
+      } as BorrowStatus;
     }
 
     if (!transactionReceipt) {
       const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
-      return { pending: false, success: false, error: error ?? receiptFetchFailed, request, txnId } as BorrowStatus;
+      return {
+        pending: false,
+        success: false,
+        error: error ?? receiptFetchFailed,
+        request,
+        txnId,
+        statusType: 'borrow',
+      } as BorrowStatus;
     }
 
     return {

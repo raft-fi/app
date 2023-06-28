@@ -1,53 +1,59 @@
 import { R_TOKEN } from '@raft-fi/sdk';
-import { DecimalFormat } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_BASE_TOKEN, DISPLAY_BASE_TOKEN, R_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
-import { useCollateralBalance, useCollateralConversionRate, useDebtBalance, useTokenPrices } from '../../hooks';
-import { getCollateralRatioLevel, getTokenValues } from '../../utils';
+import { R_TOKEN_UI_PRECISION, SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../constants';
+import { useCollateralConversionRates, useTokenPrices } from '../../hooks';
+import { Position, SupportedUnderlyingCollateralToken } from '../../interfaces';
+import { formatDecimal, getCollateralRatioLevel, getDecimalFromTokenMap, getTokenValues } from '../../utils';
 import { getCollateralRatioLabel } from '../../utils/collateralRatio';
-import { Typography, ValueLabel } from '../shared';
+import { Icon, Typography, ValueLabel } from '../shared';
 
 import './YourPosition.scss';
 
-const YourPosition: FC = () => {
-  const collateralBalance = useCollateralBalance();
-  const debtBalance = useDebtBalance();
+interface YourPositionProps {
+  position: Position;
+}
+
+const YourPosition: FC<YourPositionProps> = ({ position }) => {
   const tokenPriceMap = useTokenPrices();
-  const collateralConversionRate = useCollateralConversionRate();
+  const collateralConversionRateMap = useCollateralConversionRates();
+
+  // already checked underlyingCollateralToken is not null to render this component
+  const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
+  const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
+  const isRebasing = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].isRebasing;
 
   /**
-   * Amount of collateral user has denominated in underlying token (wstETH)
+   * Amount of collateral user has denominated in underlying token
    */
   const underlyingCollateralTokenValues = useMemo(
-    () => getTokenValues(collateralBalance, tokenPriceMap[COLLATERAL_BASE_TOKEN], COLLATERAL_BASE_TOKEN),
-    [collateralBalance, tokenPriceMap],
+    () =>
+      getTokenValues(position.collateralBalance, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken),
+    [position, tokenPriceMap, underlyingCollateralToken],
   );
 
   const debtTokenValues = useMemo(
-    () => getTokenValues(debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
-    [debtBalance, tokenPriceMap],
+    () => getTokenValues(position.debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
+    [position, tokenPriceMap],
   );
 
   /**
-   * Amount of collateral user has denominated in display base token (stETH)
+   * Amount of collateral user has denominated in display base token
    */
   const displayCollateralTokenValues = useMemo(() => {
+    const collateralConversionRate = getDecimalFromTokenMap(collateralConversionRateMap, displayBaseToken);
+
     if (!collateralConversionRate || !underlyingCollateralTokenValues.amount) {
       return null;
     }
 
     const value = underlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
-    return getTokenValues(value, tokenPriceMap[DISPLAY_BASE_TOKEN], DISPLAY_BASE_TOKEN);
-  }, [collateralConversionRate, underlyingCollateralTokenValues.amount, tokenPriceMap]);
+    return getTokenValues(value, tokenPriceMap[displayBaseToken], displayBaseToken);
+  }, [displayBaseToken, collateralConversionRateMap, underlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const collateralizationRatio = useMemo(() => {
-    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value) {
-      return null;
-    }
-
-    if (debtTokenValues.value.isZero()) {
+    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value || debtTokenValues.value.isZero()) {
       return null;
     }
 
@@ -55,33 +61,15 @@ const YourPosition: FC = () => {
   }, [underlyingCollateralTokenValues?.value, debtTokenValues.value]);
 
   const debtAmountFormatted = useMemo(
-    () =>
-      debtTokenValues.amount
-        ? DecimalFormat.format(debtTokenValues.amount, {
-            style: 'decimal',
-            fractionDigits: R_TOKEN_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(debtTokenValues.amount, R_TOKEN_UI_PRECISION),
     [debtTokenValues.amount],
   );
   const debtValueFormatted = useMemo(
-    () =>
-      debtTokenValues.value
-        ? DecimalFormat.format(debtTokenValues.value, {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(debtTokenValues.value, USD_UI_PRECISION),
     [debtTokenValues.value],
   );
   const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio.mul(100), {
-            style: 'decimal',
-            fractionDigits: USD_UI_PRECISION,
-          })
-        : null,
+    () => formatDecimal(collateralizationRatio?.mul(100) ?? null, USD_UI_PRECISION),
     [collateralizationRatio],
   );
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
@@ -92,7 +80,7 @@ const YourPosition: FC = () => {
       <div className="raft__your-position__collateral">
         <Typography variant="overline">YOUR COLLATERAL</Typography>
         <div className="raft__your-position__collateral__amount">
-          <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size="small" />
+          <TokenLogo type={`token-${displayBaseToken}`} size="small" />
           {displayCollateralTokenValues?.amountFormatted ? (
             <ValueLabel
               value={displayCollateralTokenValues.amountFormatted}
@@ -102,6 +90,7 @@ const YourPosition: FC = () => {
           ) : (
             '---'
           )}
+          {isRebasing && <Icon variant="triangle-up" />}
         </div>
         <div className="raft__your-position__collateral__value__number">
           {underlyingCollateralTokenValues?.valueFormatted ? (

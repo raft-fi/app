@@ -1,5 +1,5 @@
-import { memo, useEffect, useMemo, useState } from 'react';
-import { useCollateralBalance, useDebtBalance, useNetwork, useAppLoaded, useWallet, useBorrow } from '../../hooks';
+import { memo, useMemo } from 'react';
+import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
 import LoadingDashbaord from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -11,23 +11,17 @@ import './Dashboard.scss';
 const Dashboard = () => {
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
-  const collateralBalance = useCollateralBalance();
-  const debtBalance = useDebtBalance();
+  const position = usePosition();
   const { isWrongNetwork } = useNetwork();
-  const { borrowStatus } = useBorrow();
-  const [positionComponentKey, setPositionComponentKey] = useState<string>();
-
-  useEffect(() => {
-    if (borrowStatus?.success && borrowStatus?.txnId) {
-      setPositionComponentKey(borrowStatus.txnId);
-    }
-  }, [borrowStatus?.success, borrowStatus?.txnId]);
 
   const userHasBorrowed = useMemo(() => {
-    return collateralBalance?.gt(0) || debtBalance?.gt(0);
-  }, [collateralBalance, debtBalance]);
+    return (
+      (position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0)) &&
+      Boolean(position?.underlyingCollateralToken)
+    );
+  }, [position?.collateralBalance, position?.debtBalance, position?.underlyingCollateralToken]);
 
-  const shouldShowAdjustPosition = wallet && userHasBorrowed && collateralBalance && debtBalance && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && userHasBorrowed && position && !isWrongNetwork;
 
   if (!appLoaded) {
     return <LoadingDashbaord />;
@@ -37,17 +31,13 @@ const Dashboard = () => {
     <div className="raft__dashboard">
       {shouldShowAdjustPosition ? (
         <>
-          <YourPosition />
-          <AdjustPosition
-            key={`adjust-${positionComponentKey}`}
-            collateralBalance={collateralBalance}
-            debtBalance={debtBalance}
-          />
+          <YourPosition position={position} />
+          <AdjustPosition position={position} />
         </>
       ) : (
         <>
           <ProtocolStats />
-          <OpenPosition key={`open-${positionComponentKey}`} />
+          <OpenPosition />
         </>
       )}
     </div>

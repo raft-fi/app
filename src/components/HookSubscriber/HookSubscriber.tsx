@@ -1,7 +1,5 @@
 import { FC, useEffect } from 'react';
 import {
-  subscribeCollateralBalances,
-  subscribeDebtBalances,
   subscribeENS,
   subscribeProtocolStats,
   subscribeTokenBalances,
@@ -11,8 +9,13 @@ import {
   subscribeTokenAllowances,
   subscribeTokenWhitelists,
   subscribeAppLoaded,
-  subscribeCollateralBorrowingRate,
-  subscribeCollateralConversionRate,
+  subscribeCollateralBorrowingRates,
+  subscribeCollateralConversionRates,
+  subscribePosition,
+  subscribeCollateralTokenConfig,
+  subscribeCalculateRedemptionRate,
+  subscribeCollateralPositionCaps,
+  subscribeCollateralProtocolCaps,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -25,14 +28,17 @@ const HookSubscriber: FC = () => {
     subscribeTokenPrices();
     subscribeTokenBalances();
     subscribeProtocolStats();
-    subscribeCollateralBalances();
-    subscribeDebtBalances();
     subscribeEIP1193Provider();
     subscribeTransactionHistory();
     subscribeTokenAllowances();
     subscribeTokenWhitelists();
-    subscribeCollateralBorrowingRate();
-    subscribeCollateralConversionRate();
+    subscribeCollateralBorrowingRates();
+    subscribeCollateralConversionRates();
+    subscribePosition();
+    subscribeCollateralTokenConfig();
+    subscribeCalculateRedemptionRate();
+    subscribeCollateralPositionCaps();
+    subscribeCollateralProtocolCaps();
   }, []);
 
   return null;

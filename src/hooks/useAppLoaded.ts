@@ -1,10 +1,9 @@
 import { bind } from '@react-rxjs/core';
 import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rxjs';
-import { collateralBalance$ } from './useCollateralBalance';
-import { debtBalance$ } from './useDebtBalance';
 import { wallet$ } from './useWallet';
-import { collateralBorrowingRate$ } from './useCollateralBorrowingRate';
+import { collateralBorrowingRates$ } from './useCollateralBorrowingRates';
 import { protocolStats$ } from './useProtocolStats';
+import { position$ } from './usePosition';
 
 const DEFAULT_VALUE = false;
 const CHECK_INTERVAL = 1000;
@@ -14,14 +13,11 @@ const appLoaded$ = new BehaviorSubject<boolean>(DEFAULT_VALUE);
 const stream$ = interval(CHECK_INTERVAL).pipe(
   map(count => {
     const wallet = wallet$.getValue();
-    const collateralBalance = collateralBalance$.getValue();
-    const debtBalance = debtBalance$.getValue();
-    const borrowingRate = collateralBorrowingRate$.getValue();
+    const position = position$.getValue();
+    const borrowingRate = collateralBorrowingRates$.getValue();
     const protocolStats = protocolStats$.getValue();
 
-    return Boolean(
-      count && borrowingRate && protocolStats?.debtSupply && (!wallet || (wallet && collateralBalance && debtBalance)),
-    );
+    return Boolean(count && borrowingRate && protocolStats?.debtSupply && (!wallet || (wallet && position)));
   }),
   tap(loaded => appLoaded$.next(loaded)),
   takeWhile(loaded => !loaded),

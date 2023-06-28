@@ -27,6 +27,7 @@
   --raft-blue-300: #c2ebff;
   --raft-blue-200: #ebf8ff;
   --raft-blue-100: #f5fbff;
+  --raft-blue-50: #fafdff;
   --raft-green-900: #023b0f;
   --raft-green-800: #05761d;
   --raft-green-700: #07ad2c;
@@ -73,6 +74,7 @@
   --surfaceSecondary: var(--raft-blue-100);
   --surfaceError: var(--raft-red-200);
   --surfaceWarning: var(--raft-yellow-100);
+  --surfaceTooltip: var(--raft-blue-50);
 
   --textPrimary: var(--raft-grey-900);
   --textSecondary: var(--raft-grey-700);
@@ -118,6 +120,9 @@
   --statusMediumProtocolRisk: var(--raft-orange-600);
   --statusHighProtocolRisk: var(--raft-red-900);
   --statusCriticalProtocolRisk: var(--raft-red-900);
+
+  --colorUp: var(--raft-green-700);
+  --colorDown: var(--raft-red-600);
 
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);

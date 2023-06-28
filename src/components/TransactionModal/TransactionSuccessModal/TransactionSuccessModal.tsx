@@ -1,6 +1,7 @@
 import { FC, ReactNode, useCallback } from 'react';
 import { Link } from 'tempus-ui';
 import { useConfig, useEIP1193Provider } from '../../../hooks';
+import { Nullable } from '../../../interfaces';
 import { Button, Icon, ModalWrapper, Typography } from '../../shared';
 
 import './TransactionSuccessModal.scss';
@@ -10,13 +11,13 @@ interface TransactionSuccessModalProps {
   title: ReactNode | string;
   subtitle: string;
   txHash?: string;
-  tokenToAdd: {
+  tokenToAdd: Nullable<{
     label: string;
     address: string;
     symbol: string;
     decimals: number;
     image: string;
-  };
+  }>;
   onClose: () => void;
 }
 
@@ -32,7 +33,7 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
   const config = useConfig();
 
   const onAddTokenToWallet = useCallback(() => {
-    if (eip1193Provider) {
+    if (eip1193Provider && tokenToAdd) {
       // https://eips.ethereum.org/EIPS/eip-747
       eip1193Provider.request({
         method: 'wallet_watchAsset',
@@ -71,9 +72,11 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
           <Typography variant="body">.</Typography>
         </div>
         <div className="raft__transactionSuccessModal__actions">
-          <div className="raft__transactionSuccessModal__action">
-            <Button variant="secondary" size="large" text={tokenToAdd.label} onClick={onAddTokenToWallet} />
-          </div>
+          {tokenToAdd && (
+            <div className="raft__transactionSuccessModal__action">
+              <Button variant="secondary" size="large" text={tokenToAdd.label} onClick={onAddTokenToWallet} />
+            </div>
+          )}
           <div className="raft__transactionSuccessModal__action">
             <Button variant="primary" size="large" text="Continue" onClick={onClose} />
           </div>

@@ -1,18 +1,20 @@
 import { FC, useMemo } from 'react';
-import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
-import { R_TOKEN } from '@raft-fi/sdk';
-import { COLLATERAL_TOKEN_UI_PRECISION, DISPLAY_BASE_TOKEN } from '../../constants';
-import { getCollateralRatioLevel, getCollateralRatioLabel } from '../../utils';
+import { R_TOKEN, Token } from '@raft-fi/sdk';
+import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
+import { getCollateralRatioLevel, getCollateralRatioLabel, formatPercentage, formatCurrency } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
+import TokenAddressTooltip from './TokenAddressTooltip';
 
 import './PositionAfter.scss';
 
 const HOW_IT_WORKS_DOCS_LINK = 'https://docs.raft.fi/how-it-works/borrowing';
 
 interface PositionAfterProps {
-  displayCollateralToken: Nullable<Decimal>;
+  displayCollateralToken: Token;
+  displayCollateralTokenAmount: Nullable<Decimal>;
   borrowingFeePercentageFormatted: Nullable<string>;
   borrowingFeeAmountFormatted: Nullable<string>;
   borrowTokenAmountFormatted: Nullable<string>;
@@ -23,6 +25,7 @@ interface PositionAfterProps {
 
 export const PositionAfter: FC<PositionAfterProps> = ({
   displayCollateralToken,
+  displayCollateralTokenAmount,
   borrowingFeePercentageFormatted,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
@@ -32,20 +35,16 @@ export const PositionAfter: FC<PositionAfterProps> = ({
 }) => {
   const baseTokenAmountFormatted = useMemo(
     () =>
-      DecimalFormat.format(displayCollateralToken ?? Decimal.ZERO, {
-        style: 'currency',
-        currency: DISPLAY_BASE_TOKEN,
+      formatCurrency(displayCollateralTokenAmount ?? Decimal.ZERO, {
+        currency: displayCollateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
-      }),
-    [displayCollateralToken],
+      }) as string,
+    [displayCollateralToken, displayCollateralTokenAmount],
   );
 
   const collateralizationRatioFormatted = useMemo(
-    () =>
-      collateralizationRatio
-        ? DecimalFormat.format(collateralizationRatio, { style: 'percentage', fractionDigits: 2, pad: true })
-        : 'N/A',
+    () => formatPercentage(collateralizationRatio) ?? 'N/A',
     [collateralizationRatio],
   );
 
@@ -59,7 +58,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
           <Typography variant="overline">POSITION AFTER</Typography>
           <TooltipWrapper
             tooltipContent={
-              <Tooltip className="raft__openPosition__infoTooltip">
+              <Tooltip className="raft__position-after__infoTooltip">
                 <Typography variant="body2">
                   Summary of your position after the transaction is executed.{' '}
                   <Link href={HOW_IT_WORKS_DOCS_LINK}>
@@ -75,7 +74,9 @@ export const PositionAfter: FC<PositionAfterProps> = ({
         </div>
         <ul className="raft__position-after__data__position__data">
           <li className="raft__position-after__data__position__data__deposit">
-            <TokenLogo type={`token-${DISPLAY_BASE_TOKEN}`} size={20} />
+            <TooltipWrapper tooltipContent={<TokenAddressTooltip />} placement="top">
+              <TokenLogo type={`token-${displayCollateralToken}`} size={20} />
+            </TooltipWrapper>
             <ValueLabel value={baseTokenAmountFormatted} valueSize="body" tickerSize="caption" />
             {collateralTokenValueFormatted && (
               <Typography
@@ -96,7 +97,9 @@ export const PositionAfter: FC<PositionAfterProps> = ({
             )}
           </li>
           <li className="raft__position-after__data__position__data__debt">
-            <TokenLogo type={`token-${R_TOKEN}`} size={20} />
+            <TooltipWrapper tooltipContent={<TokenAddressTooltip />} placement="top">
+              <TokenLogo type={`token-${R_TOKEN}`} size={20} />
+            </TooltipWrapper>
             <ValueLabel value={borrowTokenAmountFormatted ?? `0.00 ${R_TOKEN}`} valueSize="body" tickerSize="caption" />
           </li>
           <li className="raft__position-after__data__position__data__ratio">
@@ -134,7 +137,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
           <Typography variant="overline">PROTOCOL FEES</Typography>
           <TooltipWrapper
             tooltipContent={
-              <Tooltip className="raft__openPosition__infoTooltip">
+              <Tooltip className="raft__position-after__infoTooltip">
                 <Typography variant="body2">
                   Borrowing fees associated with your transaction. Read the docs for more information.{' '}
                   <Link href="https://docs.raft.fi/how-it-works/borrowing">
