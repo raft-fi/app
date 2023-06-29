@@ -1,7 +1,8 @@
 import { TokenLogo } from 'tempus-ui';
 import { Icon, Typography } from '../shared';
-import './PositionPicker.scss';
 import PositionPickerItem from './PositionPickerItem';
+
+import './PositionPicker.scss';
 
 const PositionPicker = () => {
   return (
