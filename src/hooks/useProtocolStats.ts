@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from 'ethers';
 import { bind } from '@react-rxjs/core';
-import { Protocol } from '@raft-fi/sdk';
+import { Protocol, R_TOKEN } from '@raft-fi/sdk';
 import {
   from,
   of,
@@ -36,10 +36,10 @@ const fetchData = (provider: JsonRpcProvider) => {
       from(stats.fetchCollateralSupply()),
       from(stats.fetchDebtSupply()),
       from(stats.fetchOpenPositionCount()),
-      from(stats.getTotalRSupply()),
+      from(stats.fetchTokenTotalSupply(R_TOKEN)),
     ]).pipe(
       map(([, , , totalRSupply]) => {
-        if (!stats.collateralSupply || !stats.debtSupply || !stats.openPositionCount) {
+        if (!stats.collateralSupply || !stats.debtSupply || !stats.openPositionCount || !totalRSupply) {
           return null;
         }
 
@@ -47,7 +47,7 @@ const fetchData = (provider: JsonRpcProvider) => {
           collateralSupply: stats.collateralSupply,
           debtSupply: stats.debtSupply,
           openPositions: stats.openPositionCount,
-          totalRSupply: totalRSupply,
+          totalRSupply,
         };
       }),
       catchError(error => {

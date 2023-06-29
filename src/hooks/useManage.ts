@@ -1,0 +1,345 @@
+import { v4 as uuid } from 'uuid';
+import { ERC20PermitSignatureStruct, R_TOKEN, UserPosition, ManagePositionStep } from '@raft-fi/sdk';
+import { bind } from '@react-rxjs/core';
+import { createSignal } from '@react-rxjs/utils';
+import { Decimal } from '@tempusfinance/decimal';
+import { BrowserProvider, JsonRpcSigner, TransactionResponse } from 'ethers';
+import {
+  BehaviorSubject,
+  withLatestFrom,
+  from,
+  of,
+  map,
+  concatMap,
+  Subscription,
+  tap,
+  combineLatest,
+  catchError,
+} from 'rxjs';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from '../interfaces';
+import { emitAppEvent } from './useAppEvent';
+import { notification$ } from './useNotification';
+import { tokenAllowances$ } from './useTokenAllowances';
+import { tokenWhitelists$ } from './useTokenWhitelists';
+import { wallet$ } from './useWallet';
+import { walletSigner$ } from './useWalletSigner';
+
+const DEFAULT_VALUE = {
+  pending: false,
+  statusType: null,
+  request: null,
+};
+const DEFAULT_STEPS = {
+  pending: false,
+  request: null,
+  result: null,
+  generator: null,
+};
+const GAS_LIMIT_MULTIPLIER = new Decimal(2);
+
+type UserPositionMap = TokenGenericMap<
+  SupportedUnderlyingCollateralToken,
+  Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
+>;
+type ManagePositionStepsGenerator = AsyncGenerator<ManagePositionStep, void, ERC20PermitSignatureStruct | undefined>;
+type ManagePositionFunc = () => void;
+type RequestManagePositionStepFunc = (request: ManagePositionStepsRequest) => void;
+type ManagePositionStatusType = 'whitelist' | 'approve' | 'permit' | 'manage';
+
+const userPositionMap: UserPositionMap = SUPPORTED_UNDERLYING_TOKENS.reduce(
+  (map, underlyingToken) => ({
+    ...map,
+    [underlyingToken]: null,
+  }),
+  {} as UserPositionMap,
+);
+
+interface ManagePositionStepExtra extends ManagePositionStep {
+  // TODO: this should be handled by SDK, count in app for now
+  currentStep: number;
+}
+
+interface ManagePositionStepsRequest {
+  underlyingCollateralToken: SupportedUnderlyingCollateralToken;
+  collateralToken: SupportedCollateralToken;
+  collateralChange: Decimal;
+  debtChange: Decimal;
+  isClosePosition?: boolean;
+}
+
+interface ManagePositionStatus {
+  pending: boolean;
+  success?: boolean;
+  statusType: Nullable<ManagePositionStatusType>;
+  request: Nullable<ManagePositionStepsRequest>;
+  response?: TransactionResponse;
+  signature?: ERC20PermitSignatureStruct;
+  txHash?: string;
+  error?: Error;
+}
+
+interface ManagePositionStepsStatus {
+  pending: boolean;
+  request: Nullable<ManagePositionStepsRequest>;
+  result: Nullable<ManagePositionStepExtra>;
+  generator: Nullable<ManagePositionStepsGenerator>;
+  error?: Error;
+}
+
+interface ManagePositionStepsResponse {
+  request: ManagePositionStepsRequest;
+  result: Nullable<ManagePositionStepExtra>;
+  generator: Nullable<ManagePositionStepsGenerator>;
+}
+
+const [managePositionStepsRequest$, setManagePositionStepsRequest] = createSignal<ManagePositionStepsRequest>();
+const managePositionStepsStatus$ = new BehaviorSubject<ManagePositionStepsStatus>(DEFAULT_STEPS);
+const managePositionStatus$ = new BehaviorSubject<ManagePositionStatus>(DEFAULT_VALUE);
+
+const managePosition$ = managePositionStepsStatus$.pipe(
+  withLatestFrom(wallet$),
+  map<[ManagePositionStepsStatus, Nullable<BrowserProvider>], Nullable<ManagePositionFunc>>(
+    ([status, walletProvider]) => {
+      const { pending, request, result, generator, error } = status;
+
+      if (!pending && !error && result && generator && walletProvider) {
+        return async () => {
+          const notificationId = uuid();
+          const statusType = typeof result.type === 'string' ? result.type : result.type.name;
+
+          try {
+            managePositionStatus$.next({ pending: true, request, statusType });
+
+            if (statusType === 'approve' || statusType === 'permit') {
+              notification$.next({
+                notificationId,
+                notificationType: 'approval-pending',
+                timestamp: Date.now(),
+              });
+            }
+
+            const response = await result.action();
+            const txnResponse = response as TransactionResponse;
+            const signature = response as ERC20PermitSignatureStruct;
+            const isReject = !response;
+            const isTransactionResponse = txnResponse.hash && !isReject;
+
+            if (isReject) {
+              const userRejectError = new Error('Rejected by user.');
+              throw userRejectError;
+            }
+
+            if (isTransactionResponse) {
+              const transactionReceipt = await walletProvider.waitForTransaction(
+                txnResponse.hash,
+                NUMBER_OF_CONFIRMATIONS_FOR_TX,
+              );
+
+              if (!transactionReceipt) {
+                const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
+                throw receiptFetchFailed;
+              }
+
+              managePositionStatus$.next({
+                pending: false,
+                statusType,
+                success: true,
+                request,
+                response: txnResponse,
+                txHash: txnResponse.hash,
+              });
+
+              if (statusType === 'approve' || statusType === 'permit') {
+                notification$.next({
+                  notificationId,
+                  notificationType: 'approval-success',
+                  timestamp: Date.now(),
+                });
+              }
+            } else {
+              managePositionStatus$.next({ pending: false, request, statusType, success: true, signature });
+
+              if (statusType === 'approve' || statusType === 'permit') {
+                notification$.next({
+                  notificationId,
+                  notificationType: 'approval-success',
+                  timestamp: Date.now(),
+                });
+              }
+            }
+
+            managePositionStepsStatus$.next({
+              request,
+              result: null,
+              generator,
+              pending: true,
+            });
+
+            const nextStep = await generator.next(!isTransactionResponse ? signature : undefined);
+            const nextStepExtra = nextStep
+              ? ({ ...nextStep.value, currentStep: result.currentStep + 1 } as ManagePositionStepExtra)
+              : null;
+            console.log('call end', nextStep);
+            managePositionStepsStatus$.next({
+              request,
+              result: nextStepExtra,
+              generator,
+              pending: false,
+            });
+
+            emitAppEvent({
+              eventType: statusType,
+              timestamp: Date.now(),
+              txnHash: txnResponse.hash,
+            });
+          } catch (error) {
+            console.error(`useManage (error) - Failed to execute ${statusType}!`, error);
+            managePositionStatus$.next({ pending: false, request, statusType, error: error as Error });
+
+            if (statusType === 'approve' || statusType === 'permit') {
+              notification$.next({
+                notificationId,
+                notificationType: 'approval-error',
+                timestamp: Date.now(),
+              });
+            }
+          }
+        };
+      }
+
+      return null;
+    },
+  ),
+);
+
+const requestManagePositionStep$ = walletSigner$.pipe(
+  map<Nullable<JsonRpcSigner>, RequestManagePositionStepFunc>(signer => (request: ManagePositionStepsRequest) => {
+    if (!signer) {
+      return;
+    }
+
+    let userPosition = userPositionMap[request.underlyingCollateralToken];
+
+    if (!userPosition) {
+      userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
+      userPositionMap[request.underlyingCollateralToken] = userPosition;
+    }
+
+    setManagePositionStepsRequest(request);
+  }),
+);
+
+const stream$ = combineLatest([managePositionStepsRequest$]).pipe(
+  concatMap(([request]) => {
+    const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
+    // use latest token whitelist when request comes
+    const tokenWhitelistMap = tokenWhitelists$.value;
+    // use latest token allowance when request comes
+    const tokenAllowanceMap = tokenAllowances$.value;
+
+    // if these are not yet fetched, pass undefined to let SDK fetch
+    const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
+    const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
+    const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
+
+    if (collateralChange.isZero() && debtChange.isZero()) {
+      return of({
+        request,
+        result: null,
+        generator: null,
+      } as ManagePositionStepsResponse);
+    }
+
+    try {
+      const userPosition = userPositionMap[
+        underlyingCollateralToken
+      ] as UserPosition<SupportedUnderlyingCollateralToken>;
+      const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
+      const actualDebtChange = isClosePosition ? Decimal.MAX_DECIMAL.mul(-1) : debtChange;
+
+      managePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
+
+      const steps = userPosition.getManageSteps(actualCollateralChange, actualDebtChange, {
+        collateralToken,
+        isDelegateWhitelisted,
+        collateralTokenAllowance,
+        rTokenAllowance,
+        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+      });
+      const nextStep$ = from(steps.next());
+
+      return nextStep$.pipe(
+        map(nextStep => {
+          if (nextStep.value) {
+            return {
+              request,
+              result: { ...nextStep.value, currentStep: 1 },
+              generator: steps,
+            } as ManagePositionStepsResponse;
+          }
+
+          return {
+            request,
+            result: null,
+            generator: steps,
+          } as ManagePositionStepsResponse;
+        }),
+        catchError(error => {
+          console.error(
+            `useManagePositionSteps (catchError) - failed to get manage position steps for ${underlyingCollateralToken}!`,
+            error,
+          );
+          return of({
+            request,
+            result: null,
+            generator: null,
+            error,
+          } as ManagePositionStepsResponse);
+        }),
+      );
+    } catch (error) {
+      console.error(
+        `useManagePositionSteps (catch) - failed to get manage position steps for ${underlyingCollateralToken}!`,
+        error,
+      );
+      return of({
+        request,
+        result: null,
+        generator: null,
+        error,
+      } as ManagePositionStepsResponse);
+    }
+  }),
+  tap<ManagePositionStepsResponse>(response => {
+    managePositionStepsStatus$.next({ ...response, pending: false });
+  }),
+);
+
+const [managePosition] = bind<Nullable<ManagePositionFunc>>(managePosition$, null);
+const [requestManagePositionStep] = bind<Nullable<RequestManagePositionStepFunc>>(requestManagePositionStep$, null);
+const [managePositionStatus] = bind<ManagePositionStatus>(managePositionStatus$, DEFAULT_VALUE);
+const [managePositionStepsStatus] = bind<ManagePositionStepsStatus>(managePositionStepsStatus$, DEFAULT_STEPS);
+
+export const useManage = (): {
+  managePositionStatus: ManagePositionStatus;
+  managePositionStepsStatus: ManagePositionStepsStatus;
+  managePosition: Nullable<ManagePositionFunc>;
+  requestManagePositionStep: Nullable<RequestManagePositionStepFunc>;
+} => ({
+  managePositionStatus: managePositionStatus(),
+  managePositionStepsStatus: managePositionStepsStatus(),
+  managePosition: managePosition(),
+  requestManagePositionStep: requestManagePositionStep(),
+});
+
+let subscriptions: Subscription[];
+
+export const subscribeManageStatus = (): void => {
+  unsubscribeManageStatus();
+  subscriptions = [stream$.subscribe()];
+};
+export const unsubscribeManageStatus = (): void => subscriptions?.forEach(subscription => subscription.unsubscribe());
+export const resetManageStatus = (): void => {
+  managePositionStatus$.next(DEFAULT_VALUE);
+};

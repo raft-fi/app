@@ -16,13 +16,11 @@ import {
   Subscription,
 } from 'rxjs';
 import axios from 'axios';
-import { PriceFeed, R_TOKEN, TOKENS, Token } from '@raft-fi/sdk';
+import { PriceFeed, R_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable, TokenDecimalMap } from '../interfaces';
 import { priceFeed$ } from './usePriceFeed';
-
-export type TokenPriceMap = TokenDecimalMap<Token>;
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids={TOKEN_ID}&vs_currencies=usd';
 const COINGECKO_TOKEN_ID_MAP: { [token: string]: string } = {
@@ -31,13 +29,17 @@ const COINGECKO_TOKEN_ID_MAP: { [token: string]: string } = {
   wstETH: 'wrapped-steth',
 };
 
-const DEFAULT_VALUE: TokenPriceMap = TOKENS.reduce(
+const TOKENS_TO_FETCH = Array.from(new Set([...SUPPORTED_TOKENS, ...SUPPORTED_UNDERLYING_TOKENS]));
+const DEFAULT_VALUE: TokenPriceMap = TOKENS_TO_FETCH.reduce(
   (map, token) => ({
     ...map,
     [token]: null,
   }),
   {} as TokenPriceMap,
 );
+
+type TokenToFetch = (typeof TOKENS_TO_FETCH)[number];
+export type TokenPriceMap = TokenDecimalMap<TokenToFetch>;
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
@@ -50,7 +52,7 @@ export const tokenPrices$ = rawTokenPrices$.pipe(
   ),
 );
 
-const fetchData = async (feed: PriceFeed, token: Token): Promise<Nullable<Decimal>> => {
+const fetchData = async (feed: PriceFeed, token: TokenToFetch): Promise<Nullable<Decimal>> => {
   try {
     // TODO: SDK should support multiple token price fetch, update later
     return feed.getPrice(token);
@@ -59,7 +61,7 @@ const fetchData = async (feed: PriceFeed, token: Token): Promise<Nullable<Decima
   }
 };
 
-const fetchFallbackData = async (token: Token): Promise<Nullable<Decimal>> => {
+const fetchFallbackData = async (token: TokenToFetch): Promise<Nullable<Decimal>> => {
   try {
     if (token === R_TOKEN) {
       return new Decimal(1);
@@ -78,7 +80,7 @@ const fetchFallbackData = async (token: Token): Promise<Nullable<Decimal>> => {
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<TokenPriceMap> = combineLatest([priceFeed$, intervalBeat$]).pipe(
   mergeMap<[PriceFeed, number], Observable<TokenPriceMap>>(([feed]) => {
-    const tokenPriceMaps = TOKENS.map(token =>
+    const tokenPriceMaps = TOKENS_TO_FETCH.map(token =>
       from(fetchData(feed, token)).pipe(map(price => ({ [token]: price } as TokenPriceMap))),
     );
 
