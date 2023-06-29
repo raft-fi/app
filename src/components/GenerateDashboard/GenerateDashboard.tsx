@@ -1,14 +1,14 @@
 import { memo, useMemo } from 'react';
 import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
-import LoadingDashbaord from '../LoadingDashboard';
+import LoadingDashboard from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
 
-import './Dashboard.scss';
+import './GenerateDashboard.scss';
 
-const Dashboard = () => {
+const GenerateDashboard = () => {
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
   const position = usePosition();
@@ -24,11 +24,11 @@ const Dashboard = () => {
   const shouldShowAdjustPosition = wallet && userHasBorrowed && position && !isWrongNetwork;
 
   if (!appLoaded) {
-    return <LoadingDashbaord />;
+    return <LoadingDashboard />;
   }
 
   return (
-    <div className="raft__dashboard">
+    <div className="raft__generateDashboard">
       {shouldShowAdjustPosition ? (
         <>
           <YourPosition position={position} />
@@ -44,4 +44,4 @@ const Dashboard = () => {
   );
 };
 
-export default memo(Dashboard);
+export default memo(GenerateDashboard);

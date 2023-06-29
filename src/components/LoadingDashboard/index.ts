@@ -1,3 +1,3 @@
-import LoadingDashbaord from './LoadingDashboard';
+import LoadingDashboard from './LoadingDashboard';
 
-export default LoadingDashbaord;
+export default LoadingDashboard;

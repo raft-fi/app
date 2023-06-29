@@ -32,6 +32,7 @@ import Gitbook from './Gitbook';
 import Warning from './Warning';
 import Metamask from './Metamask';
 import TriangleUp from './TriangleUp';
+import Stars from './Stars';
 
 type IconVariant =
   | 'discord'
@@ -65,7 +66,8 @@ type IconVariant =
   | 'arrow-right-thin'
   | 'checkmark'
   | 'warning'
-  | 'metamask';
+  | 'metamask'
+  | 'stars';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -100,6 +102,7 @@ const ICON_MAP: IconMap = {
   checkmark: Checkmark,
   warning: Warning,
   metamask: Metamask,
+  stars: Stars,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;

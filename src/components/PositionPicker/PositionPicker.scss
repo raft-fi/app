@@ -1,0 +1,26 @@
+@import '../../index.scss';
+
+.raft__positionPicker {
+  @include sectionBox;
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 458px;
+
+  .raft__positionPickerDescription {
+    max-width: 360px;
+    margin-bottom: 26px;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .raft__positionPickerItems {
+    display: flex;
+
+    .raft__positionPickerItem:not(:last-child) {
+      margin-right: 16px;
+    }
+  }
+}
