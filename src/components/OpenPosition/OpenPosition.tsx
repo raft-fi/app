@@ -123,8 +123,8 @@ const OpenPosition = () => {
     [managePositionStepsStatus.result?.numberOfSteps],
   );
   const currentExecutionSteps = useMemo(
-    () => managePositionStepsStatus.result?.currentStep,
-    [managePositionStepsStatus.result?.currentStep],
+    () => managePositionStepsStatus.result?.stepNumber,
+    [managePositionStepsStatus.result?.stepNumber],
   );
   const executionType = useMemo(
     () => managePositionStepsStatus.result?.type?.name ?? null,
@@ -292,6 +292,10 @@ const OpenPosition = () => {
     () => selectedCollateralTokenInputValues.amount && borrowAmount,
     [borrowAmount, selectedCollateralTokenInputValues.amount],
   );
+  const hasNonEmptyInput = useMemo(
+    () => !collateralAmountDecimal.isZero() || !borrowAmountDecimal.isZero(),
+    [borrowAmountDecimal, collateralAmountDecimal],
+  );
   const hasEnoughCollateralTokenBalance = useMemo(
     () =>
       !walletConnected ||
@@ -443,7 +447,7 @@ const OpenPosition = () => {
       return 'Connect wallet';
     }
 
-    if (!isTotalSupplyWithinCollateralProtocolCap) {
+    if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
         fractionDigits: 0,
@@ -473,15 +477,22 @@ const OpenPosition = () => {
         : `Execute (${currentExecutionSteps}/${executionSteps})`;
     }
 
-    return 'Execute';
+    // input is still empty, showing default button text
+    if (!hasNonEmptyInput) {
+      return 'Execute';
+    }
+
+    // executionType is null but input non-empty, still loading
+    return 'Loading';
   }, [
     walletConnected,
     isTotalSupplyWithinCollateralProtocolCap,
+    managePositionStatus.pending,
     executionSteps,
     executionType,
+    hasNonEmptyInput,
     collateralProtocolCapMap,
     selectedCollateralToken,
-    managePositionStatus.pending,
     currentExecutionSteps,
     tokenNeedsToBeApproved,
   ]);
@@ -552,14 +563,26 @@ const OpenPosition = () => {
    * Update action button state based on current approve/borrow request status
    */
   useEffect(() => {
-    if (managePositionStatus.pending || managePositionStepsStatus.pending) {
+    if (
+      managePositionStatus.pending ||
+      managePositionStepsStatus.pending ||
+      (walletConnected && hasNonEmptyInput && !executionType)
+    ) {
       setActionButtonState('loading');
     } else if (managePositionStatus.success) {
       setActionButtonState('success');
     } else {
       setActionButtonState('default');
     }
-  }, [managePositionStatus.pending, managePositionStatus.success, managePositionStepsStatus.pending]);
+  }, [
+    executionType,
+    hasInputFilled,
+    hasNonEmptyInput,
+    managePositionStatus.pending,
+    managePositionStatus.success,
+    managePositionStepsStatus.pending,
+    walletConnected,
+  ]);
 
   const borrowingFeePercentageFormatted = useMemo(
     () => (selectedCollateralBorrowRate?.isZero() ? 'Free' : formatPercentage(selectedCollateralBorrowRate)),

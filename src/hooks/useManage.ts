@@ -14,16 +14,25 @@ import {
   Subscription,
   tap,
   combineLatest,
+  distinctUntilChanged,
+  filter,
   catchError,
 } from 'rxjs';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
-import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from '../interfaces';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import {
+  Nullable,
+  SupportedCollateralToken,
+  SupportedToken,
+  SupportedUnderlyingCollateralToken,
+  TokenGenericMap,
+} from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { tokenAllowances$ } from './useTokenAllowances';
 import { tokenWhitelists$ } from './useTokenWhitelists';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
+import { getValidSignature } from '../utils';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -42,6 +51,7 @@ type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
   Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
 >;
+type SignatureMap = TokenGenericMap<SupportedToken, Nullable<ERC20PermitSignatureStruct>>;
 type ManagePositionStepsGenerator = AsyncGenerator<ManagePositionStep, void, ERC20PermitSignatureStruct | undefined>;
 type ManagePositionFunc = () => void;
 type RequestManagePositionStepFunc = (request: ManagePositionStepsRequest) => void;
@@ -54,11 +64,13 @@ const userPositionMap: UserPositionMap = SUPPORTED_UNDERLYING_TOKENS.reduce(
   }),
   {} as UserPositionMap,
 );
-
-interface ManagePositionStepExtra extends ManagePositionStep {
-  // TODO: this should be handled by SDK, count in app for now
-  currentStep: number;
-}
+const signatureMap: SignatureMap = SUPPORTED_TOKENS.reduce(
+  (map, token) => ({
+    ...map,
+    [token]: null,
+  }),
+  {} as SignatureMap,
+);
 
 interface ManagePositionStepsRequest {
   underlyingCollateralToken: SupportedUnderlyingCollateralToken;
@@ -82,14 +94,14 @@ interface ManagePositionStatus {
 interface ManagePositionStepsStatus {
   pending: boolean;
   request: Nullable<ManagePositionStepsRequest>;
-  result: Nullable<ManagePositionStepExtra>;
+  result: Nullable<ManagePositionStep>;
   generator: Nullable<ManagePositionStepsGenerator>;
   error?: Error;
 }
 
 interface ManagePositionStepsResponse {
   request: ManagePositionStepsRequest;
-  result: Nullable<ManagePositionStepExtra>;
+  result: Nullable<ManagePositionStep>;
   generator: Nullable<ManagePositionStepsGenerator>;
 }
 
@@ -160,6 +172,10 @@ const managePosition$ = managePositionStepsStatus$.pipe(
             } else {
               managePositionStatus$.next({ pending: false, request, statusType, success: true, signature });
 
+              if (result.type.token && ([...SUPPORTED_TOKENS] as string[]).includes(result.type.token)) {
+                signatureMap[result.type.token] = signature;
+              }
+
               if (statusType === 'approve' || statusType === 'permit') {
                 notification$.next({
                   notificationId,
@@ -177,13 +193,9 @@ const managePosition$ = managePositionStepsStatus$.pipe(
             });
 
             const nextStep = await generator.next(!isTransactionResponse ? signature : undefined);
-            const nextStepExtra = nextStep
-              ? ({ ...nextStep.value, currentStep: result.currentStep + 1 } as ManagePositionStepExtra)
-              : null;
-            console.log('call end', nextStep);
             managePositionStepsStatus$.next({
               request,
-              result: nextStepExtra,
+              result: nextStep.value ?? null,
               generator,
               pending: false,
             });
@@ -230,18 +242,28 @@ const requestManagePositionStep$ = walletSigner$.pipe(
   }),
 );
 
-const stream$ = combineLatest([managePositionStepsRequest$]).pipe(
-  concatMap(([request]) => {
-    const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
-    // use latest token whitelist when request comes
-    const tokenWhitelistMap = tokenWhitelists$.value;
-    // use latest token allowance when request comes
-    const tokenAllowanceMap = tokenAllowances$.value;
+const tokenMapsLoaded$ = combineLatest([managePositionStepsRequest$, tokenWhitelists$, tokenAllowances$]).pipe(
+  map(([request, tokenWhitelistMap, tokenAllowanceMap]) => {
+    const { collateralToken } = request;
+    const isDelegateWhitelisted = tokenWhitelistMap[collateralToken];
+    const collateralTokenAllowance = tokenAllowanceMap[collateralToken];
+    const rTokenAllowance = tokenAllowanceMap[R_TOKEN];
 
-    // if these are not yet fetched, pass undefined to let SDK fetch
+    return isDelegateWhitelisted !== null && Boolean(collateralTokenAllowance) && Boolean(rTokenAllowance);
+  }),
+  distinctUntilChanged(),
+);
+const stream$ = combineLatest([managePositionStepsRequest$, tokenMapsLoaded$]).pipe(
+  filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
+  withLatestFrom(tokenWhitelists$, tokenAllowances$),
+  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap]) => {
+    const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
+
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
     const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
+    const collateralPermitSignature = getValidSignature(signatureMap[collateralToken]) ?? undefined;
+    const rPermitSignature = getValidSignature(signatureMap[R_TOKEN]) ?? undefined;
 
     if (collateralChange.isZero() && debtChange.isZero()) {
       return of({
@@ -265,6 +287,8 @@ const stream$ = combineLatest([managePositionStepsRequest$]).pipe(
         isDelegateWhitelisted,
         collateralTokenAllowance,
         rTokenAllowance,
+        collateralPermitSignature,
+        rPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
       const nextStep$ = from(steps.next());

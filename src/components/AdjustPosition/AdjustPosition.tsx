@@ -70,19 +70,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     setCollateralTokenForConfig(selectedCollateralToken);
   }, [selectedCollateralToken, setCollateralTokenForConfig]);
 
-  /**
-   * Update action button state based on current borrow request status
-   */
-  useEffect(() => {
-    if (managePositionStatus.pending || managePositionStepsStatus.pending) {
-      setTransactionState('loading');
-    } else if (managePositionStatus.success) {
-      setTransactionState('success');
-    } else {
-      setTransactionState('default');
-    }
-  }, [managePositionStatus.pending, managePositionStatus.success, managePositionStepsStatus.pending]);
-
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
       setSelectedCollateralToken(token);
@@ -125,24 +112,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
 
     return original === truncated ? original : `${truncated}...`;
   }, [borrowAmountDecimal]);
-
-  useEffect(() => {
-    requestManagePositionStep?.({
-      underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
-      collateralToken: selectedCollateralToken,
-      collateralChange: collateralAmountDecimal.mul(isAddCollateral ? 1 : -1),
-      debtChange: borrowAmountDecimal.mul(isAddDebt ? 1 : -1),
-      isClosePosition: closePositionActive,
-    });
-  }, [
-    borrowAmountDecimal,
-    closePositionActive,
-    collateralAmountDecimal,
-    isAddCollateral,
-    isAddDebt,
-    requestManagePositionStep,
-    selectedCollateralToken,
-  ]);
 
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
@@ -308,13 +277,37 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     currentDebtTokenValues?.value,
   ]);
 
+  useEffect(() => {
+    const isZeroCollateralInNewPosition = newCollateralInUnderlyingTokenValues.amount?.isZero();
+    const isZeroDebtInNewPosition = newDebtTokenWithFeeValues.amount?.isZero();
+    const isManualClosePosition = isZeroCollateralInNewPosition && isZeroDebtInNewPosition;
+
+    requestManagePositionStep?.({
+      underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
+      collateralToken: selectedCollateralToken,
+      collateralChange: collateralAmountDecimal.mul(isAddCollateral ? 1 : -1),
+      debtChange: borrowAmountDecimal.mul(isAddDebt ? 1 : -1),
+      isClosePosition: closePositionActive || isManualClosePosition,
+    });
+  }, [
+    borrowAmountDecimal,
+    closePositionActive,
+    collateralAmountDecimal,
+    isAddCollateral,
+    isAddDebt,
+    newCollateralInUnderlyingTokenValues.amount,
+    newDebtTokenWithFeeValues.amount,
+    requestManagePositionStep,
+    selectedCollateralToken,
+  ]);
+
   const executionSteps = useMemo(
-    () => managePositionStepsStatus.result?.numberOfSteps ?? 1,
+    () => managePositionStepsStatus.result?.numberOfSteps,
     [managePositionStepsStatus.result?.numberOfSteps],
   );
   const currentExecutionSteps = useMemo(
-    () => managePositionStepsStatus.result?.currentStep ?? 1,
-    [managePositionStepsStatus.result?.currentStep],
+    () => managePositionStepsStatus.result?.stepNumber,
+    [managePositionStepsStatus.result?.stepNumber],
   );
   const executionType = useMemo(
     () => managePositionStepsStatus.result?.type?.name ?? null,
@@ -351,6 +344,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const hasNonNegativeDebt = useMemo(
     () => !newDebtTokenWithFeeValues.amount?.lt(0),
     [newDebtTokenWithFeeValues.amount],
+  );
+  const hasNonEmptyInput = useMemo(
+    () => !collateralAmountDecimal.isZero() || !borrowAmountDecimal.isZero(),
+    [borrowAmountDecimal, collateralAmountDecimal],
   );
 
   const formattedMissingBorrowAmount = useMemo(() => {
@@ -585,7 +582,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isPositionWithinDebtPositionCap]);
 
   const buttonLabel = useMemo(() => {
-    if (!isTotalSupplyWithinCollateralProtocolCap) {
+    if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
         fractionDigits: 0,
@@ -593,7 +590,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return `Protocol collateral cap of ${collateralProtocolCapFormatted} reached. Please check again later.`;
     }
 
-    if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt) {
+    if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt && !managePositionStatus.pending) {
       return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
     }
 
@@ -619,23 +616,25 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
         : `Execute (${currentExecutionSteps}/${executionSteps})`;
     }
 
-    if (closePositionActive && managePositionStatus.pending) {
-      return `Executing (${currentExecutionSteps}/${executionSteps})`;
+    // input is still empty, showing default button text
+    if (!hasNonEmptyInput) {
+      return 'Execute';
     }
 
-    return `Execute (${currentExecutionSteps}/${executionSteps})`;
+    // executionType is null but input non-empty, still loading
+    return 'Loading';
   }, [
     isTotalSupplyWithinCollateralProtocolCap,
+    managePositionStatus.pending,
     hasEnoughDebtTokenBalance,
     hasNonNegativeDebt,
     executionSteps,
     executionType,
-    closePositionActive,
-    managePositionStatus.pending,
-    currentExecutionSteps,
+    hasNonEmptyInput,
     collateralProtocolCapMap,
     selectedCollateralToken,
     formattedMissingBorrowAmount,
+    currentExecutionSteps,
     tokenNeedsToBeApproved,
   ]);
 
@@ -711,6 +710,25 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
 
     managePosition?.();
   }, [canAdjust, managePosition]);
+
+  /**
+   * Update action button state based on current borrow request status
+   */
+  useEffect(() => {
+    if (managePositionStatus.pending || managePositionStepsStatus.pending || (hasNonEmptyInput && !executionType)) {
+      setTransactionState('loading');
+    } else if (managePositionStatus.success) {
+      setTransactionState('success');
+    } else {
+      setTransactionState('default');
+    }
+  }, [
+    executionType,
+    hasNonEmptyInput,
+    managePositionStatus.pending,
+    managePositionStatus.success,
+    managePositionStepsStatus.pending,
+  ]);
 
   const collateralLabelComponent = useMemo(
     () => (
