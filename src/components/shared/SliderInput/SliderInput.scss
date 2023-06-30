@@ -1,0 +1,14 @@
+.raft__sliderInput {
+  width: 100%;
+
+  .raft__sliderInputValue {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    margin-top: 8px;
+
+    .raft__slider {
+      margin-left: 20px;
+    }
+  }
+}
