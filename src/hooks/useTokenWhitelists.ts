@@ -18,35 +18,30 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { UserPosition, Token, CollateralToken } from '@raft-fi/sdk';
+import { UserPosition } from '@raft-fi/sdk';
 import {
   DEBOUNCE_IN_MS,
   POLLING_INTERVAL_IN_MS,
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../constants';
-import { Nullable, Position, TokenGenericMap } from '../interfaces';
+import { Nullable, Position, SupportedCollateralToken, TokenGenericMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
+import { getNullTokenMap } from '../utils';
 
-export type TokenWhitelistMap = TokenGenericMap<Token, Nullable<boolean>>;
+export type TokenWhitelistMap = TokenGenericMap<SupportedCollateralToken, Nullable<boolean>>;
 
-const DEFAULT_VALUE: TokenWhitelistMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as TokenWhitelistMap,
-);
+const DEFAULT_VALUE: TokenWhitelistMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 export const tokenWhitelists$ = new BehaviorSubject<TokenWhitelistMap>(DEFAULT_VALUE);
 
 const fetchData = async (
-  token: CollateralToken,
+  token: SupportedCollateralToken,
   walletSigner: Signer,
   position: Position,
 ): Promise<Nullable<boolean>> => {

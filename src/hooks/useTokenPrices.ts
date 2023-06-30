@@ -21,6 +21,7 @@ import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable, TokenDecimalMap } from '../interfaces';
 import { priceFeed$ } from './usePriceFeed';
+import { getNullTokenMap } from '../utils';
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids={TOKEN_ID}&vs_currencies=usd';
 const COINGECKO_TOKEN_ID_MAP: { [token: string]: string } = {
@@ -30,16 +31,10 @@ const COINGECKO_TOKEN_ID_MAP: { [token: string]: string } = {
 };
 
 const TOKENS_TO_FETCH = Array.from(new Set([...SUPPORTED_TOKENS, ...SUPPORTED_UNDERLYING_TOKENS]));
-const DEFAULT_VALUE: TokenPriceMap = TOKENS_TO_FETCH.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as TokenPriceMap,
-);
-
 type TokenToFetch = (typeof TOKENS_TO_FETCH)[number];
 export type TokenPriceMap = TokenDecimalMap<TokenToFetch>;
+
+const DEFAULT_VALUE: TokenPriceMap = getNullTokenMap<TokenToFetch>(TOKENS_TO_FETCH);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 

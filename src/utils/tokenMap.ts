@@ -1,6 +1,6 @@
 import { Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { Nullable, TokenDecimalMap } from '../interfaces';
+import { Nullable, TokenDecimalMap, TokenGenericMap } from '../interfaces';
 
 export const getDecimalFromTokenMap = <T extends Token = Token>(
   map: Nullable<TokenDecimalMap<T>>,
@@ -12,3 +12,18 @@ export const getDecimalFromTokenMap = <T extends Token = Token>(
 
   return map[token] ?? null;
 };
+
+export const getDefaultTokenMap = <T extends Token = Token, V = object>(
+  tokens: readonly T[],
+  defaultValue: V,
+): TokenGenericMap<T, V> =>
+  tokens.reduce(
+    (map, token) => ({
+      ...map,
+      [token]: defaultValue,
+    }),
+    {} as TokenGenericMap<T, V>,
+  );
+
+export const getNullTokenMap = <T extends Token = Token>(tokens: readonly T[]) =>
+  getDefaultTokenMap<T, null>(tokens, null);

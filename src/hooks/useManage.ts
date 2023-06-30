@@ -32,7 +32,7 @@ import { tokenAllowances$ } from './useTokenAllowances';
 import { tokenWhitelists$ } from './useTokenWhitelists';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
-import { getValidSignature } from '../utils';
+import { getNullTokenMap, isSignatureValid } from '../utils';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -57,20 +57,9 @@ type ManagePositionFunc = () => void;
 type RequestManagePositionStepFunc = (request: ManagePositionStepsRequest) => void;
 type ManagePositionStatusType = 'whitelist' | 'approve' | 'permit' | 'manage';
 
-const userPositionMap: UserPositionMap = SUPPORTED_UNDERLYING_TOKENS.reduce(
-  (map, underlyingToken) => ({
-    ...map,
-    [underlyingToken]: null,
-  }),
-  {} as UserPositionMap,
-);
-const signatureMap: SignatureMap = SUPPORTED_TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as SignatureMap,
-);
+const userPositionMap: UserPositionMap =
+  getNullTokenMap<SupportedUnderlyingCollateralToken>(SUPPORTED_UNDERLYING_TOKENS);
+const signatureMap: SignatureMap = getNullTokenMap<SupportedToken>(SUPPORTED_TOKENS);
 
 interface ManagePositionStepsRequest {
   underlyingCollateralToken: SupportedUnderlyingCollateralToken;
@@ -168,6 +157,9 @@ const managePosition$ = managePositionStepsStatus$.pipe(
                   notificationType: 'approval-success',
                   timestamp: Date.now(),
                 });
+              } else if (statusType === 'manage') {
+                // reset signature map after txn success
+                SUPPORTED_TOKENS.forEach(token => (signatureMap[token] = null));
               }
             } else {
               managePositionStatus$.next({ pending: false, request, statusType, success: true, signature });
@@ -262,8 +254,12 @@ const stream$ = combineLatest([managePositionStepsRequest$, tokenMapsLoaded$]).p
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
     const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
-    const collateralPermitSignature = getValidSignature(signatureMap[collateralToken]) ?? undefined;
-    const rPermitSignature = getValidSignature(signatureMap[R_TOKEN]) ?? undefined;
+    const collateralPermitSignature = isSignatureValid(signatureMap[collateralToken])
+      ? (signatureMap[collateralToken] as ERC20PermitSignatureStruct)
+      : undefined;
+    const rPermitSignature = isSignatureValid(signatureMap[R_TOKEN])
+      ? (signatureMap[R_TOKEN] as ERC20PermitSignatureStruct)
+      : undefined;
 
     if (collateralChange.isZero() && debtChange.isZero()) {
       return of({
