@@ -53,9 +53,9 @@ const fetchData = async (
   try {
     const userPosition = new UserPosition(
       walletSigner,
+      TOKEN_TO_UNDERLYING_TOKEN_MAP[token],
       position.collateralBalance,
       position.debtBalance,
-      TOKEN_TO_UNDERLYING_TOKEN_MAP[token],
     );
 
     const result = await userPosition.isDelegateWhitelisted(token);

@@ -1,4 +1,4 @@
-import { CollateralToken, Token, TOKENS, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { CollateralToken, Token, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from './interfaces';
 
 export const RAFT_HOMEPAGE_URL = 'https://raft.fi';
@@ -68,11 +68,3 @@ export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduc
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
 }, {} as TokenGenericMap<SupportedCollateralToken, SupportedCollateralToken>);
-
-export const DEFAULT_MAP = TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {},
-);
