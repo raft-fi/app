@@ -245,7 +245,17 @@ const tokenMapsLoaded$ = combineLatest([managePositionStepsRequest$, tokenWhitel
   }),
   distinctUntilChanged(),
 );
-const stream$ = combineLatest([managePositionStepsRequest$, tokenMapsLoaded$]).pipe(
+const distinctRequest$ = managePositionStepsRequest$.pipe(
+  distinctUntilChanged(
+    (prev, current) =>
+      prev.collateralToken === current.collateralToken &&
+      prev.underlyingCollateralToken === current.underlyingCollateralToken &&
+      prev.collateralChange.equals(current.collateralChange) &&
+      prev.debtChange.equals(current.debtChange) &&
+      prev.isClosePosition === current.isClosePosition,
+  ),
+);
+const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
   withLatestFrom(tokenWhitelists$, tokenAllowances$),
   concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap]) => {
