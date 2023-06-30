@@ -22,7 +22,7 @@ import {
   TooltipWrapper,
   Typography,
   ValueLabel,
-  WarningBox,
+  InfoBox,
 } from '../shared';
 import LoadingRedeem from '../LoadingRedeem';
 import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, SUPPORTED_UNDERLYING_TOKENS } from '../../constants';
@@ -222,7 +222,7 @@ const Redeem = () => {
           />
         </div>
         <div className="raft__redeem__warningContainer">
-          <WarningBox text="Redemption of R at peg will result in significant financial loss." />
+          <InfoBox variant="error" text="Redemption of R at peg will result in significant financial loss." />
         </div>
 
         <div className="raft__redeem__collateralData">
