@@ -1,4 +1,4 @@
-import { CollateralToken, Protocol } from '@raft-fi/sdk';
+import { Protocol } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import {
   from,
@@ -19,23 +19,18 @@ import {
 } from 'rxjs';
 import { JsonRpcProvider } from 'ethers';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_COLLATERAL_TOKENS } from '../constants';
-import { Nullable, TokenDecimalMap } from '../interfaces';
+import { Nullable, SupportedCollateralToken, TokenDecimalMap } from '../interfaces';
 import { provider$ } from './useProvider';
 import { Decimal } from '@tempusfinance/decimal';
+import { getNullTokenMap } from '../utils';
 
-export type CollateralPositionCapMap = TokenDecimalMap<CollateralToken>;
+export type CollateralPositionCapMap = TokenDecimalMap<SupportedCollateralToken>;
 
-const DEFAULT_VALUE: CollateralPositionCapMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as CollateralPositionCapMap,
-);
+const DEFAULT_VALUE: CollateralPositionCapMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
 
 export const collateralPositionCaps$ = new BehaviorSubject<CollateralPositionCapMap>(DEFAULT_VALUE);
 
-const fetchData = (protocol: Protocol, collateralToken: CollateralToken): Observable<Nullable<Decimal>> => {
+const fetchData = (protocol: Protocol, collateralToken: SupportedCollateralToken): Observable<Nullable<Decimal>> => {
   try {
     return from(protocol.getPositionCollateralCap(collateralToken)).pipe(
       map(cap => cap ?? Decimal.MAX_DECIMAL),

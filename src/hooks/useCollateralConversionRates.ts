@@ -28,16 +28,12 @@ import {
 import { SupportedCollateralToken, TokenDecimalMap } from '../interfaces';
 import { TokenPriceMap, tokenPrices$ } from './useTokenPrices';
 import { priceFeed$ } from './usePriceFeed';
+import { getNullTokenMap } from '../utils';
 
 export type CollateralConversionRateMap = TokenDecimalMap<SupportedCollateralToken>;
 
-const DEFAULT_VALUE: CollateralConversionRateMap = SUPPORTED_COLLATERAL_TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as CollateralConversionRateMap,
-);
+const DEFAULT_VALUE: CollateralConversionRateMap =
+  getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
 
 export const collateralConversionRates$ = new BehaviorSubject<CollateralConversionRateMap>(DEFAULT_VALUE);
 

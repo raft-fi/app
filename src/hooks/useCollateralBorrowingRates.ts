@@ -1,4 +1,4 @@
-import { Protocol, UnderlyingCollateralToken, UNDERLYING_COLLATERAL_TOKENS } from '@raft-fi/sdk';
+import { Protocol } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import {
   from,
@@ -17,19 +17,15 @@ import {
   mergeMap,
 } from 'rxjs';
 import { JsonRpcProvider } from 'ethers';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { TokenDecimalMap } from '../interfaces';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { SupportedUnderlyingCollateralToken, TokenDecimalMap } from '../interfaces';
 import { provider$ } from './useProvider';
+import { getNullTokenMap } from '../utils';
 
-export type CollateralBorrowingRateMap = TokenDecimalMap<UnderlyingCollateralToken>;
+export type CollateralBorrowingRateMap = TokenDecimalMap<SupportedUnderlyingCollateralToken>;
 
-const DEFAULT_VALUE: CollateralBorrowingRateMap = UNDERLYING_COLLATERAL_TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as CollateralBorrowingRateMap,
-);
+const DEFAULT_VALUE: CollateralBorrowingRateMap =
+  getNullTokenMap<SupportedUnderlyingCollateralToken>(SUPPORTED_UNDERLYING_TOKENS);
 
 export const collateralBorrowingRates$ = new BehaviorSubject<CollateralBorrowingRateMap>(DEFAULT_VALUE);
 
