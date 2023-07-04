@@ -32,6 +32,15 @@
 
     .raft__sliderInput {
       margin-left: 32px;
+
+      .raft__sliderInputValue {
+        > div:first-child {
+          min-width: 44px;
+        }
+        > .raft__slider {
+          margin-left: 16px;
+        }
+      }
     }
   }
 }

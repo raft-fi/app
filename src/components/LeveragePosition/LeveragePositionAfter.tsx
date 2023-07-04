@@ -3,10 +3,12 @@ import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared
 import './LeveragePositionAfter.scss';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { USD_UI_PRECISION } from '../../constants';
+import { Nullable } from '../../interfaces';
+import { formatCurrency, formatPercentage } from '../../utils';
 
 interface LeveragePositionAfterProps {
-  liquidationPrice: Decimal;
-  liquidationPriceChange: Decimal;
+  liquidationPrice: Nullable<Decimal>;
+  liquidationPriceChange: Nullable<Decimal>;
   leverageAPR: Decimal;
   priceImpact: Decimal;
 }
@@ -17,23 +19,21 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
   leverageAPR,
   priceImpact,
 }) => {
-  const liquidationPriceFormatted = useMemo(() => {
-    return DecimalFormat.format(liquidationPrice, {
-      style: 'currency',
-      currency: '$',
-      approximate: true,
-      fractionDigits: USD_UI_PRECISION,
-      pad: true,
-    });
-  }, [liquidationPrice]);
+  const liquidationPriceFormatted = useMemo(
+    () =>
+      formatCurrency(liquidationPrice, {
+        currency: '$',
+        approximate: true,
+        fractionDigits: USD_UI_PRECISION,
+        pad: true,
+      }),
+    [liquidationPrice],
+  );
 
-  const liquidationPriceChangeFormatted = useMemo(() => {
-    return DecimalFormat.format(liquidationPriceChange, {
-      style: 'percentage',
-      fractionDigits: 2,
-      pad: true,
-    });
-  }, [liquidationPriceChange]);
+  const liquidationPriceChangeFormatted = useMemo(
+    () => formatPercentage(liquidationPriceChange),
+    [liquidationPriceChange],
+  );
 
   const leverageAPRFormatted = useMemo(() => {
     return DecimalFormat.format(leverageAPR, {
@@ -54,9 +54,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
 
   return (
     <div className="raft__leveragePositionAfter">
-      {/* FIRST COLUMN */}
       <div className="raft__leveragePositionAfter__dataColumn">
-        {/* LIQUIDATION PRICE */}
         <div className="raft__leveragePositionAfter__dataTitle">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
             LIQUIDATION PRICE
@@ -75,22 +73,24 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         </div>
         <div className="raft__leveragePositionAfter__dataRow">
           <div className="raft__leveragePositionAfter__dataRowValues">
-            <ValueLabel value={liquidationPriceFormatted} valueSize="body" tickerSize="caption" />
-            <Typography
-              className="raft__leveragePositionAfter__dataRowValue"
-              variant="body"
-              color="text-secondary"
-              weight="medium"
-            >
-              (
-              <ValueLabel
-                value={liquidationPriceChangeFormatted}
+            <ValueLabel value={liquidationPriceFormatted ?? 'N/A'} valueSize="body" tickerSize="caption" />
+            {liquidationPriceChangeFormatted && (
+              <Typography
+                className="raft__leveragePositionAfter__dataRowValue"
+                variant="body"
                 color="text-secondary"
-                valueSize="body"
-                tickerSize="caption"
-              />
-              )
-            </Typography>
+                weight="medium"
+              >
+                (
+                <ValueLabel
+                  value={liquidationPriceChangeFormatted}
+                  color="text-secondary"
+                  valueSize="body"
+                  tickerSize="caption"
+                />
+                )
+              </Typography>
+            )}
           </div>
         </div>
 
@@ -123,7 +123,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         {/* PRICE IMPACT */}
         <div className="raft__leveragePositionAfter__dataTitle">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
-            PRICE IMPACT
+            PRICE IMPACT (FAKE)
           </Typography>
           {/* TODO - Update tooltip content */}
           <TooltipWrapper

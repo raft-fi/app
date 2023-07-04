@@ -1,20 +1,32 @@
-import { useCallback } from 'react';
+import { FC, useMemo } from 'react';
 import { Button, Loading, Typography } from '../shared';
 
 import './LeveragePositionAction.scss';
 
-const LeveragePositionAction = () => {
-  const buttonDisabled = false;
-  const buttonLabel = 'Execute';
+interface LeveragePositionActionProps {
+  actionButtonState: string;
+  canLeverage: boolean;
+  buttonLabel: string;
+  walletConnected: boolean;
+  onClick: () => void;
+}
 
-  const onClick = useCallback(() => {
-    // TODO - Add position action
-  }, []);
+const LeveragePositionAction: FC<LeveragePositionActionProps> = ({
+  actionButtonState,
+  buttonLabel,
+  canLeverage,
+  walletConnected,
+  onClick,
+}) => {
+  const buttonDisabled = useMemo(
+    () => actionButtonState === 'loading' || (walletConnected && !canLeverage),
+    [canLeverage, actionButtonState, walletConnected],
+  );
 
   return (
     <div className="raft__leveragePositionAction">
       <Button variant="primary" size="large" onClick={onClick} disabled={buttonDisabled}>
-        {false && <Loading />}
+        {actionButtonState === 'loading' && <Loading />}
         <Typography variant="button-label" color="text-primary-inverted">
           {buttonLabel}
         </Typography>

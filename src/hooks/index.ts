@@ -22,3 +22,4 @@ export * from './useCalculateRedemptionRate';
 export * from './useCollateralPositionCaps';
 export * from './useCollateralProtocolCaps';
 export * from './useManage';
+export * from './useLeverage';
