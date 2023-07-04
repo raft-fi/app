@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { ERC20PermitSignatureStruct, ManagePositionStep, R_TOKEN, UserPosition } from '@raft-fi/sdk';
+import { ERC20PermitSignatureStruct, LeveragePositionStep, UserPosition } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -34,28 +34,6 @@ import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { getNullTokenMap, isSignatureValid } from '../utils';
 
-// TODO: dummy func for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-async function* getLeverageSteps(_collateralChange: Decimal, _leverage: Decimal, _options: any) {
-  yield {
-    type: {
-      name: 'approve',
-    },
-    stepNumber: 1,
-    numberOfSteps: 2,
-    action: async () => ({} as TransactionResponse),
-  } as LeveragePositionStep;
-
-  return {
-    type: {
-      name: 'manage',
-    },
-    stepNumber: 2,
-    numberOfSteps: 2,
-    action: async () => ({} as TransactionResponse),
-  } as LeveragePositionStep;
-}
-
 const DEFAULT_VALUE = {
   pending: false,
   statusType: null,
@@ -69,8 +47,6 @@ const DEFAULT_STEPS = {
 };
 const GAS_LIMIT_MULTIPLIER = new Decimal(2);
 
-// TODO: provided by SDK
-type LeveragePositionStep = ManagePositionStep;
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
   Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
@@ -135,8 +111,7 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
       if (!pending && !error && result && generator && walletProvider) {
         return async () => {
           const notificationId = uuid();
-          // TODO: when SDK provide steps type we dont need this
-          const statusType = result.type.name === 'manage' ? 'leverage' : result.type.name;
+          const statusType = result.type.name;
 
           try {
             leveragePositionStatus$.next({ pending: true, request, statusType });
@@ -268,9 +243,8 @@ const tokenMapsLoaded$ = combineLatest([leveragePositionStepsRequest$, tokenWhit
     const { collateralToken } = request;
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken];
     const collateralTokenAllowance = tokenAllowanceMap[collateralToken];
-    const rTokenAllowance = tokenAllowanceMap[R_TOKEN];
 
-    return isDelegateWhitelisted !== null && Boolean(collateralTokenAllowance) && Boolean(rTokenAllowance);
+    return isDelegateWhitelisted !== null && Boolean(collateralTokenAllowance);
   }),
   distinctUntilChanged(),
 );
@@ -297,7 +271,6 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       : undefined;
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const userPosition = userPositionMap[
         underlyingCollateralToken
       ] as UserPosition<SupportedUnderlyingCollateralToken>;
@@ -305,8 +278,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
 
       leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      // TODO: dummy code for now
-      const steps = getLeverageSteps(actualCollateralChange, leverage, {
+      const steps = userPosition.getLeverageSteps(actualCollateralChange, leverage, {
         collateralToken,
         isDelegateWhitelisted,
         collateralTokenAllowance,
