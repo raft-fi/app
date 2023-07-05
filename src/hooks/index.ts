@@ -23,3 +23,5 @@ export * from './useCollateralPositionCaps';
 export * from './useCollateralProtocolCaps';
 export * from './useManage';
 export * from './useLeverage';
+export * from './useLeverageTokenAllowances';
+export * from './useLeverageTokenWhitelist';

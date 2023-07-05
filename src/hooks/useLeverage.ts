@@ -18,21 +18,15 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
-import {
-  Nullable,
-  SupportedCollateralToken,
-  SupportedToken,
-  SupportedUnderlyingCollateralToken,
-  TokenGenericMap,
-} from '../interfaces';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
-import { tokenAllowances$ } from './useTokenAllowances';
-import { tokenWhitelists$ } from './useTokenWhitelists';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
-import { getNullTokenMap, isSignatureValid } from '../utils';
+import { getNullTokenMap } from '../utils';
+import { leverageTokenAllowances$ } from './useLeverageTokenAllowances';
+import { leverageTokenWhitelists$ } from './useLeverageTokenWhitelist';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -51,7 +45,6 @@ type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
   Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
 >;
-type SignatureMap = TokenGenericMap<SupportedToken, Nullable<ERC20PermitSignatureStruct>>;
 type LeveragePositionStepsGenerator = AsyncGenerator<
   LeveragePositionStep,
   void,
@@ -63,13 +56,13 @@ type LeveragePositionStatusType = 'whitelist' | 'approve' | 'permit' | 'leverage
 
 const userPositionMap: UserPositionMap =
   getNullTokenMap<SupportedUnderlyingCollateralToken>(SUPPORTED_UNDERLYING_TOKENS);
-const signatureMap: SignatureMap = getNullTokenMap<SupportedToken>(SUPPORTED_TOKENS);
 
 interface LeveragePositionStepsRequest {
   underlyingCollateralToken: SupportedUnderlyingCollateralToken;
   collateralToken: SupportedCollateralToken;
   collateralChange: Decimal;
   leverage: Decimal;
+  slippage: Decimal;
   isClosePosition?: boolean;
 }
 
@@ -161,16 +154,9 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
                   notificationType: 'approval-success',
                   timestamp: Date.now(),
                 });
-              } else if (statusType === 'leverage') {
-                // reset signature map after txn success
-                SUPPORTED_TOKENS.forEach(token => (signatureMap[token] = null));
               }
             } else {
               leveragePositionStatus$.next({ pending: false, request, statusType, success: true, signature });
-
-              if (result.type.token && ([...SUPPORTED_TOKENS] as string[]).includes(result.type.token)) {
-                signatureMap[result.type.token] = signature;
-              }
 
               if (statusType === 'approve' || statusType === 'permit') {
                 notification$.next({
@@ -238,11 +224,15 @@ const requestLeveragePositionStep$ = walletSigner$.pipe(
   }),
 );
 
-const tokenMapsLoaded$ = combineLatest([leveragePositionStepsRequest$, tokenWhitelists$, tokenAllowances$]).pipe(
-  map(([request, tokenWhitelistMap, tokenAllowanceMap]) => {
+const tokenMapsLoaded$ = combineLatest([
+  leveragePositionStepsRequest$,
+  leverageTokenWhitelists$,
+  leverageTokenAllowances$,
+]).pipe(
+  map(([request, leverageTokenWhitelistMap, leverageTokenAllowanceMap]) => {
     const { collateralToken } = request;
-    const isDelegateWhitelisted = tokenWhitelistMap[collateralToken];
-    const collateralTokenAllowance = tokenAllowanceMap[collateralToken];
+    const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken];
+    const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken];
 
     return isDelegateWhitelisted !== null && Boolean(collateralTokenAllowance);
   }),
@@ -260,15 +250,13 @@ const distinctRequest$ = leveragePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(tokenWhitelists$, tokenAllowances$),
-  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap]) => {
-    const { underlyingCollateralToken, collateralToken, collateralChange, leverage, isClosePosition } = request;
+  withLatestFrom(leverageTokenWhitelists$, leverageTokenAllowances$),
+  concatMap(([[request], leverageTokenWhitelistMap, leverageTokenAllowanceMap]) => {
+    const { underlyingCollateralToken, collateralToken, collateralChange, leverage, slippage, isClosePosition } =
+      request;
 
-    const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
-    const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
-    const collateralPermitSignature = isSignatureValid(signatureMap[collateralToken])
-      ? (signatureMap[collateralToken] as ERC20PermitSignatureStruct)
-      : undefined;
+    const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
+    const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
 
     try {
       const userPosition = userPositionMap[
@@ -278,11 +266,10 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
 
       leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const steps = userPosition.getLeverageSteps(actualCollateralChange, leverage, {
+      const steps = userPosition.getLeverageSteps(actualCollateralChange, leverage, slippage, {
         collateralToken,
         isDelegateWhitelisted,
         collateralTokenAllowance,
-        collateralPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
       const nextStep$ = from(steps.next());

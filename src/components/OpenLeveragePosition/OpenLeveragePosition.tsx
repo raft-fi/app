@@ -375,6 +375,7 @@ const OpenLeveragePosition = () => {
       collateralToken: selectedCollateralToken,
       collateralChange: collateralAmountDecimal,
       leverage: new Decimal(leverage),
+      slippage: new Decimal(1), // TODO - Set slippage in settings popup and pass it here
     });
   }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken]);
 
