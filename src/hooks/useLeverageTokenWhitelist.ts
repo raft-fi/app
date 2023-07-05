@@ -32,13 +32,13 @@ import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
 import { getNullTokenMap } from '../utils';
 
-export type TokenWhitelistMap = TokenGenericMap<SupportedCollateralToken, Nullable<boolean>>;
+export type LeverageTokenWhitelistMap = TokenGenericMap<SupportedCollateralToken, Nullable<boolean>>;
 
-const DEFAULT_VALUE: TokenWhitelistMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
+const DEFAULT_VALUE: LeverageTokenWhitelistMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
-export const tokenWhitelists$ = new BehaviorSubject<TokenWhitelistMap>(DEFAULT_VALUE);
+export const leverageTokenWhitelists$ = new BehaviorSubject<LeverageTokenWhitelistMap>(DEFAULT_VALUE);
 
 const fetchData = async (
   token: SupportedCollateralToken,
@@ -46,33 +46,32 @@ const fetchData = async (
   position: Position,
 ): Promise<Nullable<boolean>> => {
   try {
-    const underlyingCollateralToken = TOKEN_TO_UNDERLYING_TOKEN_MAP[token];
-
     const userPosition = new UserPosition(
       walletSigner,
-      underlyingCollateralToken,
+      TOKEN_TO_UNDERLYING_TOKEN_MAP[token],
       position.collateralBalance,
       position.debtBalance,
     );
 
-    const positionManagerAddress = RaftConfig.getPositionManagerAddress(underlyingCollateralToken, token);
-
-    const result = await userPosition.isDelegateWhitelisted(positionManagerAddress, await walletSigner.getAddress());
+    const result = await userPosition.isDelegateWhitelisted(
+      RaftConfig.networkConfig.oneStepLeverageStEth,
+      await walletSigner.getAddress(),
+    );
 
     return result;
   } catch (error) {
-    console.error(`useTokenWhitelists - Failed to get token whitelist for ${token}`, error);
+    console.error(`useLeverageTokenWhitelists - Failed to get token whitelist for ${token}`, error);
     return null;
   }
 };
 
 // Fetch new whitelist data every time wallet address changes
-const walletChangeStream$: Observable<TokenWhitelistMap> = combineLatest([
+const walletChangeStream$: Observable<LeverageTokenWhitelistMap> = combineLatest([
   walletAddress$,
   walletSigner$,
   position$,
 ]).pipe(
-  mergeMap<[Nullable<string>, Nullable<Signer>, Nullable<Position>], Observable<TokenWhitelistMap>>(
+  mergeMap<[Nullable<string>, Nullable<Signer>, Nullable<Position>], Observable<LeverageTokenWhitelistMap>>(
     ([walletAddress, walletSigner, position]) => {
       if (!walletAddress || !walletSigner || !position) {
         return of(DEFAULT_VALUE);
@@ -80,7 +79,7 @@ const walletChangeStream$: Observable<TokenWhitelistMap> = combineLatest([
 
       const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
         from(fetchData(token, walletSigner, position)).pipe(
-          map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
+          map(isWhitelisted => ({ [token]: isWhitelisted } as LeverageTokenWhitelistMap)),
         ),
       );
 
@@ -92,16 +91,16 @@ const walletChangeStream$: Observable<TokenWhitelistMap> = combineLatest([
 type PeriodicStreamInput = [[number], Nullable<Signer>, Nullable<Position>];
 
 // stream$ for periodic polling to fetch data
-const periodicStream$: Observable<TokenWhitelistMap> = combineLatest([intervalBeat$]).pipe(
+const periodicStream$: Observable<LeverageTokenWhitelistMap> = combineLatest([intervalBeat$]).pipe(
   withLatestFrom(walletSigner$, position$),
-  mergeMap<PeriodicStreamInput, Observable<TokenWhitelistMap>>(([, walletSigner, position]) => {
+  mergeMap<PeriodicStreamInput, Observable<LeverageTokenWhitelistMap>>(([, walletSigner, position]) => {
     if (!walletSigner || !position) {
       return of(DEFAULT_VALUE);
     }
 
     const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
       from(fetchData(token, walletSigner, position)).pipe(
-        map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
+        map(isWhitelisted => ({ [token]: isWhitelisted } as LeverageTokenWhitelistMap)),
       ),
     );
 
@@ -118,7 +117,7 @@ const appEventsStream$ = appEvent$.pipe(
   mergeMap(([, , walletSigner, position]) => {
     const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
       from(fetchData(token, walletSigner as Signer, position as Position)).pipe(
-        map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
+        map(isWhitelisted => ({ [token]: isWhitelisted } as LeverageTokenWhitelistMap)),
       ),
     );
 
@@ -133,19 +132,19 @@ const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pi
       ...allWhitelists,
       ...tokenWhitelists,
     }),
-    {} as TokenWhitelistMap,
+    {} as LeverageTokenWhitelistMap,
   ),
-  debounce<TokenWhitelistMap>(() => interval(DEBOUNCE_IN_MS)),
-  tap(allWhitelists => tokenWhitelists$.next(allWhitelists)),
+  debounce<LeverageTokenWhitelistMap>(() => interval(DEBOUNCE_IN_MS)),
+  tap(allWhitelists => leverageTokenWhitelists$.next(allWhitelists)),
 );
 
-export const [useTokenWhitelists] = bind(tokenWhitelists$, DEFAULT_VALUE);
+export const [useLeverageTokenWhitelists] = bind(leverageTokenWhitelists$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 
-export const subscribeTokenWhitelists = (): void => {
-  unsubscribeTokenWhitelists();
+export const subscribeLeverageTokenWhitelists = (): void => {
+  unsubscribeLeverageTokenWhitelists();
   subscription = stream$.subscribe();
 };
-export const unsubscribeTokenWhitelists = (): void => subscription?.unsubscribe();
-export const resetTokenWhitelists = (): void => tokenWhitelists$.next(DEFAULT_VALUE);
+export const unsubscribeLeverageTokenWhitelists = (): void => subscription?.unsubscribe();
+export const resetLeverageTokenWhitelists = (): void => leverageTokenWhitelists$.next(DEFAULT_VALUE);
