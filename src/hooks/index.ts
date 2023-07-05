@@ -21,5 +21,6 @@ export * from './useCollateralTokenConfig';
 export * from './useCalculateRedemptionRate';
 export * from './useCollateralPositionCaps';
 export * from './useCollateralProtocolCaps';
+export * from './useCollateralTokenAprs';
 export * from './useManage';
 export * from './useLeverage';

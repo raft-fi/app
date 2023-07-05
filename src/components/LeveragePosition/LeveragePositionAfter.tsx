@@ -9,7 +9,7 @@ import { formatCurrency, formatPercentage } from '../../utils';
 interface LeveragePositionAfterProps {
   liquidationPrice: Nullable<Decimal>;
   liquidationPriceChange: Nullable<Decimal>;
-  leverageAPR: Decimal;
+  leverageAPR: Nullable<Decimal>;
   priceImpact: Decimal;
 }
 
@@ -35,14 +35,13 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
     [liquidationPriceChange],
   );
 
-  const leverageAPRFormatted = useMemo(() => {
-    return DecimalFormat.format(leverageAPR, {
-      style: 'percentage',
-      approximate: true,
-      fractionDigits: 2,
-      pad: true,
-    });
-  }, [leverageAPR]);
+  const leverageAPRFormatted = useMemo(
+    () =>
+      formatPercentage(leverageAPR, {
+        approximate: true,
+      }),
+    [leverageAPR],
+  );
 
   const priceImpactFormatted = useMemo(() => {
     return DecimalFormat.format(priceImpact, {
@@ -113,7 +112,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         </div>
         <div className="raft__leveragePositionAfter__dataRow">
           <div className="raft__leveragePositionAfter__dataRowValues">
-            <ValueLabel value={leverageAPRFormatted} valueSize="body" tickerSize="caption" />
+            <ValueLabel value={leverageAPRFormatted ?? '---'} valueSize="body" tickerSize="caption" />
           </div>
         </div>
       </div>

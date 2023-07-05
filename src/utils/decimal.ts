@@ -72,5 +72,5 @@ export const formatMultiplier = (value: Nullable<Numberish>, token?: Token): Nul
       })
     : null;
 
-export const formatPercentage = (value: Nullable<Numberish>): Nullable<string> =>
-  value ? DecimalFormat.format(value, { style: 'percentage', fractionDigits: 2, pad: true }) : null;
+export const formatPercentage = (value: Nullable<Numberish>, options = {}): Nullable<string> =>
+  value ? DecimalFormat.format(value, { style: 'percentage', fractionDigits: 2, pad: true, ...options }) : null;
