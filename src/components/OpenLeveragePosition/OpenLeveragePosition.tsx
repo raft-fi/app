@@ -19,6 +19,7 @@ import {
   useTokenPrices,
   useWallet,
   useLeverage,
+  useCollateralTokenAprs,
 } from '../../hooks';
 import { Nullable, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
@@ -38,6 +39,7 @@ const OpenLeveragePosition = () => {
   const tokenBalanceMap = useTokenBalances();
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
+  const collateralTokenAprMap = useCollateralTokenAprs();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
 
@@ -80,6 +82,15 @@ const OpenLeveragePosition = () => {
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
     [selectedCollateralToken, tokenPriceMap],
   );
+  const selectedCollateralTokenLeveragedApr = useMemo(() => {
+    const apr = getDecimalFromTokenMap(collateralTokenAprMap, selectedCollateralToken);
+
+    if (!apr) {
+      return null;
+    }
+
+    return apr.mul(leverage);
+  }, [collateralTokenAprMap, leverage, selectedCollateralToken]);
   const liquidationPrice = useMemo(() => {
     if (!selectedCollateralTokenPrice || collateralizationRatio.equals(Decimal.MAX_DECIMAL)) {
       return null;
@@ -432,7 +443,7 @@ const OpenLeveragePosition = () => {
       <LeveragePositionAfter
         liquidationPrice={liquidationPrice}
         liquidationPriceChange={liquidationPriceDropPercent}
-        leverageAPR={new Decimal(0.25)}
+        leverageAPR={selectedCollateralTokenLeveragedApr}
         priceImpact={new Decimal(-0.02)}
       />
       <LeveragePositionAction

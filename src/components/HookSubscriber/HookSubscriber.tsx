@@ -20,6 +20,7 @@ import {
   subscribeLeverageStatus,
   subscribeLeverageTokenWhitelists,
   subscribeLeverageTokenAllowances,
+  subscribeCollateralTokenAprs,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -45,6 +46,7 @@ const HookSubscriber: FC = () => {
     subscribeCalculateRedemptionRate();
     subscribeCollateralPositionCaps();
     subscribeCollateralProtocolCaps();
+    subscribeCollateralTokenAprs();
     subscribeManageStatus();
     subscribeLeverageStatus();
   }, []);
