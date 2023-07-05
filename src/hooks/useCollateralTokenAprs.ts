@@ -28,17 +28,19 @@ interface SubgraphAprResponse {
 
 const DEFAULT_VALUE: CollateralAprMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
 
-const STETH_SUBGRAPH_URL =
-  'https://gateway.thegraph.com/api/0ab98a21717524af1190baad1fdf8dbc/subgraphs/id/HXfMc1jPHfFQoccWd7VMv66km75FoxVHDMvsJj5vG5vf';
-
 export const collateralTokenAprs$ = new BehaviorSubject<CollateralAprMap>(DEFAULT_VALUE);
 
 const fetchData = async (collateralToken: SupportedCollateralToken): Promise<Nullable<Decimal>> => {
   try {
-    // TODO: should we put this in SDK? ubt it requires 3rd party subgraph fetching with our own key
     switch (collateralToken) {
       case 'stETH':
       case 'wstETH': {
+        const STETH_APR_SUBGRAPH_URL = import.meta.env.VITE_STETH_APR_SUBGRAPH_URL;
+
+        if (!STETH_APR_SUBGRAPH_URL) {
+          return null;
+        }
+
         const query = gql`
           {
             totalRewards(first: 7, orderBy: block, orderDirection: desc) {
@@ -47,7 +49,7 @@ const fetchData = async (collateralToken: SupportedCollateralToken): Promise<Nul
           }
         `;
 
-        const response = await request<SubgraphAprResponse>(STETH_SUBGRAPH_URL, query);
+        const response = await request<SubgraphAprResponse>(STETH_APR_SUBGRAPH_URL, query);
 
         if (!response.totalRewards.length) {
           return Decimal.ZERO;
