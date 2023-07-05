@@ -113,6 +113,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return original === truncated ? original : `${truncated}...`;
   }, [borrowAmountDecimal]);
 
+  const selectedCollateralTokenProtocolCap = useMemo(
+    () => getDecimalFromTokenMap(collateralProtocolCapMap, selectedCollateralToken),
+    [collateralProtocolCapMap, selectedCollateralToken],
+  );
+  const selectedCollateralTokenPositionCap = useMemo(
+    () => getDecimalFromTokenMap(collateralPositionCapMap, selectedCollateralToken),
+    [collateralPositionCapMap, selectedCollateralToken],
+  );
+
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
@@ -370,8 +379,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     [isClosePosition, newDebtTokenWithFeeValues?.amount],
   );
   const hasMinNewRatio = useMemo(
-    () => !newCollateralizationRatio || newCollateralizationRatio.gte(MIN_COLLATERAL_RATIO) || isClosePosition,
-    [isClosePosition, newCollateralizationRatio],
+    () =>
+      !newCollateralizationRatio ||
+      newCollateralizationRatio.gte(MIN_COLLATERAL_RATIO[underlyingCollateralToken]) ||
+      isClosePosition,
+    [isClosePosition, newCollateralizationRatio, underlyingCollateralToken],
   );
   const isInputNonEmpty = useMemo(
     () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
@@ -391,11 +403,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return true;
     }
 
-    const selectedCollateralTokenPositionCap = getDecimalFromTokenMap(
-      collateralPositionCapMap,
-      selectedCollateralToken,
-    );
-
     if (!collateralSupply || !selectedCollateralTokenPositionCap || !newCollateralInUnderlyingTokenValues.amount) {
       return false;
     }
@@ -404,11 +411,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return newCollateralInUnderlyingTokenValues.amount.lte(selectedCollateralTokenPositionCap);
   }, [
     collateralAmountDecimal,
-    collateralPositionCapMap,
     collateralSupply,
     isAddCollateral,
     newCollateralInUnderlyingTokenValues.amount,
-    selectedCollateralToken,
+    selectedCollateralTokenPositionCap,
   ]);
 
   const isPositionWithinCollateralProtocolCap = useMemo(() => {
@@ -416,11 +422,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     if (collateralAmountDecimal.isZero() || !isAddCollateral) {
       return true;
     }
-
-    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
-      collateralProtocolCapMap,
-      selectedCollateralToken,
-    );
 
     if (
       !collateralSupply ||
@@ -439,12 +440,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       .lte(selectedCollateralTokenProtocolCap);
   }, [
     collateralAmountDecimal,
-    collateralProtocolCapMap,
     collateralSupply,
     currentUnderlyingCollateralTokenValues.amount,
     isAddCollateral,
     newCollateralInUnderlyingTokenValues.amount,
-    selectedCollateralToken,
+    selectedCollateralTokenProtocolCap,
   ]);
 
   const isTotalSupplyWithinCollateralProtocolCap = useMemo(() => {
@@ -453,17 +453,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return true;
     }
 
-    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
-      collateralProtocolCapMap,
-      selectedCollateralToken,
-    );
-
     if (!collateralSupply || !selectedCollateralTokenProtocolCap) {
       return false;
     }
 
     return collateralSupply.lte(selectedCollateralTokenProtocolCap);
-  }, [collateralAmountDecimal, collateralProtocolCapMap, collateralSupply, isAddCollateral, selectedCollateralToken]);
+  }, [collateralAmountDecimal, collateralSupply, isAddCollateral, selectedCollateralTokenProtocolCap]);
 
   const isPositionWithinDebtPositionCap = useMemo(() => {
     // In case user is repaying his debt, we should ignore max borrow limit
@@ -500,6 +495,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     selectedCollateralToken,
   ]);
 
+  const errPositionOutOfCollateralPositionCap = useMemo(
+    () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
+    [isPositionWithinCollateralPositionCap, selectedCollateralTokenPositionCap],
+  );
+  const errPositionOutOfCollateralProtocolCap = useMemo(
+    () => !isPositionWithinCollateralProtocolCap && Boolean(selectedCollateralTokenProtocolCap),
+    [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
+  );
+  const errTotalSupplyOutOfCollateralProtocolCap = useMemo(
+    () => !isTotalSupplyWithinCollateralProtocolCap && Boolean(selectedCollateralTokenProtocolCap),
+    [isTotalSupplyWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
+  );
+
   const canAdjust = useMemo(
     () =>
       Boolean(
@@ -531,7 +539,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return 'Insufficient funds';
     }
 
-    if (!isPositionWithinCollateralPositionCap) {
+    if (errPositionOutOfCollateralPositionCap) {
       const collateralPositionCapFormatted = formatCurrency(collateralPositionCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
         fractionDigits: 0,
@@ -542,7 +550,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       );
     }
 
-    if (!isPositionWithinCollateralProtocolCap) {
+    if (errPositionOutOfCollateralProtocolCap) {
       return `The deposit amount exceeds collateral capacity. Please reduce the deposit amount and try again`;
     }
 
@@ -555,11 +563,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     }
   }, [
     collateralPositionCapMap,
+    errPositionOutOfCollateralPositionCap,
+    errPositionOutOfCollateralProtocolCap,
     hasEnoughCollateralTokenBalance,
     hasEnoughToWithdraw,
     hasMinNewRatio,
-    isPositionWithinCollateralPositionCap,
-    isPositionWithinCollateralProtocolCap,
     selectedCollateralToken,
   ]);
 
@@ -576,10 +584,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return 'Collateralization ratio is below the minimum threshold';
     }
 
-    if (!isPositionWithinDebtPositionCap) {
+    if (errTotalSupplyOutOfCollateralProtocolCap) {
       return 'Amount exceeds maximum debt allowed per Position';
     }
-  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isPositionWithinDebtPositionCap]);
+  }, [errTotalSupplyOutOfCollateralProtocolCap, hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt]);
 
   const buttonLabel = useMemo(() => {
     if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
@@ -809,8 +817,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
             !hasEnoughCollateralTokenBalance ||
             !hasMinNewRatio ||
             !hasEnoughToWithdraw ||
-            !isPositionWithinCollateralPositionCap ||
-            !isPositionWithinCollateralProtocolCap
+            !errPositionOutOfCollateralPositionCap ||
+            !errPositionOutOfCollateralProtocolCap
           }
           errorMsg={collateralErrorMsg}
         />
@@ -824,7 +832,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           onValueUpdate={setBorrowAmount}
           disabled={closePositionActive}
           onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio || !isPositionWithinDebtPositionCap}
+          error={!hasMinBorrow || !hasMinNewRatio || errTotalSupplyOutOfCollateralProtocolCap}
           errorMsg={debtErrorMsg}
           maxIntegralDigits={10}
         />
