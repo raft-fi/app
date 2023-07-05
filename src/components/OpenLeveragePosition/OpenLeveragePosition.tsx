@@ -91,6 +91,15 @@ const OpenLeveragePosition = () => {
 
     return apr.mul(leverage);
   }, [collateralTokenAprMap, leverage, selectedCollateralToken]);
+  const selectedCollateralTokenProtocolCap = useMemo(
+    () => getDecimalFromTokenMap(collateralProtocolCapMap, selectedCollateralToken),
+    [collateralProtocolCapMap, selectedCollateralToken],
+  );
+  const selectedCollateralTokenPositionCap = useMemo(
+    () => getDecimalFromTokenMap(collateralPositionCapMap, selectedCollateralToken),
+    [collateralPositionCapMap, selectedCollateralToken],
+  );
+
   const liquidationPrice = useMemo(() => {
     if (!selectedCollateralTokenPrice || collateralizationRatio.equals(Decimal.MAX_DECIMAL)) {
       return null;
@@ -138,12 +147,6 @@ const OpenLeveragePosition = () => {
   );
 
   const isPositionWithinCollateralPositionCap = useMemo(() => {
-    const collateralAmountDecimal = Decimal.parse(collateralAmount, 0);
-    const selectedCollateralTokenPositionCap = getDecimalFromTokenMap(
-      collateralPositionCapMap,
-      selectedCollateralToken,
-    );
-
     if (selectedCollateralTokenPositionCap?.equals(Decimal.MAX_DECIMAL)) {
       return true;
     }
@@ -154,15 +157,9 @@ const OpenLeveragePosition = () => {
 
     // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
     return collateralAmountDecimal.lte(selectedCollateralTokenPositionCap);
-  }, [collateralAmount, collateralPositionCapMap, collateralSupply, selectedCollateralToken]);
+  }, [collateralAmountDecimal, collateralSupply, selectedCollateralTokenPositionCap]);
 
   const isPositionWithinCollateralProtocolCap = useMemo(() => {
-    const collateralAmountDecimal = Decimal.parse(collateralAmount, 0);
-    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
-      collateralProtocolCapMap,
-      selectedCollateralToken,
-    );
-
     if (selectedCollateralTokenProtocolCap?.equals(Decimal.MAX_DECIMAL)) {
       return true;
     }
@@ -173,7 +170,7 @@ const OpenLeveragePosition = () => {
 
     // TODO: assume 1:1 of the token rate here, should calculate the conversion rate
     return collateralAmountDecimal.add(collateralSupply).lte(selectedCollateralTokenProtocolCap);
-  }, [collateralAmount, collateralProtocolCapMap, collateralSupply, selectedCollateralToken]);
+  }, [collateralAmountDecimal, collateralSupply, selectedCollateralTokenProtocolCap]);
 
   const isTotalSupplyWithinCollateralProtocolCap = useMemo(() => {
     const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
@@ -215,6 +212,14 @@ const OpenLeveragePosition = () => {
       ),
     [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
   );
+  const errPositionOutOfCollateralPositionCap = useMemo(
+    () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
+    [isPositionWithinCollateralPositionCap, selectedCollateralTokenPositionCap],
+  );
+  const errPositionOutOfCollateralProtocolCap = useMemo(
+    () => !isPositionWithinCollateralProtocolCap && Boolean(selectedCollateralTokenProtocolCap),
+    [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
+  );
 
   const canLeverage = useMemo(
     () =>
@@ -252,8 +257,8 @@ const OpenLeveragePosition = () => {
       return `You need to deposit at least ${minDepositFormatted} of ${selectedCollateralToken}`;
     }
 
-    if (!isPositionWithinCollateralPositionCap) {
-      const collateralPositionCapFormatted = formatCurrency(collateralPositionCapMap[selectedCollateralToken], {
+    if (errPositionOutOfCollateralPositionCap) {
+      const collateralPositionCapFormatted = formatCurrency(selectedCollateralTokenPositionCap, {
         currency: selectedCollateralToken,
         fractionDigits: 0,
       });
@@ -263,17 +268,17 @@ const OpenLeveragePosition = () => {
       );
     }
 
-    if (!isPositionWithinCollateralProtocolCap) {
+    if (errPositionOutOfCollateralProtocolCap) {
       return `The deposit amount exceeds collateral capacity. Please reduce the deposit amount and try again`;
     }
   }, [
-    collateralPositionCapMap,
+    errPositionOutOfCollateralPositionCap,
+    errPositionOutOfCollateralProtocolCap,
     hasEnoughCollateralTokenBalance,
     hasMinDeposit,
     hasNonEmptyInput,
-    isPositionWithinCollateralPositionCap,
-    isPositionWithinCollateralProtocolCap,
     selectedCollateralToken,
+    selectedCollateralTokenPositionCap,
   ]);
 
   const buttonLabel = useMemo(() => {
@@ -422,8 +427,8 @@ const OpenLeveragePosition = () => {
           error={
             !hasEnoughCollateralTokenBalance ||
             (!hasMinDeposit && hasNonEmptyInput) ||
-            !isPositionWithinCollateralPositionCap ||
-            !isPositionWithinCollateralProtocolCap
+            errPositionOutOfCollateralPositionCap ||
+            errPositionOutOfCollateralProtocolCap
           }
           errorMsg={collateralErrorMsg}
         />
