@@ -20,13 +20,28 @@ import { Decimal } from '@tempusfinance/decimal';
 import { getNullTokenMap } from '../utils';
 
 export type CollateralAprMap = TokenDecimalMap<SupportedCollateralToken>;
-interface SubgraphAprResponse {
+interface SubgraphStEthAprResponse {
   totalRewards: {
     apr: string;
   }[];
 }
+interface SubgraphREthAprResponse {
+  yesterdayRETH: [
+    {
+      rETHExchangeRate: string;
+      blockTime: string;
+    },
+  ];
+  lastRETH: [
+    {
+      rETHExchangeRate: string;
+      blockTime: string;
+    },
+  ];
+}
 
 const DEFAULT_VALUE: CollateralAprMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
+const ONE_YEAR = 365 * 24 * 60 * 60;
 
 export const collateralTokenAprs$ = new BehaviorSubject<CollateralAprMap>(DEFAULT_VALUE);
 
@@ -49,7 +64,7 @@ const fetchData = async (collateralToken: SupportedCollateralToken): Promise<Nul
           }
         `;
 
-        const response = await request<SubgraphAprResponse>(STETH_APR_SUBGRAPH_URL, query);
+        const response = await request<SubgraphStEthAprResponse>(STETH_APR_SUBGRAPH_URL, query);
 
         if (!response.totalRewards.length) {
           return Decimal.ZERO;
@@ -63,9 +78,46 @@ const fetchData = async (collateralToken: SupportedCollateralToken): Promise<Nul
 
         return new Decimal(averageApr);
       }
-      case 'rETH':
-        // TODO: no ideas how to fetch rETH's APR
-        return Decimal.ZERO;
+      case 'rETH': {
+        // ref: https://github.com/Data-Nexus/rocket-pool-mainnet
+        const RETH_APR_SUBGRAPH_URL = import.meta.env.VITE_RETH_APR_SUBGRAPH_URL;
+
+        if (!RETH_APR_SUBGRAPH_URL) {
+          return null;
+        }
+
+        const query = gql`
+          query rETHAPY {
+            yesterdayRETH: rocketETHDailySnapshots(first: 1, skip: 1, orderBy: blockTime, orderDirection: desc) {
+              rETHExchangeRate
+              blockTime
+            }
+            lastRETH: rocketETHDailySnapshots(first: 1, skip: 8, orderBy: blockTime, orderDirection: desc) {
+              rETHExchangeRate
+              blockTime
+            }
+          }
+        `;
+
+        const response = await request<SubgraphREthAprResponse>(RETH_APR_SUBGRAPH_URL, query);
+        const ytdREth = response.yesterdayRETH[0];
+        const lastREth = response.lastRETH[0];
+
+        if (!ytdREth || !lastREth) {
+          return Decimal.ZERO;
+        }
+
+        const timeDiff = new Decimal(ytdREth.blockTime).sub(lastREth.blockTime);
+        const rateDiff = new Decimal(ytdREth.rETHExchangeRate).sub(lastREth.rETHExchangeRate);
+
+        if (timeDiff.isZero() || Decimal.parse(lastREth.rETHExchangeRate, 0).isZero()) {
+          return Decimal.ZERO;
+        }
+
+        const averageApr = new Decimal(ONE_YEAR).div(timeDiff).mul(rateDiff).div(lastREth.rETHExchangeRate);
+
+        return averageApr;
+      }
       default:
         return Decimal.ZERO;
     }
