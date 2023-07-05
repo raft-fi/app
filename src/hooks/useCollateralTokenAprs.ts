@@ -116,7 +116,7 @@ const fetchData = async (collateralToken: SupportedCollateralToken): Promise<Nul
 
         const averageApr = new Decimal(ONE_YEAR).div(timeDiff).mul(rateDiff).div(lastREth.rETHExchangeRate);
 
-        return new Decimal(averageApr);
+        return averageApr;
       }
       default:
         return Decimal.ZERO;
