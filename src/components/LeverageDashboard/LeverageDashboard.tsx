@@ -8,8 +8,8 @@ const LeverageDashboard = () => {
   return (
     <div className="raft__leverageDashboard">
       <YourPositionPlaceholder />
-      {/* <OpenLeveragePosition /> */}
-      <AdjustLeveragePosition />
+      <OpenLeveragePosition />
+      {/* <AdjustLeveragePosition /> */}
     </div>
   );
 };
