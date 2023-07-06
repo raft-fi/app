@@ -11,6 +11,8 @@ interface LeveragePositionAfterProps {
   liquidationPriceChange: Nullable<Decimal>;
   leverageAPR: Nullable<Decimal>;
   priceImpact: Decimal;
+  liquidationPriceLabel: string;
+  leverageAPRLabel: string;
 }
 
 const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
@@ -18,6 +20,8 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
   liquidationPriceChange,
   leverageAPR,
   priceImpact,
+  liquidationPriceLabel,
+  leverageAPRLabel,
 }) => {
   const liquidationPriceFormatted = useMemo(
     () =>
@@ -56,7 +60,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
       <div className="raft__leveragePositionAfter__dataColumn">
         <div className="raft__leveragePositionAfter__dataTitle">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
-            LIQUIDATION PRICE
+            {liquidationPriceLabel}
           </Typography>
           {/* TODO - Update tooltip content */}
           <TooltipWrapper
@@ -96,7 +100,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         {/* LEVERAGE APR */}
         <div className="raft__leveragePositionAfter__dataTitle">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
-            LEVERAGE APR
+            {leverageAPRLabel}
           </Typography>
           {/* TODO - Update tooltip content */}
           <TooltipWrapper

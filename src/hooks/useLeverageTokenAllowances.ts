@@ -32,7 +32,7 @@ export type LeverageTokenAllowanceMap = TokenDecimalMap<SupportedCollateralToken
 const DEFAULT_VALUE: LeverageTokenAllowanceMap = getNullTokenMap<SupportedCollateralToken>(SUPPORTED_COLLATERAL_TOKENS);
 
 const getOneStepLeverageManager = () => {
-  return RaftConfig.networkConfig.oneStepLeverageStEth;
+  return RaftConfig.networkConfig.oneInchOneStepLeverageStEth;
 };
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));

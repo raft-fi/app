@@ -1,3 +1,4 @@
+import AdjustLeveragePosition from '../AdjustLeveragePosition';
 import OpenLeveragePosition from '../OpenLeveragePosition';
 import YourPositionPlaceholder from '../YourPositionPlaceholder';
 
@@ -7,7 +8,8 @@ const LeverageDashboard = () => {
   return (
     <div className="raft__leverageDashboard">
       <YourPositionPlaceholder />
-      <OpenLeveragePosition />
+      {/* <OpenLeveragePosition /> */}
+      <AdjustLeveragePosition />
     </div>
   );
 };

@@ -24,7 +24,8 @@ import {
 import { Nullable, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
 
-import './OpenLeveragePosition.scss';
+import './AdjustLeveragePosition.scss';
+import { ButtonWrapper } from 'tempus-ui';
 
 const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
@@ -49,6 +50,7 @@ const OpenLeveragePosition = () => {
   );
   const [leverage, setLeverage] = useState<number>(MIN_LEVERAGE);
   const [actionButtonState, setActionButtonState] = useState<string>('default');
+  const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
 
   const selectedUnderlyingCollateralToken = useMemo(
     () => TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
@@ -389,11 +391,37 @@ const OpenLeveragePosition = () => {
     requestLeveragePositionStep?.({
       underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
       collateralToken: selectedCollateralToken,
-      collateralChange: collateralAmountDecimal,
+      collateralChange: isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1),
       leverage: new Decimal(leverage),
       slippage: new Decimal(1), // TODO - Set slippage in settings popup and pass it here
     });
-  }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken]);
+  }, [collateralAmountDecimal, isAddCollateral, leverage, requestLeveragePositionStep, selectedCollateralToken]);
+
+  const collateralLabelComponent = useMemo(
+    () => (
+      <>
+        <ButtonWrapper
+          className="raft__adjustPosition__input-deposit"
+          selected={isAddCollateral}
+          onClick={() => setIsAddCollateral(true)}
+        >
+          <Typography variant="overline" weight="semi-bold">
+            DEPOSIT
+          </Typography>
+        </ButtonWrapper>
+        <ButtonWrapper
+          className="raft__adjustPosition__input-withdraw"
+          selected={!isAddCollateral}
+          onClick={() => setIsAddCollateral(false)}
+        >
+          <Typography variant="overline" weight="semi-bold">
+            WITHDRAW
+          </Typography>
+        </ButtonWrapper>
+      </>
+    ),
+    [isAddCollateral],
+  );
 
   return (
     <div className="raft__openLeveragePosition">
@@ -403,10 +431,18 @@ const OpenLeveragePosition = () => {
             <Icon variant="arrow-left" size={12} />
           </Link>
           <Typography variant="heading2" weight="medium">
-            Open leverage Position
+            Adjust Leverage Position
           </Typography>
         </div>
-        <div className="raft__openLeveragePositionHeaderActions">
+        <div className="raft__adjustLeveragePositionHeaderActions">
+          <Button
+            variant="secondary"
+            text="Close Position"
+            onClick={() => {
+              /* TODO */
+            }}
+            selected={false}
+          />
           <Button variant="secondary" onClick={onSettingsClick}>
             <Icon variant="settings" size={16} />
           </Button>
@@ -414,13 +450,12 @@ const OpenLeveragePosition = () => {
       </div>
       <div className="raft__openLeveragePositionInputs">
         <CurrencyInput
-          label="YOU DEPOSIT"
+          label={collateralLabelComponent}
           precision={18}
           selectedToken={selectedCollateralToken}
           tokens={[...SUPPORTED_COLLATERAL_TOKENS]}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse ?? undefined}
-          maxAmount={selectedCollateralTokenBalanceValues.amount}
           maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
@@ -433,7 +468,7 @@ const OpenLeveragePosition = () => {
           errorMsg={collateralErrorMsg}
         />
         <SliderInput
-          label="TARGET LEVERAGE"
+          label="LEVERAGE EXPOSURE"
           value={leverage}
           min={MIN_LEVERAGE}
           max={MAX_LEVERAGE}
@@ -450,8 +485,8 @@ const OpenLeveragePosition = () => {
         liquidationPriceChange={liquidationPriceDropPercent}
         leverageAPR={selectedCollateralTokenLeveragedApr}
         priceImpact={new Decimal(-0.02)}
-        liquidationPriceLabel="LIQUIDATION PRICE"
-        leverageAPRLabel="LEVERAGE APR"
+        liquidationPriceLabel="RESULTING LIQUIDATION PRICE"
+        leverageAPRLabel="STAKING YIELD APR AFTER"
       />
       <LeveragePositionAction
         actionButtonState={actionButtonState}
