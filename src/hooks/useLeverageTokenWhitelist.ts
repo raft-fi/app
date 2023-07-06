@@ -54,7 +54,7 @@ const fetchData = async (
     );
 
     const result = await userPosition.isDelegateWhitelisted(
-      RaftConfig.networkConfig.oneStepLeverageStEth,
+      RaftConfig.networkConfig.oneInchOneStepLeverageStEth,
       await walletSigner.getAddress(),
     );
 

@@ -1,0 +1,88 @@
+@import '../../index.scss';
+
+.raft__openLeveragePosition {
+  @include sectionBox;
+  padding-top: 24px;
+
+  .raft__openLeveragePositionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    padding-bottom: 32px;
+
+    .raft__openLeveragePositionHeaderTitle {
+      display: flex;
+      align-items: center;
+
+      .raft__openLeveragePositionHeaderBack {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .raft__iconArrowLeft {
+          margin-right: 12px;
+        }
+      }
+    }
+
+    .raft__adjustLeveragePositionHeaderActions {
+      display: flex;
+
+      .raft__button {
+        &:not(:last-child) {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  .raft__openLeveragePositionInputs {
+    display: flex;
+
+    .raft__sliderInput {
+      margin-left: 32px;
+
+      .raft__sliderInputValue {
+        > div:first-child {
+          min-width: 44px;
+        }
+        > .raft__slider {
+          margin-left: 16px;
+        }
+      }
+    }
+
+    .raft__adjustPosition__input-deposit,
+    .raft__adjustPosition__input-borrow {
+      margin-right: 8px;
+    }
+
+    .raft__adjustPosition__input-deposit,
+    .raft__adjustPosition__input-withdraw,
+    .raft__adjustPosition__input-borrow,
+    .raft__adjustPosition__input-repay {
+      &[data-selected='false'] {
+        &:hover {
+          div {
+            --textPrimary: var(--textAccent);
+          }
+        }
+      }
+
+      &[data-selected='true'] {
+        --textPrimary: var(--textAccent);
+
+        position: relative;
+
+        &::after {
+          content: ' ';
+          border-bottom: 2px solid var(--textAccent);
+          width: 100%;
+          position: absolute;
+          top: 18px;
+        }
+      }
+    }
+  }
+}
