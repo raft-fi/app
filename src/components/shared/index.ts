@@ -1,3 +1,4 @@
+import BaseInput from './BaseInput';
 import Button from './Button';
 import Icon from './Icon';
 import Loading from './Loading';
@@ -16,6 +17,7 @@ import InfoBox from './InfoBox';
 import SliderInput from './SliderInput';
 
 export {
+  BaseInput,
   Button,
   Icon,
   Loading,

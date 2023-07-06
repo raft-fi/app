@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo, useEffect } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { Decimal } from '@tempusfinance/decimal';
-import { Button, CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
+import { CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
@@ -20,9 +20,11 @@ import {
   useWallet,
   useLeverage,
   useCollateralTokenAprs,
+  useSettingOptions,
 } from '../../hooks';
 import { Nullable, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
+import Settings from '../Settings';
 
 import './OpenLeveragePosition.scss';
 
@@ -40,6 +42,7 @@ const OpenLeveragePosition = () => {
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const collateralTokenAprMap = useCollateralTokenAprs();
+  const [{ slippage }] = useSettingOptions();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
 
@@ -336,10 +339,6 @@ const OpenLeveragePosition = () => {
     tokenNeedsToBeApproved,
   ]);
 
-  const onSettingsClick = useCallback(() => {
-    // TODO - Add settings popup
-  }, []);
-
   const onLeverageChange = useCallback((value: number) => setLeverage(value), []);
   const handleCollateralValueUpdate = useCallback((amount: string) => setCollateralAmount(amount), []);
   const handleCollateralTokenChange = useCallback((token: string) => {
@@ -391,9 +390,9 @@ const OpenLeveragePosition = () => {
       collateralToken: selectedCollateralToken,
       collateralChange: collateralAmountDecimal,
       leverage: new Decimal(leverage),
-      slippage: new Decimal(1), // TODO - Set slippage in settings popup and pass it here
+      slippage,
     });
-  }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken]);
+  }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken, slippage]);
 
   return (
     <div className="raft__openLeveragePosition">
@@ -407,9 +406,7 @@ const OpenLeveragePosition = () => {
           </Typography>
         </div>
         <div className="raft__openLeveragePositionHeaderActions">
-          <Button variant="secondary" onClick={onSettingsClick}>
-            <Icon variant="settings" size={16} />
-          </Button>
+          <Settings />
         </div>
       </div>
       <div className="raft__openLeveragePositionInputs">
