@@ -117,6 +117,19 @@ const OpenLeveragePosition = () => {
         : null,
     [collateralizationRatio],
   );
+  const minDepositAmount = useMemo(() => {
+    if (leverage <= 1 || !MIN_BORROW_AMOUNT) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    const collateralValue = selectedCollateralTokenInputValues.value;
+
+    if (!collateralValue || collateralValue.isZero()) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    return new Decimal(MIN_BORROW_AMOUNT).div(collateralValue.mul(leverage - 1));
+  }, [leverage, selectedCollateralTokenInputValues.value]);
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -198,13 +211,10 @@ const OpenLeveragePosition = () => {
     () => !collateralAmountDecimal.isZero() || hasLeveraged,
     [collateralAmountDecimal, hasLeveraged],
   );
-  const hasMinDeposit = useMemo(() => {
-    if (!selectedCollateralTokenPrice) {
-      return false;
-    }
-
-    return collateralAmountDecimal.mul(selectedCollateralTokenPrice).gte(MIN_BORROW_AMOUNT);
-  }, [collateralAmountDecimal, selectedCollateralTokenPrice]);
+  const hasMinDeposit = useMemo(
+    () => collateralAmountDecimal.gte(minDepositAmount),
+    [collateralAmountDecimal, minDepositAmount],
+  );
   const hasEnoughCollateralTokenBalance = useMemo(
     () =>
       !walletConnected ||
@@ -254,10 +264,7 @@ const OpenLeveragePosition = () => {
     }
 
     if (!hasMinDeposit && hasNonEmptyInput) {
-      const minDepositFormatted = formatCurrency(MIN_BORROW_AMOUNT, {
-        currency: '$',
-      });
-      return `You need to deposit at least ${minDepositFormatted} of ${selectedCollateralToken}`;
+      return 'Insufficient funds for leverage position. Increase your collateral deposit to get started.';
     }
 
     if (errPositionOutOfCollateralPositionCap) {

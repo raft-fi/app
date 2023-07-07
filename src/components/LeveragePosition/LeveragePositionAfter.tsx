@@ -126,7 +126,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         {/* PRICE IMPACT */}
         <div className="raft__leveragePositionAfter__dataTitle">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
-            PRICE IMPACT (FAKE)
+            TOTAL FEES (FAKE)
           </Typography>
           {/* TODO - Update tooltip content */}
           <TooltipWrapper
