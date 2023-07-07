@@ -30,6 +30,11 @@
   .raft__openLeveragePositionInputs {
     display: flex;
 
+    .raft__currencyInput__errorContainer {
+      height: initial;
+      min-height: 16px;
+    }
+
     .raft__sliderInput {
       margin-left: 32px;
 
@@ -42,5 +47,9 @@
         }
       }
     }
+  }
+
+  .raft__infoBox {
+    margin-top: 8px;
   }
 }
