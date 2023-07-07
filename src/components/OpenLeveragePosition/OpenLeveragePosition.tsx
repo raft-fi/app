@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo, useEffect } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { Decimal } from '@tempusfinance/decimal';
-import { Button, CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
+import { CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
@@ -20,9 +20,11 @@ import {
   useWallet,
   useLeverage,
   useCollateralTokenAprs,
+  useSettingOptions,
 } from '../../hooks';
 import { Nullable, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
+import Settings from '../Settings';
 
 import './OpenLeveragePosition.scss';
 
@@ -40,6 +42,7 @@ const OpenLeveragePosition = () => {
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const collateralTokenAprMap = useCollateralTokenAprs();
+  const [{ slippage }] = useSettingOptions();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
 
@@ -114,6 +117,19 @@ const OpenLeveragePosition = () => {
         : null,
     [collateralizationRatio],
   );
+  const minDepositAmount = useMemo(() => {
+    if (leverage <= 1 || !MIN_BORROW_AMOUNT) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    const collateralValue = selectedCollateralTokenInputValues.value;
+
+    if (!collateralValue || collateralValue.isZero()) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    return new Decimal(MIN_BORROW_AMOUNT).div(collateralValue.mul(leverage - 1));
+  }, [leverage, selectedCollateralTokenInputValues.value]);
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -195,13 +211,10 @@ const OpenLeveragePosition = () => {
     () => !collateralAmountDecimal.isZero() || hasLeveraged,
     [collateralAmountDecimal, hasLeveraged],
   );
-  const hasMinDeposit = useMemo(() => {
-    if (!selectedCollateralTokenPrice) {
-      return false;
-    }
-
-    return collateralAmountDecimal.mul(selectedCollateralTokenPrice).gte(MIN_BORROW_AMOUNT);
-  }, [collateralAmountDecimal, selectedCollateralTokenPrice]);
+  const hasMinDeposit = useMemo(
+    () => collateralAmountDecimal.gte(minDepositAmount),
+    [collateralAmountDecimal, minDepositAmount],
+  );
   const hasEnoughCollateralTokenBalance = useMemo(
     () =>
       !walletConnected ||
@@ -211,6 +224,10 @@ const OpenLeveragePosition = () => {
           selectedCollateralTokenInputValues.amount.lte(selectedCollateralTokenBalanceValues.amount),
       ),
     [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
+  );
+  const errTxn = useMemo(
+    () => leveragePositionStatus.error || leveragePositionStepsStatus.error,
+    [leveragePositionStatus.error, leveragePositionStepsStatus.error],
   );
   const errPositionOutOfCollateralPositionCap = useMemo(
     () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
@@ -231,9 +248,11 @@ const OpenLeveragePosition = () => {
           isPositionWithinCollateralPositionCap &&
           isPositionWithinCollateralProtocolCap &&
           isTotalSupplyWithinCollateralProtocolCap &&
+          !errTxn &&
           !isWrongNetwork,
       ),
     [
+      errTxn,
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
       hasMinDeposit,
@@ -251,10 +270,7 @@ const OpenLeveragePosition = () => {
     }
 
     if (!hasMinDeposit && hasNonEmptyInput) {
-      const minDepositFormatted = formatCurrency(MIN_BORROW_AMOUNT, {
-        currency: '$',
-      });
-      return `You need to deposit at least ${minDepositFormatted} of ${selectedCollateralToken}`;
+      return 'Insufficient funds for leverage position. Increase your collateral deposit to get started.';
     }
 
     if (errPositionOutOfCollateralPositionCap) {
@@ -284,6 +300,14 @@ const OpenLeveragePosition = () => {
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
       return 'Connect wallet';
+    }
+
+    if (leveragePositionStepsStatus.error?.message) {
+      return leveragePositionStepsStatus.error.message;
+    }
+
+    if (leveragePositionStatus.error?.message) {
+      return leveragePositionStatus.error.message;
     }
 
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
@@ -327,18 +351,16 @@ const OpenLeveragePosition = () => {
     walletConnected,
     isTotalSupplyWithinCollateralProtocolCap,
     leveragePositionStatus.pending,
+    leveragePositionStatus.error?.message,
     executionSteps,
     executionType,
     hasNonEmptyInput,
+    leveragePositionStepsStatus.error?.message,
     collateralProtocolCapMap,
     selectedCollateralToken,
     currentExecutionSteps,
     tokenNeedsToBeApproved,
   ]);
-
-  const onSettingsClick = useCallback(() => {
-    // TODO - Add settings popup
-  }, []);
 
   const onLeverageChange = useCallback((value: number) => setLeverage(value), []);
   const handleCollateralValueUpdate = useCallback((amount: string) => setCollateralAmount(amount), []);
@@ -367,7 +389,11 @@ const OpenLeveragePosition = () => {
     if (
       leveragePositionStatus.pending ||
       leveragePositionStepsStatus.pending ||
-      (walletConnected && !collateralAmountDecimal.isZero() && !executionType)
+      (walletConnected &&
+        !collateralAmountDecimal.isZero() &&
+        !executionType &&
+        !leveragePositionStatus.error &&
+        !leveragePositionStepsStatus.error)
     ) {
       setActionButtonState('loading');
     } else if (leveragePositionStatus.success) {
@@ -381,6 +407,7 @@ const OpenLeveragePosition = () => {
     leveragePositionStatus,
     leveragePositionStatus.pending,
     leveragePositionStatus.success,
+    leveragePositionStepsStatus.error,
     leveragePositionStepsStatus.pending,
     walletConnected,
   ]);
@@ -391,9 +418,9 @@ const OpenLeveragePosition = () => {
       collateralToken: selectedCollateralToken,
       collateralChange: collateralAmountDecimal,
       leverage: new Decimal(leverage),
-      slippage: new Decimal(1), // TODO - Set slippage in settings popup and pass it here
+      slippage,
     });
-  }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken]);
+  }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken, slippage]);
 
   return (
     <div className="raft__openLeveragePosition">
@@ -403,13 +430,11 @@ const OpenLeveragePosition = () => {
             <Icon variant="arrow-left" size={12} />
           </Link>
           <Typography variant="heading2" weight="medium">
-            Open leverage Position
+            Open Leverage Position
           </Typography>
         </div>
         <div className="raft__openLeveragePositionHeaderActions">
-          <Button variant="secondary" onClick={onSettingsClick}>
-            <Icon variant="settings" size={16} />
-          </Button>
+          <Settings />
         </div>
       </div>
       <div className="raft__openLeveragePositionInputs">

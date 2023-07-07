@@ -245,6 +245,7 @@ const distinctRequest$ = leveragePositionStepsRequest$.pipe(
       prev.underlyingCollateralToken === current.underlyingCollateralToken &&
       prev.collateralChange.equals(current.collateralChange) &&
       prev.leverage.equals(current.leverage) &&
+      prev.slippage.equals(current.slippage) &&
       prev.isClosePosition === current.isClosePosition,
   ),
 );

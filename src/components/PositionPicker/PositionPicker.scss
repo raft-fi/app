@@ -20,8 +20,15 @@
   .raft__positionPickerItems {
     display: flex;
 
-    .raft__positionPickerItem:not(:last-child) {
-      margin-right: 16px;
+    .raft__positionPickerItem {
+      &:hover {
+        /* TODO: hardcode color as suggested */
+        background-color: var(--raft-grey-100);
+      }
+
+      &:not(:first-child) {
+        margin-left: 16px;
+      }
     }
   }
 }

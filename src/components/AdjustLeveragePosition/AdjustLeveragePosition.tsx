@@ -1,8 +1,8 @@
 import { useCallback, useState, useMemo, useEffect, FC } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
-import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
+import { Decimal } from '@tempusfinance/decimal';
 import { Button, CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
   INPUT_PREVIEW_DIGITS,
@@ -28,11 +28,13 @@ import {
   useLeverage,
   useCollateralTokenAprs,
   useCollateralConversionRates,
+  useSettingOptions,
 } from '../../hooks';
 import { Nullable, Position, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
 
 import './AdjustLeveragePosition.scss';
+import Settings from '../Settings';
 
 const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
@@ -53,6 +55,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const collateralTokenAprMap = useCollateralTokenAprs();
   const collateralConversionRateMap = useCollateralConversionRates();
+  const [{ slippage }] = useSettingOptions();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
 
@@ -129,6 +132,19 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
         : null,
     [collateralizationRatio],
   );
+  const minDepositAmount = useMemo(() => {
+    if (leverage <= 1 || !MIN_BORROW_AMOUNT) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    const collateralValue = selectedCollateralTokenInputValues.value;
+
+    if (!collateralValue || collateralValue.isZero()) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    return new Decimal(MIN_BORROW_AMOUNT).div(collateralValue.mul(leverage - 1));
+  }, [leverage, selectedCollateralTokenInputValues.value]);
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -210,13 +226,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     () => !collateralAmountDecimal.isZero() || hasLeveraged,
     [collateralAmountDecimal, hasLeveraged],
   );
-  const hasMinDeposit = useMemo(() => {
-    if (!selectedCollateralTokenPrice) {
-      return false;
-    }
-
-    return collateralAmountDecimal.mul(selectedCollateralTokenPrice).gte(MIN_BORROW_AMOUNT);
-  }, [collateralAmountDecimal, selectedCollateralTokenPrice]);
+  const hasMinDeposit = useMemo(
+    () => collateralAmountDecimal.gte(minDepositAmount),
+    [collateralAmountDecimal, minDepositAmount],
+  );
   const hasEnoughCollateralTokenBalance = useMemo(
     () =>
       !walletConnected ||
@@ -226,6 +239,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
           selectedCollateralTokenInputValues.amount.lte(selectedCollateralTokenBalanceValues.amount),
       ),
     [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
+  );
+  const errTxn = useMemo(
+    () => leveragePositionStatus.error || leveragePositionStepsStatus.error,
+    [leveragePositionStatus.error, leveragePositionStepsStatus.error],
   );
   const errPositionOutOfCollateralPositionCap = useMemo(
     () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
@@ -246,9 +263,11 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
           isPositionWithinCollateralPositionCap &&
           isPositionWithinCollateralProtocolCap &&
           isTotalSupplyWithinCollateralProtocolCap &&
+          !errTxn &&
           !isWrongNetwork,
       ),
     [
+      errTxn,
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
       hasMinDeposit,
@@ -266,10 +285,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     }
 
     if (!hasMinDeposit && hasNonEmptyInput) {
-      const minDepositFormatted = formatCurrency(MIN_BORROW_AMOUNT, {
-        currency: '$',
-      });
-      return `You need to deposit at least ${minDepositFormatted} of ${selectedCollateralToken}`;
+      return 'Insufficient funds for leverage position. Increase your collateral deposit to get started.';
     }
 
     if (errPositionOutOfCollateralPositionCap) {
@@ -299,6 +315,14 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
       return 'Connect wallet';
+    }
+
+    if (leveragePositionStepsStatus.error?.message) {
+      return leveragePositionStepsStatus.error.message;
+    }
+
+    if (leveragePositionStatus.error?.message) {
+      return leveragePositionStatus.error.message;
     }
 
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
@@ -340,8 +364,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     return 'Loading';
   }, [
     walletConnected,
-    isTotalSupplyWithinCollateralProtocolCap,
+    leveragePositionStepsStatus.error?.message,
+    leveragePositionStatus.error?.message,
     leveragePositionStatus.pending,
+    isTotalSupplyWithinCollateralProtocolCap,
     executionSteps,
     executionType,
     hasNonEmptyInput,
@@ -350,10 +376,6 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     currentExecutionSteps,
     tokenNeedsToBeApproved,
   ]);
-
-  const onSettingsClick = useCallback(() => {
-    // TODO - Add settings popup
-  }, []);
 
   const onLeverageChange = useCallback((value: number) => setLeverage(value), []);
   const handleCollateralValueUpdate = useCallback((amount: string) => setCollateralAmount(amount), []);
@@ -369,7 +391,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
 
   const onAction = useCallback(() => {
     leveragePosition?.();
-  }, [canLeverage, leveragePosition]);
+  }, [leveragePosition]);
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
@@ -404,7 +426,11 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     if (
       leveragePositionStatus.pending ||
       leveragePositionStepsStatus.pending ||
-      (walletConnected && !collateralAmountDecimal.isZero() && !executionType)
+      (walletConnected &&
+        !collateralAmountDecimal.isZero() &&
+        !executionType &&
+        !leveragePositionStatus.error &&
+        !leveragePositionStepsStatus.error)
     ) {
       setActionButtonState('loading');
     } else if (leveragePositionStatus.success) {
@@ -418,6 +444,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     leveragePositionStatus,
     leveragePositionStatus.pending,
     leveragePositionStatus.success,
+    leveragePositionStepsStatus.error,
     leveragePositionStepsStatus.pending,
     walletConnected,
   ]);
@@ -428,8 +455,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
       collateralToken: selectedCollateralToken,
       collateralChange: isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1),
       leverage: new Decimal(leverage),
-      slippage: new Decimal(0.5), // TODO - Set slippage in settings popup and pass it here
       isClosePosition: closePositionActive, // TODO - If new user position is also zero, set this to true
+      slippage,
     });
   }, [
     collateralAmountDecimal,
@@ -438,6 +465,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     requestLeveragePositionStep,
     selectedCollateralToken,
     closePositionActive,
+    slippage,
   ]);
 
   const collateralLabelComponent = useMemo(
@@ -484,9 +512,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
             onClick={onToggleClosePosition}
             selected={closePositionActive}
           />
-          <Button variant="secondary" onClick={onSettingsClick}>
-            <Icon variant="settings" size={16} />
-          </Button>
+          <Settings />
         </div>
       </div>
       <div className="raft__openLeveragePositionInputs">
