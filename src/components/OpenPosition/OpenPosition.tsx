@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Decimal } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
@@ -36,7 +37,7 @@ import {
   isCollateralToken,
   isDisplayBaseToken,
 } from '../../utils';
-import { Button, CurrencyInput, Typography } from '../shared';
+import { Button, CurrencyInput, Icon, Typography } from '../shared';
 import { PositionAfter, PositionAction } from '../Position';
 
 import './OpenPosition.scss';
@@ -647,6 +648,9 @@ const OpenPosition = () => {
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
+        <Link className="raft__openLeveragePositionHeaderBack" to="/">
+          <Icon variant="arrow-left" size={12} />
+        </Link>
         <Typography variant="heading2">Open Position</Typography>
         {walletConnected && (
           <Button
