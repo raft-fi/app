@@ -8,16 +8,11 @@ import './LeverageDashboard.scss';
 const LeverageDashboard = () => {
   const position = usePosition();
 
-  // TODO - Show adjust only if user has borrowed and has a leverage position
-  if (!position) {
-    return null;
-  }
-
   return (
     <div className="raft__leverageDashboard">
       <YourPositionPlaceholder />
       <OpenLeveragePosition />
-      {/* <AdjustLeveragePosition position={position} /> */}
+      {/* position && <AdjustLeveragePosition position={position} /> */}
     </div>
   );
 };

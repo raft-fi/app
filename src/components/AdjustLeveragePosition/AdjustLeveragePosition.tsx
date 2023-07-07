@@ -390,8 +390,12 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   }, [connect]);
 
   const onAction = useCallback(() => {
+    if (!canLeverage) {
+      return;
+    }
+
     leveragePosition?.();
-  }, [leveragePosition]);
+  }, [canLeverage, leveragePosition]);
 
   const onToggleClosePosition = useCallback(() => {
     if (!closePositionActive) {
@@ -559,7 +563,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
       />
       <LeveragePositionAction
         actionButtonState={actionButtonState}
-        canLeverage={true}
+        canLeverage={canLeverage}
         buttonLabel={buttonLabel}
         walletConnected={walletConnected}
         onClick={walletConnected ? onAction : onConnectWallet}
