@@ -409,7 +409,7 @@ const OpenLeveragePosition = () => {
             <Icon variant="arrow-left" size={12} />
           </Link>
           <Typography variant="heading2" weight="medium">
-            Open leverage Position
+            Open Leverage Position
           </Typography>
         </div>
         <div className="raft__openLeveragePositionHeaderActions">
