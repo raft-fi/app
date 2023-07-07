@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { R_TOKEN, RaftConfig } from '@raft-fi/sdk';
-import { resetRedeemStatus, resetManageStatus, useManage, useRedeem } from '../../hooks';
+import {
+  resetRedeemStatus,
+  resetManageStatus,
+  useManage,
+  useRedeem,
+  useLeverage,
+  resetLeverageStatus,
+} from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
 import { Typography } from '../shared';
@@ -14,6 +21,7 @@ import { formatCurrency } from '../../utils';
 
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
+  const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { redeemStatus, redeem } = useRedeem();
 
   const [successModalOpened, setSuccessModalOpened] = useState<boolean>(false);
@@ -23,12 +31,15 @@ const TransactionModal = () => {
     if (managePositionStatus.statusType === 'manage') {
       return managePositionStatus;
     }
+    if (leveragePositionStatus.statusType === 'leverage') {
+      return leveragePositionStatus;
+    }
     if (redeemStatus) {
       return redeemStatus;
     }
 
     return null;
-  }, [managePositionStatus, redeemStatus]);
+  }, [leveragePositionStatus, managePositionStatus, redeemStatus]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -60,6 +71,8 @@ const TransactionModal = () => {
     // By resetting the status we can close the modal
     if (currentStatus.statusType === 'manage') {
       resetManageStatus();
+    } else if (currentStatus.statusType === 'leverage') {
+      resetLeverageStatus();
     } else if (currentStatus.statusType === 'redeem') {
       resetRedeemStatus();
     }
@@ -74,18 +87,29 @@ const TransactionModal = () => {
 
     if (currentStatus.statusType === 'manage') {
       managePosition?.();
+    } else if (currentStatus.statusType === 'leverage') {
+      leveragePosition?.();
     } else if (currentStatus.statusType === 'redeem') {
       redeem(currentStatus.request);
     }
-  }, [currentStatus, managePosition, redeem]);
+  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, redeem]);
 
   const collateralChange = useMemo(() => {
-    if (managePositionStatus.statusType !== 'manage') {
-      return null;
+    if (managePositionStatus.statusType === 'manage') {
+      return managePositionStatus.request?.collateralChange ?? null;
     }
 
-    return managePositionStatus.request?.collateralChange ?? null;
-  }, [managePositionStatus.request?.collateralChange, managePositionStatus.statusType]);
+    if (leveragePositionStatus.statusType === 'leverage') {
+      return leveragePositionStatus.request?.collateralChange ?? null;
+    }
+
+    return null;
+  }, [
+    leveragePositionStatus.request?.collateralChange,
+    leveragePositionStatus.statusType,
+    managePositionStatus.request?.collateralChange,
+    managePositionStatus.statusType,
+  ]);
 
   const debtChange = useMemo(() => {
     if (managePositionStatus.statusType !== 'manage') {
@@ -95,6 +119,7 @@ const TransactionModal = () => {
     return managePositionStatus.request?.debtChange ?? null;
   }, [managePositionStatus.request?.debtChange, managePositionStatus.statusType]);
 
+  // TODO: add checking close position for leverage
   const isClosePosition = useMemo(
     () => managePositionStatus.statusType === 'manage' && managePositionStatus.request?.isClosePosition,
     [managePositionStatus.request?.isClosePosition, managePositionStatus.statusType],
@@ -112,6 +137,27 @@ const TransactionModal = () => {
       });
 
       return <Typography variant="heading1">{debtValueFormatted} redeemed</Typography>;
+    }
+
+    if (leveragePositionStatus.statusType === 'leverage' && collateralChange && leveragePositionStatus.request) {
+      const collateralLabel = collateralChange.lt(0) ? 'withdrawn' : 'deposited';
+
+      const collateralValueFormatted = formatCurrency(collateralChange.abs(), {
+        currency: leveragePositionStatus.request.collateralToken,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+
+      return (
+        <>
+          {!collateralChange.isZero() && (
+            <Typography variant="heading1">
+              {collateralValueFormatted} {collateralLabel}
+            </Typography>
+          )}
+          <Typography variant="heading1">{`with ${leveragePositionStatus.request.leverage}x leverage`}</Typography>
+        </>
+      );
     }
 
     if (!managePositionStatus.request || !debtChange || !collateralChange) {
@@ -160,7 +206,14 @@ const TransactionModal = () => {
         )}
       </>
     );
-  }, [collateralChange, debtChange, managePositionStatus.request, redeemStatus]);
+  }, [
+    collateralChange,
+    debtChange,
+    leveragePositionStatus.request,
+    leveragePositionStatus.statusType,
+    managePositionStatus.request,
+    redeemStatus,
+  ]);
 
   /**
    * Generate success modal subtitle based on borrow request params
@@ -168,6 +221,10 @@ const TransactionModal = () => {
   const successModalSubtitle = useMemo(() => {
     if (redeemStatus) {
       return 'Successful redemption';
+    }
+
+    if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
+      return 'Successful leverage';
     }
 
     if (!debtChange || !collateralChange) {
@@ -188,7 +245,7 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [collateralChange, debtChange, redeemStatus]);
+  }, [collateralChange, debtChange, leveragePositionStatus.statusType, redeemStatus]);
 
   const tokenToAdd = useMemo(() => {
     if (currentStatus?.statusType === 'manage') {
