@@ -225,6 +225,10 @@ const OpenLeveragePosition = () => {
       ),
     [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
   );
+  const errTxn = useMemo(
+    () => leveragePositionStatus.error || leveragePositionStepsStatus.error,
+    [leveragePositionStatus.error, leveragePositionStepsStatus.error],
+  );
   const errPositionOutOfCollateralPositionCap = useMemo(
     () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
     [isPositionWithinCollateralPositionCap, selectedCollateralTokenPositionCap],
@@ -244,9 +248,11 @@ const OpenLeveragePosition = () => {
           isPositionWithinCollateralPositionCap &&
           isPositionWithinCollateralProtocolCap &&
           isTotalSupplyWithinCollateralProtocolCap &&
+          !errTxn &&
           !isWrongNetwork,
       ),
     [
+      errTxn,
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
       hasMinDeposit,
@@ -296,6 +302,14 @@ const OpenLeveragePosition = () => {
       return 'Connect wallet';
     }
 
+    if (leveragePositionStepsStatus.error?.message) {
+      return leveragePositionStepsStatus.error.message;
+    }
+
+    if (leveragePositionStatus.error?.message) {
+      return leveragePositionStatus.error.message;
+    }
+
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
@@ -337,9 +351,11 @@ const OpenLeveragePosition = () => {
     walletConnected,
     isTotalSupplyWithinCollateralProtocolCap,
     leveragePositionStatus.pending,
+    leveragePositionStatus.error?.message,
     executionSteps,
     executionType,
     hasNonEmptyInput,
+    leveragePositionStepsStatus.error?.message,
     collateralProtocolCapMap,
     selectedCollateralToken,
     currentExecutionSteps,
@@ -373,7 +389,11 @@ const OpenLeveragePosition = () => {
     if (
       leveragePositionStatus.pending ||
       leveragePositionStepsStatus.pending ||
-      (walletConnected && !collateralAmountDecimal.isZero() && !executionType)
+      (walletConnected &&
+        !collateralAmountDecimal.isZero() &&
+        !executionType &&
+        !leveragePositionStatus.error &&
+        !leveragePositionStepsStatus.error)
     ) {
       setActionButtonState('loading');
     } else if (leveragePositionStatus.success) {
@@ -387,6 +407,7 @@ const OpenLeveragePosition = () => {
     leveragePositionStatus,
     leveragePositionStatus.pending,
     leveragePositionStatus.success,
+    leveragePositionStepsStatus.error,
     leveragePositionStepsStatus.pending,
     walletConnected,
   ]);
