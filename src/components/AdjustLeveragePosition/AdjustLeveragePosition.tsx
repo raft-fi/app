@@ -368,10 +368,6 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   }, [connect]);
 
   const onAction = useCallback(() => {
-    if (!canLeverage) {
-      return;
-    }
-
     leveragePosition?.();
   }, [canLeverage, leveragePosition]);
 
@@ -391,7 +387,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
         }
       }
 
-      setLeverage(1);
+      setLeverage(1); // TODO - Set to user current leverage
     } else if (collateralBalance && debtBalance) {
       setCollateralAmount('');
       setIsAddCollateral(true);
@@ -432,9 +428,17 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
       collateralToken: selectedCollateralToken,
       collateralChange: isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1),
       leverage: new Decimal(leverage),
-      slippage: new Decimal(1), // TODO - Set slippage in settings popup and pass it here
+      slippage: new Decimal(0.5), // TODO - Set slippage in settings popup and pass it here
+      isClosePosition: closePositionActive, // TODO - If new user position is also zero, set this to true
     });
-  }, [collateralAmountDecimal, isAddCollateral, leverage, requestLeveragePositionStep, selectedCollateralToken]);
+  }, [
+    collateralAmountDecimal,
+    isAddCollateral,
+    leverage,
+    requestLeveragePositionStep,
+    selectedCollateralToken,
+    closePositionActive,
+  ]);
 
   const collateralLabelComponent = useMemo(
     () => (
@@ -529,7 +533,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
       />
       <LeveragePositionAction
         actionButtonState={actionButtonState}
-        canLeverage={canLeverage}
+        canLeverage={true}
         buttonLabel={buttonLabel}
         walletConnected={walletConnected}
         onClick={walletConnected ? onAction : onConnectWallet}

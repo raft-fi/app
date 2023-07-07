@@ -263,10 +263,12 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         underlyingCollateralToken
       ] as UserPosition<SupportedUnderlyingCollateralToken>;
       const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
+      //Setting leverage to 1 will close leverage position
+      const actualLeverage = isClosePosition ? Decimal.ONE : leverage;
 
       leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const steps = userPosition.getLeverageSteps(actualCollateralChange, leverage, slippage, {
+      const steps = userPosition.getLeverageSteps(actualCollateralChange, actualLeverage, slippage, {
         collateralToken,
         isDelegateWhitelisted,
         collateralTokenAllowance,
