@@ -1,11 +1,9 @@
-<<<<<<< HEAD
 import { memo, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
 import AdjustLeveragePosition from '../AdjustLeveragePosition';
 import LoadingDashboard from '../LoadingDashboard';
 import OpenLeveragePosition from '../OpenLeveragePosition';
-import YourLeveragePosition from '../YourLeveragePosition';
 import YourPositionPlaceholder from '../YourPositionPlaceholder';
 
 import './LeverageDashboard.scss';
@@ -39,7 +37,7 @@ const LeverageDashboard = () => {
       {shouldShowAdjustPosition ? (
         <>
           <YourPositionPlaceholder />
-          <AdjustLeveragePosition />
+          <AdjustLeveragePosition position={position} />
         </>
       ) : (
         <>
