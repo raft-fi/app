@@ -7,4 +7,5 @@ export interface Position {
   underlyingCollateralToken: Nullable<UnderlyingCollateralToken>;
   collateralBalance: Decimal;
   debtBalance: Decimal;
+  principalCollateralBalance: Nullable<Decimal>;
 }

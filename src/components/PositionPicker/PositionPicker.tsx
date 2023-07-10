@@ -5,6 +5,7 @@ import PositionPickerItem from './PositionPickerItem';
 import './PositionPicker.scss';
 
 const PositionPicker = () => {
+  // TODO: we load usePosition to check whether user has position here? do we need loading component?
   return (
     <div className="raft__positionPicker">
       <Typography variant="heading2" weight="medium">
