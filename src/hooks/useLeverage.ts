@@ -27,6 +27,7 @@ import { walletSigner$ } from './useWalletSigner';
 import { getNullTokenMap } from '../utils';
 import { leverageTokenAllowances$ } from './useLeverageTokenAllowances';
 import { leverageTokenWhitelists$ } from './useLeverageTokenWhitelist';
+import { position$ } from './usePosition';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -251,13 +252,14 @@ const distinctRequest$ = leveragePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(leverageTokenWhitelists$, leverageTokenAllowances$),
-  concatMap(([[request], leverageTokenWhitelistMap, leverageTokenAllowanceMap]) => {
+  withLatestFrom(leverageTokenWhitelists$, leverageTokenAllowances$, position$),
+  concatMap(([[request], leverageTokenWhitelistMap, leverageTokenAllowanceMap, position]) => {
     const { underlyingCollateralToken, collateralToken, collateralChange, leverage, slippage, isClosePosition } =
       request;
 
     const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
+    const currentDebt = position?.debtBalance ?? undefined;
 
     try {
       const userPosition = userPositionMap[
@@ -272,6 +274,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       const steps = userPosition.getLeverageSteps(actualCollateralChange, actualLeverage, slippage, {
         collateralToken,
         isDelegateWhitelisted,
+        currentDebt,
         collateralTokenAllowance,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
