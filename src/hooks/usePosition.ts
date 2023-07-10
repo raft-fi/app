@@ -29,6 +29,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
 
   try {
     const userPosition = await UserPosition.fromUser(signer);
+    console.log('userPosition', userPosition);
 
     // no position
     if (!userPosition) {
@@ -37,6 +38,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
         underlyingCollateralToken: null,
         collateralBalance: Decimal.ZERO,
         debtBalance: Decimal.ZERO,
+        principalCollateralBalance: null,
       };
     }
 
@@ -45,6 +47,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
       underlyingCollateralToken: userPosition.getUnderlyingCollateralToken(),
       collateralBalance: userPosition.getCollateral(),
       debtBalance: userPosition.getDebt(),
+      principalCollateralBalance: userPosition.getPrincipalCollateral(),
     };
   } catch (error) {
     console.error('usePosition (catch) - failed to fetch collateral balance!', error);

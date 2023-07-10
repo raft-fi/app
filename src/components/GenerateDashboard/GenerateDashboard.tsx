@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
 import LoadingDashboard from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
@@ -14,17 +15,22 @@ const GenerateDashboard = () => {
   const position = usePosition();
   const { isWrongNetwork } = useNetwork();
 
-  const userHasBorrowed = useMemo(() => {
+  const userHasPosition = useMemo(() => {
     return (
       (position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0)) &&
       Boolean(position?.underlyingCollateralToken)
     );
   }, [position?.collateralBalance, position?.debtBalance, position?.underlyingCollateralToken]);
 
-  const shouldShowAdjustPosition = wallet && userHasBorrowed && position && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && userHasPosition && position && !isWrongNetwork;
 
   if (!appLoaded) {
     return <LoadingDashboard />;
+  }
+
+  // for now, we only allow user to have either normal position or leverage position
+  if (position?.principalCollateralBalance) {
+    return <Navigate to="/leverage" />;
   }
 
   return (
