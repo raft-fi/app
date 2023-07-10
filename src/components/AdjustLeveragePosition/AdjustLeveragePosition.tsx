@@ -1,3 +1,4 @@
+import { R_TOKEN } from '@raft-fi/sdk';
 import { useCallback, useState, useMemo, useEffect, FC, useRef } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
@@ -5,6 +6,8 @@ import { ButtonWrapper } from 'tempus-ui';
 import { Decimal } from '@tempusfinance/decimal';
 import { Button, CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
+  DEBOUNCE_IN_MS,
+  FLASH_MINT_FEE,
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -33,10 +36,9 @@ import {
 } from '../../hooks';
 import { Nullable, Position, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
+import Settings from '../Settings';
 
 import './AdjustLeveragePosition.scss';
-import Settings from '../Settings';
-import { R_TOKEN } from '@raft-fi/sdk';
 
 const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
@@ -174,13 +176,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
     const priceImpact = Decimal.ONE.sub(swapPrice.div(underlyingCollateralTokenPrice));
 
-    // TODO: should place to SDK or somewhere, and also plz confirm this value is correct
-    const flashMintFee = new Decimal(0.0001);
-
     // TODO: confirm this is the correct calculation
     const rPriceDeviation = Decimal.ONE.sub(rTokenPrice);
 
-    return priceImpact.add(flashMintFee).add(rPriceDeviation);
+    return priceImpact.add(FLASH_MINT_FEE).add(rPriceDeviation);
   }, [
     selectedUnderlyingCollateralToken,
     swapPriceStatus.error,
@@ -527,7 +526,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
         router,
         slippage,
       });
-    }, 500);
+    }, DEBOUNCE_IN_MS);
   }, [
     collateralAmountDecimal,
     estimateSwapPrice,

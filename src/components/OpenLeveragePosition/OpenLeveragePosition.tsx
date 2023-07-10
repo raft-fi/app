@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { Decimal } from '@tempusfinance/decimal';
 import { CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
+  DEBOUNCE_IN_MS,
+  FLASH_MINT_FEE,
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -159,13 +161,10 @@ const OpenLeveragePosition = () => {
     const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
     const priceImpact = Decimal.ONE.sub(swapPrice.div(underlyingCollateralTokenPrice));
 
-    // TODO: should place to SDK or somewhere, and also plz confirm this value is correct
-    const flashMintFee = new Decimal(0.0001);
-
     // TODO: confirm this is the correct calculation
     const rPriceDeviation = Decimal.ONE.sub(rTokenPrice);
 
-    return priceImpact.add(flashMintFee).add(rPriceDeviation);
+    return priceImpact.add(FLASH_MINT_FEE).add(rPriceDeviation);
   }, [
     selectedUnderlyingCollateralToken,
     swapPriceStatus.error,
@@ -477,7 +476,7 @@ const OpenLeveragePosition = () => {
         router,
         slippage,
       });
-    }, 500);
+    }, DEBOUNCE_IN_MS);
   }, [
     collateralAmountDecimal,
     estimateSwapPrice,

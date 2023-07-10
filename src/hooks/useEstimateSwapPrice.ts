@@ -8,7 +8,7 @@ import { getDecimalFromTokenMap } from '../utils';
 import { provider$ } from './useProvider';
 import { tokenPrices$ } from './useTokenPrices';
 
-const DEFAULT_VALUE = {
+const DEFAULT_VALUE: EstimateSwapPriceStatus = {
   pending: false,
   request: null,
   result: null,
