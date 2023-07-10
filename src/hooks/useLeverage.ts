@@ -27,6 +27,7 @@ import { walletSigner$ } from './useWalletSigner';
 import { getNullTokenMap } from '../utils';
 import { leverageTokenAllowances$ } from './useLeverageTokenAllowances';
 import { leverageTokenWhitelists$ } from './useLeverageTokenWhitelist';
+import { position$ } from './usePosition';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -251,25 +252,29 @@ const distinctRequest$ = leveragePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(leverageTokenWhitelists$, leverageTokenAllowances$),
-  concatMap(([[request], leverageTokenWhitelistMap, leverageTokenAllowanceMap]) => {
+  withLatestFrom(leverageTokenWhitelists$, leverageTokenAllowances$, position$),
+  concatMap(([[request], leverageTokenWhitelistMap, leverageTokenAllowanceMap, position]) => {
     const { underlyingCollateralToken, collateralToken, collateralChange, leverage, slippage, isClosePosition } =
       request;
 
     const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
+    const currentDebt = position?.debtBalance ?? undefined;
 
     try {
       const userPosition = userPositionMap[
         underlyingCollateralToken
       ] as UserPosition<SupportedUnderlyingCollateralToken>;
       const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
+      //Setting leverage to 1 will close leverage position
+      const actualLeverage = isClosePosition ? Decimal.ONE : leverage;
 
       leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const steps = userPosition.getLeverageSteps(actualCollateralChange, leverage, slippage, {
+      const steps = userPosition.getLeverageSteps(actualCollateralChange, actualLeverage, slippage, {
         collateralToken,
         isDelegateWhitelisted,
+        currentDebt,
         collateralTokenAllowance,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });

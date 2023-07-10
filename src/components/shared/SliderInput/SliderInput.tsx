@@ -10,12 +10,13 @@ interface SliderInputProps {
   min: number;
   max: number;
   step: number;
+  disabled?: boolean;
   onValueChange: (value: number) => void;
 }
 
-const SliderInput: FC<SliderInputProps> = ({ label, value, min, max, step, onValueChange }) => {
+const SliderInput: FC<SliderInputProps> = ({ label, value, min, max, step, disabled = false, onValueChange }) => {
   return (
-    <div className="raft__sliderInput">
+    <div className={`raft__sliderInput ${disabled ? ' raft__sliderInputDisabled' : ''}`}>
       <Typography variant="overline" weight="semi-bold" color="text-secondary">
         {label}
       </Typography>
@@ -25,6 +26,7 @@ const SliderInput: FC<SliderInputProps> = ({ label, value, min, max, step, onVal
         </Typography>
         <Slider value={value} min={min} max={max} step={step} onChange={onValueChange} />
       </div>
+      {disabled && <div className="raft__currencyInput__disabledOverlay" />}
     </div>
   );
 };

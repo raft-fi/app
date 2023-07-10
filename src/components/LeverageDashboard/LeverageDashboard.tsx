@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { memo, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
@@ -37,7 +38,7 @@ const LeverageDashboard = () => {
     <div className="raft__leverageDashboard">
       {shouldShowAdjustPosition ? (
         <>
-          <YourLeveragePosition position={position} />
+          <YourPositionPlaceholder />
           <AdjustLeveragePosition />
         </>
       ) : (
