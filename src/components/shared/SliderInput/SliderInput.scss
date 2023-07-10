@@ -1,4 +1,5 @@
 .raft__sliderInput {
+  position: relative;
   width: 100%;
 
   .raft__sliderInputValue {
@@ -11,4 +12,16 @@
       margin-left: 20px;
     }
   }
+
+  .raft__currencyInput__disabledOverlay {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
+}
+
+.raft__sliderInputDisabled {
+  opacity: 0.5;
 }

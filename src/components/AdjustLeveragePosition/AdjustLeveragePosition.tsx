@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo, useEffect } from 'react';
+import { useCallback, useState, useMemo, useEffect, FC } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { ButtonWrapper } from 'tempus-ui';
@@ -10,7 +10,13 @@ import {
   SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
-import { formatCurrency, getDecimalFromTokenMap, getTokenValues, isCollateralToken } from '../../utils';
+import {
+  formatCurrency,
+  getDecimalFromTokenMap,
+  getTokenValues,
+  isCollateralToken,
+  isUnderlyingCollateralToken,
+} from '../../utils';
 import {
   useCollateralPositionCaps,
   useCollateralProtocolCaps,
@@ -21,9 +27,10 @@ import {
   useWallet,
   useLeverage,
   useCollateralTokenAprs,
+  useCollateralConversionRates,
   useSettingOptions,
 } from '../../hooks';
-import { Nullable, SupportedCollateralToken } from '../../interfaces';
+import { Nullable, Position, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
 
 import './AdjustLeveragePosition.scss';
@@ -32,7 +39,11 @@ import Settings from '../Settings';
 const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
 
-const OpenLeveragePosition = () => {
+interface AdjustPositionProps {
+  position: Position;
+}
+
+const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collateralBalance, debtBalance } }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
   const wallet = useWallet();
@@ -43,6 +54,7 @@ const OpenLeveragePosition = () => {
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const collateralTokenAprMap = useCollateralTokenAprs();
+  const collateralConversionRateMap = useCollateralConversionRates();
   const [{ slippage }] = useSettingOptions();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
@@ -54,6 +66,7 @@ const OpenLeveragePosition = () => {
   const [leverage, setLeverage] = useState<number>(MIN_LEVERAGE);
   const [actionButtonState, setActionButtonState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
+  const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
 
   const selectedUnderlyingCollateralToken = useMemo(
     () => TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
@@ -384,6 +397,32 @@ const OpenLeveragePosition = () => {
     leveragePosition?.();
   }, [canLeverage, leveragePosition]);
 
+  const onToggleClosePosition = useCallback(() => {
+    if (!closePositionActive) {
+      if (isUnderlyingCollateralToken(selectedCollateralToken)) {
+        setCollateralAmount(collateralBalance.toString());
+        setIsAddCollateral(false);
+      } else {
+        const collateralConversionRate = collateralConversionRateMap[selectedCollateralToken];
+
+        if (collateralConversionRate) {
+          const collateralBalanceInSelectedCollateralToken = collateralBalance.mul(collateralConversionRate);
+
+          setCollateralAmount(collateralBalanceInSelectedCollateralToken.toString());
+          setIsAddCollateral(false);
+        }
+      }
+
+      setLeverage(1); // TODO - Set to user current leverage
+    } else if (collateralBalance && debtBalance) {
+      setCollateralAmount('');
+      setIsAddCollateral(true);
+      setLeverage(1);
+    }
+
+    setClosePositionActive(prevState => !prevState);
+  }, [closePositionActive, collateralBalance, collateralConversionRateMap, debtBalance, selectedCollateralToken]);
+
   /**
    * Update action button state based on current approve/borrow request status
    */
@@ -420,6 +459,7 @@ const OpenLeveragePosition = () => {
       collateralToken: selectedCollateralToken,
       collateralChange: isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1),
       leverage: new Decimal(leverage),
+      isClosePosition: closePositionActive, // TODO - If new user position is also zero, set this to true
       slippage,
     });
   }, [
@@ -428,6 +468,7 @@ const OpenLeveragePosition = () => {
     leverage,
     requestLeveragePositionStep,
     selectedCollateralToken,
+    closePositionActive,
     slippage,
   ]);
 
@@ -472,10 +513,8 @@ const OpenLeveragePosition = () => {
           <Button
             variant="secondary"
             text="Close Position"
-            onClick={() => {
-              /* TODO */
-            }}
-            selected={false}
+            onClick={onToggleClosePosition}
+            selected={closePositionActive}
           />
           <Settings />
         </div>
@@ -491,6 +530,7 @@ const OpenLeveragePosition = () => {
           maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
           onTokenUpdate={handleCollateralTokenChange}
           onValueUpdate={handleCollateralValueUpdate}
+          disabled={closePositionActive}
           error={
             !hasEnoughCollateralTokenBalance ||
             (!hasMinDeposit && hasNonEmptyInput) ||
@@ -505,6 +545,7 @@ const OpenLeveragePosition = () => {
           min={MIN_LEVERAGE}
           max={MAX_LEVERAGE}
           step={0.1}
+          disabled={closePositionActive}
           onValueChange={onLeverageChange}
         />
       </div>
@@ -530,4 +571,4 @@ const OpenLeveragePosition = () => {
     </div>
   );
 };
-export default OpenLeveragePosition;
+export default AdjustLeveragePosition;
