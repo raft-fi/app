@@ -1,10 +1,13 @@
-import { useCallback, useState, useMemo, useEffect, FC } from 'react';
+import { R_TOKEN } from '@raft-fi/sdk';
+import { useCallback, useState, useMemo, useEffect, FC, useRef } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { ButtonWrapper } from 'tempus-ui';
 import { Decimal } from '@tempusfinance/decimal';
 import { Button, CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
+  DEBOUNCE_IN_MS,
+  FLASH_MINT_FEE,
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -29,12 +32,13 @@ import {
   useCollateralTokenAprs,
   useCollateralConversionRates,
   useSettingOptions,
+  useEstimateSwapPrice,
 } from '../../hooks';
 import { Nullable, Position, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
+import Settings from '../Settings';
 
 import './AdjustLeveragePosition.scss';
-import Settings from '../Settings';
 
 const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
@@ -55,9 +59,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const collateralTokenAprMap = useCollateralTokenAprs();
   const collateralConversionRateMap = useCollateralConversionRates();
-  const [{ slippage }] = useSettingOptions();
+  const [{ router, slippage }] = useSettingOptions();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
+  const { swapPriceStatus, estimateSwapPrice } = useEstimateSwapPrice();
 
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(
@@ -67,6 +72,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   const [actionButtonState, setActionButtonState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
+  const swapPriceTime = useRef<NodeJS.Timeout>();
 
   const selectedUnderlyingCollateralToken = useMemo(
     () => TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
@@ -145,6 +151,42 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
 
     return new Decimal(MIN_BORROW_AMOUNT).div(collateralValue.mul(leverage - 1));
   }, [leverage, selectedCollateralTokenInputValues.value]);
+  const totalFee = useMemo(() => {
+    if (
+      swapPriceStatus.pending ||
+      swapPriceStatus.error ||
+      !swapPriceStatus.result ||
+      swapPriceStatus.result.isZero()
+    ) {
+      return null;
+    }
+
+    const underlyingCollateralTokenPrice = getDecimalFromTokenMap(tokenPriceMap, selectedUnderlyingCollateralToken);
+
+    if (!underlyingCollateralTokenPrice || underlyingCollateralTokenPrice.isZero()) {
+      return null;
+    }
+
+    const rTokenPrice = getDecimalFromTokenMap(tokenPriceMap, R_TOKEN);
+
+    if (!rTokenPrice || rTokenPrice.isZero()) {
+      return null;
+    }
+
+    const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
+    const priceImpact = Decimal.ONE.sub(swapPrice.div(underlyingCollateralTokenPrice));
+
+    // TODO: confirm this is the correct calculation
+    const rPriceDeviation = Decimal.ONE.sub(rTokenPrice);
+
+    return priceImpact.add(FLASH_MINT_FEE).add(rPriceDeviation);
+  }, [
+    selectedUnderlyingCollateralToken,
+    swapPriceStatus.error,
+    swapPriceStatus.pending,
+    swapPriceStatus.result,
+    tokenPriceMap,
+  ]);
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -472,6 +514,29 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     slippage,
   ]);
 
+  useEffect(() => {
+    if (swapPriceTime.current) {
+      clearTimeout(swapPriceTime.current);
+    }
+    swapPriceTime.current = setTimeout(() => {
+      estimateSwapPrice({
+        underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
+        tokenAmount: collateralAmountDecimal,
+        leverage: new Decimal(leverage),
+        router,
+        slippage,
+      });
+    }, DEBOUNCE_IN_MS);
+  }, [
+    collateralAmountDecimal,
+    estimateSwapPrice,
+    leverage,
+    requestLeveragePositionStep,
+    router,
+    selectedCollateralToken,
+    slippage,
+  ]);
+
   const collateralLabelComponent = useMemo(
     () => (
       <>
@@ -557,7 +622,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
         liquidationPrice={liquidationPrice}
         liquidationPriceChange={liquidationPriceDropPercent}
         leverageAPR={selectedCollateralTokenLeveragedApr}
-        priceImpact={new Decimal(-0.02)}
+        totalFee={totalFee}
         liquidationPriceLabel="RESULTING LIQUIDATION PRICE"
         leverageAPRLabel="STAKING YIELD APR AFTER"
       />

@@ -4,9 +4,7 @@ import { state, useStateObservable } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEFAULT_SLIPPAGE } from '../constants';
-
-// TODO: SDK to export this
-export type SwapRouter = '1inch';
+import { SwapRouter } from '@raft-fi/sdk';
 
 export interface SettingOptions {
   router: SwapRouter;
