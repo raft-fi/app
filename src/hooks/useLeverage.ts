@@ -260,6 +260,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
     const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
     const currentDebt = position?.debtBalance ?? undefined;
+    const currentPrincipalCollateralBalance = position?.principalCollateralBalance ?? Decimal.ZERO;
 
     try {
       const userPosition = userPositionMap[
@@ -271,13 +272,19 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
 
       leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const steps = userPosition.getLeverageSteps(actualCollateralChange, actualLeverage, slippage, {
-        collateralToken,
-        isDelegateWhitelisted,
-        currentDebt,
-        collateralTokenAllowance,
-        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
-      });
+      const steps = userPosition.getLeverageSteps(
+        currentPrincipalCollateralBalance,
+        actualCollateralChange,
+        actualLeverage,
+        slippage,
+        {
+          collateralToken,
+          isDelegateWhitelisted,
+          currentDebt,
+          collateralTokenAllowance,
+          gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+        },
+      );
       const nextStep$ = from(steps.next());
 
       return nextStep$.pipe(
