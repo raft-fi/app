@@ -569,6 +569,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       collateralToken: selectedCollateralToken,
       collateralChange: isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1),
       leverage: new Decimal(leverage),
+      currentPrincipalCollateral: principalCollateralBalance ?? Decimal.ZERO,
       isClosePosition: closePositionActive, // TODO - If new user position is also zero, set this to true
       slippage,
     });
@@ -580,6 +581,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     selectedCollateralToken,
     closePositionActive,
     slippage,
+    principalCollateralBalance,
   ]);
 
   useEffect(() => {

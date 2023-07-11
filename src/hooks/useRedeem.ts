@@ -172,13 +172,16 @@ const stream$ = combineLatest([redeem$]).pipe(
     };
   }),
   tap(status => {
-    const { underlyingCollateralToken } = status.request;
+    const { underlyingCollateralToken, debtAmount } = status.request;
     const redeemToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].redeemToken;
 
     emitAppEvent({
       eventType: 'redeem',
-      collateralToken: redeemToken,
-      underlyingCollateralToken,
+      metadata: {
+        collateralToken: redeemToken,
+        underlyingCollateralToken,
+        tokenAmount: debtAmount,
+      },
       timestamp: Date.now(),
       txnHash: status.contractTransaction?.hash,
     });

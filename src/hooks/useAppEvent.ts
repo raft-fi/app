@@ -1,13 +1,19 @@
 import { state, useStateObservable } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
+import { Decimal } from '@tempusfinance/decimal';
 import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken } from '../interfaces';
 
 export type AppEventType = 'whitelist' | 'approve' | 'permit' | 'manage' | 'leverage' | 'redeem';
 
-export interface AppEvent {
-  eventType: AppEventType;
+export interface AppEventMetadata {
   collateralToken?: SupportedCollateralToken;
   underlyingCollateralToken?: SupportedUnderlyingCollateralToken;
+  tokenAmount?: Decimal;
+  currentPrincipalCollateral?: Decimal;
+}
+export interface AppEvent {
+  eventType: AppEventType;
+  metadata?: AppEventMetadata;
   txnHash?: string;
   timestamp: number;
 }

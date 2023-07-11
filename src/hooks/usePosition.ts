@@ -16,7 +16,7 @@ import { Decimal } from '@tempusfinance/decimal';
 import { JsonRpcSigner } from 'ethers';
 import { DEBOUNCE_IN_MS } from '../constants';
 import { Nullable, Position, SupportedUnderlyingCollateralToken } from '../interfaces';
-import { AppEvent, appEvent$ } from './useAppEvent';
+import { AppEvent, appEvent$, AppEventMetadata } from './useAppEvent';
 import { UserPosition } from '@raft-fi/sdk';
 import { walletSigner$ } from './useWalletSigner';
 
@@ -65,6 +65,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
 const fetchDataFromChain = async (
   signer: Nullable<JsonRpcSigner>,
   underlyingCollateralToken: Nullable<SupportedUnderlyingCollateralToken>,
+  updatedPrincipalCollateralBalance: Nullable<Decimal> = null,
 ): Promise<Nullable<Position>> => {
   if (!signer || !underlyingCollateralToken) {
     return null;
@@ -85,9 +86,7 @@ const fetchDataFromChain = async (
       hasPosition,
       collateralBalance,
       debtBalance,
-      // TODO: right now this will be empty. principal collateral balance requires fetch from subgraph.
-      //       need to pass current principal collateral balance + principal collateral changes to appEvent when leverage
-      principalCollateralBalance: userPosition.getPrincipalCollateral(),
+      principalCollateralBalance: updatedPrincipalCollateralBalance,
     };
   } catch (error) {
     console.error('usePosition (catch) - failed to fetch collateral balance from chain!', error);
@@ -106,9 +105,22 @@ const appEventsStream$ = appEvent$.pipe(
   filter((value): value is [AppEvent, JsonRpcSigner] => {
     const [appEvent, signer] = value;
 
-    return Boolean(signer && appEvent?.underlyingCollateralToken);
+    return Boolean(signer && appEvent?.metadata?.underlyingCollateralToken && appEvent?.metadata);
   }),
-  concatMap(([appEvent, signer]) => fetchDataFromChain(signer, appEvent.underlyingCollateralToken ?? null)),
+  concatMap(([appEvent, signer]) => {
+    const metadata = appEvent.metadata as AppEventMetadata;
+
+    if (appEvent.eventType === 'leverage') {
+      const { tokenAmount, currentPrincipalCollateral, underlyingCollateralToken } = metadata;
+
+      if (tokenAmount && currentPrincipalCollateral && underlyingCollateralToken) {
+        const updatedPrincipalCollateralBalance = currentPrincipalCollateral.add(tokenAmount);
+        return fetchDataFromChain(signer, underlyingCollateralToken, updatedPrincipalCollateralBalance);
+      }
+    }
+
+    return fetchDataFromChain(signer, metadata.underlyingCollateralToken ?? null);
+  }),
 );
 
 // merge all stream$ into one if there are multiple
