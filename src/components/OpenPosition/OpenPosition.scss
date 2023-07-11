@@ -10,8 +10,19 @@
     justify-content: start;
     margin-bottom: 16px;
 
-    .raft__iconArrowLeft {
-      margin-right: 12px;
+    .raft__openPositionHeaderTitle {
+      display: flex;
+      align-items: center;
+
+      .raft__openPositionHeaderBack {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .raft__iconArrowLeft {
+          margin-right: 12px;
+        }
+      }
     }
   }
 
