@@ -194,8 +194,11 @@ const managePosition$ = managePositionStepsStatus$.pipe(
 
             emitAppEvent({
               eventType: statusType,
-              collateralToken: request?.collateralToken,
-              underlyingCollateralToken: request?.underlyingCollateralToken,
+              metadata: {
+                collateralToken: request?.collateralToken,
+                underlyingCollateralToken: request?.underlyingCollateralToken,
+                tokenAmount: request?.collateralChange,
+              },
               timestamp: Date.now(),
               txnHash: txnResponse.hash,
             });

@@ -64,6 +64,7 @@ interface LeveragePositionStepsRequest {
   collateralChange: Decimal;
   leverage: Decimal;
   slippage: Decimal;
+  currentPrincipalCollateral: Decimal;
   isClosePosition?: boolean;
 }
 
@@ -185,8 +186,12 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
 
             emitAppEvent({
               eventType: statusType,
-              collateralToken: request?.collateralToken,
-              underlyingCollateralToken: request?.underlyingCollateralToken,
+              metadata: {
+                collateralToken: request?.collateralToken,
+                underlyingCollateralToken: request?.underlyingCollateralToken,
+                tokenAmount: request?.collateralChange,
+                currentPrincipalCollateral: request?.currentPrincipalCollateral,
+              },
               timestamp: Date.now(),
               txnHash: txnResponse.hash,
             });

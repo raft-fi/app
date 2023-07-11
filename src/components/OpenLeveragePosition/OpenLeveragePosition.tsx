@@ -460,6 +460,7 @@ const OpenLeveragePosition = () => {
       collateralToken: selectedCollateralToken,
       collateralChange: collateralAmountDecimal,
       leverage: new Decimal(leverage),
+      currentPrincipalCollateral: Decimal.ZERO,
       slippage,
     });
   }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken, slippage]);
