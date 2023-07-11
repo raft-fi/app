@@ -43,7 +43,9 @@ interface AdjustPositionProps {
   position: Position;
 }
 
-const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collateralBalance, debtBalance } }) => {
+const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
+  position: { collateralBalance, debtBalance, principalCollateralBalance },
+}) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
   const wallet = useWallet();
@@ -132,19 +134,57 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
         : null,
     [collateralizationRatio],
   );
+
+  /**
+   * Collateral input amount converted to underlying token amount (e.g. stETH -> wstETH)
+   * @returns {Decimal | null} Null is returned in case conversion rates are not loaded from SDK.
+   */
+  const underlyingCollateralAmount = useMemo(() => {
+    // This rate is from underlying to collateral token (e.g. wstETH -> stETH)
+    const rate = collateralConversionRateMap[selectedCollateralToken];
+    if (!rate) {
+      return null;
+    }
+
+    return collateralAmountDecimal.mul(Decimal.ONE.div(rate));
+  }, [collateralAmountDecimal, collateralConversionRateMap, selectedCollateralToken]);
+
+  /**
+   * Collateral balance after tx. Takes current amount of principal collateral user has and adds or subtracts input amount.
+   */
+  const newPrincipalCollateralAmount = useMemo(() => {
+    if (!principalCollateralBalance || !underlyingCollateralAmount) {
+      return null;
+    }
+
+    return principalCollateralBalance.add(
+      isAddCollateral ? underlyingCollateralAmount : underlyingCollateralAmount.mul(-1),
+    );
+  }, [isAddCollateral, principalCollateralBalance, underlyingCollateralAmount]);
+
+  /**
+   * Price of currently selected underlying collateral token (e.g. wstETH)
+   */
+  const selectedUnderlyingCollateralPrice = useMemo(() => {
+    return tokenPriceMap[selectedUnderlyingCollateralToken];
+  }, [selectedUnderlyingCollateralToken, tokenPriceMap]);
+
   const minDepositAmount = useMemo(() => {
-    if (leverage <= 1 || !MIN_BORROW_AMOUNT) {
+    if (leverage <= 1) {
       return Decimal.MAX_DECIMAL;
     }
 
-    const collateralValue = selectedCollateralTokenInputValues.value;
-
-    if (!collateralValue || collateralValue.isZero()) {
+    if (!newPrincipalCollateralAmount || !selectedUnderlyingCollateralPrice) {
       return Decimal.MAX_DECIMAL;
     }
 
-    return new Decimal(MIN_BORROW_AMOUNT).div(collateralValue.mul(leverage - 1));
-  }, [leverage, selectedCollateralTokenInputValues.value]);
+    const newPrincipalCollateralValue = newPrincipalCollateralAmount.mul(selectedUnderlyingCollateralPrice);
+    if (newPrincipalCollateralValue.isZero()) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    return new Decimal(MIN_BORROW_AMOUNT).div(newPrincipalCollateralValue.mul(leverage - 1));
+  }, [leverage, newPrincipalCollateralAmount, selectedUnderlyingCollateralPrice]);
 
   const collateralAmountWithEllipse = useMemo(() => {
     if (!selectedCollateralTokenInputValues.amount) {
@@ -221,25 +261,40 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   }, [collateralProtocolCapMap, collateralSupply, selectedCollateralToken]);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
-  const hasLeveraged = useMemo(() => leverage > 1, [leverage]);
+
+  /**
+   * Checks if user has set a leverage value greater than one.
+   * If user is closing the position we don't need to check for leverage.
+   */
+  const hasLeveraged = useMemo(() => {
+    return leverage > 1 || closePositionActive;
+  }, [closePositionActive, leverage]);
+
   const hasNonEmptyInput = useMemo(
     () => !collateralAmountDecimal.isZero() || hasLeveraged,
     [collateralAmountDecimal, hasLeveraged],
   );
   const hasMinDeposit = useMemo(
-    () => collateralAmountDecimal.gte(minDepositAmount),
-    [collateralAmountDecimal, minDepositAmount],
+    () => newPrincipalCollateralAmount?.gte(minDepositAmount) || closePositionActive,
+    [closePositionActive, minDepositAmount, newPrincipalCollateralAmount],
   );
+
+  /**
+   * wallet balance for the selected collateral token
+   */
+  const selectedCollateralTokenBalance = useMemo(
+    () => tokenBalanceMap[selectedCollateralToken],
+    [selectedCollateralToken, tokenBalanceMap],
+  );
+
+  /**
+   * If user is adding collateral, check if user has enough balance in wallet to deposit
+   */
   const hasEnoughCollateralTokenBalance = useMemo(
-    () =>
-      !walletConnected ||
-      !selectedCollateralTokenInputValues.amount ||
-      Boolean(
-        selectedCollateralTokenBalanceValues.amount &&
-          selectedCollateralTokenInputValues.amount.lte(selectedCollateralTokenBalanceValues.amount),
-      ),
-    [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
+    () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal) || !isAddCollateral,
+    [collateralAmountDecimal, isAddCollateral, selectedCollateralTokenBalance],
   );
+
   const errTxn = useMemo(
     () => leveragePositionStatus.error || leveragePositionStepsStatus.error,
     [leveragePositionStatus.error, leveragePositionStepsStatus.error],
@@ -398,15 +453,19 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
   }, [canLeverage, leveragePosition]);
 
   const onToggleClosePosition = useCallback(() => {
+    if (!principalCollateralBalance) {
+      return;
+    }
+
     if (!closePositionActive) {
       if (isUnderlyingCollateralToken(selectedCollateralToken)) {
-        setCollateralAmount(collateralBalance.toString());
+        setCollateralAmount(principalCollateralBalance.toString());
         setIsAddCollateral(false);
       } else {
         const collateralConversionRate = collateralConversionRateMap[selectedCollateralToken];
 
         if (collateralConversionRate) {
-          const collateralBalanceInSelectedCollateralToken = collateralBalance.mul(collateralConversionRate);
+          const collateralBalanceInSelectedCollateralToken = principalCollateralBalance.mul(collateralConversionRate);
 
           setCollateralAmount(collateralBalanceInSelectedCollateralToken.toString());
           setIsAddCollateral(false);
@@ -414,14 +473,14 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
       }
 
       setLeverage(1); // TODO - Set to user current leverage
-    } else if (collateralBalance && debtBalance) {
+    } else {
       setCollateralAmount('');
       setIsAddCollateral(true);
       setLeverage(1);
     }
 
     setClosePositionActive(prevState => !prevState);
-  }, [closePositionActive, collateralBalance, collateralConversionRateMap, debtBalance, selectedCollateralToken]);
+  }, [closePositionActive, collateralConversionRateMap, principalCollateralBalance, selectedCollateralToken]);
 
   /**
    * Update action button state based on current approve/borrow request status
