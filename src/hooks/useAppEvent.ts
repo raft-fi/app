@@ -1,11 +1,13 @@
 import { state, useStateObservable } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
-import { Nullable } from '../interfaces';
+import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken } from '../interfaces';
 
 export type AppEventType = 'whitelist' | 'approve' | 'permit' | 'manage' | 'leverage' | 'redeem';
 
 export interface AppEvent {
   eventType: AppEventType;
+  collateralToken?: SupportedCollateralToken;
+  underlyingCollateralToken?: SupportedUnderlyingCollateralToken;
   txnHash?: string;
   timestamp: number;
 }

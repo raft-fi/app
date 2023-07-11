@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
 import LoadingDashboard from '../LoadingDashboard';
@@ -15,14 +15,7 @@ const GenerateDashboard = () => {
   const position = usePosition();
   const { isWrongNetwork } = useNetwork();
 
-  const userHasPosition = useMemo(() => {
-    return (
-      (position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0)) &&
-      Boolean(position?.underlyingCollateralToken)
-    );
-  }, [position?.collateralBalance, position?.debtBalance, position?.underlyingCollateralToken]);
-
-  const shouldShowAdjustPosition = wallet && userHasPosition && position && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && position?.hasPosition && !isWrongNetwork;
 
   if (!appLoaded) {
     return <LoadingDashboard />;
