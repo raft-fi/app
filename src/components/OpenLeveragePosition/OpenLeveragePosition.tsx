@@ -124,12 +124,11 @@ const OpenLeveragePosition = () => {
     [collateralizationRatio],
   );
   const minDepositAmount = useMemo(() => {
-    if (leverage <= 1 || !MIN_BORROW_AMOUNT) {
+    if (leverage <= 1) {
       return Decimal.MAX_DECIMAL;
     }
 
     const collateralValue = selectedCollateralTokenInputValues.value;
-
     if (!collateralValue || collateralValue.isZero()) {
       return Decimal.MAX_DECIMAL;
     }
@@ -249,10 +248,15 @@ const OpenLeveragePosition = () => {
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
   const hasLeveraged = useMemo(() => leverage > 1, [leverage]);
+
+  /**
+   * Checks if both input fields (collateral and leverage) are non-empty
+   */
   const hasNonEmptyInput = useMemo(
-    () => !collateralAmountDecimal.isZero() || hasLeveraged,
+    () => !collateralAmountDecimal.isZero() && hasLeveraged,
     [collateralAmountDecimal, hasLeveraged],
   );
+
   const hasMinDeposit = useMemo(
     () => collateralAmountDecimal.gte(minDepositAmount),
     [collateralAmountDecimal, minDepositAmount],
@@ -312,7 +316,7 @@ const OpenLeveragePosition = () => {
     }
 
     if (!hasMinDeposit && hasNonEmptyInput) {
-      return 'Insufficient funds for leverage position. Increase your collateral deposit to get started.';
+      return 'Insufficient collateral deposit for leverage position. Please increase to get started.';
     }
 
     if (errPositionOutOfCollateralPositionCap) {
@@ -342,14 +346,6 @@ const OpenLeveragePosition = () => {
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
       return 'Connect wallet';
-    }
-
-    if (leveragePositionStepsStatus.error?.message) {
-      return leveragePositionStepsStatus.error.message;
-    }
-
-    if (leveragePositionStatus.error?.message) {
-      return leveragePositionStatus.error.message;
     }
 
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
@@ -393,11 +389,9 @@ const OpenLeveragePosition = () => {
     walletConnected,
     isTotalSupplyWithinCollateralProtocolCap,
     leveragePositionStatus.pending,
-    leveragePositionStatus.error?.message,
     executionSteps,
     executionType,
     hasNonEmptyInput,
-    leveragePositionStepsStatus.error?.message,
     collateralProtocolCapMap,
     selectedCollateralToken,
     currentExecutionSteps,
@@ -454,7 +448,15 @@ const OpenLeveragePosition = () => {
     walletConnected,
   ]);
 
+  /**
+   * Every time input changes, request leverage position steps. In case one of this input fields is empty,
+   * skip the request.
+   */
   useEffect(() => {
+    if (!hasNonEmptyInput) {
+      return;
+    }
+
     requestLeveragePositionStep?.({
       underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
       collateralToken: selectedCollateralToken,
@@ -463,7 +465,14 @@ const OpenLeveragePosition = () => {
       currentPrincipalCollateral: Decimal.ZERO,
       slippage,
     });
-  }, [collateralAmountDecimal, leverage, requestLeveragePositionStep, selectedCollateralToken, slippage]);
+  }, [
+    collateralAmountDecimal,
+    hasNonEmptyInput,
+    leverage,
+    requestLeveragePositionStep,
+    selectedCollateralToken,
+    slippage,
+  ]);
 
   useEffect(() => {
     if (swapPriceTime.current) {
@@ -508,7 +517,7 @@ const OpenLeveragePosition = () => {
           label="YOU DEPOSIT"
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={[...SUPPORTED_COLLATERAL_TOKENS]}
+          tokens={['stETH', 'wstETH']} // TODO - Add support for rETH and use SUPPORTED_COLLATERAL_TOKENS constant
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse ?? undefined}
           maxAmount={selectedCollateralTokenBalanceValues.amount}
