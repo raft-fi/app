@@ -262,7 +262,6 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
     const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
     const currentDebt = position?.debtBalance ?? undefined;
-    const currentPrincipalCollateralBalance = position?.principalCollateralBalance ?? Decimal.ZERO;
 
     try {
       const userPosition = userPositionMap[
