@@ -43,6 +43,7 @@ interface RedeemStatus {
   };
   txnId: string;
   statusType: 'redeem';
+  txHash?: string;
 }
 
 interface RedeemResponse {

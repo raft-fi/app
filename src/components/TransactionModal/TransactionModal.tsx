@@ -286,7 +286,7 @@ const TransactionModal = () => {
           onClose={onCloseModal}
           open={successModalOpened}
           tokenToAdd={tokenToAdd}
-          txHash={managePositionStatus.txHash}
+          txHash={currentStatus?.txHash}
         />
       )}
       {failedModalOpened && (
