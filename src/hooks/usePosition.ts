@@ -110,14 +110,12 @@ const appEventsStream$ = appEvent$.pipe(
   concatMap(([appEvent, signer]) => {
     const metadata = appEvent.metadata as AppEventMetadata;
 
-    switch (appEvent.eventType) {
-      case 'leverage': {
-        const { tokenAmount, currentPrincipalCollateral, underlyingCollateralToken } = metadata;
+    if (appEvent.eventType === 'leverage') {
+      const { tokenAmount, currentPrincipalCollateral, underlyingCollateralToken } = metadata;
 
-        if (tokenAmount && currentPrincipalCollateral && underlyingCollateralToken) {
-          const updatedPrincipalCollateralBalance = currentPrincipalCollateral.add(tokenAmount);
-          return fetchDataFromChain(signer, underlyingCollateralToken, updatedPrincipalCollateralBalance);
-        }
+      if (tokenAmount && currentPrincipalCollateral && underlyingCollateralToken) {
+        const updatedPrincipalCollateralBalance = currentPrincipalCollateral.add(tokenAmount);
+        return fetchDataFromChain(signer, underlyingCollateralToken, updatedPrincipalCollateralBalance);
       }
     }
 
