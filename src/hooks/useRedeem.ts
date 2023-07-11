@@ -18,7 +18,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_COLLATERAL_TOKEN_SETTINGS } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -172,8 +172,13 @@ const stream$ = combineLatest([redeem$]).pipe(
     };
   }),
   tap(status => {
+    const { underlyingCollateralToken } = status.request;
+    const redeemToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].redeemToken;
+
     emitAppEvent({
       eventType: 'redeem',
+      collateralToken: redeemToken,
+      underlyingCollateralToken,
       timestamp: Date.now(),
       txnHash: status.contractTransaction?.hash,
     });

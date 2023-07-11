@@ -34,7 +34,7 @@ import {
   useSettingOptions,
   useEstimateSwapPrice,
 } from '../../hooks';
-import { Nullable, Position, SupportedCollateralToken } from '../../interfaces';
+import { Nullable, LeveragePosition, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
 import Settings from '../Settings';
 
@@ -44,11 +44,11 @@ const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
 
 interface AdjustPositionProps {
-  position: Position;
+  position: LeveragePosition;
 }
 
 const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
-  position: { collateralBalance, debtBalance, principalCollateralBalance },
+  position: { collateralBalance, debtBalance, effectiveLeverage, principalCollateralBalance },
 }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
@@ -66,11 +66,13 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     useLeverage();
   const { swapPriceStatus, estimateSwapPrice } = useEstimateSwapPrice();
 
+  const defaultLeverage = Number(effectiveLeverage.toRounded(1));
+
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(
     SUPPORTED_COLLATERAL_TOKENS[0],
   );
-  const [leverage, setLeverage] = useState<number>(MIN_LEVERAGE);
+  const [leverage, setLeverage] = useState<number>(defaultLeverage);
   const [actionButtonState, setActionButtonState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
@@ -515,7 +517,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
         }
       }
 
-      setLeverage(1); // TODO - Set to user current leverage
+      setLeverage(defaultLeverage);
     } else {
       setCollateralAmount('');
       setIsAddCollateral(true);
@@ -523,7 +525,13 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     }
 
     setClosePositionActive(prevState => !prevState);
-  }, [closePositionActive, collateralConversionRateMap, principalCollateralBalance, selectedCollateralToken]);
+  }, [
+    closePositionActive,
+    collateralConversionRateMap,
+    defaultLeverage,
+    principalCollateralBalance,
+    selectedCollateralToken,
+  ]);
 
   /**
    * Update action button state based on current approve/borrow request status

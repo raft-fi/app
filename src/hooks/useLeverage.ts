@@ -185,6 +185,8 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
 
             emitAppEvent({
               eventType: statusType,
+              collateralToken: request?.collateralToken,
+              underlyingCollateralToken: request?.underlyingCollateralToken,
               timestamp: Date.now(),
               txnHash: txnResponse.hash,
             });
