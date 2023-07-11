@@ -271,10 +271,7 @@ const OpenLeveragePosition = () => {
       ),
     [selectedCollateralTokenInputValues.amount, selectedCollateralTokenBalanceValues, walletConnected],
   );
-  const errTxn = useMemo(
-    () => leveragePositionStatus.error || leveragePositionStepsStatus.error,
-    [leveragePositionStatus.error, leveragePositionStepsStatus.error],
-  );
+  const errTxn = useMemo(() => leveragePositionStepsStatus.error, [leveragePositionStepsStatus.error]);
   const errPositionOutOfCollateralPositionCap = useMemo(
     () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
     [isPositionWithinCollateralPositionCap, selectedCollateralTokenPositionCap],
@@ -391,6 +388,7 @@ const OpenLeveragePosition = () => {
     return 'Loading';
   }, [
     walletConnected,
+    leveragePositionStepsStatus.error?.message,
     isTotalSupplyWithinCollateralProtocolCap,
     leveragePositionStatus.pending,
     executionSteps,
