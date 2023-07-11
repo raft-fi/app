@@ -421,10 +421,6 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return leveragePositionStepsStatus.error.message;
     }
 
-    if (leveragePositionStatus.error?.message) {
-      return leveragePositionStatus.error.message;
-    }
-
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
@@ -464,8 +460,6 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     return 'Loading';
   }, [
     walletConnected,
-    leveragePositionStepsStatus.error?.message,
-    leveragePositionStatus.error?.message,
     leveragePositionStatus.pending,
     isTotalSupplyWithinCollateralProtocolCap,
     executionSteps,
@@ -659,7 +653,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
           label={collateralLabelComponent}
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={[...SUPPORTED_COLLATERAL_TOKENS]}
+          tokens={['stETH', 'wstETH']} // TODO - Add support for rETH and use SUPPORTED_COLLATERAL_TOKENS constant
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse ?? undefined}
           maxAmountFormatted={selectedCollateralTokenBalanceValues.amountFormatted ?? undefined}
