@@ -648,18 +648,20 @@ const OpenPosition = () => {
   return (
     <div className="raft__openPosition">
       <div className="raft__openPosition__header">
-        <Link className="raft__openLeveragePositionHeaderBack" to="/">
-          <Icon variant="arrow-left" size={12} />
-        </Link>
-        <Typography variant="heading2">Open Position</Typography>
-        {walletConnected && (
-          <Button
-            variant="secondary"
-            text="Auto safe borrow"
-            disabled={maxButtonDisabled}
-            onClick={handleMaxButtonClick}
-          />
-        )}
+        <div className="raft__openPositionHeaderTitle">
+          <Link className="raft__openPositionHeaderBack" to="/">
+            <Icon variant="arrow-left" size={12} />
+          </Link>
+          <Typography variant="heading2">Open Position</Typography>
+          {walletConnected && (
+            <Button
+              variant="secondary"
+              text="Auto safe borrow"
+              disabled={maxButtonDisabled}
+              onClick={handleMaxButtonClick}
+            />
+          )}
+        </div>
       </div>
       <div className="raft__openPosition__input">
         <CurrencyInput
