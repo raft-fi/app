@@ -1,34 +1,36 @@
-import { R_TOKEN } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
+import { Decimal } from '@tempusfinance/decimal';
 import { FC, memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { R_TOKEN_UI_PRECISION, SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../constants';
-import { useCollateralConversionRates, useTokenPrices } from '../../hooks';
-import { Position, SupportedUnderlyingCollateralToken } from '../../interfaces';
-import { formatDecimal, getCollateralRatioLevel, getDecimalFromTokenMap, getTokenValues } from '../../utils';
-import { getCollateralRatioLabel } from '../../utils/collateralRatio';
+import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../constants';
+import { useCollateralConversionRates, useCollateralTokenAprs, useTokenPrices } from '../../hooks';
+import { LeveragePosition, SupportedUnderlyingCollateralToken } from '../../interfaces';
+import { formatDecimal, formatPercentage, getDecimalFromTokenMap, getTokenValues } from '../../utils';
 import { Icon, Typography, ValueLabel } from '../shared';
 
 import './YourLeveragePosition.scss';
 
 interface YourLeveragePositionProps {
-  position: Position;
+  position: LeveragePosition;
 }
 
 const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
   const tokenPriceMap = useTokenPrices();
   const collateralConversionRateMap = useCollateralConversionRates();
+  const collateralTokenAprMap = useCollateralTokenAprs();
 
   // already checked underlyingCollateralToken is not null to render this component
   const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
   const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
   const isRebasing = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].isRebasing;
 
-  /**
-   * Amount of collateral user has denominated in underlying token
-   */
-  const underlyingCollateralTokenValues = useMemo(
+  const principalUnderlyingCollateralTokenValues = useMemo(
     () =>
-      getTokenValues(position.collateralBalance, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken),
+      getTokenValues(
+        position.principalCollateralBalance,
+        tokenPriceMap[underlyingCollateralToken],
+        underlyingCollateralToken,
+      ),
     [position, tokenPriceMap, underlyingCollateralToken],
   );
 
@@ -36,54 +38,81 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
     () => getTokenValues(position.debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
     [position, tokenPriceMap],
   );
-
-  /**
-   * Amount of collateral user has denominated in display base token
-   */
-  const displayCollateralTokenValues = useMemo(() => {
+  const displayPrincipalCollateralTokenValues = useMemo(() => {
     const collateralConversionRate = getDecimalFromTokenMap(collateralConversionRateMap, displayBaseToken);
 
-    if (!collateralConversionRate || !underlyingCollateralTokenValues.amount) {
+    if (!collateralConversionRate || !principalUnderlyingCollateralTokenValues.amount) {
       return null;
     }
 
-    const value = underlyingCollateralTokenValues.amount.mul(collateralConversionRate);
+    const value = principalUnderlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
     return getTokenValues(value, tokenPriceMap[displayBaseToken], displayBaseToken);
-  }, [displayBaseToken, collateralConversionRateMap, underlyingCollateralTokenValues.amount, tokenPriceMap]);
+  }, [displayBaseToken, collateralConversionRateMap, principalUnderlyingCollateralTokenValues.amount, tokenPriceMap]);
 
-  const collateralizationRatio = useMemo(() => {
-    if (!underlyingCollateralTokenValues?.value || !debtTokenValues.value || debtTokenValues.value.isZero()) {
+  const displayTokenPrice = useMemo(
+    () => getDecimalFromTokenMap(tokenPriceMap, displayBaseToken),
+    [displayBaseToken, tokenPriceMap],
+  );
+  const collateralTokenLeveragedApr = useMemo(() => {
+    const apr = getDecimalFromTokenMap(collateralTokenAprMap, displayBaseToken);
+
+    if (!apr) {
       return null;
     }
 
-    return underlyingCollateralTokenValues.value.div(debtTokenValues.value);
-  }, [underlyingCollateralTokenValues?.value, debtTokenValues.value]);
+    return apr.mul(position.effectiveLeverage);
+  }, [collateralTokenAprMap, displayBaseToken, position.effectiveLeverage]);
+  const collateralizationRatio = useMemo(() => {
+    if (!displayTokenPrice || !debtTokenValues.value || debtTokenValues.value.isZero()) {
+      return null;
+    }
 
-  const debtAmountFormatted = useMemo(
-    () => formatDecimal(debtTokenValues.amount, R_TOKEN_UI_PRECISION),
-    [debtTokenValues.amount],
+    const collateralValues = position.collateralBalance.mul(displayTokenPrice);
+
+    if (!collateralValues) {
+      return null;
+    }
+
+    return collateralValues.div(debtTokenValues.value);
+  }, [displayTokenPrice, debtTokenValues.value, position.collateralBalance]);
+  const liquidationPrice = useMemo(() => {
+    if (!displayTokenPrice || !collateralizationRatio) {
+      return null;
+    }
+
+    return displayTokenPrice.div(collateralizationRatio).mul(MIN_COLLATERAL_RATIO[underlyingCollateralToken]);
+  }, [collateralizationRatio, displayTokenPrice, underlyingCollateralToken]);
+  const liquidationPriceDropPercent = useMemo(
+    () =>
+      displayTokenPrice && liquidationPrice && !displayTokenPrice.isZero()
+        ? Decimal.ONE.sub(liquidationPrice.div(displayTokenPrice))
+        : null,
+    [displayTokenPrice, liquidationPrice],
   );
-  const debtValueFormatted = useMemo(
-    () => formatDecimal(debtTokenValues.value, USD_UI_PRECISION),
-    [debtTokenValues.value],
+
+  const collateralTokenLeveragedAprFormatted = useMemo(
+    () => formatPercentage(collateralTokenLeveragedApr),
+    [collateralTokenLeveragedApr],
   );
-  const collateralizationRatioFormatted = useMemo(
-    () => formatDecimal(collateralizationRatio?.mul(100) ?? null, USD_UI_PRECISION),
-    [collateralizationRatio],
+  const liquidationPriceFormatted = useMemo(
+    () => formatDecimal(liquidationPrice, USD_UI_PRECISION),
+    [liquidationPrice],
   );
-  const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
-  const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
+  const liquidationPriceChangeFormatted = useMemo(
+    () => formatPercentage(liquidationPriceDropPercent),
+    [liquidationPriceDropPercent],
+  );
 
   return (
     <div className="raft__your-leverage-position">
       <div className="raft__your-leverage-position__collateral">
-        <Typography variant="overline">YOUR COLLATERAL</Typography>
+        <Typography variant="overline">NET BALANCE</Typography>
         <div className="raft__your-leverage-position__collateral__amount">
           <TokenLogo type={`token-${displayBaseToken}`} size="small" />
-          {displayCollateralTokenValues?.amountFormatted ? (
+          {displayPrincipalCollateralTokenValues?.amountFormatted ? (
             <ValueLabel
-              value={displayCollateralTokenValues.amountFormatted}
+              value={displayPrincipalCollateralTokenValues.amountFormatted}
               valueSize="heading1"
               tickerSize="heading2"
             />
@@ -93,9 +122,9 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
           {isRebasing && <Icon variant="triangle-up" />}
         </div>
         <div className="raft__your-leverage-position__collateral__value__number">
-          {underlyingCollateralTokenValues?.valueFormatted ? (
+          {principalUnderlyingCollateralTokenValues?.valueFormatted ? (
             <ValueLabel
-              value={underlyingCollateralTokenValues.valueFormatted}
+              value={principalUnderlyingCollateralTokenValues.valueFormatted}
               valueSize="body"
               tickerSize="caption"
               color="text-secondary"
@@ -105,32 +134,30 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
           )}
         </div>
       </div>
-      <div className="raft__your-leverage-position__debt">
-        <Typography variant="overline">YOUR DEBT</Typography>
-        <div className="raft__your-leverage-position__debt__amount">
-          <TokenLogo type={`token-${R_TOKEN}`} size="small" />
-          <div className="raft__your-leverage-position__debt__amount__number">
-            <Typography variant="heading1">{debtAmountFormatted ?? '---'}</Typography>
-            <Typography variant="heading2">{R_TOKEN}</Typography>
+      <div className="raft__your-leverage-position__leverage">
+        <Typography variant="overline">LEVERAGE</Typography>
+        <div className="raft__your-leverage-position__leverage__amount">
+          <div className="raft__your-leverage-position__leverage__amount__number">
+            <Typography variant="heading1">{position.effectiveLeverage.toRounded(1)}x</Typography>
           </div>
         </div>
-        <div className="raft__your-leverage-position__debt__value__number">
-          <Typography variant="caption">$</Typography>
+        <div className="raft__your-leverage-position__leverage__value__number">
           <Typography variant="body" weight="medium">
-            {debtValueFormatted ?? '---'}
+            {collateralTokenLeveragedAprFormatted ?? '---'} APR
           </Typography>
         </div>
       </div>
-      <div className="raft__your-leverage-position__ratio">
-        <Typography variant="overline">COLLATERALIZATION</Typography>
-        <div className="raft__your-leverage-position__ratio__percent">
-          <Typography variant="heading1">{collateralizationRatioFormatted ?? '---'}</Typography>
-          <Typography variant="heading2">%</Typography>
+      <div className="raft__your-leverage-position__liquidation">
+        <Typography variant="overline">LIQUIDATION PRICE</Typography>
+        <div className="raft__your-leverage-position__liquidation__price">
+          <Typography variant="heading2">$</Typography>
+          <Typography variant="heading1" weight="medium">
+            {liquidationPriceFormatted ?? '---'}
+          </Typography>
         </div>
-        <div className="raft__your-leverage-position__ratio__status">
-          <div className={`raft__your-leverage-position__ratio__status__color status-risk-${collateralRatioLevel}`} />
+        <div className="raft__your-leverage-position__liquidation__desc">
           <Typography variant="body" weight="medium">
-            {collateralRatioLabel ?? '---'}
+            {liquidationPriceChangeFormatted ?? '---'} below current price
           </Typography>
         </div>
       </div>

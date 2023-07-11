@@ -4,6 +4,7 @@ import { useNetwork, useAppLoaded, useWallet, useLeveragePosition } from '../../
 import AdjustLeveragePosition from '../AdjustLeveragePosition';
 import LoadingDashboard from '../LoadingDashboard';
 import OpenLeveragePosition from '../OpenLeveragePosition';
+import YourLeveragePosition from '../YourLeveragePosition';
 import YourPositionPlaceholder from '../YourPositionPlaceholder';
 
 import './LeverageDashboard.scss';
@@ -29,7 +30,7 @@ const LeverageDashboard = () => {
     <div className="raft__leverageDashboard">
       {shouldShowAdjustPosition ? (
         <>
-          <YourPositionPlaceholder />
+          <YourLeveragePosition position={leveragePosition} />
           <AdjustLeveragePosition position={leveragePosition} />
         </>
       ) : (
