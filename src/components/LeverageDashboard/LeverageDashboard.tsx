@@ -1,6 +1,6 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
+import { useNetwork, useAppLoaded, useWallet, useLeveragePosition } from '../../hooks';
 import AdjustLeveragePosition from '../AdjustLeveragePosition';
 import LoadingDashboard from '../LoadingDashboard';
 import OpenLeveragePosition from '../OpenLeveragePosition';
@@ -11,24 +11,17 @@ import './LeverageDashboard.scss';
 const LeverageDashboard = () => {
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
-  const position = usePosition();
+  const leveragePosition = useLeveragePosition();
   const { isWrongNetwork } = useNetwork();
 
-  const userHasPosition = useMemo(() => {
-    return (
-      (position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0)) &&
-      Boolean(position?.underlyingCollateralToken)
-    );
-  }, [position?.collateralBalance, position?.debtBalance, position?.underlyingCollateralToken]);
-
-  const shouldShowAdjustPosition = wallet && userHasPosition && position && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && leveragePosition?.hasLeveragePosition && !isWrongNetwork;
 
   if (!appLoaded) {
     return <LoadingDashboard />;
   }
 
   // for now, we only allow user to have either normal position or leverage position
-  if (userHasPosition && !position?.principalCollateralBalance) {
+  if (leveragePosition && leveragePosition.hasPosition && !leveragePosition.hasLeveragePosition) {
     return <Navigate to="/generate" />;
   }
 
@@ -37,7 +30,7 @@ const LeverageDashboard = () => {
       {shouldShowAdjustPosition ? (
         <>
           <YourPositionPlaceholder />
-          <AdjustLeveragePosition position={position} />
+          <AdjustLeveragePosition position={leveragePosition} />
         </>
       ) : (
         <>

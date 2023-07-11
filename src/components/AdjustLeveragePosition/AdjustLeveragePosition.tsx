@@ -34,7 +34,7 @@ import {
   useSettingOptions,
   useEstimateSwapPrice,
 } from '../../hooks';
-import { Nullable, Position, SupportedCollateralToken } from '../../interfaces';
+import { Nullable, LeveragePosition, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
 import Settings from '../Settings';
 
@@ -44,10 +44,12 @@ const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
 
 interface AdjustPositionProps {
-  position: Position;
+  position: LeveragePosition;
 }
 
-const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collateralBalance, debtBalance } }) => {
+const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
+  position: { collateralBalance, debtBalance, effectiveLeverage },
+}) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
   const wallet = useWallet();
@@ -64,11 +66,13 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     useLeverage();
   const { swapPriceStatus, estimateSwapPrice } = useEstimateSwapPrice();
 
+  const defaultLeverage = Number(effectiveLeverage.toRounded(1));
+
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(
     SUPPORTED_COLLATERAL_TOKENS[0],
   );
-  const [leverage, setLeverage] = useState<number>(MIN_LEVERAGE);
+  const [leverage, setLeverage] = useState<number>(defaultLeverage);
   const [actionButtonState, setActionButtonState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
@@ -455,7 +459,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
         }
       }
 
-      setLeverage(1); // TODO - Set to user current leverage
+      setLeverage(defaultLeverage);
     } else if (collateralBalance && debtBalance) {
       setCollateralAmount('');
       setIsAddCollateral(true);
@@ -463,7 +467,14 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({ position: { collatera
     }
 
     setClosePositionActive(prevState => !prevState);
-  }, [closePositionActive, collateralBalance, collateralConversionRateMap, debtBalance, selectedCollateralToken]);
+  }, [
+    closePositionActive,
+    collateralBalance,
+    collateralConversionRateMap,
+    debtBalance,
+    defaultLeverage,
+    selectedCollateralToken,
+  ]);
 
   /**
    * Update action button state based on current approve/borrow request status
