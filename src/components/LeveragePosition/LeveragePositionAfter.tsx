@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
 import './LeveragePositionAfter.scss';
-import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
+import { Decimal } from '@tempusfinance/decimal';
 import { USD_UI_PRECISION } from '../../constants';
 import { Nullable } from '../../interfaces';
 import { formatCurrency, formatPercentage } from '../../utils';
@@ -10,7 +10,7 @@ interface LeveragePositionAfterProps {
   liquidationPrice: Nullable<Decimal>;
   liquidationPriceChange: Nullable<Decimal>;
   leverageAPR: Nullable<Decimal>;
-  priceImpact: Decimal;
+  totalFee: Nullable<Decimal>;
   liquidationPriceLabel: string;
   leverageAPRLabel: string;
 }
@@ -19,7 +19,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
   liquidationPrice,
   liquidationPriceChange,
   leverageAPR,
-  priceImpact,
+  totalFee,
   liquidationPriceLabel,
   leverageAPRLabel,
 }) => {
@@ -47,13 +47,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
     [leverageAPR],
   );
 
-  const priceImpactFormatted = useMemo(() => {
-    return DecimalFormat.format(priceImpact, {
-      style: 'percentage',
-      fractionDigits: 2,
-      pad: true,
-    });
-  }, [priceImpact]);
+  const totalFeeFormatted = useMemo(() => formatPercentage(totalFee), [totalFee]);
 
   return (
     <div className="raft__leveragePositionAfter">
@@ -126,7 +120,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         {/* PRICE IMPACT */}
         <div className="raft__leveragePositionAfter__dataTitle">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
-            TOTAL FEES (FAKE)
+            TOTAL FEES
           </Typography>
           {/* TODO - Update tooltip content */}
           <TooltipWrapper
@@ -142,7 +136,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         </div>
         <div className="raft__leveragePositionAfter__dataRow">
           <div className="raft__leveragePositionAfter__dataRowValues">
-            <ValueLabel value={priceImpactFormatted} valueSize="body" tickerSize="caption" />
+            <ValueLabel value={totalFeeFormatted ?? '---'} valueSize="body" tickerSize="caption" />
           </div>
         </div>
       </div>

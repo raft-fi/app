@@ -1,13 +1,14 @@
+import { SwapRouter } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { DEFAULT_SLIPPAGE } from '../../constants';
-import { SwapRouter, useSettingOptions } from '../../hooks';
+import { useSettingOptions } from '../../hooks';
 import { formatPercentage } from '../../utils';
 import { BaseInput, Button, Icon, Typography } from '../shared';
 
 import './Settings.scss';
 
-const SLIPPAGE_OPTIONS = [new Decimal(0.0025), new Decimal(0.005), new Decimal(DEFAULT_SLIPPAGE)];
+const SLIPPAGE_OPTIONS = [new Decimal(0.0025), new Decimal(DEFAULT_SLIPPAGE), new Decimal(0.01)];
 const ROUTER_OPTIONS: Record<SwapRouter, string> = {
   '1inch': '1inch',
 };

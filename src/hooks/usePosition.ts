@@ -29,7 +29,6 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
 
   try {
     const userPosition = await UserPosition.fromUser(signer);
-    console.log('userPosition', userPosition);
 
     // no position
     if (!userPosition) {

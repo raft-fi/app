@@ -273,7 +273,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
       const steps = userPosition.getLeverageSteps(
-        currentPrincipalCollateralBalance,
+        position?.principalCollateralBalance ?? Decimal.ZERO,
         actualCollateralChange,
         actualLeverage,
         slippage,
