@@ -9,8 +9,8 @@
   align-items: center;
 
   .raft__your-leverage-position__collateral,
-  .raft__your-leverage-position__debt,
-  .raft__your-leverage-position__ratio {
+  .raft__your-leverage-position__leverage,
+  .raft__your-leverage-position__liquidation {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-blue-500);
 
@@ -28,7 +28,7 @@
   }
 
   .raft__your-leverage-position__collateral__amount,
-  .raft__your-leverage-position__debt__amount {
+  .raft__your-leverage-position__leverage__amount {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-grey-100);
 
@@ -47,7 +47,7 @@
     }
   }
 
-  .raft__your-leverage-position__debt__amount__number {
+  .raft__your-leverage-position__leverage__amount__number {
     display: flex;
     align-items: baseline;
 
@@ -62,7 +62,7 @@
     margin-top: 8px;
   }
 
-  .raft__your-leverage-position__debt__value__number {
+  .raft__your-leverage-position__leverage__value__number {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-grey-500);
 
@@ -71,7 +71,7 @@
     margin-top: 8px;
   }
 
-  .raft__your-leverage-position__ratio__percent {
+  .raft__your-leverage-position__liquidation__price {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-grey-100);
 
@@ -80,7 +80,7 @@
     margin-top: 16px;
   }
 
-  .raft__your-leverage-position__ratio__status {
+  .raft__your-leverage-position__liquidation__desc {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-grey-500);
 
@@ -88,7 +88,7 @@
     align-items: center;
     margin-top: 8px;
 
-    .raft__your-leverage-position__ratio__status__color {
+    .raft__your-leverage-position__liquidation__desc__color {
       width: 8px;
       height: 8px;
       border-radius: 50%;
