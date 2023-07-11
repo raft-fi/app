@@ -417,6 +417,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return 'Connect wallet';
     }
 
+    if (leveragePositionStepsStatus.error?.message) {
+      return leveragePositionStepsStatus.error.message;
+    }
+
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
