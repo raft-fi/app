@@ -224,7 +224,7 @@ const TransactionModal = () => {
     }
 
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
-      return 'Successful leverage';
+      return 'Successful transaction';
     }
 
     if (!debtChange || !collateralChange) {
