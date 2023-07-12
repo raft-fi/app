@@ -19,6 +19,8 @@ import { Nullable, Position, SupportedUnderlyingCollateralToken } from '../inter
 import { AppEvent, appEvent$, AppEventMetadata } from './useAppEvent';
 import { UserPosition } from '@raft-fi/sdk';
 import { walletSigner$ } from './useWalletSigner';
+import { CollateralConversionRateMap, collateralConversionRates$ } from './useCollateralConversionRates';
+import { getDecimalFromTokenMap } from '../utils';
 
 export const position$ = new BehaviorSubject<Nullable<Position>>(null);
 
@@ -101,21 +103,26 @@ const walletStream$ = walletSigner$.pipe(
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletSigner$),
-  filter((value): value is [AppEvent, JsonRpcSigner] => {
+  withLatestFrom(walletSigner$, collateralConversionRates$),
+  filter((value): value is [AppEvent, JsonRpcSigner, CollateralConversionRateMap] => {
     const [appEvent, signer] = value;
 
     return Boolean(signer && appEvent?.metadata?.underlyingCollateralToken && appEvent?.metadata);
   }),
-  concatMap(([appEvent, signer]) => {
+  concatMap(([appEvent, signer, collateralConversionRates]) => {
     const metadata = appEvent.metadata as AppEventMetadata;
 
     if (appEvent.eventType === 'leverage') {
-      const { tokenAmount, currentPrincipalCollateral, underlyingCollateralToken } = metadata;
+      const { tokenAmount, currentPrincipalCollateral, collateralToken, underlyingCollateralToken } = metadata;
 
-      if (tokenAmount && currentPrincipalCollateral && underlyingCollateralToken) {
-        const updatedPrincipalCollateralBalance = currentPrincipalCollateral.add(tokenAmount);
-        return fetchDataFromChain(signer, underlyingCollateralToken, updatedPrincipalCollateralBalance);
+      if (tokenAmount && currentPrincipalCollateral && collateralToken && underlyingCollateralToken) {
+        const collateralTokenConversionRate = getDecimalFromTokenMap(collateralConversionRates, collateralToken);
+
+        if (collateralTokenConversionRate && !collateralTokenConversionRate.isZero()) {
+          const underlyingCollateralTokenAmount = tokenAmount.div(collateralTokenConversionRate);
+          const updatedPrincipalCollateralBalance = currentPrincipalCollateral.add(underlyingCollateralTokenAmount);
+          return fetchDataFromChain(signer, underlyingCollateralToken, updatedPrincipalCollateralBalance);
+        }
       }
     }
 
