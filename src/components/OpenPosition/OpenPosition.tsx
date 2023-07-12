@@ -653,15 +653,15 @@ const OpenPosition = () => {
             <Icon variant="arrow-left" size={12} />
           </Link>
           <Typography variant="heading2">Open Position</Typography>
-          {walletConnected && (
-            <Button
-              variant="secondary"
-              text="Auto safe borrow"
-              disabled={maxButtonDisabled}
-              onClick={handleMaxButtonClick}
-            />
-          )}
         </div>
+        {walletConnected && (
+          <Button
+            variant="secondary"
+            text="Auto safe borrow"
+            disabled={maxButtonDisabled}
+            onClick={handleMaxButtonClick}
+          />
+        )}
       </div>
       <div className="raft__openPosition__input">
         <CurrencyInput
