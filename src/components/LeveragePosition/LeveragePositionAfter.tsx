@@ -136,7 +136,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         </div>
         <div className="raft__leveragePositionAfter__dataRow">
           <div className="raft__leveragePositionAfter__dataRowValues">
-            <ValueLabel value={totalFeeFormatted ?? '---'} valueSize="body" tickerSize="caption" />
+            <ValueLabel value={totalFeeFormatted ?? 'N/A'} valueSize="body" tickerSize="caption" />
           </div>
         </div>
       </div>

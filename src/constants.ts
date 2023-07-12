@@ -21,7 +21,6 @@ export const ZERO_ADDRESS = '0x0';
 export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 export const DEFAULT_SLIPPAGE = 0.005;
-export const FLASH_MINT_FEE = 0.0001; // TODO: plz confirm this value is hardcoded and correct
 
 // app to control what is supported
 export const SUPPORTED_UNDERLYING_TOKENS = [
