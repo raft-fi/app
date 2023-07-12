@@ -348,10 +348,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   const inputChanged = useMemo(() => {
     const currentLeverageParsed = Number(effectiveLeverage.toRounded(1));
 
-    const leverageUnchanged = leverage === currentLeverageParsed;
+    const leverageChanged = leverage !== currentLeverageParsed;
 
     // We are not pre-filling collateral input, so we just check if input is zero.
-    return leverageUnchanged && collateralAmountDecimal.isZero();
+    return leverageChanged || !collateralAmountDecimal.isZero();
   }, [collateralAmountDecimal, effectiveLeverage, leverage]);
 
   const hasMinDeposit = useMemo(
@@ -391,6 +391,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
         hasLeveraged &&
           hasMinDeposit &&
           hasNonEmptyInput &&
+          inputChanged &&
           hasEnoughCollateralTokenBalance &&
           isPositionWithinCollateralPositionCap &&
           isPositionWithinCollateralProtocolCap &&
@@ -403,6 +404,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
       hasMinDeposit,
+      inputChanged,
       hasNonEmptyInput,
       isPositionWithinCollateralPositionCap,
       isPositionWithinCollateralProtocolCap,
