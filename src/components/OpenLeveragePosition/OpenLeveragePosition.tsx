@@ -146,13 +146,12 @@ const OpenLeveragePosition = () => {
       return Decimal.MAX_DECIMAL;
     }
 
-    const collateralValue = selectedCollateralTokenInputValues.value;
-    if (!collateralValue || collateralValue.isZero()) {
+    if (!selectedCollateralTokenPrice || selectedCollateralTokenPrice.isZero()) {
       return Decimal.MAX_DECIMAL;
     }
 
-    return new Decimal(MIN_BORROW_AMOUNT).div(collateralValue.mul(leverage - 1));
-  }, [leverage, selectedCollateralTokenInputValues.value]);
+    return new Decimal(MIN_BORROW_AMOUNT).div(selectedCollateralTokenPrice.mul(leverage - 1));
+  }, [leverage, selectedCollateralTokenPrice]);
   const totalFee = useMemo(() => {
     if (
       swapPriceStatus.pending ||
