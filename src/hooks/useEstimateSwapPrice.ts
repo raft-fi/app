@@ -1,12 +1,10 @@
-import { PositionWithRunner, R_TOKEN, SwapRouter, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { PositionWithRunner, SwapRouter, UnderlyingCollateralToken } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
 import { BehaviorSubject, from, of, concatMap, Subscription, tap, combineLatest, catchError } from 'rxjs';
-import { Nullable } from '../interfaces';
-import { getDecimalFromTokenMap } from '../utils';
+import { Nullable, SupportedSwapToken } from '../interfaces';
 import { provider$ } from './useProvider';
-import { tokenPrices$ } from './useTokenPrices';
 
 const DEFAULT_VALUE: EstimateSwapPriceStatus = {
   pending: false,
@@ -16,8 +14,9 @@ const DEFAULT_VALUE: EstimateSwapPriceStatus = {
 
 interface EstimateSwapPriceRequest {
   underlyingCollateralToken: UnderlyingCollateralToken;
-  tokenAmount: Decimal;
-  leverage: Decimal;
+  amountToSwap: Decimal;
+  fromToken: SupportedSwapToken;
+  toToken: SupportedSwapToken;
   router: SwapRouter;
   slippage: Decimal;
 }
@@ -37,12 +36,11 @@ interface EstimateSwapPriceResponse {
 const [estimateSwapPriceRequest$, setEstimateSwapPriceRequest] = createSignal<EstimateSwapPriceRequest>();
 const swapPriceStatus$ = new BehaviorSubject<EstimateSwapPriceStatus>(DEFAULT_VALUE);
 
-const stream$ = combineLatest([estimateSwapPriceRequest$, provider$, tokenPrices$]).pipe(
-  concatMap(([request, provider, tokenPrices]) => {
-    const { underlyingCollateralToken, tokenAmount, leverage, router, slippage } = request;
-    const tokenPrice = getDecimalFromTokenMap(tokenPrices, underlyingCollateralToken);
+const stream$ = combineLatest([estimateSwapPriceRequest$, provider$]).pipe(
+  concatMap(([request, provider]) => {
+    const { underlyingCollateralToken, amountToSwap, fromToken, toToken, router, slippage } = request;
 
-    if (!underlyingCollateralToken || tokenAmount.isZero() || leverage.equals(1) || !provider || !tokenPrice) {
+    if (!underlyingCollateralToken || amountToSwap.isZero() || !provider) {
       return of({
         request,
         result: null,
@@ -55,9 +53,7 @@ const stream$ = combineLatest([estimateSwapPriceRequest$, provider$, tokenPrices
 
       swapPriceStatus$.next({ pending: true, request, result: null });
 
-      return from(
-        runner.getSwapPrice(tokenAmount, leverage, slippage, tokenPrice, R_TOKEN, underlyingCollateralToken, router),
-      ).pipe(
+      return from(runner.getSwapPrice(amountToSwap, slippage, fromToken, toToken, router)).pipe(
         concatMap(rate =>
           of({
             request,

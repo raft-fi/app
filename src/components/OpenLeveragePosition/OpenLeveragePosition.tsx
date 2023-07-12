@@ -1,5 +1,5 @@
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
-import { MIN_COLLATERAL_RATIO } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { Link as ExternalLink } from 'tempus-ui';
@@ -10,6 +10,7 @@ import {
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import { formatCurrency, getDecimalFromTokenMap, getTokenValues, isCollateralToken } from '../../utils';
@@ -97,10 +98,9 @@ const OpenLeveragePosition = () => {
       return Decimal.MAX_DECIMAL;
     }
 
-    const leveragedCollateralValue = inputCollateralValue.mul(leverage - 1).mul(Decimal.ONE.sub(slippage));
-
-    const collateralValue = inputCollateralValue.add(leveragedCollateralValue);
     const debtValue = inputCollateralValue.mul(leverage - 1);
+    const leveragedCollateralValue = debtValue.mul(Decimal.ONE.sub(slippage));
+    const collateralValue = inputCollateralValue.add(leveragedCollateralValue);
 
     return collateralValue.div(debtValue);
   }, [leverage, selectedCollateralTokenInputValues.value, slippage]);
@@ -108,6 +108,10 @@ const OpenLeveragePosition = () => {
   const selectedCollateralTokenPrice = useMemo(
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
     [selectedCollateralToken, tokenPriceMap],
+  );
+  const selectedUnderlyingCollateralTokenPrice = useMemo(
+    () => getDecimalFromTokenMap(tokenPriceMap, selectedUnderlyingCollateralToken),
+    [selectedUnderlyingCollateralToken, tokenPriceMap],
   );
   const selectedCollateralTokenLeveragedApr = useMemo(() => {
     const apr = getDecimalFromTokenMap(collateralTokenAprMap, selectedCollateralToken);
@@ -161,9 +165,7 @@ const OpenLeveragePosition = () => {
       return null;
     }
 
-    const underlyingCollateralTokenPrice = getDecimalFromTokenMap(tokenPriceMap, selectedUnderlyingCollateralToken);
-
-    if (!underlyingCollateralTokenPrice || underlyingCollateralTokenPrice.isZero()) {
+    if (!selectedUnderlyingCollateralTokenPrice || selectedUnderlyingCollateralTokenPrice.isZero()) {
       return null;
     }
 
@@ -175,17 +177,10 @@ const OpenLeveragePosition = () => {
 
     if (swapPriceStatus.pending || swapPriceStatus.error || !swapPriceStatus.result) {
       priceImpact = Decimal.ZERO;
-      console.log('swap price -', Decimal.ZERO.toString());
     } else {
       const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
-      priceImpact = swapPrice.div(underlyingCollateralTokenPrice).sub(1);
-      console.log('swap price -', swapPrice.toString());
+      priceImpact = swapPrice.div(selectedUnderlyingCollateralTokenPrice).sub(1);
     }
-
-    console.log('token price -', underlyingCollateralTokenPrice.toString());
-    console.log('price impact -', priceImpact.toString());
-    console.log('borrowing fee -', borrowingFee.toString());
-    console.log('flash mint fee -', effectiveFlashMintFee.toString());
 
     // total fee = (1 + swap impact) * (1 + borrwing fee) * (1 + flash mint fee) - 1
     return priceImpact.add(1).mul(borrowingFee.add(1)).mul(effectiveFlashMintFee.add(1)).sub(1);
@@ -194,10 +189,10 @@ const OpenLeveragePosition = () => {
     flashMintFee,
     leverage,
     selectedUnderlyingCollateralToken,
+    selectedUnderlyingCollateralTokenPrice,
     swapPriceStatus.error,
     swapPriceStatus.pending,
     swapPriceStatus.result,
-    tokenPriceMap,
   ]);
 
   const collateralAmountWithEllipse = useMemo(() => {
@@ -509,13 +504,17 @@ const OpenLeveragePosition = () => {
       clearTimeout(swapPriceTime.current);
     }
     swapPriceTime.current = setTimeout(() => {
-      estimateSwapPrice({
-        underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
-        tokenAmount: collateralAmountDecimal,
-        leverage: new Decimal(leverage),
-        router,
-        slippage,
-      });
+      if (selectedCollateralTokenPrice && leverage > 1) {
+        const amountToSwap = collateralAmountDecimal.mul(selectedCollateralTokenPrice).mul(leverage - 1);
+        estimateSwapPrice({
+          underlyingCollateralToken: selectedUnderlyingCollateralToken,
+          amountToSwap,
+          fromToken: R_TOKEN,
+          toToken: SUPPORTED_COLLATERAL_TOKEN_SETTINGS[selectedUnderlyingCollateralToken].swapToken,
+          router,
+          slippage,
+        });
+      }
     }, DEBOUNCE_IN_MS);
   }, [
     collateralAmountDecimal,
@@ -524,6 +523,9 @@ const OpenLeveragePosition = () => {
     requestLeveragePositionStep,
     router,
     selectedCollateralToken,
+    selectedCollateralTokenPrice,
+    selectedUnderlyingCollateralToken,
+    selectedUnderlyingCollateralTokenPrice,
     slippage,
   ]);
 

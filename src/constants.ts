@@ -1,5 +1,10 @@
 import { CollateralToken, Token, UnderlyingCollateralToken } from '@raft-fi/sdk';
-import { SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from './interfaces';
+import {
+  SupportedCollateralToken,
+  SupportedSwapToken,
+  SupportedUnderlyingCollateralToken,
+  TokenGenericMap,
+} from './interfaces';
 
 export const RAFT_HOMEPAGE_URL = 'https://raft.fi';
 export const TWITTER_URL = 'https://twitter.com/raft_fi';
@@ -32,6 +37,7 @@ export const SUPPORTED_COLLATERAL_TOKENS = [
   'wstETH',
   'rETH',
 ] as const satisfies ReadonlyArray<CollateralToken>;
+export const SUPPORTED_SWAP_TOKENS = ['wstETH', 'rETH', 'R'] as const satisfies ReadonlyArray<Token>;
 export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH', 'rETH'] as const satisfies ReadonlyArray<Token>;
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   SupportedUnderlyingCollateralToken,
@@ -40,6 +46,7 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     displayBaseToken: SupportedCollateralToken;
     underlyingToken: SupportedUnderlyingCollateralToken;
     redeemToken: SupportedCollateralToken;
+    swapToken: SupportedSwapToken;
     isRebasing: boolean;
   }
 > = {
@@ -48,6 +55,7 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH',
     redeemToken: 'wstETH',
+    swapToken: 'wstETH',
     isRebasing: true,
   },
   wcrETH: {
@@ -55,6 +63,7 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     displayBaseToken: 'rETH',
     underlyingToken: 'wcrETH',
     redeemToken: 'rETH',
+    swapToken: 'rETH',
     isRebasing: false,
   },
 };
