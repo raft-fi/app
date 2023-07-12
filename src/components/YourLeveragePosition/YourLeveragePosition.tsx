@@ -64,18 +64,20 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
     return apr.mul(position.effectiveLeverage);
   }, [collateralTokenAprMap, displayBaseToken, position.effectiveLeverage]);
   const collateralizationRatio = useMemo(() => {
-    if (!displayTokenPrice || !debtTokenValues.value || debtTokenValues.value.isZero()) {
+    const underlyingCollateralTokenPrice = getDecimalFromTokenMap(tokenPriceMap, underlyingCollateralToken);
+
+    if (!underlyingCollateralTokenPrice || !debtTokenValues.value || debtTokenValues.value.isZero()) {
       return null;
     }
 
-    const collateralValues = position.collateralBalance.mul(displayTokenPrice);
+    const collateralValues = position.collateralBalance.mul(underlyingCollateralTokenPrice);
 
     if (!collateralValues) {
       return null;
     }
 
     return collateralValues.div(debtTokenValues.value);
-  }, [displayTokenPrice, debtTokenValues.value, position.collateralBalance]);
+  }, [tokenPriceMap, underlyingCollateralToken, debtTokenValues.value, position.collateralBalance]);
   const liquidationPrice = useMemo(() => {
     if (!displayTokenPrice || !collateralizationRatio) {
       return null;
