@@ -1,4 +1,4 @@
-import { R_TOKEN } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import { useCallback, useState, useMemo, useEffect, FC, useRef } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
@@ -48,7 +48,7 @@ interface AdjustPositionProps {
 }
 
 const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
-  position: { collateralBalance, debtBalance, effectiveLeverage, principalCollateralBalance },
+  position: { effectiveLeverage, principalCollateralBalance },
 }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
@@ -133,15 +133,38 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return null;
     }
 
-    return selectedCollateralTokenPrice.div(collateralizationRatio);
-  }, [collateralizationRatio, selectedCollateralTokenPrice]);
-  const liquidationPriceDropPercent = useMemo(
-    () =>
-      !collateralizationRatio.isZero() && !collateralizationRatio.equals(Decimal.MAX_DECIMAL)
-        ? Decimal.ONE.sub(Decimal.ONE.div(collateralizationRatio)).mul(-1)
-        : null,
-    [collateralizationRatio],
-  );
+    /**
+     * In case leverage in unchanged we don't need to calculate/show resulting liquidation price
+     */
+    const currentLeverageParsed = Number(effectiveLeverage.toRounded(1));
+    if (leverage === currentLeverageParsed) {
+      return null;
+    }
+
+    return selectedCollateralTokenPrice
+      .div(collateralizationRatio)
+      .mul(MIN_COLLATERAL_RATIO[selectedUnderlyingCollateralToken]);
+  }, [
+    collateralizationRatio,
+    effectiveLeverage,
+    leverage,
+    selectedCollateralTokenPrice,
+    selectedUnderlyingCollateralToken,
+  ]);
+
+  const liquidationPriceDropPercent = useMemo(() => {
+    /**
+     * In case leverage in unchanged we don't need to calculate/show resulting liquidation price
+     */
+    const currentLeverageParsed = Number(effectiveLeverage.toRounded(1));
+    if (leverage === currentLeverageParsed) {
+      return null;
+    }
+
+    return !collateralizationRatio.isZero() && !collateralizationRatio.equals(Decimal.MAX_DECIMAL)
+      ? Decimal.ONE.sub(Decimal.ONE.div(collateralizationRatio)).mul(-1)
+      : null;
+  }, [collateralizationRatio, effectiveLeverage, leverage]);
 
   /**
    * Collateral input amount converted to underlying token amount (e.g. stETH -> wstETH)
@@ -458,6 +481,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   }, [
     walletConnected,
     leveragePositionStatus.pending,
+    leveragePositionStepsStatus.error?.message,
     isTotalSupplyWithinCollateralProtocolCap,
     executionSteps,
     executionType,
