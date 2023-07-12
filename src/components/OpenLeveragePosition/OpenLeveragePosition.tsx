@@ -1,4 +1,5 @@
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
+import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { Link as ExternalLink } from 'tempus-ui';
@@ -31,7 +32,6 @@ import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePositi
 import Settings from '../Settings';
 
 import './OpenLeveragePosition.scss';
-import { R_TOKEN } from '@raft-fi/sdk';
 
 const MIN_LEVERAGE = 1;
 const MAX_LEVERAGE = 6;
@@ -84,10 +84,24 @@ const OpenLeveragePosition = () => {
     [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
   );
 
-  const collateralizationRatio = useMemo(
-    () => (leverage > 1 ? new Decimal(leverage).div(leverage - 1) : Decimal.MAX_DECIMAL),
-    [leverage],
-  );
+  /**
+   * Collateralization ratio calculated based on the input principal collateral amount
+   * and the amount of debt that will be created with current leverage.
+   */
+  const collateralizationRatio = useMemo(() => {
+    const inputCollateralValue = selectedCollateralTokenInputValues.value;
+    if (!inputCollateralValue) {
+      return Decimal.MAX_DECIMAL;
+    }
+
+    const leveragedCollateralValue = inputCollateralValue.mul(leverage - 1);
+
+    const collateralValue = inputCollateralValue.add(leveragedCollateralValue);
+    const debtValue = inputCollateralValue.mul(leverage - 1);
+
+    return collateralValue.div(debtValue);
+  }, [leverage, selectedCollateralTokenInputValues.value]);
+
   const selectedCollateralTokenPrice = useMemo(
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
     [selectedCollateralToken, tokenPriceMap],
@@ -115,8 +129,11 @@ const OpenLeveragePosition = () => {
       return null;
     }
 
-    return selectedCollateralTokenPrice.div(collateralizationRatio);
-  }, [collateralizationRatio, selectedCollateralTokenPrice]);
+    return selectedCollateralTokenPrice
+      .div(collateralizationRatio)
+      .mul(MIN_COLLATERAL_RATIO[selectedUnderlyingCollateralToken]);
+  }, [collateralizationRatio, selectedCollateralTokenPrice, selectedUnderlyingCollateralToken]);
+
   const liquidationPriceDropPercent = useMemo(
     () =>
       !collateralizationRatio.isZero() && !collateralizationRatio.equals(Decimal.MAX_DECIMAL)
