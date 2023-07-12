@@ -134,13 +134,14 @@ const OpenLeveragePosition = () => {
       .mul(MIN_COLLATERAL_RATIO[selectedUnderlyingCollateralToken]);
   }, [collateralizationRatio, selectedCollateralTokenPrice, selectedUnderlyingCollateralToken]);
 
-  const liquidationPriceDropPercent = useMemo(
-    () =>
-      !collateralizationRatio.isZero() && !collateralizationRatio.equals(Decimal.MAX_DECIMAL)
-        ? Decimal.ONE.sub(Decimal.ONE.div(collateralizationRatio)).mul(-1)
-        : null,
-    [collateralizationRatio],
-  );
+  const liquidationPriceDropPercent = useMemo(() => {
+    if (!liquidationPrice || !selectedCollateralTokenPrice) {
+      return null;
+    }
+
+    return Decimal.max(selectedCollateralTokenPrice.sub(liquidationPrice).div(selectedCollateralTokenPrice), 0);
+  }, [liquidationPrice, selectedCollateralTokenPrice]);
+
   const minDepositAmount = useMemo(() => {
     if (leverage <= 1) {
       return Decimal.MAX_DECIMAL;
