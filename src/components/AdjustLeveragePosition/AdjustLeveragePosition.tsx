@@ -161,10 +161,12 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return null;
     }
 
-    return !collateralizationRatio.isZero() && !collateralizationRatio.equals(Decimal.MAX_DECIMAL)
-      ? Decimal.ONE.sub(Decimal.ONE.div(collateralizationRatio)).mul(-1)
-      : null;
-  }, [collateralizationRatio, effectiveLeverage, leverage]);
+    if (!liquidationPrice || !selectedCollateralTokenPrice) {
+      return null;
+    }
+
+    return Decimal.max(selectedCollateralTokenPrice.sub(liquidationPrice).div(selectedCollateralTokenPrice), 0);
+  }, [effectiveLeverage, leverage, liquidationPrice, selectedCollateralTokenPrice]);
 
   /**
    * Collateral input amount converted to underlying token amount (e.g. stETH -> wstETH)
@@ -342,6 +344,16 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     () => !collateralAmountDecimal.isZero() || hasLeveraged,
     [collateralAmountDecimal, hasLeveraged],
   );
+
+  const inputChanged = useMemo(() => {
+    const currentLeverageParsed = Number(effectiveLeverage.toRounded(1));
+
+    const leverageChanged = leverage !== currentLeverageParsed;
+
+    // We are not pre-filling collateral input, so we just check if input is zero.
+    return leverageChanged || !collateralAmountDecimal.isZero();
+  }, [collateralAmountDecimal, effectiveLeverage, leverage]);
+
   const hasMinDeposit = useMemo(
     () => newPrincipalCollateralAmount?.gte(minDepositAmount) || closePositionActive,
     [closePositionActive, minDepositAmount, newPrincipalCollateralAmount],
@@ -379,6 +391,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
         hasLeveraged &&
           hasMinDeposit &&
           hasNonEmptyInput &&
+          inputChanged &&
           hasEnoughCollateralTokenBalance &&
           isPositionWithinCollateralPositionCap &&
           isPositionWithinCollateralProtocolCap &&
@@ -391,6 +404,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
       hasMinDeposit,
+      inputChanged,
       hasNonEmptyInput,
       isPositionWithinCollateralPositionCap,
       isPositionWithinCollateralProtocolCap,
@@ -404,7 +418,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return 'Insufficient funds';
     }
 
-    if (!hasMinDeposit && hasNonEmptyInput) {
+    if (!hasMinDeposit && hasNonEmptyInput && inputChanged) {
       return 'Insufficient funds for leverage position. Increase your collateral deposit to get started.';
     }
 
@@ -428,6 +442,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     hasEnoughCollateralTokenBalance,
     hasMinDeposit,
     hasNonEmptyInput,
+    inputChanged,
     selectedCollateralToken,
     selectedCollateralTokenPositionCap,
   ]);
