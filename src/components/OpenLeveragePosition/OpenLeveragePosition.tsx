@@ -94,13 +94,15 @@ const OpenLeveragePosition = () => {
       return Decimal.MAX_DECIMAL;
     }
 
-    const leveragedCollateralValue = inputCollateralValue.mul(leverage - 1);
+    const leveragedCollateralValue = inputCollateralValue.mul(leverage - 1).mul(Decimal.ONE.sub(slippage));
 
     const collateralValue = inputCollateralValue.add(leveragedCollateralValue);
     const debtValue = inputCollateralValue.mul(leverage - 1);
 
     return collateralValue.div(debtValue);
-  }, [leverage, selectedCollateralTokenInputValues.value]);
+  }, [leverage, selectedCollateralTokenInputValues.value, slippage]);
+
+  console.log(collateralizationRatio.toString());
 
   const selectedCollateralTokenPrice = useMemo(
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
