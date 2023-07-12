@@ -1,6 +1,7 @@
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
+import { Link as ExternalLink } from 'tempus-ui';
 import { Decimal } from '@tempusfinance/decimal';
 import { CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
@@ -543,9 +544,17 @@ const OpenLeveragePosition = () => {
           onValueChange={onLeverageChange}
         />
       </div>
+      {/* TODO - Check if link inside info box is correct */}
       <InfoBox
         variant="warning"
-        text="This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks here."
+        text={
+          <div className="raft__infoBox__warningLink">
+            <Typography variant="body2" color="text-warning">
+              This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks{' '}
+              <ExternalLink href="https://docs.raft.fi">here.</ExternalLink>
+            </Typography>
+          </div>
+        }
       />
       <LeveragePositionAfter
         liquidationPrice={liquidationPrice}
