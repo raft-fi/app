@@ -102,8 +102,6 @@ const OpenLeveragePosition = () => {
     return collateralValue.div(debtValue);
   }, [leverage, selectedCollateralTokenInputValues.value, slippage]);
 
-  console.log(collateralizationRatio.toString());
-
   const selectedCollateralTokenPrice = useMemo(
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
     [selectedCollateralToken, tokenPriceMap],
