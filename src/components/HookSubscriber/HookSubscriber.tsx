@@ -23,6 +23,7 @@ import {
   subscribeCollateralTokenAprs,
   subscribeEstimateSwapPrice,
   subscribeLeveragePosition,
+  subscribeRFlashMintFee,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -53,6 +54,7 @@ const HookSubscriber: FC = () => {
     subscribeLeverageStatus();
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
+    subscribeRFlashMintFee();
   }, []);
 
   return null;

@@ -1,5 +1,5 @@
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
-import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
 import { Link as ExternalLink } from 'tempus-ui';
@@ -7,7 +7,6 @@ import { Decimal } from '@tempusfinance/decimal';
 import { CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {
   DEBOUNCE_IN_MS,
-  FLASH_MINT_FEE,
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
@@ -26,6 +25,8 @@ import {
   useCollateralTokenAprs,
   useSettingOptions,
   useEstimateSwapPrice,
+  useRFlashMintFee,
+  useCollateralBorrowingRates,
 } from '../../hooks';
 import { Nullable, SupportedCollateralToken } from '../../interfaces';
 import { LeveragePositionAction, LeveragePositionAfter } from '../LeveragePosition';
@@ -44,9 +45,11 @@ const OpenLeveragePosition = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
+  const borrowingRateMap = useCollateralBorrowingRates();
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const collateralTokenAprMap = useCollateralTokenAprs();
+  const flashMintFee = useRFlashMintFee();
   const [{ router, slippage }] = useSettingOptions();
   const { leveragePositionStatus, leveragePosition, leveragePositionStepsStatus, requestLeveragePositionStep } =
     useLeverage();
@@ -154,12 +157,7 @@ const OpenLeveragePosition = () => {
     return new Decimal(MIN_BORROW_AMOUNT).div(selectedCollateralTokenPrice.mul(leverage - 1));
   }, [leverage, selectedCollateralTokenPrice]);
   const totalFee = useMemo(() => {
-    if (
-      swapPriceStatus.pending ||
-      swapPriceStatus.error ||
-      !swapPriceStatus.result ||
-      swapPriceStatus.result.isZero()
-    ) {
+    if (leverage <= 1) {
       return null;
     }
 
@@ -169,20 +167,32 @@ const OpenLeveragePosition = () => {
       return null;
     }
 
-    const rTokenPrice = getDecimalFromTokenMap(tokenPriceMap, R_TOKEN);
+    const effectiveFlashMintFee = flashMintFee ?? Decimal.ZERO;
 
-    if (!rTokenPrice || rTokenPrice.isZero()) {
-      return null;
+    const borrowingFee = getDecimalFromTokenMap(borrowingRateMap, selectedUnderlyingCollateralToken) ?? Decimal.ZERO;
+
+    let priceImpact: Decimal;
+
+    if (swapPriceStatus.pending || swapPriceStatus.error || !swapPriceStatus.result) {
+      priceImpact = Decimal.ZERO;
+      console.log('swap price -', Decimal.ZERO.toString());
+    } else {
+      const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
+      priceImpact = swapPrice.div(underlyingCollateralTokenPrice).sub(1);
+      console.log('swap price -', swapPrice.toString());
     }
 
-    const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
-    const priceImpact = Decimal.ONE.sub(swapPrice.div(underlyingCollateralTokenPrice));
+    console.log('token price -', underlyingCollateralTokenPrice.toString());
+    console.log('price impact -', priceImpact.toString());
+    console.log('borrowing fee -', borrowingFee.toString());
+    console.log('flash mint fee -', effectiveFlashMintFee.toString());
 
-    // TODO: confirm this is the correct calculation
-    const rPriceDeviation = Decimal.ONE.sub(rTokenPrice);
-
-    return priceImpact.add(FLASH_MINT_FEE).add(rPriceDeviation);
+    // total fee = (1 + swap impact) * (1 + borrwing fee) * (1 + flash mint fee) - 1
+    return priceImpact.add(1).mul(borrowingFee.add(1)).mul(effectiveFlashMintFee.add(1)).sub(1);
   }, [
+    borrowingRateMap,
+    flashMintFee,
+    leverage,
     selectedUnderlyingCollateralToken,
     swapPriceStatus.error,
     swapPriceStatus.pending,
