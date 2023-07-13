@@ -171,6 +171,14 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   const selectedCollateralTokenLeveragedApr = useMemo(() => {
     const apr = getDecimalFromTokenMap(collateralTokenAprMap, selectedCollateralToken);
 
+    /**
+     * In case leverage in unchanged we don't need to show resulting leveraged APR
+     */
+    const currentLeverageParsed = Number(effectiveLeverage.toRounded(1));
+    if (leverage === currentLeverageParsed || leverage === 1) {
+      return null;
+    }
+
     if (!apr) {
       return null;
     }
