@@ -1,4 +1,4 @@
-import { MIN_COLLATERAL_RATIO } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import { useCallback, useState, useMemo, useEffect, FC, useRef } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ import {
   INPUT_PREVIEW_DIGITS,
   MIN_BORROW_AMOUNT,
   SUPPORTED_COLLATERAL_TOKENS,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import {
@@ -49,7 +50,7 @@ interface AdjustPositionProps {
 }
 
 const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
-  position: { effectiveLeverage, principalCollateralBalance },
+  position: { effectiveLeverage, principalCollateralBalance, debtBalance },
 }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
@@ -85,6 +86,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     () => TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
     [selectedCollateralToken],
   );
+  const selectedUnderlyingCollateralTokenPrice = useMemo(
+    () => getDecimalFromTokenMap(tokenPriceMap, selectedUnderlyingCollateralToken),
+    [selectedUnderlyingCollateralToken, tokenPriceMap],
+  );
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
   const collateralSupply: Nullable<Decimal> = useMemo(
     () => protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null,
@@ -104,11 +109,61 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       ),
     [selectedCollateralToken, tokenBalanceMap, tokenPriceMap],
   );
+  const newDebtTokenValues = useMemo(() => {
+    if (leverage === 1) {
+      return getTokenValues(0, Decimal.ONE, R_TOKEN);
+    }
 
-  const collateralizationRatio = useMemo(
-    () => (leverage > 1 ? new Decimal(leverage).div(leverage - 1) : Decimal.MAX_DECIMAL),
-    [leverage],
-  );
+    if (!principalCollateralBalance || !selectedUnderlyingCollateralTokenPrice) {
+      return getTokenValues(null, null, R_TOKEN);
+    }
+
+    const collateralChange = isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1);
+    const newDebt = principalCollateralBalance
+      .add(collateralChange)
+      .mul(selectedUnderlyingCollateralTokenPrice)
+      .mul(leverage - 1);
+
+    return getTokenValues(newDebt, tokenPriceMap[R_TOKEN], R_TOKEN);
+  }, [
+    collateralAmountDecimal,
+    isAddCollateral,
+    leverage,
+    principalCollateralBalance,
+    selectedUnderlyingCollateralTokenPrice,
+    tokenPriceMap,
+  ]);
+  const estimatedUnderlyingCollateralTokenValues = useMemo(() => {
+    if (!newDebtTokenValues.value || !selectedUnderlyingCollateralTokenPrice || !principalCollateralBalance) {
+      return getTokenValues(null, null, selectedUnderlyingCollateralToken);
+    }
+
+    const leveragedCollateralAmount = newDebtTokenValues.value
+      .div(selectedUnderlyingCollateralTokenPrice)
+      .mul(Decimal.ONE.sub(slippage));
+    const totalCollateralAmount = principalCollateralBalance.add(leveragedCollateralAmount);
+
+    return getTokenValues(
+      totalCollateralAmount,
+      tokenPriceMap[selectedUnderlyingCollateralToken],
+      selectedUnderlyingCollateralToken,
+    );
+  }, [
+    newDebtTokenValues.value,
+    principalCollateralBalance,
+    selectedUnderlyingCollateralToken,
+    selectedUnderlyingCollateralTokenPrice,
+    slippage,
+    tokenPriceMap,
+  ]);
+
+  const collateralizationRatio = useMemo(() => {
+    if (!estimatedUnderlyingCollateralTokenValues.value || !newDebtTokenValues.value) {
+      return null;
+    }
+
+    return estimatedUnderlyingCollateralTokenValues.value.div(newDebtTokenValues.value);
+  }, [estimatedUnderlyingCollateralTokenValues.value, newDebtTokenValues.value]);
   const selectedCollateralTokenPrice = useMemo(
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
     [selectedCollateralToken, tokenPriceMap],
@@ -132,7 +187,11 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   );
 
   const liquidationPrice = useMemo(() => {
-    if (!selectedCollateralTokenPrice || collateralizationRatio.equals(Decimal.MAX_DECIMAL)) {
+    if (
+      !selectedCollateralTokenPrice ||
+      !collateralizationRatio ||
+      collateralizationRatio.equals(Decimal.MAX_DECIMAL)
+    ) {
       return null;
     }
 
@@ -182,7 +241,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return null;
     }
 
-    return collateralAmountDecimal.mul(Decimal.ONE.div(rate));
+    return collateralAmountDecimal.div(rate);
   }, [collateralAmountDecimal, collateralConversionRateMap, selectedCollateralToken]);
 
   /**
@@ -193,9 +252,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return null;
     }
 
-    return principalCollateralBalance.add(
-      isAddCollateral ? underlyingCollateralAmount : underlyingCollateralAmount.mul(-1),
-    );
+    return principalCollateralBalance.add(underlyingCollateralAmount.mul(isAddCollateral ? 1 : -1));
   }, [isAddCollateral, principalCollateralBalance, underlyingCollateralAmount]);
 
   /**
@@ -222,6 +279,11 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     return new Decimal(MIN_BORROW_AMOUNT).div(newPrincipalCollateralValue.mul(leverage - 1));
   }, [leverage, newPrincipalCollateralAmount, selectedUnderlyingCollateralPrice]);
 
+  const isDebtIncrease = useMemo(
+    () => Boolean(newDebtTokenValues.amount?.gte(debtBalance)),
+    [debtBalance, newDebtTokenValues.amount],
+  );
+
   const totalFee = useMemo(() => {
     if (leverage <= 1) {
       return null;
@@ -241,23 +303,27 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
 
     if (swapPriceStatus.pending || swapPriceStatus.error || !swapPriceStatus.result) {
       priceImpact = Decimal.ZERO;
-      console.log('swap price -', Decimal.ZERO.toString());
     } else {
+      // debt increase, swap price result = R/wstETH; debt decrease, swap price result = wstETH/R
       const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
-      priceImpact = swapPrice.div(underlyingCollateralTokenPrice).sub(1);
-      console.log('swap price -', swapPrice.toString());
+      // debt increase, token price = wstETH/R; debt decrease, token price = R/wstETH
+      const effectiveTokenPrice = isDebtIncrease
+        ? underlyingCollateralTokenPrice
+        : Decimal.ONE.div(underlyingCollateralTokenPrice);
+      priceImpact = swapPrice.div(effectiveTokenPrice).sub(1).abs();
     }
 
-    console.log('token price -', underlyingCollateralTokenPrice.toString());
-    console.log('price impact -', priceImpact.toString());
-    console.log('borrowing fee -', borrowingFee.toString());
-    console.log('flash mint fee -', effectiveFlashMintFee.toString());
-
-    // total fee = (1 + swap impact) * (1 + borrwing fee) * (1 + flash mint fee) - 1
-    return priceImpact.add(1).mul(borrowingFee.add(1)).mul(effectiveFlashMintFee.add(1)).sub(1);
+    if (isDebtIncrease) {
+      // total fee = (1 + swap impact) * (1 + borrwing fee) * (1 + flash mint fee) - 1
+      return priceImpact.add(1).mul(borrowingFee.add(1)).mul(effectiveFlashMintFee.add(1)).sub(1);
+    } else {
+      // total fee = (1 + swap impact) * (1 + flash mint fee) - 1
+      return priceImpact.add(1).mul(effectiveFlashMintFee.add(1)).sub(1);
+    }
   }, [
     borrowingRateMap,
     flashMintFee,
+    isDebtIncrease,
     leverage,
     selectedUnderlyingCollateralToken,
     swapPriceStatus.error,
@@ -629,21 +695,47 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       clearTimeout(swapPriceTime.current);
     }
     swapPriceTime.current = setTimeout(() => {
-      estimateSwapPrice({
-        underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
-        tokenAmount: collateralAmountDecimal,
-        leverage: new Decimal(leverage),
-        router,
-        slippage,
-      });
+      if (selectedUnderlyingCollateralTokenPrice && newDebtTokenValues.amount && leverage > 1) {
+        if (isDebtIncrease) {
+          // amount to swap = new debt
+          const amountToSwap = newDebtTokenValues.amount.sub(debtBalance);
+          // swap from R to swap token (wstETH, rETH)
+          estimateSwapPrice({
+            underlyingCollateralToken: selectedUnderlyingCollateralToken,
+            amountToSwap,
+            fromToken: R_TOKEN,
+            toToken: SUPPORTED_COLLATERAL_TOKEN_SETTINGS[selectedUnderlyingCollateralToken].swapToken,
+            router,
+            slippage,
+          });
+        } else {
+          // amount to swap = underlying collateral token amount to swap to repay debt
+          const debtToRepay = debtBalance.sub(newDebtTokenValues.amount);
+          const amountToSwap = debtToRepay.div(selectedUnderlyingCollateralTokenPrice);
+          // swap from swap token (wstETH, rETH) to R
+          estimateSwapPrice({
+            underlyingCollateralToken: selectedUnderlyingCollateralToken,
+            amountToSwap,
+            fromToken: SUPPORTED_COLLATERAL_TOKEN_SETTINGS[selectedUnderlyingCollateralToken].swapToken,
+            toToken: R_TOKEN,
+            router,
+            slippage,
+          });
+        }
+      }
     }, DEBOUNCE_IN_MS);
   }, [
     collateralAmountDecimal,
+    debtBalance,
     estimateSwapPrice,
+    isDebtIncrease,
     leverage,
+    newDebtTokenValues.amount,
     requestLeveragePositionStep,
     router,
     selectedCollateralToken,
+    selectedUnderlyingCollateralToken,
+    selectedUnderlyingCollateralTokenPrice,
     slippage,
   ]);
 

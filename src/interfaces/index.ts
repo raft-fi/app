@@ -8,6 +8,7 @@ export type {
   TokenDecimalMap,
   SupportedCollateralToken,
   SupportedUnderlyingCollateralToken,
+  SupportedSwapToken,
   SupportedToken,
 } from './types';
 export type { StrictPartial } from './StrictPartial';
