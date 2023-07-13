@@ -22,7 +22,7 @@ const GenerateDashboard = () => {
   }
 
   // for now, we only allow user to have either normal position or leverage position
-  if (position?.principalCollateralBalance) {
+  if (position?.hasPosition && position.principalCollateralBalance) {
     return <Navigate to="/leverage" />;
   }
 
