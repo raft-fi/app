@@ -178,8 +178,9 @@ const OpenLeveragePosition = () => {
     if (swapPriceStatus.pending || swapPriceStatus.error || !swapPriceStatus.result) {
       priceImpact = Decimal.ZERO;
     } else {
+      // swap price result = R/wstETH
       const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
-      priceImpact = swapPrice.div(selectedUnderlyingCollateralTokenPrice).sub(1);
+      priceImpact = swapPrice.div(selectedUnderlyingCollateralTokenPrice).sub(1).abs();
     }
 
     // total fee = (1 + swap impact) * (1 + borrwing fee) * (1 + flash mint fee) - 1

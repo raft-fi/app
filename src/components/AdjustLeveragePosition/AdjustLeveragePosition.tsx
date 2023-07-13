@@ -304,8 +304,13 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     if (swapPriceStatus.pending || swapPriceStatus.error || !swapPriceStatus.result) {
       priceImpact = Decimal.ZERO;
     } else {
-      const swapPrice = isDebtIncrease ? Decimal.ONE.div(swapPriceStatus.result) : swapPriceStatus.result;
-      priceImpact = swapPrice.div(underlyingCollateralTokenPrice).sub(1);
+      // debt increase, swap price result = R/wstETH; debt decrease, swap price result = wstETH/R
+      const swapPrice = Decimal.ONE.div(swapPriceStatus.result);
+      // debt increase, token price = wstETH/R; debt decrease, token price = R/wstETH
+      const effectiveTokenPrice = isDebtIncrease
+        ? underlyingCollateralTokenPrice
+        : Decimal.ONE.div(underlyingCollateralTokenPrice);
+      priceImpact = swapPrice.div(effectiveTokenPrice).sub(1).abs();
     }
 
     if (isDebtIncrease) {
