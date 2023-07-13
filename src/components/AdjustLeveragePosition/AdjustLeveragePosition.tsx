@@ -184,7 +184,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     }
 
     return apr.mul(leverage);
-  }, [collateralTokenAprMap, leverage, selectedCollateralToken]);
+  }, [collateralTokenAprMap, effectiveLeverage, leverage, selectedCollateralToken]);
   const selectedCollateralTokenProtocolCap = useMemo(
     () => getDecimalFromTokenMap(collateralProtocolCapMap, selectedCollateralToken),
     [collateralProtocolCapMap, selectedCollateralToken],
@@ -834,7 +834,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
         leverageAPR={selectedCollateralTokenLeveragedApr}
         totalFee={totalFee}
         liquidationPriceLabel="RESULTING LIQUIDATION PRICE"
-        leverageAPRLabel="STAKING YIELD APR AFTER"
+        leverageAPRLabel="LEVERAGE APR AFTER"
       />
       <LeveragePositionAction
         actionButtonState={actionButtonState}
