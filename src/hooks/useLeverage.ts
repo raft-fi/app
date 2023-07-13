@@ -28,6 +28,9 @@ import { getNullTokenMap } from '../utils';
 import { leverageTokenAllowances$ } from './useLeverageTokenAllowances';
 import { leverageTokenWhitelists$ } from './useLeverageTokenWhitelist';
 import { position$ } from './usePosition';
+import { collateralConversionRates$ } from './useCollateralConversionRates';
+import { collateralBorrowingRates$ } from './useCollateralBorrowingRates';
+import { tokenPrices$ } from './useTokenPrices';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -259,82 +262,107 @@ const distinctRequest$ = leveragePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(leverageTokenWhitelists$, leverageTokenAllowances$, position$),
-  concatMap(([[request], leverageTokenWhitelistMap, leverageTokenAllowanceMap, position]) => {
-    const { underlyingCollateralToken, collateralToken, collateralChange, leverage, slippage, isClosePosition } =
-      request;
+  withLatestFrom(
+    leverageTokenWhitelists$,
+    leverageTokenAllowances$,
+    position$,
+    collateralConversionRates$,
+    collateralBorrowingRates$,
+    tokenPrices$,
+  ),
+  concatMap(
+    ([
+      [request],
+      leverageTokenWhitelistMap,
+      leverageTokenAllowanceMap,
+      position,
+      collateralConversionRates,
+      collateralBorrowingRates,
+      tokenPrices,
+    ]) => {
+      const { underlyingCollateralToken, collateralToken, collateralChange, leverage, slippage, isClosePosition } =
+        request;
 
-    const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
-    const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
-    const currentDebt = position?.debtBalance ?? undefined;
+      const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
+      const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
+      const underlyingRate = collateralConversionRates[collateralToken] ?? undefined;
+      const currentDebt = position?.debtBalance ?? undefined;
+      const currentCollateral = position?.collateralBalance ?? undefined;
+      const borrowRate = collateralBorrowingRates[collateralToken] ?? undefined;
+      const underlyingCollateralPrice = tokenPrices[underlyingCollateralToken] ?? undefined;
 
-    try {
-      const userPosition = userPositionMap[
-        underlyingCollateralToken
-      ] as UserPosition<SupportedUnderlyingCollateralToken>;
-      const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
-      //Setting leverage to 1 will close leverage position
-      const actualLeverage = isClosePosition ? Decimal.ONE : leverage;
+      try {
+        const userPosition = userPositionMap[
+          underlyingCollateralToken
+        ] as UserPosition<SupportedUnderlyingCollateralToken>;
+        const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
+        //Setting leverage to 1 will close leverage position
+        const actualLeverage = isClosePosition ? Decimal.ONE : leverage;
 
-      leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
+        leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const steps = userPosition.getLeverageSteps(
-        position?.principalCollateralBalance ?? Decimal.ZERO,
-        actualCollateralChange,
-        actualLeverage,
-        slippage,
-        {
-          collateralToken,
-          isDelegateWhitelisted,
-          currentDebt,
-          collateralTokenAllowance,
-          gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
-        },
-      );
-      const nextStep$ = from(steps.next());
+        const steps = userPosition.getLeverageSteps(
+          position?.principalCollateralBalance ?? Decimal.ZERO,
+          actualCollateralChange,
+          actualLeverage,
+          slippage,
+          {
+            collateralToken,
+            isDelegateWhitelisted,
+            currentCollateral,
+            currentDebt,
+            collateralTokenAllowance,
+            borrowRate,
+            underlyingCollateralPrice,
+            gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+            underlyingRate,
+          },
+        );
+        const nextStep$ = from(steps.next());
 
-      return nextStep$.pipe(
-        map(nextStep => {
-          if (nextStep.value) {
+        return nextStep$.pipe(
+          map(nextStep => {
+            if (nextStep.value) {
+              return {
+                request,
+                result: nextStep.value,
+                generator: steps,
+              } as unknown as LeveragePositionStepsResponse;
+            }
+
             return {
               request,
-              result: nextStep.value,
+              result: null,
               generator: steps,
             } as unknown as LeveragePositionStepsResponse;
-          }
-
-          return {
-            request,
-            result: null,
-            generator: steps,
-          } as unknown as LeveragePositionStepsResponse;
-        }),
-        catchError(error => {
-          console.error(
-            `useLeveragePositionSteps (catchError) - failed to get leverage position steps for ${underlyingCollateralToken}!`,
-            error,
-          );
-          return of({
-            request,
-            result: null,
-            generator: null,
-            error,
-          } as LeveragePositionStepsResponse);
-        }),
-      );
-    } catch (error) {
-      console.error(
-        `useLeveragePositionSteps (catch) - failed to get leverage position steps for ${underlyingCollateralToken}!`,
-        error,
-      );
-      return of({
-        request,
-        result: null,
-        generator: null,
-        error,
-      } as LeveragePositionStepsResponse);
-    }
-  }),
+          }),
+          catchError(error => {
+            console.error(
+              `useLeveragePositionSteps (catchError) - failed to get leverage position steps for ${underlyingCollateralToken}!`,
+              error,
+            );
+            return of({
+              request,
+              result: null,
+              generator: null,
+              error,
+            } as LeveragePositionStepsResponse);
+          }),
+        );
+      } catch (error) {
+        console.error(
+          `useLeveragePositionSteps (catch) - failed to get leverage position steps for ${underlyingCollateralToken}!`,
+          error,
+        );
+        return of({
+          request,
+          result: null,
+          generator: null,
+          error,
+        } as LeveragePositionStepsResponse);
+      }
+    },
+  ),
   tap<LeveragePositionStepsResponse>(response => {
     leveragePositionStepsStatus$.next({ ...response, pending: false });
   }),
