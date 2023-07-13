@@ -252,7 +252,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return null;
     }
 
-    return principalCollateralBalance.add(underlyingCollateralAmount).mul(isAddCollateral ? 1 : -1);
+    return principalCollateralBalance.add(underlyingCollateralAmount.mul(isAddCollateral ? 1 : -1));
   }, [isAddCollateral, principalCollateralBalance, underlyingCollateralAmount]);
 
   /**
