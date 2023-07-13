@@ -7,6 +7,8 @@ import {
   useRedeem,
   useLeverage,
   resetLeverageStatus,
+  useCollateralConversionRates,
+  usePosition,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -17,12 +19,14 @@ import {
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 } from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
-import { formatCurrency } from '../../utils';
+import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
 
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { redeemStatus, redeem } = useRedeem();
+  const collateralConversionRateMap = useCollateralConversionRates();
+  const position = usePosition();
 
   const [successModalOpened, setSuccessModalOpened] = useState<boolean>(false);
   const [failedModalOpened, setFailedModalOpened] = useState<boolean>(false);
@@ -121,8 +125,15 @@ const TransactionModal = () => {
 
   // TODO: add checking close position for leverage
   const isClosePosition = useMemo(
-    () => managePositionStatus.statusType === 'manage' && managePositionStatus.request?.isClosePosition,
-    [managePositionStatus.request?.isClosePosition, managePositionStatus.statusType],
+    () =>
+      (managePositionStatus.statusType === 'manage' && managePositionStatus.request?.isClosePosition) ||
+      (leveragePositionStatus.statusType === 'leverage' && leveragePositionStatus.request?.isClosePosition),
+    [
+      leveragePositionStatus.request?.isClosePosition,
+      leveragePositionStatus.statusType,
+      managePositionStatus.request?.isClosePosition,
+      managePositionStatus.statusType,
+    ],
   );
 
   /**
@@ -139,23 +150,61 @@ const TransactionModal = () => {
       return <Typography variant="heading1">{debtValueFormatted} redeemed</Typography>;
     }
 
-    if (leveragePositionStatus.statusType === 'leverage' && collateralChange && leveragePositionStatus.request) {
-      const collateralLabel = collateralChange.lt(0) ? 'withdrawn' : 'deposited';
+    if (leveragePositionStatus.statusType === 'leverage' && leveragePositionStatus.request) {
+      const {
+        currentPrincipalCollateral,
+        collateralChange,
+        collateralToken,
+        underlyingCollateralToken,
+        leverage,
+        isClosePosition,
+      } = leveragePositionStatus.request;
 
-      const collateralValueFormatted = formatCurrency(collateralChange.abs(), {
-        currency: leveragePositionStatus.request.collateralToken,
+      const displayToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
+      const collateralTokenRate = getDecimalFromTokenMap(collateralConversionRateMap, collateralToken);
+      const displayTokenRate = getDecimalFromTokenMap(collateralConversionRateMap, displayToken);
+
+      if (!collateralTokenRate || !displayTokenRate || !position) {
+        return '';
+      }
+
+      const displayTokenChange = collateralChange.div(collateralTokenRate).mul(displayTokenRate);
+      // subgraph may take time to process the principal collateral balance, calculate here
+      const totalPrincipalCollateralBalanceInDisplayToken = currentPrincipalCollateral
+        .mul(displayTokenRate)
+        .add(displayTokenChange);
+      const collateralBalanceInDisplayToken = position.collateralBalance.mul(displayTokenRate);
+
+      const collateralChangeFormatted = formatCurrency(collateralChange.abs(), {
+        currency: collateralToken,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+      const totalPrincipalCollateralBalanceFormatted = formatCurrency(totalPrincipalCollateralBalanceInDisplayToken, {
+        currency: displayToken,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+      const collateralBalanceFormatted = formatCurrency(collateralBalanceInDisplayToken, {
+        currency: displayToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
       });
 
+      if (isClosePosition) {
+        return (
+          <>
+            <Typography variant="heading1">Leverage position closed</Typography>
+            <Typography variant="heading1">{collateralChangeFormatted} withdrawn</Typography>
+          </>
+        );
+      }
+
       return (
         <>
-          {!collateralChange.isZero() && (
-            <Typography variant="heading1">
-              {collateralValueFormatted} {collateralLabel}
-            </Typography>
-          )}
-          <Typography variant="heading1">{`with ${leveragePositionStatus.request.leverage}x leverage`}</Typography>
+          <Typography variant="heading1">Leverage set to {leverage.toRounded(1)}x</Typography>
+          <Typography variant="heading1">with {totalPrincipalCollateralBalanceFormatted} collateral</Typography>
+          <Typography variant="heading1">for {collateralBalanceFormatted} exposure</Typography>
         </>
       );
     }
@@ -208,10 +257,12 @@ const TransactionModal = () => {
     );
   }, [
     collateralChange,
+    collateralConversionRateMap,
     debtChange,
     leveragePositionStatus.request,
     leveragePositionStatus.statusType,
     managePositionStatus.request,
+    position,
     redeemStatus,
   ]);
 
