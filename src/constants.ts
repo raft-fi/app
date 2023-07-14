@@ -1,4 +1,5 @@
 import { CollateralToken, Token, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { Decimal } from '@tempusfinance/decimal';
 import {
   SupportedCollateralToken,
   SupportedSwapToken,
@@ -26,6 +27,7 @@ export const ZERO_ADDRESS = '0x0';
 export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 export const DEFAULT_SLIPPAGE = 0.005;
+export const GAS_LIMIT_MULTIPLIER = new Decimal(1.3);
 
 // app to control what is supported
 export const SUPPORTED_UNDERLYING_TOKENS = [

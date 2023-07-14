@@ -18,7 +18,7 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { GAS_LIMIT_MULTIPLIER, NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
@@ -314,6 +314,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
             borrowRate,
             underlyingCollateralPrice,
             underlyingRate,
+            gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
           },
         );
         const nextStep$ = from(steps.next());
