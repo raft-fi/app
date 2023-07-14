@@ -18,7 +18,12 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import {
+  GAS_LIMIT_MULTIPLIER,
+  NUMBER_OF_CONFIRMATIONS_FOR_TX,
+  SUPPORTED_TOKENS,
+  SUPPORTED_UNDERLYING_TOKENS,
+} from '../constants';
 import {
   Nullable,
   SupportedCollateralToken,
@@ -299,6 +304,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         rTokenAllowance,
         collateralPermitSignature,
         rPermitSignature,
+        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
       const nextStep$ = from(steps.next());
 
