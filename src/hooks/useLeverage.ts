@@ -43,7 +43,6 @@ const DEFAULT_STEPS = {
   result: null,
   generator: null,
 };
-const GAS_LIMIT_MULTIPLIER = new Decimal(2);
 
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
@@ -314,7 +313,6 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
             collateralTokenAllowance,
             borrowRate,
             underlyingCollateralPrice,
-            gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
             underlyingRate,
           },
         );
