@@ -103,7 +103,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
             tooltipContent={
               <Tooltip className="raft__leveragePositionAfter__infoTooltip">
                 <Typography variant="body2">
-                  The resulting APR is based on your collateral deposit and target leverage.{' '}
+                  The result APR is based on your target leverage.{' '}
                   <Link href="https://docs.raft.fi/glossary">Learn more</Link>.
                 </Typography>
               </Tooltip>
