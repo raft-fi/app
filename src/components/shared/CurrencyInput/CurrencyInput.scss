@@ -39,6 +39,10 @@
           margin-right: 8px;
         }
       }
+
+      button[data-disabled='true'] {
+        cursor: initial;
+      }
     }
   }
 
