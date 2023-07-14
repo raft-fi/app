@@ -45,7 +45,6 @@ const DEFAULT_STEPS = {
   result: null,
   generator: null,
 };
-const GAS_LIMIT_MULTIPLIER = new Decimal(2);
 
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
@@ -300,7 +299,6 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         rTokenAllowance,
         collateralPermitSignature,
         rPermitSignature,
-        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
       const nextStep$ = from(steps.next());
 

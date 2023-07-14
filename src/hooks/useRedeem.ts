@@ -58,8 +58,6 @@ interface RedeemResponse {
   txnId: string;
 }
 
-const GAS_LIMIT_MULTIPLIER = new Decimal(2);
-
 const [redeem$, redeem] = createSignal<RedeemRequest>();
 const redeemStatus$ = new BehaviorSubject<Nullable<RedeemStatus>>(null);
 
@@ -84,12 +82,7 @@ const stream$ = combineLatest([redeem$]).pipe(
 
       redeemStatus$.next({ pending: true, txnId, request, statusType: 'redeem' });
 
-      const result$ = from(
-        protocol.redeemCollateral(underlyingCollateralToken, debtAmount, walletSigner, {
-          ...options,
-          gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
-        }),
-      );
+      const result$ = from(protocol.redeemCollateral(underlyingCollateralToken, debtAmount, walletSigner, options));
 
       const waitForTxReceipt$ = result$.pipe(
         concatMap(result => {
