@@ -6,7 +6,8 @@ import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../con
 import { useCollateralConversionRates, useCollateralTokenAprs, useTokenPrices } from '../../hooks';
 import { LeveragePosition, SupportedUnderlyingCollateralToken } from '../../interfaces';
 import { formatDecimal, formatPercentage, getDecimalFromTokenMap, getTokenValues } from '../../utils';
-import { Icon, Typography, ValueLabel } from '../shared';
+import { Icon, TooltipWrapper, Typography, ValueLabel } from '../shared';
+import LeverageCollateralBreakdown from './LeverageCollateralBreakdown';
 
 import './YourLeveragePosition.scss';
 
@@ -108,34 +109,36 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
 
   return (
     <div className="raft__your-leverage-position">
-      <div className="raft__your-leverage-position__collateral">
-        <Typography variant="overline">NET BALANCE</Typography>
-        <div className="raft__your-leverage-position__collateral__amount">
-          <TokenLogo type={`token-${displayBaseToken}`} size="small" />
-          {displayPrincipalCollateralTokenValues?.amountFormatted ? (
-            <ValueLabel
-              value={displayPrincipalCollateralTokenValues.amountFormatted}
-              valueSize="heading1"
-              tickerSize="heading2"
-            />
-          ) : (
-            '---'
-          )}
-          {isRebasing && <Icon variant="triangle-up" />}
+      <TooltipWrapper tooltipContent={<LeverageCollateralBreakdown />} placement="bottom">
+        <div className="raft__your-leverage-position__collateral">
+          <Typography variant="overline">NET BALANCE</Typography>
+          <div className="raft__your-leverage-position__collateral__amount">
+            <TokenLogo type={`token-${displayBaseToken}`} size="small" />
+            {displayPrincipalCollateralTokenValues?.amountFormatted ? (
+              <ValueLabel
+                value={displayPrincipalCollateralTokenValues.amountFormatted}
+                valueSize="heading1"
+                tickerSize="heading2"
+              />
+            ) : (
+              '---'
+            )}
+            {isRebasing && <Icon variant="triangle-up" />}
+          </div>
+          <div className="raft__your-leverage-position__collateral__value__number">
+            {principalUnderlyingCollateralTokenValues?.valueFormatted ? (
+              <ValueLabel
+                value={principalUnderlyingCollateralTokenValues.valueFormatted}
+                valueSize="body"
+                tickerSize="caption"
+                color="text-secondary"
+              />
+            ) : (
+              '---'
+            )}
+          </div>
         </div>
-        <div className="raft__your-leverage-position__collateral__value__number">
-          {principalUnderlyingCollateralTokenValues?.valueFormatted ? (
-            <ValueLabel
-              value={principalUnderlyingCollateralTokenValues.valueFormatted}
-              valueSize="body"
-              tickerSize="caption"
-              color="text-secondary"
-            />
-          ) : (
-            '---'
-          )}
-        </div>
-      </div>
+      </TooltipWrapper>
       <div className="raft__your-leverage-position__leverage">
         <Typography variant="overline">LEVERAGE</Typography>
         <div className="raft__your-leverage-position__leverage__amount">
