@@ -11,10 +11,9 @@ export const leveragePosition$ = new BehaviorSubject<Nullable<LeveragePosition>>
 
 const stream$ = combineLatest([position$, tokenPrices$]).pipe(
   map<[Nullable<Position>, TokenPriceMap], LeveragePosition>(([position, tokenPrices]) => {
-    if (!position || !position.hasPosition || !position.principalCollateralBalance) {
+    if (!position || !position.hasLeveragePosition) {
       return {
         ...position,
-        hasLeveragePosition: false,
         effectiveLeverage: Decimal.ZERO,
       } as LeveragePosition;
     }
@@ -25,7 +24,6 @@ const stream$ = combineLatest([position$, tokenPrices$]).pipe(
     if (!tokenPrice || !rPrice || rPrice.isZero()) {
       return {
         ...position,
-        hasLeveragePosition: false,
         effectiveLeverage: Decimal.ZERO,
       } as LeveragePosition;
     }
@@ -36,7 +34,6 @@ const stream$ = combineLatest([position$, tokenPrices$]).pipe(
     if (finalCollateralWithPrice.equals(position.debtBalance)) {
       return {
         ...position,
-        hasLeveragePosition: false,
         effectiveLeverage: Decimal.ZERO,
       } as LeveragePosition;
     }
@@ -45,7 +42,6 @@ const stream$ = combineLatest([position$, tokenPrices$]).pipe(
 
     return {
       ...position,
-      hasLeveragePosition: true,
       effectiveLeverage,
     } as LeveragePosition;
   }),

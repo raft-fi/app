@@ -66,7 +66,6 @@ interface LeveragePositionStepsRequest {
   collateralChange: Decimal;
   leverage: Decimal;
   slippage: Decimal;
-  currentPrincipalCollateral: Decimal;
   isClosePosition?: boolean;
 }
 
@@ -192,7 +191,6 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
                 collateralToken: request?.collateralToken,
                 underlyingCollateralToken: request?.underlyingCollateralToken,
                 tokenAmount: request?.collateralChange,
-                currentPrincipalCollateral: request?.currentPrincipalCollateral,
               },
               timestamp: Date.now(),
               txnHash: txnResponse.hash,
@@ -287,6 +285,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       const underlyingRate = collateralConversionRates[collateralToken] ?? undefined;
       const currentDebt = position?.debtBalance ?? undefined;
       const currentCollateral = position?.collateralBalance ?? undefined;
+      const netBalance = position?.netBalance ?? undefined;
       const borrowRate = collateralBorrowingRates[collateralToken] ?? undefined;
       const underlyingCollateralPrice = tokenPrices[underlyingCollateralToken] ?? undefined;
 
@@ -301,7 +300,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         leveragePositionStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
         const steps = userPosition.getLeverageSteps(
-          position?.principalCollateralBalance ?? Decimal.ZERO,
+          netBalance ?? Decimal.ZERO,
           actualCollateralChange,
           actualLeverage,
           slippage,

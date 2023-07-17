@@ -12,7 +12,7 @@ const PositionPicker = () => {
   /**
    * If user has position, redirect to generate or leverage page
    */
-  if (position?.hasPosition && position.principalCollateralBalance) {
+  if (position?.hasLeveragePosition) {
     return <Navigate to="/leverage" />;
   }
   if (position?.hasPosition) {

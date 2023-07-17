@@ -151,14 +151,8 @@ const TransactionModal = () => {
     }
 
     if (leveragePositionStatus.statusType === 'leverage' && leveragePositionStatus.request) {
-      const {
-        currentPrincipalCollateral,
-        collateralChange,
-        collateralToken,
-        underlyingCollateralToken,
-        leverage,
-        isClosePosition,
-      } = leveragePositionStatus.request;
+      const { collateralChange, collateralToken, underlyingCollateralToken, leverage, isClosePosition } =
+        leveragePositionStatus.request;
 
       const displayToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
       const collateralTokenRate = getDecimalFromTokenMap(collateralConversionRateMap, collateralToken);
@@ -168,19 +162,15 @@ const TransactionModal = () => {
         return '';
       }
 
-      const displayTokenChange = collateralChange.div(collateralTokenRate).mul(displayTokenRate);
-      // subgraph may take time to process the principal collateral balance, calculate here
-      const totalPrincipalCollateralBalanceInDisplayToken = currentPrincipalCollateral
-        .mul(displayTokenRate)
-        .add(displayTokenChange);
       const collateralBalanceInDisplayToken = position.collateralBalance.mul(displayTokenRate);
+      const netBalanceInDisplayToken = position.netBalance?.mul(displayTokenRate) ?? null;
 
       const collateralChangeFormatted = formatCurrency(collateralChange.abs(), {
         currency: collateralToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
       });
-      const totalPrincipalCollateralBalanceFormatted = formatCurrency(totalPrincipalCollateralBalanceInDisplayToken, {
+      const totalPrincipalCollateralBalanceFormatted = formatCurrency(netBalanceInDisplayToken, {
         currency: displayToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
@@ -203,7 +193,9 @@ const TransactionModal = () => {
       return (
         <>
           <Typography variant="heading1">Leverage set to {leverage.toRounded(1)}x</Typography>
-          <Typography variant="heading1">with {totalPrincipalCollateralBalanceFormatted} collateral</Typography>
+          <Typography variant="heading1">
+            with {totalPrincipalCollateralBalanceFormatted ?? '---'} collateral
+          </Typography>
           <Typography variant="heading1">for {collateralBalanceFormatted} exposure</Typography>
         </>
       );
@@ -328,7 +320,12 @@ const TransactionModal = () => {
   return (
     <>
       {successModalOpened && isClosePosition && (
-        <TransactionCloseModal open={successModalOpened} title={successModalTitle} onClose={onCloseModal} />
+        <TransactionCloseModal
+          open={successModalOpened}
+          title={successModalTitle}
+          txHash={currentStatus?.txHash}
+          onClose={onCloseModal}
+        />
       )}
       {successModalOpened && !isClosePosition && (
         <TransactionSuccessModal

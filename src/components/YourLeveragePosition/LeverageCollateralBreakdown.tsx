@@ -60,8 +60,8 @@ const LeverageCollateralBreakdown = () => {
     return formatDecimal(position.debtBalance, USD_UI_PRECISION);
   }, [position?.debtBalance]);
 
-  const principalCollateralAmountFormatted = useMemo(() => {
-    if (!position?.principalCollateralBalance || !position?.underlyingCollateralToken) {
+  const netBalanceFormatted = useMemo(() => {
+    if (!position?.netBalance || !position?.underlyingCollateralToken) {
       return null;
     }
 
@@ -72,11 +72,11 @@ const LeverageCollateralBreakdown = () => {
       return null;
     }
 
-    return formatDecimal(position.principalCollateralBalance.mul(rate), COLLATERAL_TOKEN_UI_PRECISION);
-  }, [collateralConversionRateMap, position?.principalCollateralBalance, position?.underlyingCollateralToken]);
+    return formatDecimal(position.netBalance.mul(rate), COLLATERAL_TOKEN_UI_PRECISION);
+  }, [collateralConversionRateMap, position?.netBalance, position?.underlyingCollateralToken]);
 
-  const principalCollateralValueFormatted = useMemo(() => {
-    if (!position?.principalCollateralBalance || !position?.underlyingCollateralToken) {
+  const netBalanceValueFormatted = useMemo(() => {
+    if (!position?.netBalance || !position?.underlyingCollateralToken) {
       return null;
     }
 
@@ -86,8 +86,8 @@ const LeverageCollateralBreakdown = () => {
       return null;
     }
 
-    return formatDecimal(position.principalCollateralBalance.mul(tokenPrice), USD_UI_PRECISION);
-  }, [position?.principalCollateralBalance, position?.underlyingCollateralToken, tokenPriceMap]);
+    return formatDecimal(position.netBalance.mul(tokenPrice), USD_UI_PRECISION);
+  }, [position?.netBalance, position?.underlyingCollateralToken, tokenPriceMap]);
 
   if (!position?.underlyingCollateralToken) {
     return null;
@@ -167,7 +167,7 @@ const LeverageCollateralBreakdown = () => {
           <div className="raft__protocol-stats__collateral-breakdown__token-values">
             <div className="raft__protocol-stats__collateral-breakdown__token-amount">
               <Typography variant="body2" weight="medium">
-                {principalCollateralAmountFormatted ?? '---'}&nbsp;
+                {netBalanceFormatted ?? '---'}&nbsp;
               </Typography>
               <Typography variant="caption">
                 {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[position.underlyingCollateralToken].displayBaseToken}
@@ -178,7 +178,7 @@ const LeverageCollateralBreakdown = () => {
                 $
               </Typography>
               <Typography variant="body2" weight="medium" color="text-secondary">
-                {principalCollateralValueFormatted ?? '---'}
+                {netBalanceValueFormatted ?? '---'}
               </Typography>
             </div>
           </div>
