@@ -49,7 +49,14 @@ export const tokenPrices$ = rawTokenPrices$.pipe(
 
 const fetchData = async (feed: PriceFeed, token: TokenToFetch): Promise<Nullable<Decimal>> => {
   try {
-    // TODO: SDK should support multiple token price fetch, update later
+    // stETH price is from subgraph, wstETH price from price feed which is more reliable
+    if (token === 'stETH') {
+      const wstETHPricePromise = feed.getPrice('wstETH');
+      const wstETHRatePromise = feed.getUnderlyingCollateralRate('wstETH', 'stETH');
+      const [wstETHPrice, wstETHRate] = await Promise.all([wstETHPricePromise, wstETHRatePromise]);
+      return wstETHPrice.div(wstETHRate);
+    }
+
     return feed.getPrice(token);
   } catch (error) {
     return fetchFallbackData(token);
@@ -73,8 +80,8 @@ const fetchFallbackData = async (token: TokenToFetch): Promise<Nullable<Decimal>
 };
 
 // stream$ for periodic polling to fetch data
-const periodicStream$: Observable<TokenPriceMap> = combineLatest([priceFeed$, intervalBeat$]).pipe(
-  mergeMap<[PriceFeed, number], Observable<TokenPriceMap>>(([feed]) => {
+const periodicStream$: Observable<TokenPriceMap> = combineLatest([intervalBeat$, priceFeed$]).pipe(
+  mergeMap<[number, PriceFeed], Observable<TokenPriceMap>>(([, feed]) => {
     const tokenPriceMaps = TOKENS_TO_FETCH.map(token =>
       from(fetchData(feed, token)).pipe(map(price => ({ [token]: price } as TokenPriceMap))),
     );
