@@ -14,7 +14,8 @@ const PositionPicker = () => {
    */
   if (position?.hasPosition && position.principalCollateralBalance) {
     return <Navigate to="/leverage" />;
-  } else if (position?.hasPosition) {
+  }
+  if (position?.hasPosition) {
     return <Navigate to="/generate" />;
   }
 
