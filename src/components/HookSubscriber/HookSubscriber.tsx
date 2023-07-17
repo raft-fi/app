@@ -16,6 +16,14 @@ import {
   subscribeCalculateRedemptionRate,
   subscribeCollateralPositionCaps,
   subscribeCollateralProtocolCaps,
+  subscribeManageStatus,
+  subscribeLeverageStatus,
+  subscribeLeverageTokenWhitelists,
+  subscribeLeverageTokenAllowances,
+  subscribeCollateralTokenAprs,
+  subscribeEstimateSwapPrice,
+  subscribeLeveragePosition,
+  subscribeRFlashMintFee,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -31,7 +39,9 @@ const HookSubscriber: FC = () => {
     subscribeEIP1193Provider();
     subscribeTransactionHistory();
     subscribeTokenAllowances();
+    subscribeLeverageTokenAllowances();
     subscribeTokenWhitelists();
+    subscribeLeverageTokenWhitelists();
     subscribeCollateralBorrowingRates();
     subscribeCollateralConversionRates();
     subscribePosition();
@@ -39,6 +49,12 @@ const HookSubscriber: FC = () => {
     subscribeCalculateRedemptionRate();
     subscribeCollateralPositionCaps();
     subscribeCollateralProtocolCaps();
+    subscribeCollateralTokenAprs();
+    subscribeManageStatus();
+    subscribeLeverageStatus();
+    subscribeEstimateSwapPrice();
+    subscribeLeveragePosition();
+    subscribeRFlashMintFee();
   }, []);
 
   return null;

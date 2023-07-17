@@ -1,3 +1,4 @@
+import BaseInput from './BaseInput';
 import Button from './Button';
 import Icon from './Icon';
 import Loading from './Loading';
@@ -12,9 +13,11 @@ import ValueLabel from './ValueLabel';
 import TooltipWrapper from './TooltipWrapper';
 import Tooltip from './Tooltip';
 import Checkbox from './Checkbox';
-import WarningBox from './WarningBox';
+import InfoBox from './InfoBox';
+import SliderInput from './SliderInput';
 
 export {
+  BaseInput,
   Button,
   Icon,
   Loading,
@@ -29,7 +32,8 @@ export {
   TooltipWrapper,
   Tooltip,
   Checkbox,
-  WarningBox,
+  InfoBox,
+  SliderInput,
 };
 
 export { colors } from './Colors';

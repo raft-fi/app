@@ -1,0 +1,35 @@
+.raft__infoBox {
+  border-radius: 8px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+
+  &[data-variant='error'] {
+    /* TODO: hardcode color as suggested */
+    background: var(--raft-red-100);
+    /* TODO: hardcode color as suggested */
+    border: 1px solid var(--raft-red-500);
+
+    /* TODO: hardcode color as suggested */
+    --warningColor: var(--raft-red-800);
+  }
+
+  &[data-variant='warning'] {
+    background: var(--surfaceWarning);
+    border: 1px solid var(--borderWarning);
+
+    --warningColor: var(--borderWarning);
+  }
+
+  .raft__icon__warning {
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+}
+
+.raft__infoBox__warningLink {
+  a {
+    font-weight: 600;
+  }
+}

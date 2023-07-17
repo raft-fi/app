@@ -18,25 +18,20 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { Allowance, RaftConfig, Token } from '@raft-fi/sdk';
+import { Allowance, RaftConfig } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_TOKENS, TOKEN_TO_UNDERLYING_TOKEN_MAP } from '../constants';
-import { Nullable, TokenDecimalMap } from '../interfaces';
+import { Nullable, SupportedToken, TokenDecimalMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
+import { getNullTokenMap } from '../utils';
 
-export type TokenAllowanceMap = TokenDecimalMap<Token>;
+export type TokenAllowanceMap = TokenDecimalMap<SupportedToken>;
 
-const DEFAULT_VALUE: TokenAllowanceMap = SUPPORTED_TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as TokenAllowanceMap,
-);
+const DEFAULT_VALUE: TokenAllowanceMap = getNullTokenMap<SupportedToken>(SUPPORTED_TOKENS);
 
-const getPositionManager = (token: Token) => {
+const getPositionManager = (token: SupportedToken) => {
   if (token === 'R') {
     return RaftConfig.networkConfig.positionManager;
   }
@@ -49,7 +44,7 @@ const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(
 export const tokenAllowances$ = new BehaviorSubject<TokenAllowanceMap>(DEFAULT_VALUE);
 
 const fetchData = async (
-  token: Token,
+  token: SupportedToken,
   walletAddress: string,
   positionManagerAddress: string,
   provider: JsonRpcProvider,

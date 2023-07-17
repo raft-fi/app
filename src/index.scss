@@ -183,6 +183,7 @@ body.modal-open {
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 @mixin sectionBox {

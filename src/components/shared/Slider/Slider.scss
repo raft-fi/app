@@ -1,0 +1,31 @@
+.raft__slider {
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #f87541;
+  outline: none;
+}
+
+@mixin slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #f87541;
+  cursor: pointer;
+
+  &:active {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.raft__slider::-webkit-slider-thumb {
+  @include slider-thumb;
+}
+
+.raft__slider::-moz-range-thumb {
+  @include slider-thumb;
+}

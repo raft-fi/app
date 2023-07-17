@@ -1,4 +1,4 @@
-@import '../../index.scss';
+@import "../../index.scss";
 
 .raft__openPosition {
   @include sectionBox;
@@ -6,9 +6,24 @@
 
   .raft__openPosition__header {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
     margin-bottom: 16px;
+
+    .raft__openPositionHeaderTitle {
+      display: flex;
+      align-items: center;
+
+      .raft__openPositionHeaderBack {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .raft__iconArrowLeft {
+          margin-right: 12px;
+        }
+      }
+    }
   }
 
   .raft__openPosition__input {

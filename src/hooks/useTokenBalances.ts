@@ -18,30 +18,25 @@ import {
   filter,
   of,
 } from 'rxjs';
-import { Balance, TOKENS, Token } from '@raft-fi/sdk';
+import { Balance } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
-import { Nullable, TokenDecimalMap } from '../interfaces';
+import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_TOKENS } from '../constants';
+import { Nullable, SupportedToken, TokenDecimalMap } from '../interfaces';
 import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
+import { getNullTokenMap } from '../utils';
 
-export type TokenBalanceMap = TokenDecimalMap<Token>;
+export type TokenBalanceMap = TokenDecimalMap<SupportedToken>;
 
-const DEFAULT_VALUE: TokenBalanceMap = TOKENS.reduce(
-  (map, token) => ({
-    ...map,
-    [token]: null,
-  }),
-  {} as TokenBalanceMap,
-);
+const DEFAULT_VALUE: TokenBalanceMap = getNullTokenMap<SupportedToken>(SUPPORTED_TOKENS);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 export const tokenBalances$ = new BehaviorSubject<TokenBalanceMap>(DEFAULT_VALUE);
 
 const fetchData = async (
-  token: Token,
+  token: SupportedToken,
   walletAddress: string,
   provider: JsonRpcProvider,
 ): Promise<Nullable<Decimal>> => {
@@ -65,7 +60,7 @@ const walletChangeStream$: Observable<TokenBalanceMap> = walletAddress$.pipe(
       return of(DEFAULT_VALUE);
     }
 
-    const tokenBalanceMaps: Observable<TokenBalanceMap>[] = TOKENS.map(token =>
+    const tokenBalanceMaps: Observable<TokenBalanceMap>[] = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
 
@@ -83,7 +78,7 @@ const periodicStream$: Observable<TokenBalanceMap> = combineLatest([intervalBeat
       return of(DEFAULT_VALUE);
     }
 
-    const tokenBalanceMaps = TOKENS.map(token =>
+    const tokenBalanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
 
@@ -100,7 +95,7 @@ const appEventsStream$ = appEvent$.pipe(
     return Boolean(walletAddress);
   }),
   mergeMap(([, walletAddress, provider]) => {
-    const tokenBalanceMaps = TOKENS.map(token =>
+    const tokenBalanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
 

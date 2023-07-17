@@ -1,4 +1,3 @@
-import { MIN_COLLATERAL_RATIO } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { HEALTHY_RATIO } from '../constants';
 import { Nullable } from '../interfaces';
@@ -6,7 +5,7 @@ import { Nullable } from '../interfaces';
 type CollateralRatioRiskLevel = 'low' | 'medium' | 'high';
 type ProtocolCollateralRatioRiskLevel = 'low' | 'medium' | 'moderate' | 'high' | 'critical';
 
-const PROTOCOL_CRITICAL_RISK_RATIO = MIN_COLLATERAL_RATIO;
+const PROTOCOL_CRITICAL_RISK_RATIO = 1.2;
 const PROTOCOL_HIGH_RISK_RATIO = 1.4;
 const PROTOCOL_MEDIUM_RISK_RATIO = 1.6;
 const PROTOCOL_MODERATE_RISK_RATIO = 2;

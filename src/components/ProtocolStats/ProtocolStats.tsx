@@ -17,6 +17,8 @@ import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
 import './ProtocolStats.scss';
 
+const R_MARKET_CAP_THRESHOLD = 1000000; // one million
+
 const ProtocolStats = () => {
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
@@ -57,7 +59,10 @@ const ProtocolStats = () => {
     [totalCollateralValue],
   );
   const totalDebtAmountFormatted = useMemo(
-    () => formatDecimal(totalDebtTokenValues.amount, 0),
+    () =>
+      totalDebtTokenValues.amount?.gt(R_MARKET_CAP_THRESHOLD)
+        ? formatMultiplier(totalDebtTokenValues.amount)
+        : formatDecimal(totalDebtTokenValues.amount, 0),
     [totalDebtTokenValues.amount],
   );
   const totalDebtValueDecimalFormatted = useMemo(

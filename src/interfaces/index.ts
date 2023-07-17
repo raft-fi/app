@@ -8,7 +8,8 @@ export type {
   TokenDecimalMap,
   SupportedCollateralToken,
   SupportedUnderlyingCollateralToken,
+  SupportedSwapToken,
   SupportedToken,
 } from './types';
 export type { StrictPartial } from './StrictPartial';
-export type { Position } from './Position';
+export type { Position, LeveragePosition } from './Position';

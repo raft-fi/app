@@ -18,7 +18,11 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import {
+  GAS_LIMIT_MULTIPLIER,
+  NUMBER_OF_CONFIRMATIONS_FOR_TX,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
+} from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -43,6 +47,7 @@ interface RedeemStatus {
   };
   txnId: string;
   statusType: 'redeem';
+  txHash?: string;
 }
 
 interface RedeemResponse {
@@ -56,8 +61,6 @@ interface RedeemResponse {
   error?: Error;
   txnId: string;
 }
-
-const GAS_LIMIT_MULTIPLIER = new Decimal(2);
 
 const [redeem$, redeem] = createSignal<RedeemRequest>();
 const redeemStatus$ = new BehaviorSubject<Nullable<RedeemStatus>>(null);
@@ -172,8 +175,16 @@ const stream$ = combineLatest([redeem$]).pipe(
     };
   }),
   tap(status => {
+    const { underlyingCollateralToken, debtAmount } = status.request;
+    const redeemToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].redeemToken;
+
     emitAppEvent({
       eventType: 'redeem',
+      metadata: {
+        collateralToken: redeemToken,
+        underlyingCollateralToken,
+        tokenAmount: debtAmount,
+      },
       timestamp: Date.now(),
       txnHash: status.contractTransaction?.hash,
     });

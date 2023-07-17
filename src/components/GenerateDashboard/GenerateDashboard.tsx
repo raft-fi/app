@@ -1,34 +1,33 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
-import LoadingDashbaord from '../LoadingDashboard';
+import LoadingDashboard from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
 
-import './Dashboard.scss';
+import './GenerateDashboard.scss';
 
-const Dashboard = () => {
+const GenerateDashboard = () => {
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
   const position = usePosition();
   const { isWrongNetwork } = useNetwork();
 
-  const userHasBorrowed = useMemo(() => {
-    return (
-      (position?.collateralBalance?.gt(0) || position?.debtBalance?.gt(0)) &&
-      Boolean(position?.underlyingCollateralToken)
-    );
-  }, [position?.collateralBalance, position?.debtBalance, position?.underlyingCollateralToken]);
-
-  const shouldShowAdjustPosition = wallet && userHasBorrowed && position && !isWrongNetwork;
+  const shouldShowAdjustPosition = wallet && position?.hasPosition && !isWrongNetwork;
 
   if (!appLoaded) {
-    return <LoadingDashbaord />;
+    return <LoadingDashboard />;
+  }
+
+  // for now, we only allow user to have either normal position or leverage position
+  if (position?.hasPosition && position.principalCollateralBalance) {
+    return <Navigate to="/leverage" />;
   }
 
   return (
-    <div className="raft__dashboard">
+    <div className="raft__generateDashboard">
       {shouldShowAdjustPosition ? (
         <>
           <YourPosition position={position} />
@@ -44,4 +43,4 @@ const Dashboard = () => {
   );
 };
 
-export default memo(Dashboard);
+export default memo(GenerateDashboard);

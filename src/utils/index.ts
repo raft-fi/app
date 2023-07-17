@@ -4,5 +4,6 @@ export { isCollateralToken, isUnderlyingCollateralToken, isDisplayBaseToken } fr
 export * from './collateralRatio';
 export * from './tokenMap';
 export * from './decimal';
+export * from './signature';
 
 export { shortenAddress, getTokenValues };

@@ -1,24 +1,17 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
-import { v4 as uuid } from 'uuid';
-import { MIN_COLLATERAL_RATIO, R_TOKEN, TOKENS_WITH_PERMIT } from '@raft-fi/sdk';
+import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import {
-  TokenAllowanceMap,
-  TokenWhitelistMap,
-  useApprove,
-  useBorrow,
   useCollateralBorrowingRates,
   useCollateralConversionRates,
   useCollateralPositionCaps,
   useCollateralProtocolCaps,
   useCollateralTokenConfig,
+  useManage,
   useProtocolStats,
-  useTokenAllowances,
   useTokenBalances,
   useTokenPrices,
-  useTokenWhitelists,
-  useWhitelistDelegate,
 } from '../../hooks';
 import {
   formatCurrency,
@@ -30,22 +23,15 @@ import {
   isUnderlyingCollateralToken,
 } from '../../utils';
 import {
-  DEFAULT_MAP,
   INPUT_PREVIEW_DIGITS,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
+  TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
-import {
-  Nullable,
-  Position,
-  SupportedCollateralToken,
-  SupportedUnderlyingCollateralToken,
-  TokenApprovedMap,
-  TokenSignatureMap,
-} from '../../interfaces';
+import { Nullable, Position, SupportedCollateralToken, SupportedUnderlyingCollateralToken } from '../../interfaces';
 import { Button, CurrencyInput, Typography } from '../shared';
 import { PositionAction, PositionAfter } from '../Position';
 
@@ -56,31 +42,21 @@ interface AdjustPositionProps {
 }
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
-  const { borrow, borrowStatus } = useBorrow();
-  const { approve, approveStatus } = useApprove();
-  const { whitelistDelegate, whitelistDelegateStatus } = useWhitelistDelegate();
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
-  const tokenAllowanceMap = useTokenAllowances();
-  const tokenWhitelistMap = useTokenWhitelists();
   const borrowingRateMap = useCollateralBorrowingRates();
   const collateralConversionRateMap = useCollateralConversionRates();
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const protocolStats = useProtocolStats();
   const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
+  const { managePositionStatus, managePosition, managePositionStepsStatus, requestManagePositionStep } = useManage();
 
   const { collateralBalance, debtBalance } = position;
   // already checked underlyingCollateralToken is not null to render this component
   const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
   const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
 
-  const [tokenWhitelistMapWhenLoaded, setTokenWhitelistMapWhenLoaded] = useState<TokenWhitelistMap>(
-    DEFAULT_MAP as TokenWhitelistMap,
-  );
-  const [tokenAllowanceMapWhenLoaded, setTokenAllowanceMapWhenLoaded] = useState<TokenAllowanceMap>(
-    DEFAULT_MAP as TokenAllowanceMap,
-  );
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(displayBaseToken);
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
@@ -88,97 +64,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const [isAddDebt, setIsAddDebt] = useState<boolean>(true);
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
-  const [hasWhitelistProceeded, setHasWhitelistProceeded] = useState<boolean>(false);
-  const [hasApprovalProceeded, setHasApprovalProceeded] = useState<TokenApprovedMap>(DEFAULT_MAP as TokenApprovedMap);
-  const [tokenSignatureMap, setTokenSignatureMap] = useState<TokenSignatureMap>(DEFAULT_MAP as TokenSignatureMap);
 
   // when selectedCollateralToken changed, change the token config as well
   useEffect(() => {
     setCollateralTokenForConfig(selectedCollateralToken);
   }, [selectedCollateralToken, setCollateralTokenForConfig]);
-
-  // store the whitelist status at the loaded time
-  useEffect(() => {
-    const map = Object.entries(tokenWhitelistMap).reduce((map, [token, whitelisted]) => {
-      if (tokenWhitelistMapWhenLoaded[token] === null) {
-        map[token] = whitelisted;
-      }
-      return map;
-    }, {} as TokenWhitelistMap);
-
-    if (!Object.entries(map).every(([token, whitelisted]) => tokenWhitelistMapWhenLoaded[token] === whitelisted)) {
-      setTokenWhitelistMapWhenLoaded(map);
-    }
-  }, [tokenWhitelistMap, tokenWhitelistMapWhenLoaded]);
-
-  // store the allowance status at the loaded time
-  useEffect(() => {
-    const map = Object.entries(tokenAllowanceMap).reduce((map, [token, allowance]) => {
-      if (tokenAllowanceMapWhenLoaded[token] === null) {
-        map[token] = allowance;
-      }
-      return map;
-    }, {} as TokenAllowanceMap);
-
-    if (
-      !Object.entries(map).every(
-        ([token, allowance]) =>
-          (tokenAllowanceMapWhenLoaded[token] === null && tokenAllowanceMap[token] === null) ||
-          tokenAllowanceMapWhenLoaded[token]?.eq(allowance),
-      )
-    ) {
-      setTokenAllowanceMapWhenLoaded(map);
-    }
-  }, [tokenAllowanceMap, tokenAllowanceMapWhenLoaded]);
-
-  /**
-   * Update action button state based on current borrow request status
-   */
-  useEffect(() => {
-    if (!whitelistDelegateStatus && !approveStatus && !borrowStatus) {
-      return;
-    }
-
-    if (whitelistDelegateStatus?.success) {
-      setHasWhitelistProceeded(true);
-    }
-
-    if (approveStatus?.success) {
-      const approvedCollateralToken = approveStatus.request.collateralToken;
-      if (approveStatus.collateralPermit || approveStatus.rPermit) {
-        if (
-          approveStatus.collateralPermit &&
-          tokenSignatureMap[approvedCollateralToken] !== approveStatus.collateralPermit
-        ) {
-          setTokenSignatureMap({
-            ...tokenSignatureMap,
-            [approvedCollateralToken]: approveStatus.collateralPermit,
-          });
-        }
-        if (approveStatus.rPermit && tokenSignatureMap[R_TOKEN] !== approveStatus.rPermit) {
-          setTokenSignatureMap({
-            ...tokenSignatureMap,
-            [R_TOKEN]: approveStatus.rPermit,
-          });
-        }
-      } else {
-        if (!hasApprovalProceeded[approvedCollateralToken]) {
-          setHasApprovalProceeded({
-            ...hasApprovalProceeded,
-            [approvedCollateralToken]: true,
-          });
-        }
-      }
-    }
-
-    if (whitelistDelegateStatus?.pending || approveStatus?.pending || borrowStatus?.pending) {
-      setTransactionState('loading');
-    } else if (whitelistDelegateStatus?.success || approveStatus?.success || borrowStatus?.success) {
-      setTransactionState('success');
-    } else {
-      setTransactionState('default');
-    }
-  }, [approveStatus, borrowStatus, hasApprovalProceeded, tokenSignatureMap, whitelistDelegateStatus]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -223,6 +113,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return original === truncated ? original : `${truncated}...`;
   }, [borrowAmountDecimal]);
 
+  const selectedCollateralTokenProtocolCap = useMemo(
+    () => getDecimalFromTokenMap(collateralProtocolCapMap, selectedCollateralToken),
+    [collateralProtocolCapMap, selectedCollateralToken],
+  );
+  const selectedCollateralTokenPositionCap = useMemo(
+    () => getDecimalFromTokenMap(collateralPositionCapMap, selectedCollateralToken),
+    [collateralPositionCapMap, selectedCollateralToken],
+  );
+
   const debtTokenBalanceValues = useMemo(
     () => getTokenValues(tokenBalanceMap[R_TOKEN], tokenPriceMap[R_TOKEN], R_TOKEN),
     [tokenBalanceMap, tokenPriceMap],
@@ -254,14 +153,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const selectedCollateralTokenBalance = useMemo(
     () => tokenBalanceMap[selectedCollateralToken],
     [selectedCollateralToken, tokenBalanceMap],
-  );
-  const selectedCollateralTokenAllowance = useMemo(
-    () => tokenAllowanceMap[selectedCollateralToken],
-    [selectedCollateralToken, tokenAllowanceMap],
-  );
-  const selectedCollateralTokenWhitelist = useMemo(
-    () => tokenWhitelistMap[selectedCollateralToken],
-    [selectedCollateralToken, tokenWhitelistMap],
   );
 
   /**
@@ -395,6 +286,50 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     currentDebtTokenValues?.value,
   ]);
 
+  useEffect(() => {
+    const isZeroCollateralInNewPosition = newCollateralInUnderlyingTokenValues.amount?.isZero();
+    const isZeroDebtInNewPosition = newDebtTokenWithFeeValues.amount?.isZero();
+    const isManualClosePosition = isZeroCollateralInNewPosition && isZeroDebtInNewPosition;
+
+    requestManagePositionStep?.({
+      underlyingCollateralToken: TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken],
+      collateralToken: selectedCollateralToken,
+      collateralChange: collateralAmountDecimal.mul(isAddCollateral ? 1 : -1),
+      debtChange: borrowAmountDecimal.mul(isAddDebt ? 1 : -1),
+      isClosePosition: closePositionActive || isManualClosePosition,
+    });
+  }, [
+    borrowAmountDecimal,
+    closePositionActive,
+    collateralAmountDecimal,
+    isAddCollateral,
+    isAddDebt,
+    newCollateralInUnderlyingTokenValues.amount,
+    newDebtTokenWithFeeValues.amount,
+    requestManagePositionStep,
+    selectedCollateralToken,
+  ]);
+
+  const executionSteps = useMemo(
+    () => managePositionStepsStatus.result?.numberOfSteps,
+    [managePositionStepsStatus.result?.numberOfSteps],
+  );
+  const currentExecutionSteps = useMemo(
+    () => managePositionStepsStatus.result?.stepNumber,
+    [managePositionStepsStatus.result?.stepNumber],
+  );
+  const executionType = useMemo(
+    () => managePositionStepsStatus.result?.type?.name ?? null,
+    [managePositionStepsStatus.result?.type],
+  );
+  const tokenNeedsToBeApproved = useMemo(
+    () =>
+      executionType && ['approve', 'permit'].includes(executionType)
+        ? managePositionStepsStatus.result?.type?.token ?? null
+        : null,
+    [executionType, managePositionStepsStatus.result?.type?.token],
+  );
+
   const collateralSupply: Nullable<Decimal> = useMemo(
     () => protocolStats?.collateralSupply[underlyingCollateralToken] ?? null,
     [protocolStats?.collateralSupply, underlyingCollateralToken],
@@ -419,6 +354,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     () => !newDebtTokenWithFeeValues.amount?.lt(0),
     [newDebtTokenWithFeeValues.amount],
   );
+  const hasNonEmptyInput = useMemo(
+    () => !collateralAmountDecimal.isZero() || !borrowAmountDecimal.isZero(),
+    [borrowAmountDecimal, collateralAmountDecimal],
+  );
 
   const formattedMissingBorrowAmount = useMemo(() => {
     if (!tokenBalanceMap[R_TOKEN]) {
@@ -440,30 +379,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     [isClosePosition, newDebtTokenWithFeeValues?.amount],
   );
   const hasMinNewRatio = useMemo(
-    () => !newCollateralizationRatio || newCollateralizationRatio.gte(MIN_COLLATERAL_RATIO) || isClosePosition,
-    [isClosePosition, newCollateralizationRatio],
+    () =>
+      !newCollateralizationRatio ||
+      newCollateralizationRatio.gte(MIN_COLLATERAL_RATIO[underlyingCollateralToken]) ||
+      isClosePosition,
+    [isClosePosition, newCollateralizationRatio, underlyingCollateralToken],
   );
   const isInputNonEmpty = useMemo(
     () => !(collateralAmountDecimal.isZero() && borrowAmountDecimal.isZero()),
     [borrowAmountDecimal, collateralAmountDecimal],
-  );
-  const hasWhitelisted = useMemo(() => Boolean(selectedCollateralTokenWhitelist), [selectedCollateralTokenWhitelist]);
-  const hasEnoughCollateralAllowance = useMemo(
-    () => Boolean(selectedCollateralTokenAllowance?.gte(collateralAmountDecimal)) || !isAddCollateral,
-    [collateralAmountDecimal, isAddCollateral, selectedCollateralTokenAllowance],
-  );
-  const hasCollateralPermitSignature = useMemo(
-    () => Boolean(tokenSignatureMap[selectedCollateralToken]),
-    [selectedCollateralToken, tokenSignatureMap],
-  );
-  const hasDebtPermitSignature = useMemo(() => Boolean(tokenSignatureMap[R_TOKEN]), [tokenSignatureMap]);
-  const needCollateralPermitSignature = useMemo(
-    () => TOKENS_WITH_PERMIT.has(selectedCollateralToken) && collateralAmountDecimal.gt(0) && isAddCollateral,
-    [collateralAmountDecimal, isAddCollateral, selectedCollateralToken],
-  );
-  const needDebtPermitSignature = useMemo(
-    () => !TOKENS_WITH_PERMIT.has(selectedCollateralToken) && !isAddDebt,
-    [isAddDebt, selectedCollateralToken],
   );
   const hasEnoughToWithdraw = useMemo(() => {
     if (!newCollateralInDisplayTokenValues.amount) {
@@ -479,11 +403,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return true;
     }
 
-    const selectedCollateralTokenPositionCap = getDecimalFromTokenMap(
-      collateralPositionCapMap,
-      selectedCollateralToken,
-    );
-
     if (!collateralSupply || !selectedCollateralTokenPositionCap || !newCollateralInUnderlyingTokenValues.amount) {
       return false;
     }
@@ -492,11 +411,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return newCollateralInUnderlyingTokenValues.amount.lte(selectedCollateralTokenPositionCap);
   }, [
     collateralAmountDecimal,
-    collateralPositionCapMap,
     collateralSupply,
     isAddCollateral,
     newCollateralInUnderlyingTokenValues.amount,
-    selectedCollateralToken,
+    selectedCollateralTokenPositionCap,
   ]);
 
   const isPositionWithinCollateralProtocolCap = useMemo(() => {
@@ -504,11 +422,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     if (collateralAmountDecimal.isZero() || !isAddCollateral) {
       return true;
     }
-
-    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
-      collateralProtocolCapMap,
-      selectedCollateralToken,
-    );
 
     if (
       !collateralSupply ||
@@ -527,12 +440,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       .lte(selectedCollateralTokenProtocolCap);
   }, [
     collateralAmountDecimal,
-    collateralProtocolCapMap,
     collateralSupply,
     currentUnderlyingCollateralTokenValues.amount,
     isAddCollateral,
     newCollateralInUnderlyingTokenValues.amount,
-    selectedCollateralToken,
+    selectedCollateralTokenProtocolCap,
   ]);
 
   const isTotalSupplyWithinCollateralProtocolCap = useMemo(() => {
@@ -541,17 +453,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return true;
     }
 
-    const selectedCollateralTokenProtocolCap = getDecimalFromTokenMap(
-      collateralProtocolCapMap,
-      selectedCollateralToken,
-    );
-
     if (!collateralSupply || !selectedCollateralTokenProtocolCap) {
       return false;
     }
 
     return collateralSupply.lte(selectedCollateralTokenProtocolCap);
-  }, [collateralAmountDecimal, collateralProtocolCapMap, collateralSupply, isAddCollateral, selectedCollateralToken]);
+  }, [collateralAmountDecimal, collateralSupply, isAddCollateral, selectedCollateralTokenProtocolCap]);
 
   const isPositionWithinDebtPositionCap = useMemo(() => {
     // In case user is repaying his debt, we should ignore max borrow limit
@@ -588,6 +495,19 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     selectedCollateralToken,
   ]);
 
+  const errPositionOutOfCollateralPositionCap = useMemo(
+    () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
+    [isPositionWithinCollateralPositionCap, selectedCollateralTokenPositionCap],
+  );
+  const errPositionOutOfCollateralProtocolCap = useMemo(
+    () => !isPositionWithinCollateralProtocolCap && Boolean(selectedCollateralTokenProtocolCap),
+    [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
+  );
+  const errTotalSupplyOutOfCollateralProtocolCap = useMemo(
+    () => !isTotalSupplyWithinCollateralProtocolCap && Boolean(selectedCollateralTokenProtocolCap),
+    [isTotalSupplyWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
+  );
+
   const canAdjust = useMemo(
     () =>
       Boolean(
@@ -614,151 +534,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     ],
   );
 
-  // steps that user need to execute when component loaded
-  const executionSteps = useMemo(() => {
-    // if whitelist map not yet ready,
-    // or allowance map not yet ready,
-    // return 1
-    if (
-      tokenWhitelistMapWhenLoaded[selectedCollateralToken] === null ||
-      tokenAllowanceMapWhenLoaded[selectedCollateralToken] === null
-    ) {
-      return 1;
-    }
-
-    let whitelistStep = 0;
-
-    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token with permit, whitelistStep = 0
-      whitelistStep = 0;
-    } else if (hasWhitelistProceeded) {
-      // user has proceeded whitelist, whitelistStep = 1
-      whitelistStep = 1;
-    } else if (!tokenWhitelistMapWhenLoaded[selectedCollateralToken]) {
-      // not whitelisted on load, whitelistStep = 1
-      whitelistStep = 1;
-    }
-
-    let collateralApprovalStep = 0;
-
-    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token with permit, collateralApprovalStep = 0
-      collateralApprovalStep = 0;
-    } else if (hasApprovalProceeded[selectedCollateralToken]) {
-      // user has proceeded approve, collateralApprovalStep = 1
-      collateralApprovalStep = 1;
-    } else if (tokenAllowanceMapWhenLoaded[selectedCollateralToken]?.lt(collateralAmountDecimal) && isAddCollateral) {
-      // not enough allowance on load, collateralApprovalStep = 1
-      collateralApprovalStep = 1;
-    }
-
-    let collateralPermitStep = 0;
-
-    if (!TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token not with permit, collateralPermitStep = 0
-      collateralPermitStep = 0;
-    } else if (tokenSignatureMap[selectedCollateralToken]) {
-      // user has proceeded approve, collateralPermitStep = 1
-      collateralPermitStep = 1;
-    } else if (collateralAmountDecimal.gt(0) && isAddCollateral) {
-      // input > zero and depositing, collateralPermitStep = 1
-      collateralPermitStep = 1;
-    }
-
-    let debtPermitStep = 0;
-
-    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token with permit, no need to permit R, debtPermitStep = 0
-      debtPermitStep = 0;
-    } else if (collateralAmountDecimal.isZero()) {
-      // collateral is zero, treat it as token with permit, no need to permit R, , debtPermitStep = 0
-      debtPermitStep = 0;
-    } else if (tokenSignatureMap[R_TOKEN]) {
-      // user has proceeded approve for R, debtPermitStep = 1
-      debtPermitStep = 1;
-    } else if (!isAddDebt) {
-      // if R input amount is -ve, debtPermitStep = 1
-      debtPermitStep = 1;
-    }
-
-    const executionStep = 1;
-
-    return whitelistStep + collateralApprovalStep + collateralPermitStep + debtPermitStep + executionStep;
-  }, [
-    collateralAmountDecimal,
-    hasApprovalProceeded,
-    hasWhitelistProceeded,
-    isAddCollateral,
-    isAddDebt,
-    selectedCollateralToken,
-    tokenAllowanceMapWhenLoaded,
-    tokenSignatureMap,
-    tokenWhitelistMapWhenLoaded,
-  ]);
-  // steps that user has proceeded since component loaded
-  const executedSteps = useMemo(() => {
-    let whitelistStep = 0;
-
-    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token with permit, whitelistStep = 0
-      whitelistStep = 0;
-    } else if (hasWhitelistProceeded && hasWhitelisted) {
-      // user has proceeded whitelist and still have whitelisted, whitelistStep = 1
-      whitelistStep = 1;
-    }
-
-    let collateralApprovalStep = 0;
-
-    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token with permit, collateralApprovalStep = 0
-      collateralApprovalStep = 0;
-    } else if (hasApprovalProceeded[selectedCollateralToken] && hasEnoughCollateralAllowance) {
-      // user has proceeded approve and still have enough allowance, collateralApprovalStep = 1
-      collateralApprovalStep = 1;
-    }
-
-    let collateralPermitStep = 0;
-
-    if (!TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token not with permit, collateralPermitStep = 0
-      collateralPermitStep = 0;
-    } else if (tokenSignatureMap[selectedCollateralToken]) {
-      // user has proceeded approve, collateralPermitStep = 1
-      collateralPermitStep = 1;
-    }
-
-    let debtPermitStep = 0;
-
-    if (TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      // token with permit, no need to permit R, debtPermitStep = 0
-      debtPermitStep = 0;
-    } else if (collateralAmountDecimal.isZero()) {
-      // collateral is zero, treat it as token with permit, no need to permit R, , debtPermitStep = 0
-      debtPermitStep = 0;
-    } else if (tokenSignatureMap[R_TOKEN]) {
-      // user has proceeded approve for R, debtPermitStep = 1
-      debtPermitStep = 1;
-    }
-
-    const executionStep = 1;
-
-    return whitelistStep + collateralApprovalStep + collateralPermitStep + debtPermitStep + executionStep;
-  }, [
-    collateralAmountDecimal,
-    hasApprovalProceeded,
-    hasEnoughCollateralAllowance,
-    hasWhitelistProceeded,
-    hasWhitelisted,
-    selectedCollateralToken,
-    tokenSignatureMap,
-  ]);
-
   const collateralErrorMsg = useMemo(() => {
     if (!hasEnoughCollateralTokenBalance) {
       return 'Insufficient funds';
     }
 
-    if (!isPositionWithinCollateralPositionCap) {
+    if (errPositionOutOfCollateralPositionCap) {
       const collateralPositionCapFormatted = formatCurrency(collateralPositionCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
         fractionDigits: 0,
@@ -769,7 +550,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       );
     }
 
-    if (!isPositionWithinCollateralProtocolCap) {
+    if (errPositionOutOfCollateralProtocolCap) {
       return `The deposit amount exceeds collateral capacity. Please reduce the deposit amount and try again`;
     }
 
@@ -782,11 +563,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     }
   }, [
     collateralPositionCapMap,
+    errPositionOutOfCollateralPositionCap,
+    errPositionOutOfCollateralProtocolCap,
     hasEnoughCollateralTokenBalance,
     hasEnoughToWithdraw,
     hasMinNewRatio,
-    isPositionWithinCollateralPositionCap,
-    isPositionWithinCollateralProtocolCap,
     selectedCollateralToken,
   ]);
 
@@ -803,18 +584,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return 'Collateralization ratio is below the minimum threshold';
     }
 
-    if (!isPositionWithinDebtPositionCap) {
+    if (errTotalSupplyOutOfCollateralProtocolCap) {
       return 'Amount exceeds maximum debt allowed per Position';
     }
-  }, [hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt, isPositionWithinDebtPositionCap]);
+  }, [errTotalSupplyOutOfCollateralProtocolCap, hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt]);
 
   const buttonLabel = useMemo(() => {
-    // data not yet loaded will set executionSteps = 1, always show "Execution"
-    if (executionSteps === 1) {
-      return borrowStatus?.pending ? 'Executing' : 'Execute';
-    }
-
-    if (!isTotalSupplyWithinCollateralProtocolCap) {
+    if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
         fractionDigits: 0,
@@ -822,55 +598,52 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return `Protocol collateral cap of ${collateralProtocolCapFormatted} reached. Please check again later.`;
     }
 
-    if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt) {
+    if (!hasEnoughDebtTokenBalance && hasNonNegativeDebt && !managePositionStatus.pending) {
       return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
     }
 
-    if (!hasWhitelisted) {
-      return whitelistDelegateStatus?.pending
-        ? `Whitelisting ${selectedCollateralToken} (${executedSteps}/${executionSteps})`
-        : `Whitelist ${selectedCollateralToken} (${executedSteps}/${executionSteps})`;
+    if (executionSteps === 1) {
+      return managePositionStatus.pending ? 'Executing' : 'Execute';
     }
 
-    if (
-      (!hasEnoughCollateralAllowance && !TOKENS_WITH_PERMIT.has(selectedCollateralToken)) ||
-      (!hasCollateralPermitSignature && needCollateralPermitSignature)
-    ) {
-      return approveStatus?.pending
-        ? `Approving ${selectedCollateralToken} (${executedSteps}/${executionSteps})`
-        : `Approve ${selectedCollateralToken} (${executedSteps}/${executionSteps})`;
+    if (executionType === 'whitelist') {
+      return managePositionStatus.pending
+        ? `Whitelisting ${selectedCollateralToken} (${currentExecutionSteps}/${executionSteps})`
+        : `Whitelist ${selectedCollateralToken} (${currentExecutionSteps}/${executionSteps})`;
     }
 
-    if (!hasDebtPermitSignature && needDebtPermitSignature) {
-      return approveStatus?.pending
-        ? `Approving R (${executedSteps}/${executionSteps})`
-        : `Approve R (${executedSteps}/${executionSteps})`;
+    if (executionType === 'approve' || executionType === 'permit') {
+      return managePositionStatus.pending
+        ? `Approving ${tokenNeedsToBeApproved} (${currentExecutionSteps}/${executionSteps})`
+        : `Approve ${tokenNeedsToBeApproved} (${currentExecutionSteps}/${executionSteps})`;
     }
 
-    if (closePositionActive && borrowStatus?.pending) {
-      return `Executing (${executedSteps}/${executionSteps})`;
+    if (executionType === 'manage') {
+      return managePositionStatus.pending
+        ? `Executing (${currentExecutionSteps}/${executionSteps})`
+        : `Execute (${currentExecutionSteps}/${executionSteps})`;
     }
 
-    return `Execute (${executedSteps}/${executionSteps})`;
+    // input is still empty, showing default button text
+    if (!hasNonEmptyInput) {
+      return 'Execute';
+    }
+
+    // executionType is null but input non-empty, still loading
+    return 'Loading';
   }, [
-    executionSteps,
     isTotalSupplyWithinCollateralProtocolCap,
+    managePositionStatus.pending,
     hasEnoughDebtTokenBalance,
     hasNonNegativeDebt,
-    hasWhitelisted,
-    hasEnoughCollateralAllowance,
-    selectedCollateralToken,
-    hasCollateralPermitSignature,
-    needCollateralPermitSignature,
-    hasDebtPermitSignature,
-    needDebtPermitSignature,
-    closePositionActive,
-    borrowStatus?.pending,
-    executedSteps,
+    executionSteps,
+    executionType,
+    hasNonEmptyInput,
     collateralProtocolCapMap,
+    selectedCollateralToken,
     formattedMissingBorrowAmount,
-    whitelistDelegateStatus?.pending,
-    approveStatus?.pending,
+    currentExecutionSteps,
+    tokenNeedsToBeApproved,
   ]);
 
   const borrowingFeePercentageFormatted = useMemo(() => {
@@ -943,83 +716,26 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return null;
     }
 
-    if (!hasWhitelisted) {
-      whitelistDelegate({ token: selectedCollateralToken, txnId: uuid() });
-      return;
-    }
+    managePosition?.();
+  }, [canAdjust, managePosition]);
 
-    if (!hasEnoughCollateralAllowance && !TOKENS_WITH_PERMIT.has(selectedCollateralToken)) {
-      approve({
-        collateralChange: collateralAmountDecimal.mul(isAddCollateral ? 1 : -1),
-        debtChange: Decimal.ZERO,
-        collateralToken: selectedCollateralToken,
-        currentUserCollateral: collateralBalance,
-        currentUserDebt: debtBalance,
-        closePosition: closePositionActive,
-        txnId: uuid(),
-      });
-      return;
+  /**
+   * Update action button state based on current borrow request status
+   */
+  useEffect(() => {
+    if (managePositionStatus.pending || managePositionStepsStatus.pending || (hasNonEmptyInput && !executionType)) {
+      setTransactionState('loading');
+    } else if (managePositionStatus.success) {
+      setTransactionState('success');
+    } else {
+      setTransactionState('default');
     }
-
-    if (!hasCollateralPermitSignature && needCollateralPermitSignature) {
-      approve({
-        collateralChange: collateralAmountDecimal.mul(isAddCollateral ? 1 : -1),
-        debtChange: Decimal.ZERO,
-        collateralToken: selectedCollateralToken,
-        currentUserCollateral: collateralBalance,
-        currentUserDebt: debtBalance,
-        closePosition: closePositionActive,
-        txnId: uuid(),
-      });
-      return;
-    }
-
-    if (!hasDebtPermitSignature && needDebtPermitSignature) {
-      approve({
-        collateralChange: Decimal.ZERO,
-        debtChange: borrowAmountDecimal.mul(isAddDebt ? 1 : -1),
-        collateralToken: selectedCollateralToken,
-        currentUserCollateral: collateralBalance,
-        currentUserDebt: debtBalance,
-        closePosition: closePositionActive,
-        txnId: uuid(),
-      });
-      return;
-    }
-
-    borrow({
-      collateralChange: collateralAmountDecimal.mul(isAddCollateral ? 1 : -1),
-      debtChange: borrowAmountDecimal.mul(isAddDebt ? 1 : -1),
-      collateralToken: selectedCollateralToken,
-      currentUserCollateral: collateralBalance,
-      currentUserDebt: debtBalance,
-      closePosition: closePositionActive,
-      txnId: uuid(),
-      options: {
-        collateralPermitSignature: tokenSignatureMap[selectedCollateralToken] ?? undefined,
-        rPermitSignature: tokenSignatureMap[R_TOKEN] ?? undefined,
-      },
-    });
   }, [
-    canAdjust,
-    hasWhitelisted,
-    hasEnoughCollateralAllowance,
-    selectedCollateralToken,
-    hasCollateralPermitSignature,
-    needCollateralPermitSignature,
-    hasDebtPermitSignature,
-    needDebtPermitSignature,
-    borrow,
-    collateralAmountDecimal,
-    isAddCollateral,
-    borrowAmountDecimal,
-    isAddDebt,
-    collateralBalance,
-    debtBalance,
-    closePositionActive,
-    tokenSignatureMap,
-    whitelistDelegate,
-    approve,
+    executionType,
+    hasNonEmptyInput,
+    managePositionStatus.pending,
+    managePositionStatus.success,
+    managePositionStepsStatus.pending,
   ]);
 
   const collateralLabelComponent = useMemo(
@@ -1101,8 +817,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
             !hasEnoughCollateralTokenBalance ||
             !hasMinNewRatio ||
             !hasEnoughToWithdraw ||
-            !isPositionWithinCollateralPositionCap ||
-            !isPositionWithinCollateralProtocolCap
+            !errPositionOutOfCollateralPositionCap ||
+            !errPositionOutOfCollateralProtocolCap
           }
           errorMsg={collateralErrorMsg}
         />
@@ -1116,7 +832,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           onValueUpdate={setBorrowAmount}
           disabled={closePositionActive}
           onBlur={handleBorrowAmountBlur}
-          error={!hasMinBorrow || !hasMinNewRatio || !isPositionWithinDebtPositionCap}
+          error={!hasMinBorrow || !hasMinNewRatio || errTotalSupplyOutOfCollateralProtocolCap}
           errorMsg={debtErrorMsg}
           maxIntegralDigits={10}
         />

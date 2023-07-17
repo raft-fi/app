@@ -1,0 +1,50 @@
+.raft__leveragePositionAfter {
+  margin-top: 36px;
+  display: flex;
+
+  .raft__leveragePositionAfter__dataColumn {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .raft__leveragePositionAfter__dataTitle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+    &:not(:first-child) {
+      margin-top: 24px;
+    }
+
+    .raft__icon__info {
+      margin-left: 6px;
+    }
+  }
+
+  .raft__leveragePositionAfter__dataRow {
+    display: flex;
+
+    .raft__leveragePositionAfter__dataRowValues {
+      display: flex;
+      align-items: center;
+
+      .raft__leveragePositionAfter__dataRowValue {
+        display: flex;
+        margin-left: 4px;
+      }
+    }
+  }
+}
+
+.raft__leveragePositionAfter__infoTooltip {
+  max-width: 250px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    --externalLinkColor: var(--textAccent);
+  }
+}

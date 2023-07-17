@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import { Link } from 'tempus-ui';
 import { ZERO_ADDRESS } from '../../../constants';
-import { useBorrow, useConfig } from '../../../hooks';
+import { useConfig } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography } from '../../shared';
 
 import './TransactionCloseModal.scss';
@@ -9,13 +9,12 @@ import './TransactionCloseModal.scss';
 interface TransactionCloseModalProps {
   open: boolean;
   title: ReactNode | string;
+  txHash?: string;
   onClose: () => void;
 }
 
-const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, onClose }) => {
-  const { borrowStatus } = useBorrow();
+const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, txHash = ZERO_ADDRESS, onClose }) => {
   const config = useConfig();
-  const txHash = borrowStatus?.contractTransaction?.hash ?? ZERO_ADDRESS;
 
   return (
     <ModalWrapper open={open} onClose={onClose}>

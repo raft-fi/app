@@ -6,7 +6,7 @@ import isMobile from 'is-mobile';
 import MobileBanner from './components/MobileBanner';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Dashboard from './components/Dashboard';
+import GenerateDashboard from './components/GenerateDashboard';
 import Redeem from './components/Redeem';
 import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
@@ -15,6 +15,8 @@ import TermsAndConditions from './components/TermsAndConditions';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import NotificationCenter from './components/NotificationCenter';
 import TransactionModal from './components/TransactionModal';
+import PositionPicker from './components/PositionPicker';
+import LeverageDashboard from './components/LeverageDashboard';
 
 import './index.scss';
 
@@ -42,14 +44,16 @@ if (mobile) {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/redeem" element={<Redeem />} />
             <Route
-              path="/"
+              path="/generate"
               element={
                 <>
-                  <Dashboard />
+                  <GenerateDashboard />
                   <NotificationCenter />
                 </>
               }
             />
+            <Route path="/leverage" element={<LeverageDashboard />} />
+            <Route path="/" element={<PositionPicker />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
           <Footer />
