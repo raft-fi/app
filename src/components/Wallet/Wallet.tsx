@@ -22,8 +22,13 @@ import getStarted from './logo/get-started.svg';
 import './Wallet.scss';
 
 const injected = injectedModule();
-const ledger = ledgerModule();
-const walletConnect = WalletConnectModule();
+const ledger = ledgerModule({
+  walletConnectVersion: 2,
+  projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+});
+const walletConnect = WalletConnectModule({
+  projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+});
 
 init({
   wallets: [injected, ledger, walletConnect],
@@ -55,6 +60,7 @@ init({
       'Connecting your wallet is like “logging in” to Web3. Select your wallet from the options to get started.',
     recommendedInjectedWallets: [{ name: 'MetaMask', url: 'https://metamask.io' }],
     logo: getStarted,
+    explore: 'https://raft.fi',
   },
   disableFontDownload: true,
 });
