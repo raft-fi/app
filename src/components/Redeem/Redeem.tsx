@@ -98,6 +98,11 @@ const Redeem = () => {
     }
   }, [hasEnoughRTokenBalance, walletConnected]);
 
+  // temporary disable redeem
+  const buttonDisabled = true;
+  const buttonLabel = 'Redemptions currently disabled';
+  const onRedeem = () => false;
+  /*
   const buttonDisabled = useMemo(
     () => transactionState === 'loading' || (walletConnected && !canRedeem),
     [canRedeem, transactionState, walletConnected],
@@ -118,6 +123,7 @@ const Redeem = () => {
 
     return 'Redeem'; // TODO - Handle all possible errors and update label accordingly
   }, [hasEnoughRTokenBalance, transactionState, walletConnected]);
+  */
 
   const onConnectWallet = useCallback(() => {
     connect();
@@ -131,6 +137,7 @@ const Redeem = () => {
     [calculateRedemptionRate, selectedUnderlyingToken],
   );
 
+  /*
   const onRedeem = useCallback(() => {
     if (debtAmountDecimal.isZero()) {
       return;
@@ -142,6 +149,7 @@ const Redeem = () => {
       underlyingCollateralToken: selectedUnderlyingToken,
     });
   }, [debtAmountDecimal, redeem, selectedUnderlyingToken]);
+  */
 
   const onMaxAmountClick = useCallback(() => {
     setDebtAmount(rTokenValues.amount?.toString() || '');
