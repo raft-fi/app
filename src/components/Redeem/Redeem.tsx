@@ -73,16 +73,24 @@ const Redeem = () => {
     [collateralToReceive, selectedRedeemToken, tokenPrices],
   );
 
-  const redemptionRateFormatted = useMemo(
-    () =>
-      DecimalFormat.format(redemptionRateStatus.result ?? Decimal.ZERO, {
+  const redemptionRateFormatted = useMemo(() => {
+    const rate = redemptionRateStatus.result;
+    if (!rate) {
+      return DecimalFormat.format(Decimal.ZERO, {
         style: 'percentage',
         fractionDigits: 2,
         pad: true,
-        approximate: true,
-      }),
-    [redemptionRateStatus.result],
-  );
+        approximate: false,
+      });
+    }
+
+    return DecimalFormat.format(rate, {
+      style: 'percentage',
+      fractionDigits: 2,
+      pad: true,
+      approximate: !rate.isZero() && !rate.equals(1),
+    });
+  }, [redemptionRateStatus.result]);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
   const hasInputFilled = useMemo(() => debtAmountDecimal && !debtAmountDecimal.isZero(), [debtAmountDecimal]);
