@@ -286,6 +286,31 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     currentDebtTokenValues?.value,
   ]);
 
+  const selectedCollateralTokenPrice = useMemo(
+    () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
+    [selectedCollateralToken, tokenPriceMap],
+  );
+  const liquidationPrice = useMemo(() => {
+    if (
+      !selectedCollateralTokenPrice ||
+      !newCollateralizationRatio ||
+      newCollateralizationRatio.equals(Decimal.MAX_DECIMAL)
+    ) {
+      return null;
+    }
+
+    return selectedCollateralTokenPrice
+      .div(newCollateralizationRatio)
+      .mul(MIN_COLLATERAL_RATIO[underlyingCollateralToken]);
+  }, [newCollateralizationRatio, selectedCollateralTokenPrice, underlyingCollateralToken]);
+  const liquidationPriceDropPercent = useMemo(() => {
+    if (!liquidationPrice || !selectedCollateralTokenPrice) {
+      return null;
+    }
+
+    return Decimal.max(selectedCollateralTokenPrice.sub(liquidationPrice).div(selectedCollateralTokenPrice), 0);
+  }, [liquidationPrice, selectedCollateralTokenPrice]);
+
   useEffect(() => {
     const isZeroCollateralInNewPosition = newCollateralInUnderlyingTokenValues.amount?.isZero();
     const isZeroDebtInNewPosition = newDebtTokenWithFeeValues.amount?.isZero();
@@ -844,6 +869,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
         borrowTokenAmountFormatted={newDebtTokenWithFeeValues.amountFormatted}
         previousCollateralizationRatio={currentCollateralizationRatio}
         collateralizationRatio={newCollateralizationRatio}
+        liquidationPrice={liquidationPrice}
+        liquidationPriceChange={liquidationPriceDropPercent}
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />

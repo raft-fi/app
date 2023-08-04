@@ -141,6 +141,31 @@
         margin-left: 6px;
       }
     }
+
+    .raft__position-after__data__liquidation__title {
+      /* TODO: hardcode color as suggested */
+      --textPrimary: var(--raft-grey-600);
+
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+
+      .raft__tooltip-wrapper-anchor {
+        margin-left: 6px;
+      }
+    }
+
+    .raft__position-after__data__liquidation__price {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+
+      .raft__position-after__data__liquidation__price-value {
+        display: flex;
+        align-items: baseline;
+        margin-left: 6px;
+      }
+    }
   }
 }
 
