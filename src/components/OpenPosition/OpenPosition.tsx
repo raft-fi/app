@@ -290,6 +290,31 @@ const OpenPosition = () => {
     [rTokenBalance],
   );
 
+  const selectedCollateralTokenPrice = useMemo(
+    () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
+    [selectedCollateralToken, tokenPriceMap],
+  );
+  const liquidationPrice = useMemo(() => {
+    if (
+      !selectedCollateralTokenPrice ||
+      !collateralizationRatio ||
+      collateralizationRatio.equals(Decimal.MAX_DECIMAL)
+    ) {
+      return null;
+    }
+
+    return selectedCollateralTokenPrice
+      .div(collateralizationRatio)
+      .mul(MIN_COLLATERAL_RATIO[selectedUnderlyingCollateralToken]);
+  }, [collateralizationRatio, selectedCollateralTokenPrice, selectedUnderlyingCollateralToken]);
+  const liquidationPriceDropPercent = useMemo(() => {
+    if (!liquidationPrice || !selectedCollateralTokenPrice) {
+      return null;
+    }
+
+    return Decimal.max(selectedCollateralTokenPrice.sub(liquidationPrice).div(selectedCollateralTokenPrice), 0);
+  }, [liquidationPrice, selectedCollateralTokenPrice]);
+
   const collateralSupply: Nullable<Decimal> = useMemo(
     () => protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null,
     [protocolStats?.collateralSupply, selectedUnderlyingCollateralToken],
@@ -705,6 +730,8 @@ const OpenPosition = () => {
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
         borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}
+        liquidationPrice={liquidationPrice}
+        liquidationPriceChange={liquidationPriceDropPercent}
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
