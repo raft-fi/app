@@ -1,0 +1,134 @@
+.raft__stake {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+
+  .raft__stake__main {
+    background: var(--surfacePrimary);
+    border: 1px solid var(--borderPrimary);
+    border-radius: 8px;
+    padding: 32px;
+    width: 530px;
+  }
+
+  .raft__stake__sidebar {
+    .raft__expandable {
+      width: 342px;
+
+      .raft__expandable__title {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-800);
+
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .raft__expandable__content {
+        ol {
+          padding-left: 24px;
+
+          li {
+            color: var(--text-secondary);
+            font-family: Work Sans;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 24px;
+          }
+        }
+      }
+
+      .common-ui__link {
+        color: var(--textAccent);
+        font-weight: 500;
+      }
+
+      &:not(:first-child) {
+        margin-top: 16px;
+      }
+    }
+  }
+
+  &.raft__stake__not-connected {
+    .raft__stake__not-connected__subtitle {
+      margin-top: 16px;
+    }
+
+    .raft__stake__not-connected__label {
+      margin-top: 32px;
+    }
+
+    .raft__stake__not-connected__value {
+      /* TODO: hardcode color as suggested */
+      --textPrimary: var(--raft-grey-800);
+
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .raft__stake__not-connected__input-container {
+      margin-top: 8px;
+      height: 48px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      /* TODO: hardcode color as suggested */
+      border-bottom: 1px solid var(--raft-grey-500);
+
+      .raft__stake__not-connected__input {
+        width: 100%;
+        min-width: 0px;
+        margin-right: 8px;
+
+        .raft__stake__not-connected__input-amount {
+          /* TODO: hardcode color as suggested */
+          --text-secondary: var(--raft-grey-500);
+
+          .raft__baseInput {
+            width: 100%;
+            padding: 0px;
+            color: inherit;
+            font: inherit;
+            background-color: transparent;
+            border: none;
+
+            &:focus {
+              outline: none;
+            }
+
+            &::placeholder {
+              opacity: 1;
+              color: var(--textPrimary);
+            }
+          }
+        }
+      }
+    }
+
+    .raft__stake__not-connected__period-container {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .raft__stake__not-connected__period-picker {
+        background: var(--surfacePrimary);
+        border: 1px solid var(--borderPrimary);
+        border-radius: 8px;
+        padding: 6px 12px;
+      }
+    }
+
+    .raft__stake__not-connected__btn-container {
+      margin-top: 32px;
+
+      .raft__button {
+        width: 100%;
+      }
+    }
+  }
+}

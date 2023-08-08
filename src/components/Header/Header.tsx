@@ -17,11 +17,15 @@ const Header = () => {
   useEffect(() => {
     const sanitizedPath = location.pathname.replace(/\/$/, '');
     switch (sanitizedPath) {
-      case '':
+      case '/generate':
+      case '/leverage':
         setCurrentPage('your-position');
         break;
       case '/redeem':
         setCurrentPage('redeem');
+        break;
+      case '/stake':
+        setCurrentPage('stake');
         break;
       default:
         setCurrentPage(null);
@@ -51,6 +55,16 @@ const Header = () => {
             className={`${currentPage === 'redeem' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
             Redeem
+          </Typography>
+        </Link>
+      </div>,
+      <div key="navitem-stake" className="raft__header__nav-item">
+        <Link to="/stake">
+          <Typography
+            variant="menu-item"
+            className={`${currentPage === 'stake' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Stake
           </Typography>
         </Link>
       </div>,
