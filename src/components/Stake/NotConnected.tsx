@@ -70,107 +70,131 @@ const NotConnected = () => {
   return (
     <div className="raft__stake raft__stake__not-connected">
       <div className="raft__stake__main">
-        <Typography className="raft__stake__not-connected__title" variant="heading1" weight="medium">
-          Stake RAFT to get veRAFT
-        </Typography>
-        <Typography className="raft__stake__not-connected__subtitle" variant="body" color="text-secondary">
-          veRAFT is at the centre of governance and growth of the Raft protocol. By locking your Raft Balancer LP
-          tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
-        </Typography>
-        <Typography
-          className="raft__stake__not-connected__label"
-          variant="overline"
-          weight="semi-bold"
-          color="text-secondary"
-        >
-          YOU LOCK
-        </Typography>
-        <div className="raft__stake__not-connected__input-container">
-          <div className="raft__stake__not-connected__input" onClick={focusInput}>
-            <Typography className="raft__stake__not-connected__input-amount" variant="input-value" color="text-primary">
-              <BaseInput
-                ref={inputRef}
-                value={displayValue}
-                pattern={`(([1-9][0-9]{0,${MAX_INTEGRAL_DIGIT - 1}}|0)([.][0-9]{0,18})?)`}
-                debounce
-                onChange={setValue}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-              />
-            </Typography>
-          </div>
-          <TokenLogo type="token-BTC" />
-        </div>
-        <Typography
-          className="raft__stake__not-connected__label"
-          variant="overline"
-          weight="semi-bold"
-          color="text-secondary"
-        >
-          LOCK UNTIL
-        </Typography>
-        <div className="raft__stake__not-connected__input-container">
-          <div className="raft__stake__not-connected__input" onClick={focusDateInput}>
-            <Typography className="raft__stake__not-connected__input-amount" variant="input-value" color="text-primary">
-              <DateInput
-                ref={dateInputRef}
-                value={deadline}
-                min={minDeadline}
-                max={maxDeadline}
-                onChange={setDeadline}
-              />
-            </Typography>
-          </div>
-        </div>
-        <div className="raft__stake__not-connected__period-container">
-          <Typography variant="body" color="text-secondary">
-            Lock periods
+        <div className="raft__stake__not-connected__container">
+          <Typography className="raft__stake__not-connected__title" variant="heading1" weight="medium">
+            Stake RAFT to get veRAFT
           </Typography>
-          <ButtonWrapper className="raft__stake__not-connected__period-picker" onClick={() => selectPeriod(0.25)}>
-            <Typography variant="body2">3 months</Typography>
-          </ButtonWrapper>
-          <ButtonWrapper className="raft__stake__not-connected__period-picker" onClick={() => selectPeriod(0.5)}>
-            <Typography variant="body2">6 months</Typography>
-          </ButtonWrapper>
-          <ButtonWrapper className="raft__stake__not-connected__period-picker" onClick={() => selectPeriod(1)}>
-            <Typography variant="body2">12 months</Typography>
-          </ButtonWrapper>
-        </div>
-        <Typography
-          className="raft__stake__not-connected__label"
-          variant="overline"
-          weight="semi-bold"
-          color="text-secondary"
-        >
-          RESULTING STAKE
-        </Typography>
-        <Typography className="raft__stake__not-connected__value" variant="body" weight="medium" color="text-secondary">
-          {veRaftAmountFormatted ? (
-            <>
-              <TokenLogo type="token-ETH" size="medium" />
-              <ValueLabel value={`${veRaftAmountFormatted} veRAFT`} valueSize="body" tickerSize="body2" />
-            </>
-          ) : (
-            'N/A'
-          )}
-        </Typography>
-        <Typography
-          className="raft__stake__not-connected__label"
-          variant="overline"
-          weight="semi-bold"
-          color="text-secondary"
-        >
-          WEEKLY RAFT REWARDS
-        </Typography>
-        <Typography className="raft__stake__not-connected__value" variant="body" weight="medium" color="text-secondary">
-          N/A
-        </Typography>
-        <div className="raft__stake__not-connected__btn-container">
-          <Button variant="primary" size="large" onClick={onConnectWallet}>
-            <Typography variant="button-label" color="text-primary-inverted">
-              Connect wallet
+          <Typography className="raft__stake__not-connected__subtitle" variant="body" color="text-secondary">
+            veRAFT is at the centre of governance and growth of the Raft protocol. By locking your Raft Balancer LP
+            tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
+          </Typography>
+          <Typography
+            className="raft__stake__not-connected__label"
+            variant="overline"
+            weight="semi-bold"
+            color="text-secondary"
+          >
+            YOU LOCK
+          </Typography>
+          <div className="raft__stake__not-connected__input-container">
+            <div className="raft__stake__not-connected__input" onClick={focusInput}>
+              <Typography
+                className="raft__stake__not-connected__input-amount"
+                variant="input-value"
+                color="text-primary"
+              >
+                <BaseInput
+                  ref={inputRef}
+                  value={displayValue}
+                  pattern={`(([1-9][0-9]{0,${MAX_INTEGRAL_DIGIT - 1}}|0)([.][0-9]{0,18})?)`}
+                  debounce
+                  onChange={setValue}
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur}
+                />
+              </Typography>
+            </div>
+            <TokenLogo type="token-B-80RAFT-20ETH" size="medium" />
+          </div>
+          <Typography
+            className="raft__stake__not-connected__label"
+            variant="overline"
+            weight="semi-bold"
+            color="text-secondary"
+          >
+            LOCK UNTIL
+          </Typography>
+          <div className="raft__stake__not-connected__input-container">
+            <div className="raft__stake__not-connected__input" onClick={focusDateInput}>
+              <Typography
+                className="raft__stake__not-connected__input-amount"
+                variant="input-value"
+                color="text-primary"
+              >
+                <DateInput
+                  ref={dateInputRef}
+                  value={deadline}
+                  min={minDeadline}
+                  max={maxDeadline}
+                  onChange={setDeadline}
+                />
+              </Typography>
+            </div>
+          </div>
+          <div className="raft__stake__not-connected__period-container">
+            <Typography variant="body" color="text-secondary">
+              Lock periods
             </Typography>
-          </Button>
+            <ButtonWrapper className="raft__stake__not-connected__period-picker" onClick={() => selectPeriod(0.25)}>
+              <Typography variant="body2">3 months</Typography>
+            </ButtonWrapper>
+            <ButtonWrapper className="raft__stake__not-connected__period-picker" onClick={() => selectPeriod(0.5)}>
+              <Typography variant="body2">6 months</Typography>
+            </ButtonWrapper>
+            <ButtonWrapper className="raft__stake__not-connected__period-picker" onClick={() => selectPeriod(1)}>
+              <Typography variant="body2">12 months</Typography>
+            </ButtonWrapper>
+          </div>
+          <Typography
+            className="raft__stake__not-connected__label"
+            variant="overline"
+            weight="semi-bold"
+            color="text-secondary"
+          >
+            RESULTING STAKE
+          </Typography>
+          <Typography
+            className="raft__stake__not-connected__value"
+            variant="body"
+            weight="medium"
+            color="text-secondary"
+          >
+            {veRaftAmountFormatted ? (
+              <>
+                <TokenLogo type="token-veRAFT" size="medium" />
+                <ValueLabel value={`${veRaftAmountFormatted} veRAFT`} valueSize="body" tickerSize="body2" />
+              </>
+            ) : (
+              'N/A'
+            )}
+          </Typography>
+          <Typography
+            className="raft__stake__not-connected__label"
+            variant="overline"
+            weight="semi-bold"
+            color="text-secondary"
+          >
+            WEEKLY RAFT REWARDS
+          </Typography>
+          <Typography
+            className="raft__stake__not-connected__value"
+            variant="body"
+            weight="medium"
+            color="text-secondary"
+          >
+            {/* https://docs.balancer.fi/reference/vebal-and-gauges/estimating-gauge-incentive-aprs.html
+              The overall gauge vote percentage directs the weekly BAL emissions.
+              If the weekly total amount is 145,000 BAL per week, a pool gauge with 1% of the vote will net in 1,450 BAL towards that gauge
+          */}
+            N/A
+          </Typography>
+          <div className="raft__stake__not-connected__btn-container">
+            <Button variant="primary" size="large" onClick={onConnectWallet}>
+              <Typography variant="button-label" color="text-primary-inverted">
+                Connect wallet
+              </Typography>
+            </Button>
+          </div>
         </div>
       </div>
       <div className="raft__stake__sidebar">

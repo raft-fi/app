@@ -32,7 +32,6 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>((props, ref) => {
     },
     [onChange],
   );
-  console.log('dateString', dateString);
 
   return (
     <input
