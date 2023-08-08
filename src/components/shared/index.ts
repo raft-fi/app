@@ -15,6 +15,8 @@ import Tooltip from './Tooltip';
 import Checkbox from './Checkbox';
 import InfoBox from './InfoBox';
 import SliderInput from './SliderInput';
+import Expandable from './Expandable';
+import DateInput from './DateInput';
 
 export {
   BaseInput,
@@ -34,6 +36,8 @@ export {
   Checkbox,
   InfoBox,
   SliderInput,
+  Expandable,
+  DateInput,
 };
 
 export { colors } from './Colors';
