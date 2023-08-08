@@ -1,5 +1,5 @@
+import { format, isValid, startOfDay } from 'date-fns';
 import { ChangeEvent, useCallback, memo, forwardRef, useMemo } from 'react';
-import { formatYYYYMMDD } from '../../../utils';
 
 export interface DateInputProps {
   id?: string;
@@ -16,9 +16,9 @@ export interface DateInputProps {
 const DateInput = forwardRef<HTMLInputElement, DateInputProps>((props, ref) => {
   const { id, value, placeholder, min, max, disabled, autoFocus, onChange } = props;
 
-  const dateString = useMemo(() => formatYYYYMMDD(value), [value]);
-  const minString = useMemo(() => formatYYYYMMDD(min), [min]);
-  const maxString = useMemo(() => formatYYYYMMDD(max), [max]);
+  const dateString = useMemo(() => (value ? format(value, 'yyyy-MM-dd') : undefined), [value]);
+  const minString = useMemo(() => (min ? format(min, 'yyyy-MM-dd') : undefined), [min]);
+  const maxString = useMemo(() => (max ? format(max, 'yyyy-MM-dd') : undefined), [max]);
 
   const handleChange = useCallback(
     (ev: ChangeEvent<HTMLInputElement>) => {
@@ -26,17 +26,13 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>((props, ref) => {
       // dateStr in yyyy-mm-dd format
       const date = new Date(dateStr);
 
-      if (!isNaN(date.getTime())) {
-        date.setHours(0);
-        date.setMinutes(0);
-        date.setSeconds(0);
-        date.setMilliseconds(0);
-
-        onChange?.(date);
+      if (!isValid(date)) {
+        onChange?.(startOfDay(date));
       }
     },
     [onChange],
   );
+  console.log('dateString', dateString);
 
   return (
     <input

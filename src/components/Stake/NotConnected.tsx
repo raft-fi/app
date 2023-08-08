@@ -1,9 +1,10 @@
 import { Decimal } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
+import { addMilliseconds, startOfDay } from 'date-fns';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS } from '../../constants';
-import { formatDecimal, getDateAfter, getToday } from '../../utils';
+import { formatDecimal } from '../../utils';
 import { BaseInput, Button, DateInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
@@ -27,7 +28,7 @@ const NotConnected = () => {
       return Decimal.ZERO;
     }
 
-    const today = getToday();
+    const today = startOfDay(new Date());
     const periodInMs = new Decimal(deadline.getTime()).sub(today.getTime());
     const period = periodInMs.div(YEAR_IN_MS);
 
@@ -48,8 +49,8 @@ const NotConnected = () => {
   }, [value]);
   const displayValue = useMemo(() => (focused ? value : previewValue ?? value), [focused, previewValue, value]);
 
-  const minDeadline = useMemo(() => getDateAfter(DAY_IN_MS), []);
-  const maxDeadline = useMemo(() => getDateAfter(YEAR_IN_MS), []);
+  const minDeadline = useMemo(() => addMilliseconds(startOfDay(new Date()), DAY_IN_MS), []);
+  const maxDeadline = useMemo(() => addMilliseconds(startOfDay(new Date()), YEAR_IN_MS), []);
 
   const focusInput = useCallback(() => inputRef.current?.focus(), [inputRef]);
   const focusDateInput = useCallback(() => dateInputRef.current?.focus(), [dateInputRef]);
@@ -57,7 +58,10 @@ const NotConnected = () => {
   const handleInputFocus = useCallback(() => setFocused(true), []);
   const handleInputBlur = useCallback(() => setFocused(false), []);
 
-  const selectPeriod = useCallback((year: number) => setDeadline(getDateAfter(year * YEAR_IN_MS)), []);
+  const selectPeriod = useCallback(
+    (year: number) => setDeadline(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS)),
+    [],
+  );
 
   const onConnectWallet = useCallback(() => {
     connect();

@@ -5,6 +5,5 @@ export * from './collateralRatio';
 export * from './tokenMap';
 export * from './decimal';
 export * from './signature';
-export * from './date';
 
 export { shortenAddress, getTokenValues };
