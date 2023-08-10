@@ -3,7 +3,7 @@
   gap: 16px;
   margin-top: 10px;
 
-  .raft__stake__not-connected__container {
+  .raft__stake__main__container {
     background: var(--surfacePrimary);
     border: 1px solid var(--borderPrimary);
     border-radius: 8px;
@@ -49,16 +49,17 @@
     }
   }
 
-  &.raft__stake__not-connected {
-    .raft__stake__not-connected__subtitle {
+  &.raft__stake__not-connected,
+  &.raft__stake__connected {
+    .raft__stake__subtitle {
       margin-top: 16px;
     }
 
-    .raft__stake__not-connected__label {
+    .raft__stake__label {
       margin-top: 32px;
     }
 
-    .raft__stake__not-connected__value {
+    .raft__stake__value {
       /* TODO: hardcode color as suggested */
       --textPrimary: var(--raft-grey-800);
 
@@ -68,7 +69,7 @@
       gap: 8px;
     }
 
-    .raft__stake__not-connected__input-container {
+    .raft__stake__input-container {
       margin-top: 8px;
       height: 48px;
       width: 100%;
@@ -79,12 +80,12 @@
       /* TODO: hardcode color as suggested */
       border-bottom: 1px solid var(--raft-grey-500);
 
-      .raft__stake__not-connected__input {
+      .raft__stake__input {
         width: 100%;
         min-width: 0px;
         margin-right: 8px;
 
-        .raft__stake__not-connected__input-amount {
+        .raft__stake__input-amount {
           /* TODO: hardcode color as suggested */
           --text-secondary: var(--raft-grey-500);
 
@@ -109,13 +110,13 @@
       }
     }
 
-    .raft__stake__not-connected__period-container {
+    .raft__stake__period-container {
       margin-top: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
 
-      .raft__stake__not-connected__period-picker {
+      .raft__stake__period-picker {
         background: var(--surfacePrimary);
         border: 1px solid var(--borderPrimary);
         border-radius: 8px;
@@ -123,7 +124,7 @@
       }
     }
 
-    .raft__stake__not-connected__btn-container {
+    .raft__stake__btn-container {
       margin-top: 32px;
 
       .raft__button {
