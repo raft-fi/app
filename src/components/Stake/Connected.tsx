@@ -1,10 +1,10 @@
 import { Decimal } from '@tempusfinance/decimal';
-import { useConnectWallet } from '@web3-onboard/react';
 import { addMilliseconds, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo, useRef, useState } from 'react';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS } from '../../constants';
-import { formatDecimal } from '../../utils';
+import { useRaftTokenAnnualGiveAway } from '../../hooks';
+import { formatDecimal, formatMultiplier } from '../../utils';
 import { BaseInput, Button, DateInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
@@ -14,15 +14,16 @@ const MAX_INTEGRAL_DIGIT = 10;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const YEAR_IN_MS = 365 * DAY_IN_MS;
 
-interface NotConnectedProps {
+interface ConnectedProps {
   amountToLock: string;
   deadline?: Date;
   onAmountChange: (value: string) => void;
   onDeadlineChange: (value: Date) => void;
+  onNextStep: () => void;
 }
 
-const NotConnected: FC<NotConnectedProps> = ({ amountToLock, deadline, onAmountChange, onDeadlineChange }) => {
-  const [, connect] = useConnectWallet();
+const Connected: FC<ConnectedProps> = ({ amountToLock, deadline, onAmountChange, onDeadlineChange, onNextStep }) => {
+  const annualGiveAway = useRaftTokenAnnualGiveAway();
   const inputRef = useRef<HTMLInputElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState<boolean>(false);
@@ -44,6 +45,7 @@ const NotConnected: FC<NotConnectedProps> = ({ amountToLock, deadline, onAmountC
     () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
     [veRaftAmount],
   );
+  const annualGiveAwayFormatted = useMemo(() => formatMultiplier(annualGiveAway), [annualGiveAway]);
 
   const previewValue = useMemo(() => {
     const original = bptAmount.toString();
@@ -67,12 +69,8 @@ const NotConnected: FC<NotConnectedProps> = ({ amountToLock, deadline, onAmountC
     [onDeadlineChange],
   );
 
-  const onConnectWallet = useCallback(() => {
-    connect();
-  }, [connect]);
-
   return (
-    <div className="raft__stake raft__stake__not-connected">
+    <div className="raft__stake raft__stake__connected">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
@@ -154,21 +152,27 @@ const NotConnected: FC<NotConnectedProps> = ({ amountToLock, deadline, onAmountC
           */}
             N/A
           </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            TOTAL REWARDS TO SHARE
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+            {annualGiveAwayFormatted ? `${annualGiveAwayFormatted} RAFT (3.3%) per year` : 'N/A'}
+          </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="primary" size="large" onClick={onConnectWallet}>
+            <Button variant="primary" size="large" onClick={onNextStep}>
               <Typography variant="button-label" color="text-primary-inverted">
-                Connect wallet
+                Preview
               </Typography>
             </Button>
           </div>
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <FAQ defaultOpen />
-        <HowToLock defaultOpen />
+        <FAQ defaultOpen={false} />
+        <HowToLock defaultOpen={false} />
       </div>
     </div>
   );
 };
 
-export default memo(NotConnected);
+export default memo(Connected);

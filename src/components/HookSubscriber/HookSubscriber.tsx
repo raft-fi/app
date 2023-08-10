@@ -24,6 +24,8 @@ import {
   subscribeEstimateSwapPrice,
   subscribeLeveragePosition,
   subscribeRFlashMintFee,
+  subscribeRaftToken,
+  subscribeRaftTokenAnnualGiveAway,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -55,6 +57,8 @@ const HookSubscriber: FC = () => {
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
     subscribeRFlashMintFee();
+    subscribeRaftToken();
+    subscribeRaftTokenAnnualGiveAway();
   }, []);
 
   return null;
