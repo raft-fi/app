@@ -1,32 +1,37 @@
 import { Decimal } from '@tempusfinance/decimal';
-import { addMilliseconds, startOfDay } from 'date-fns';
-import { FC, memo, useCallback, useMemo, useRef, useState } from 'react';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS } from '../../constants';
+import { startOfDay } from 'date-fns';
+import { FC, memo, useCallback, useMemo } from 'react';
+import { TokenLogo } from 'tempus-ui';
+import { COLLATERAL_TOKEN_UI_PRECISION, YEAR_IN_MS } from '../../constants';
 import { useRaftTokenAnnualGiveAway } from '../../hooks';
 import { formatDecimal, formatMultiplier } from '../../utils';
-import { BaseInput, Button, DateInput, Typography, ValueLabel } from '../shared';
+import { Button, Typography, ValueLabel } from '../shared';
+import AmountInput from './AmountInput';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
-
-// ethers 6.3.0 has bugs that cannot format large number
-const MAX_INTEGRAL_DIGIT = 10;
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const YEAR_IN_MS = 365 * DAY_IN_MS;
+import PeriodPicker from './PeriodPicker';
 
 interface ConnectedProps {
   amountToLock: string;
   deadline?: Date;
+  period?: number;
   onAmountChange: (value: string) => void;
   onDeadlineChange: (value: Date) => void;
+  onPeriodChange: (value: number) => void;
   onNextStep: () => void;
 }
 
-const Connected: FC<ConnectedProps> = ({ amountToLock, deadline, onAmountChange, onDeadlineChange, onNextStep }) => {
+const Connected: FC<ConnectedProps> = ({
+  amountToLock,
+  deadline,
+  period,
+  onAmountChange,
+  onDeadlineChange,
+  onPeriodChange,
+  onNextStep,
+}) => {
   const annualGiveAway = useRaftTokenAnnualGiveAway();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dateInputRef = useRef<HTMLInputElement>(null);
-  const [focused, setFocused] = useState<boolean>(false);
+  const userBalance = useMemo(() => new Decimal(123), []); // TODO: not yet implemented
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const veRaftAmount = useMemo(() => {
@@ -46,28 +51,9 @@ const Connected: FC<ConnectedProps> = ({ amountToLock, deadline, onAmountChange,
     [veRaftAmount],
   );
   const annualGiveAwayFormatted = useMemo(() => formatMultiplier(annualGiveAway), [annualGiveAway]);
+  const userBalanceFormatted = useMemo(() => formatDecimal(userBalance, COLLATERAL_TOKEN_UI_PRECISION), [userBalance]);
 
-  const previewValue = useMemo(() => {
-    const original = bptAmount.toString();
-    const truncated = bptAmount.toTruncated(INPUT_PREVIEW_DIGITS);
-
-    return original === truncated ? original : `${truncated}...`;
-  }, [bptAmount]);
-  const displayValue = useMemo(() => (focused ? amountToLock : previewValue), [amountToLock, focused, previewValue]);
-
-  const minDeadline = useMemo(() => addMilliseconds(startOfDay(new Date()), DAY_IN_MS), []);
-  const maxDeadline = useMemo(() => addMilliseconds(startOfDay(new Date()), YEAR_IN_MS), []);
-
-  const focusInput = useCallback(() => inputRef.current?.focus(), [inputRef]);
-  const focusDateInput = useCallback(() => dateInputRef.current?.focus(), [dateInputRef]);
-
-  const handleInputFocus = useCallback(() => setFocused(true), []);
-  const handleInputBlur = useCallback(() => setFocused(false), []);
-
-  const selectPeriod = useCallback(
-    (year: number) => onDeadlineChange(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS)),
-    [onDeadlineChange],
-  );
+  const onBalanceClick = useCallback(() => onAmountChange(userBalance.toString()), [onAmountChange, userBalance]);
 
   return (
     <div className="raft__stake raft__stake__connected">
@@ -80,55 +66,19 @@ const Connected: FC<ConnectedProps> = ({ amountToLock, deadline, onAmountChange,
             veRAFT is at the centre of governance and growth of the Raft protocol. By locking your Raft Balancer LP
             tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
           </Typography>
-          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            YOU LOCK
-          </Typography>
-          <div className="raft__stake__input-container">
-            <div className="raft__stake__input" onClick={focusInput}>
-              <Typography className="raft__stake__input-amount" variant="input-value" color="text-primary">
-                <BaseInput
-                  ref={inputRef}
-                  value={displayValue}
-                  pattern={`(([1-9][0-9]{0,${MAX_INTEGRAL_DIGIT - 1}}|0)([.][0-9]{0,18})?)`}
-                  debounce
-                  onChange={onAmountChange}
-                  onFocus={handleInputFocus}
-                  onBlur={handleInputBlur}
-                />
-              </Typography>
-            </div>
-            <TokenLogo type="token-B-80RAFT-20ETH" size="medium" />
-          </div>
-          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            LOCK UNTIL
-          </Typography>
-          <div className="raft__stake__input-container">
-            <div className="raft__stake__input" onClick={focusDateInput}>
-              <Typography className="raft__stake__input-amount" variant="input-value" color="text-primary">
-                <DateInput
-                  ref={dateInputRef}
-                  value={deadline}
-                  min={minDeadline}
-                  max={maxDeadline}
-                  onChange={onDeadlineChange}
-                />
-              </Typography>
-            </div>
-          </div>
-          <div className="raft__stake__period-container">
-            <Typography variant="body" color="text-secondary">
-              Lock periods
-            </Typography>
-            <ButtonWrapper className="raft__stake__period-picker" onClick={() => selectPeriod(0.25)}>
-              <Typography variant="body2">3 months</Typography>
-            </ButtonWrapper>
-            <ButtonWrapper className="raft__stake__period-picker" onClick={() => selectPeriod(0.5)}>
-              <Typography variant="body2">6 months</Typography>
-            </ButtonWrapper>
-            <ButtonWrapper className="raft__stake__period-picker" onClick={() => selectPeriod(1)}>
-              <Typography variant="body2">12 months</Typography>
-            </ButtonWrapper>
-          </div>
+          <AmountInput
+            value={amountToLock}
+            balance={userBalanceFormatted ?? undefined}
+            token="B-80RAFT-20ETH"
+            onChange={onAmountChange}
+            onBalanceClick={onBalanceClick}
+          />
+          <PeriodPicker
+            deadline={deadline}
+            period={period}
+            onDeadlineChange={onDeadlineChange}
+            onPeriodChange={onPeriodChange}
+          />
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             RESULTING STAKE
           </Typography>
