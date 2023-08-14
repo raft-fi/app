@@ -1,10 +1,24 @@
+import { Navigate } from 'react-router-dom';
 import { TokenLogo } from 'tempus-ui';
 import { Icon, Typography } from '../shared';
 import PositionPickerItem from './PositionPickerItem';
+import { usePosition } from '../../hooks';
 
 import './PositionPicker.scss';
 
 const PositionPicker = () => {
+  const position = usePosition();
+
+  /**
+   * If user has position, redirect to generate or leverage page
+   */
+  if (position?.hasLeveragePosition) {
+    return <Navigate to="/leverage" />;
+  }
+  if (position?.hasPosition) {
+    return <Navigate to="/generate" />;
+  }
+
   // TODO: we load usePosition to check whether user has position here? do we need loading component?
   return (
     <div className="raft__positionPicker">

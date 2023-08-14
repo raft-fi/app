@@ -25,13 +25,8 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
   const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
   const isRebasing = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].isRebasing;
 
-  const principalUnderlyingCollateralTokenValues = useMemo(
-    () =>
-      getTokenValues(
-        position.principalCollateralBalance,
-        tokenPriceMap[underlyingCollateralToken],
-        underlyingCollateralToken,
-      ),
+  const netUnderlyingCollateralTokenValues = useMemo(
+    () => getTokenValues(position.netBalance, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken),
     [position, tokenPriceMap, underlyingCollateralToken],
   );
 
@@ -39,17 +34,17 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
     () => getTokenValues(position.debtBalance, tokenPriceMap[R_TOKEN], R_TOKEN),
     [position, tokenPriceMap],
   );
-  const displayPrincipalCollateralTokenValues = useMemo(() => {
+  const displayNetCollateralTokenValues = useMemo(() => {
     const collateralConversionRate = getDecimalFromTokenMap(collateralConversionRateMap, displayBaseToken);
 
-    if (!collateralConversionRate || !principalUnderlyingCollateralTokenValues.amount) {
+    if (!collateralConversionRate || !netUnderlyingCollateralTokenValues.amount) {
       return null;
     }
 
-    const value = principalUnderlyingCollateralTokenValues.amount.mul(collateralConversionRate);
+    const value = netUnderlyingCollateralTokenValues.amount.mul(collateralConversionRate);
 
     return getTokenValues(value, tokenPriceMap[displayBaseToken], displayBaseToken);
-  }, [displayBaseToken, collateralConversionRateMap, principalUnderlyingCollateralTokenValues.amount, tokenPriceMap]);
+  }, [displayBaseToken, collateralConversionRateMap, netUnderlyingCollateralTokenValues.amount, tokenPriceMap]);
 
   const displayTokenPrice = useMemo(
     () => getDecimalFromTokenMap(tokenPriceMap, displayBaseToken),
@@ -114,9 +109,9 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
           <Typography variant="overline">NET BALANCE</Typography>
           <div className="raft__your-leverage-position__collateral__amount">
             <TokenLogo type={`token-${displayBaseToken}`} size="small" />
-            {displayPrincipalCollateralTokenValues?.amountFormatted ? (
+            {displayNetCollateralTokenValues?.amountFormatted ? (
               <ValueLabel
-                value={displayPrincipalCollateralTokenValues.amountFormatted}
+                value={displayNetCollateralTokenValues.amountFormatted}
                 valueSize="heading1"
                 tickerSize="heading2"
               />
@@ -126,9 +121,9 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
             {isRebasing && <Icon variant="triangle-up" />}
           </div>
           <div className="raft__your-leverage-position__collateral__value__number">
-            {principalUnderlyingCollateralTokenValues?.valueFormatted ? (
+            {netUnderlyingCollateralTokenValues?.valueFormatted ? (
               <ValueLabel
-                value={principalUnderlyingCollateralTokenValues.valueFormatted}
+                value={netUnderlyingCollateralTokenValues.valueFormatted}
                 valueSize="body"
                 tickerSize="caption"
                 color="text-secondary"

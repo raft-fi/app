@@ -2,7 +2,7 @@ import { FC, useMemo } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
 import { Link, TokenLogo } from 'tempus-ui';
 import { R_TOKEN, Token } from '@raft-fi/sdk';
-import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel, formatPercentage, formatCurrency } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
@@ -18,6 +18,8 @@ interface PositionAfterProps {
   borrowingFeePercentageFormatted: Nullable<string>;
   borrowingFeeAmountFormatted: Nullable<string>;
   borrowTokenAmountFormatted: Nullable<string>;
+  liquidationPrice: Nullable<Decimal>;
+  liquidationPriceChange: Nullable<Decimal>;
   collateralTokenValueFormatted: Nullable<string>;
   collateralizationRatio: Nullable<Decimal>;
   previousCollateralizationRatio?: Nullable<Decimal>;
@@ -29,6 +31,8 @@ export const PositionAfter: FC<PositionAfterProps> = ({
   borrowingFeePercentageFormatted,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
+  liquidationPrice,
+  liquidationPriceChange,
   collateralTokenValueFormatted,
   collateralizationRatio,
   previousCollateralizationRatio,
@@ -41,6 +45,22 @@ export const PositionAfter: FC<PositionAfterProps> = ({
         lessThanFormat: true,
       }) as string,
     [displayCollateralToken, displayCollateralTokenAmount],
+  );
+
+  const liquidationPriceFormatted = useMemo(
+    () =>
+      formatCurrency(liquidationPrice, {
+        currency: '$',
+        approximate: true,
+        fractionDigits: USD_UI_PRECISION,
+        pad: true,
+      }),
+    [liquidationPrice],
+  );
+
+  const liquidationPriceChangeFormatted = useMemo(
+    () => formatPercentage(liquidationPriceChange),
+    [liquidationPriceChange],
   );
 
   const collateralizationRatioFormatted = useMemo(
@@ -168,6 +188,42 @@ export const PositionAfter: FC<PositionAfterProps> = ({
                 tickerSize="caption"
                 valueSize="body"
                 color="text-secondary"
+              />
+              )
+            </Typography>
+          )}
+        </div>
+        <div className="raft__position-after__data__liquidation__title">
+          <Typography variant="overline">LIQUIDATION PRICE</Typography>
+          <TooltipWrapper
+            tooltipContent={
+              <Tooltip className="raft__position-after__infoTooltip">
+                <Typography variant="body2">
+                  If the oracle price of the contract reaches below the liquidation price, your position will be
+                  liquidated. <Link href="https://docs.raft.fi/glossary">Learn more</Link>.
+                </Typography>
+              </Tooltip>
+            }
+            placement="top"
+          >
+            <Icon variant="info" size="tiny" />
+          </TooltipWrapper>
+        </div>
+        <div className="raft__position-after__data__liquidation__price">
+          <ValueLabel value={liquidationPriceFormatted ?? 'N/A'} valueSize="body" tickerSize="caption" />
+          {liquidationPriceChangeFormatted && (
+            <Typography
+              className="raft__position-after__data__liquidation__price-value"
+              variant="body"
+              color="text-secondary"
+              weight="medium"
+            >
+              (
+              <ValueLabel
+                value={liquidationPriceChangeFormatted}
+                color="text-secondary"
+                valueSize="body"
+                tickerSize="caption"
               />
               )
             </Typography>
