@@ -4,6 +4,7 @@ import { YEAR_IN_MS } from '../../constants';
 import { useWallet } from '../../hooks';
 import Connected from './Connected';
 import NotConnected from './NotConnected';
+import Preview from './Preview';
 
 import './Stake.scss';
 
@@ -46,6 +47,17 @@ const Stake = () => {
         onDeadlineChange={onDeadlineChange}
         onPeriodChange={onPeriodChange}
         onNextStep={() => setStep(2)}
+      />
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <Preview
+        amountToLock={amountToLock}
+        deadline={deadline}
+        onPrevStep={() => setStep(1)}
+        onNextStep={() => setStep(3)}
       />
     );
   }

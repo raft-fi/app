@@ -67,7 +67,7 @@ const AmountInput: FC<AmountInputProps> = ({ value, balance, token, onChange, on
             />
           </Typography>
         </div>
-        <TokenLogo type={`token-${token}`} size="medium" />
+        <TokenLogo type={`token-${token}`} size={20} />
       </div>
     </div>
   );

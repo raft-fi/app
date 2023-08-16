@@ -7,6 +7,7 @@ import { useRaftTokenAnnualGiveAway } from '../../hooks';
 import { formatDecimal, formatMultiplier } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
+import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import PeriodPicker from './PeriodPicker';
@@ -85,7 +86,7 @@ const Connected: FC<ConnectedProps> = ({
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {veRaftAmountFormatted ? (
               <>
-                <TokenLogo type="token-veRAFT" size="medium" />
+                <TokenLogo type="token-veRAFT" size={20} />
                 <ValueLabel value={`${veRaftAmountFormatted} veRAFT`} valueSize="body" tickerSize="body2" />
               </>
             ) : (
@@ -118,6 +119,7 @@ const Connected: FC<ConnectedProps> = ({
         </div>
       </div>
       <div className="raft__stake__sidebar">
+        <CurrentPosition />
         <FAQ defaultOpen={false} />
         <HowToLock defaultOpen={false} />
       </div>

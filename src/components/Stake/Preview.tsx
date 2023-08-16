@@ -1,35 +1,22 @@
 import { Decimal } from '@tempusfinance/decimal';
-import { useConnectWallet } from '@web3-onboard/react';
-import { startOfDay } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, YEAR_IN_MS } from '../../constants';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
-import AmountInput from './AmountInput';
+import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
-import PeriodPicker from './PeriodPicker';
 
-interface NotConnectedProps {
+interface PreviewProps {
   amountToLock: string;
   deadline?: Date;
-  period?: number;
-  onAmountChange: (value: string) => void;
-  onDeadlineChange: (value: Date) => void;
-  onPeriodChange: (value: number) => void;
+  onPrevStep: () => void;
+  onNextStep: () => void;
 }
 
-const NotConnected: FC<NotConnectedProps> = ({
-  amountToLock,
-  deadline,
-  period,
-  onAmountChange,
-  onDeadlineChange,
-  onPeriodChange,
-}) => {
-  const [, connect] = useConnectWallet();
-
+const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextStep }) => {
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const veRaftAmount = useMemo(() => {
     if (!deadline) {
@@ -43,33 +30,47 @@ const NotConnected: FC<NotConnectedProps> = ({
     return bptAmount.mul(period);
   }, [bptAmount, deadline]);
 
+  const deadlineFormatted = useMemo(() => (deadline ? format(deadline, 'dd MMMM yyyy') : null), [deadline]);
+  const bptAmountFormatted = useMemo(() => formatDecimal(bptAmount, COLLATERAL_TOKEN_UI_PRECISION), [bptAmount]);
   const veRaftAmountFormatted = useMemo(
     () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
     [veRaftAmount],
   );
 
-  const onConnectWallet = useCallback(() => {
-    connect();
-  }, [connect]);
+  const onStake = useCallback(() => {
+    onNextStep();
+  }, [onNextStep]);
 
   return (
-    <div className="raft__stake raft__stake__not-connected">
+    <div className="raft__stake raft__stake__preview">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
-            Stake RAFT to get veRAFT
+            Title
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            veRAFT is at the centre of governance and growth of the Raft protocol. By locking your Raft Balancer LP
-            tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
           </Typography>
-          <AmountInput value={amountToLock} onChange={onAmountChange} token="B-80RAFT-20ETH" />
-          <PeriodPicker
-            deadline={deadline}
-            period={period}
-            onDeadlineChange={onDeadlineChange}
-            onPeriodChange={onPeriodChange}
-          />
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            TOTAL AMOUNT TO BE STAKED
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+            {bptAmountFormatted ? (
+              <>
+                <TokenLogo type="token-B-80RAFT-20ETH" size={20} />
+                <ValueLabel value={`${bptAmountFormatted} B-80RAFT-20WETH`} valueSize="body" tickerSize="body2" />
+              </>
+            ) : (
+              'N/A'
+            )}
+          </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            LOCKED UNTIL
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium">
+            {deadlineFormatted ?? '---'}
+          </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             RESULTING STAKE
           </Typography>
@@ -83,31 +84,27 @@ const NotConnected: FC<NotConnectedProps> = ({
               'N/A'
             )}
           </Typography>
-          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            WEEKLY RAFT REWARDS
-          </Typography>
-          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {/* https://docs.balancer.fi/reference/vebal-and-gauges/estimating-gauge-incentive-aprs.html
-              The overall gauge vote percentage directs the weekly BAL emissions.
-              If the weekly total amount is 145,000 BAL per week, a pool gauge with 1% of the vote will net in 1,450 BAL towards that gauge
-          */}
-            N/A
-          </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="primary" size="large" onClick={onConnectWallet}>
+            <Button variant="secondary" size="large" onClick={onPrevStep}>
+              <Typography variant="button-label" color="text-secondary">
+                Back
+              </Typography>
+            </Button>
+            <Button variant="primary" size="large" onClick={onStake}>
               <Typography variant="button-label" color="text-primary-inverted">
-                Connect wallet
+                Stake
               </Typography>
             </Button>
           </div>
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <FAQ defaultOpen />
-        <HowToLock defaultOpen />
+        <CurrentPosition />
+        <FAQ defaultOpen={false} />
+        <HowToLock defaultOpen={false} />
       </div>
     </div>
   );
 };
 
-export default memo(NotConnected);
+export default memo(Preview);

@@ -47,10 +47,28 @@
         margin-top: 16px;
       }
     }
+
+    .raft__stake__current-position {
+      width: 342px;
+      background: var(--surfacePrimary);
+      border: 1px solid var(--borderPrimary);
+      border-radius: 8px;
+      padding: 24px;
+
+      .raft__stake__label:first-of-type {
+        margin-top: 0;
+      }
+
+      .raft__stake__value {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-800);
+      }
+    }
   }
 
   &.raft__stake__not-connected,
-  &.raft__stake__connected {
+  &.raft__stake__connected,
+  &.raft__stake__preview {
     .raft__stake__subtitle {
       margin-top: 16px;
     }
@@ -138,13 +156,16 @@
         }
       }
     }
+  }
 
-    .raft__stake__btn-container {
-      margin-top: 32px;
+  .raft__stake__btn-container {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
 
-      .raft__button {
-        width: 100%;
-      }
+    .raft__button {
+      width: 100%;
     }
   }
 }
