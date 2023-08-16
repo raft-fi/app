@@ -3,7 +3,7 @@ import { startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, YEAR_IN_MS } from '../../constants';
-import { useRaftTokenAnnualGiveAway } from '../../hooks';
+import { useRaftTokenAnnualGiveAway, useUserRaftBptBalance, useUserVeRaftBalance } from '../../hooks';
 import { formatDecimal, formatMultiplier } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
@@ -32,29 +32,41 @@ const Connected: FC<ConnectedProps> = ({
   onNextStep,
 }) => {
   const annualGiveAway = useRaftTokenAnnualGiveAway();
-  const userBalance = useMemo(() => new Decimal(123), []); // TODO: not yet implemented
+  const userVeRaftBalance = useUserVeRaftBalance();
+  const userRaftBptBalance = useUserRaftBptBalance();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
+  const unlockTime = useMemo(
+    () => deadline ?? userVeRaftBalance?.unlockTime,
+    [deadline, userVeRaftBalance?.unlockTime],
+  );
   const veRaftAmount = useMemo(() => {
-    if (!deadline) {
+    if (!unlockTime) {
       return Decimal.ZERO;
     }
 
     const today = startOfDay(new Date());
-    const periodInMs = new Decimal(deadline.getTime()).sub(today.getTime());
+    const periodInMs = new Decimal(unlockTime.getTime()).sub(today.getTime());
     const period = periodInMs.div(YEAR_IN_MS);
 
     return bptAmount.mul(period);
-  }, [bptAmount, deadline]);
+  }, [bptAmount, unlockTime]);
 
   const veRaftAmountFormatted = useMemo(
     () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
     [veRaftAmount],
   );
   const annualGiveAwayFormatted = useMemo(() => formatMultiplier(annualGiveAway), [annualGiveAway]);
-  const userBalanceFormatted = useMemo(() => formatDecimal(userBalance, COLLATERAL_TOKEN_UI_PRECISION), [userBalance]);
+  const userRaftBptBalanceFormatted = useMemo(
+    () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    [userRaftBptBalance],
+  );
 
-  const onBalanceClick = useCallback(() => onAmountChange(userBalance.toString()), [onAmountChange, userBalance]);
+  const onBalanceClick = useCallback(() => {
+    if (userRaftBptBalance) {
+      onAmountChange(userRaftBptBalance.toString());
+    }
+  }, [onAmountChange, userRaftBptBalance]);
 
   return (
     <div className="raft__stake raft__stake__connected">
@@ -69,13 +81,13 @@ const Connected: FC<ConnectedProps> = ({
           </Typography>
           <AmountInput
             value={amountToLock}
-            balance={userBalanceFormatted ?? undefined}
+            balance={userRaftBptBalanceFormatted ?? undefined}
             token="B-80RAFT-20ETH"
             onChange={onAmountChange}
             onBalanceClick={onBalanceClick}
           />
           <PeriodPicker
-            deadline={deadline}
+            deadline={unlockTime ?? undefined}
             period={period}
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
