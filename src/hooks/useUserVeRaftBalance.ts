@@ -17,7 +17,7 @@ const fetchData = async (raftToken: Nullable<RaftToken>) => {
 
     return await raftToken.getUserVeRaftBalance();
   } catch (error) {
-    console.error('useUserVeRaftBalance (error) - failed to fetch flash mint fee', error);
+    console.error('useUserVeRaftBalance (error) - failed to fetch veRAFT balance', error);
     return null;
   }
 };
