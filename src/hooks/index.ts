@@ -32,3 +32,4 @@ export * from './useLeveragePosition';
 export * from './useRFlashMintFee';
 export * from './useRaftTokenAnnualGiveAway';
 export * from './useRaftToken';
+export * from './useUserVeRaftBalance';

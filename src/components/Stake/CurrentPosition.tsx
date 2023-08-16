@@ -3,20 +3,33 @@ import { addMilliseconds, startOfDay, format } from 'date-fns';
 import { memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, YEAR_IN_MS } from '../../constants';
+import { useUserVeRaftBalance } from '../../hooks';
 import { formatDecimal, formatPercentage } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 
 const CurrentPosition = () => {
-  const veRaftAmount = useMemo(() => new Decimal(123456), []); // TODO: query from ve contract
-  const stakePoolShare = useMemo(() => new Decimal(0.001234), []); // TODO: query from ve contract
-  const unlockDate = useMemo(() => addMilliseconds(startOfDay(new Date()), YEAR_IN_MS), []); // TODO: query from ve contract
+  const userVeRaftBalance = useUserVeRaftBalance();
+
+  const veRaftBalance = useMemo(() => userVeRaftBalance?.amount ?? null, [userVeRaftBalance?.amount]);
+  const unlockDate = useMemo(
+    () =>
+      userVeRaftBalance?.unlockTime ? addMilliseconds(startOfDay(userVeRaftBalance.unlockTime), YEAR_IN_MS) : null,
+    [userVeRaftBalance?.unlockTime],
+  );
+  const stakePoolShare = useMemo(
+    () =>
+      userVeRaftBalance?.amount && userVeRaftBalance?.supply
+        ? userVeRaftBalance.amount.div(userVeRaftBalance?.supply)
+        : null,
+    [userVeRaftBalance?.amount, userVeRaftBalance?.supply],
+  );
 
   const veRaftAmountFormatted = useMemo(
-    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
-    [veRaftAmount],
+    () => formatDecimal(veRaftBalance ?? Decimal.ZERO, COLLATERAL_TOKEN_UI_PRECISION),
+    [veRaftBalance],
   );
   const stakePoolShareFormatted = useMemo(() => formatPercentage(stakePoolShare), [stakePoolShare]);
-  const unlockDateFormatted = useMemo(() => format(unlockDate, 'dd MMMM yyyy'), [unlockDate]);
+  const unlockDateFormatted = useMemo(() => (unlockDate ? format(unlockDate, 'dd MMMM yyyy') : null), [unlockDate]);
 
   const onWithdraw = useCallback(() => false, []); // TODO: implement withdraw
   const onClaim = useCallback(() => false, []); // TODO: implement claim
@@ -27,14 +40,8 @@ const CurrentPosition = () => {
         RESULTING STAKE
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
-        {veRaftAmountFormatted ? (
-          <>
-            <TokenLogo type="token-veRAFT" size={20} />
-            <ValueLabel value={`${veRaftAmountFormatted} veRAFT`} valueSize="body" tickerSize="body2" />
-          </>
-        ) : (
-          'N/A'
-        )}
+        <TokenLogo type="token-veRAFT" size={20} />
+        <ValueLabel value={`${veRaftAmountFormatted} veRAFT`} valueSize="body" tickerSize="body2" />
       </Typography>
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
         STAKE POOL SHARE
@@ -46,7 +53,7 @@ const CurrentPosition = () => {
         LOCKED UNTIL
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
-        {unlockDateFormatted}
+        {unlockDateFormatted ?? 'N/A'}
       </Typography>
       <div className="raft__stake__btn-container">
         <Button variant="secondary" size="large" onClick={onWithdraw}>
