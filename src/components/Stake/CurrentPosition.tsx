@@ -10,13 +10,13 @@ import { Button, Typography, ValueLabel } from '../shared';
 const CurrentPosition = () => {
   const userVeRaftBalance = useUserVeRaftBalance();
 
-  const veRaftBalance = useMemo(() => userVeRaftBalance?.amount ?? null, [userVeRaftBalance?.amount]);
+  const veRaftBalance = useMemo(() => userVeRaftBalance?.veRaftBalance ?? null, [userVeRaftBalance?.veRaftBalance]);
   const stakePoolShare = useMemo(
     () =>
-      userVeRaftBalance?.amount && userVeRaftBalance?.supply
-        ? userVeRaftBalance.amount.div(userVeRaftBalance?.supply)
+      userVeRaftBalance?.veRaftBalance && userVeRaftBalance?.supply
+        ? userVeRaftBalance.veRaftBalance.div(userVeRaftBalance?.supply)
         : null,
-    [userVeRaftBalance?.amount, userVeRaftBalance?.supply],
+    [userVeRaftBalance?.veRaftBalance, userVeRaftBalance?.supply],
   );
 
   const veRaftAmountFormatted = useMemo(
@@ -33,9 +33,9 @@ const CurrentPosition = () => {
   const canWithdraw = useMemo(
     () =>
       userVeRaftBalance?.unlockTime &&
-      userVeRaftBalance.amount.gt(0) &&
+      userVeRaftBalance.veRaftBalance.gt(0) &&
       userVeRaftBalance.unlockTime.getTime() < Date.now(),
-    [userVeRaftBalance?.amount, userVeRaftBalance?.unlockTime],
+    [userVeRaftBalance?.veRaftBalance, userVeRaftBalance?.unlockTime],
   );
 
   const onWithdraw = useCallback(() => false, []); // TODO: implement withdraw

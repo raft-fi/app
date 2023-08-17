@@ -1,9 +1,9 @@
 import { Decimal } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
-import { startOfDay } from 'date-fns';
+import { isValid, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, YEAR_IN_MS } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
@@ -32,13 +32,14 @@ const NotConnected: FC<NotConnectedProps> = ({
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const veRaftAmount = useMemo(() => {
-    if (!deadline) {
+    if (!deadline || !isValid(deadline)) {
       return Decimal.ZERO;
     }
 
     const today = startOfDay(new Date());
-    const periodInMs = new Decimal(deadline.getTime()).sub(today.getTime());
-    const period = periodInMs.div(YEAR_IN_MS);
+    // period is floored by week (VotingEscrow.vy#L77)
+    const periodInMs = Math.floor((deadline.getTime() - today.getTime()) / WEEK_IN_MS) * WEEK_IN_MS;
+    const period = new Decimal(periodInMs).div(YEAR_IN_MS);
 
     return bptAmount.mul(period);
   }, [bptAmount, deadline]);

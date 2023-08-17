@@ -29,6 +29,7 @@ export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 export const DEFAULT_SLIPPAGE = 0.005;
 export const GAS_LIMIT_MULTIPLIER = new Decimal(1.3);
 export const DAY_IN_MS = 24 * 60 * 60 * 1000;
+export const WEEK_IN_MS = 7 * DAY_IN_MS;
 export const YEAR_IN_MS = 365 * DAY_IN_MS;
 
 // app to control what is supported

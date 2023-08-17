@@ -16,7 +16,7 @@ export interface DateInputProps {
 const DateInput = forwardRef<HTMLInputElement, DateInputProps>((props, ref) => {
   const { id, value, placeholder, min, max, disabled, autoFocus, onChange } = props;
 
-  const dateString = useMemo(() => (value ? format(value, 'yyyy-MM-dd') : undefined), [value]);
+  const dateString = useMemo(() => (value && isValid(value) ? format(value, 'yyyy-MM-dd') : undefined), [value]);
   const minString = useMemo(() => (min ? format(min, 'yyyy-MM-dd') : undefined), [min]);
   const maxString = useMemo(() => (max ? format(max, 'yyyy-MM-dd') : undefined), [max]);
 
@@ -26,7 +26,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>((props, ref) => {
       // dateStr in yyyy-mm-dd format
       const date = new Date(dateStr);
 
-      if (!isValid(date)) {
+      if (isValid(date)) {
         onChange?.(startOfDay(date));
       }
     },
