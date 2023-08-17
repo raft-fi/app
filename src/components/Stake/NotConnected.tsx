@@ -58,11 +58,12 @@ const NotConnected: FC<NotConnectedProps> = ({
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
-            Stake RAFT to get veRAFT
+            Stake RAFT BPT to get veRAFT
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            veRAFT is at the centre of governance and growth of the Raft protocol. By locking your Raft Balancer LP
-            tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
+            veRAFT aligns the interests of the Raft protocol and RAFT tokenholders. In return for staking your RAFT BPT
+            and receiving veRAFT, you will obtain the right to vote on Raft governance proposals and earn more RAFT in
+            rewards.
           </Typography>
           <AmountInput value={amountToLock} onChange={onAmountChange} token="B-80RAFT-20ETH" />
           <PeriodPicker
@@ -72,7 +73,7 @@ const NotConnected: FC<NotConnectedProps> = ({
             onPeriodChange={onPeriodChange}
           />
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            RESULTING STAKE
+            RESULTING veRAFT
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {veRaftAmountFormatted ? (
@@ -93,6 +94,12 @@ const NotConnected: FC<NotConnectedProps> = ({
               If the weekly total amount is 145,000 BAL per week, a pool gauge with 1% of the vote will net in 1,450 BAL towards that gauge
           */}
             N/A
+          </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            ESTIMATED APR
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+            {'N/A'}
           </Typography>
           <div className="raft__stake__btn-container">
             <Button variant="primary" size="large" onClick={onConnectWallet}>

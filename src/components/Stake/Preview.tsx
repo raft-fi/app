@@ -3,20 +3,23 @@ import { format, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, YEAR_IN_MS } from '../../constants';
+import { useUserVeRaftBalance } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
+import { StakePage } from './Stake';
 
 interface PreviewProps {
   amountToLock: string;
   deadline?: Date;
-  onPrevStep: () => void;
-  onNextStep: () => void;
+  goToPage: (page: StakePage) => void;
 }
 
-const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextStep }) => {
+const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
+  const userVeRaftBalance = useUserVeRaftBalance();
+
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const veRaftAmount = useMemo(() => {
     if (!deadline) {
@@ -29,6 +32,10 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextS
 
     return bptAmount.mul(period);
   }, [bptAmount, deadline]);
+  const hasPosition = useMemo(
+    () => Boolean(userVeRaftBalance?.bptLockedBalance.gt(0)),
+    [userVeRaftBalance?.bptLockedBalance],
+  );
 
   const deadlineFormatted = useMemo(() => (deadline ? format(deadline, 'dd MMMM yyyy') : null), [deadline]);
   const bptAmountFormatted = useMemo(() => formatDecimal(bptAmount, COLLATERAL_TOKEN_UI_PRECISION), [bptAmount]);
@@ -37,20 +44,39 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextS
     [veRaftAmount],
   );
 
+  const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
+  const goToWithdraw = useCallback(() => goToPage('withdraw'), [goToPage]);
+  const goToClaim = useCallback(() => goToPage('claim'), [goToPage]);
   const onStake = useCallback(() => {
-    onNextStep();
-  }, [onNextStep]);
+    goToPage('withdraw');
+  }, [goToPage]);
+
+  const positionButtons = useMemo(
+    () => [
+      <Button variant="secondary" size="large" onClick={goToWithdraw} disabled={!hasPosition}>
+        <Typography variant="button-label" weight="medium" color="text-secondary">
+          Withdraw
+        </Typography>
+      </Button>,
+      <Button variant="secondary" size="large" onClick={goToClaim} disabled={!hasPosition}>
+        <Typography variant="button-label" weight="medium" color="text-secondary">
+          Claim
+        </Typography>
+      </Button>,
+    ],
+    [goToClaim, goToWithdraw, hasPosition],
+  );
 
   return (
     <div className="raft__stake raft__stake__preview">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
-            Title
+            Start receiving RAFT rewards
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+            Review the summary below before proceeding with staking your RAFT Balancer LP tokens to obtain governance
+            rights and earn more RAFT.
           </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             TOTAL AMOUNT TO BE STAKED
@@ -72,7 +98,7 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextS
             {deadlineFormatted ?? '---'}
           </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            RESULTING STAKE
+            RESULTING veRAFT
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {veRaftAmountFormatted ? (
@@ -85,7 +111,7 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextS
             )}
           </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="secondary" size="large" onClick={onPrevStep}>
+            <Button variant="secondary" size="large" onClick={goToDefault}>
               <Typography variant="button-label" color="text-secondary">
                 Back
               </Typography>
@@ -99,7 +125,7 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, onPrevStep, onNextS
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <CurrentPosition />
+        <CurrentPosition buttons={positionButtons} />
         <FAQ defaultOpen={false} />
         <HowToLock defaultOpen={false} />
       </div>
