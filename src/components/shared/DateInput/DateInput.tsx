@@ -26,7 +26,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>((props, ref) => {
       // dateStr in yyyy-mm-dd format
       const date = new Date(dateStr);
 
-      if (!isValid(date)) {
+      if (isValid(date)) {
         onChange?.(startOfDay(date));
       }
     },

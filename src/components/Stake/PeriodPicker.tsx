@@ -9,15 +9,17 @@ const PERIOD_OPTIONS = [0.25, 0.5, 1];
 interface PeriodPickerProps {
   deadline?: Date;
   period?: number;
+  min?: Date;
+  max?: Date;
   onDeadlineChange: (value: Date) => void;
   onPeriodChange: (value: number) => void;
 }
 
-const PeriodPicker: FC<PeriodPickerProps> = ({ deadline, period, onDeadlineChange, onPeriodChange }) => {
+const PeriodPicker: FC<PeriodPickerProps> = ({ deadline, period, min, max, onDeadlineChange, onPeriodChange }) => {
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  const minDeadline = useMemo(() => addMilliseconds(startOfDay(new Date()), DAY_IN_MS), []);
-  const maxDeadline = useMemo(() => addMilliseconds(startOfDay(new Date()), YEAR_IN_MS), []);
+  const minDeadline = useMemo(() => min ?? addMilliseconds(startOfDay(new Date()), DAY_IN_MS), [min]);
+  const maxDeadline = useMemo(() => max ?? addMilliseconds(startOfDay(new Date()), YEAR_IN_MS), [max]);
 
   const focusDateInput = useCallback(() => dateInputRef.current?.focus(), [dateInputRef]);
 

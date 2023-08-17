@@ -90,6 +90,7 @@ const Connected: FC<ConnectedProps> = ({
           <PeriodPicker
             deadline={unlockTime ?? undefined}
             period={period}
+            min={unlockTime ?? undefined}
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
           />
