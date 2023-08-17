@@ -8,14 +8,17 @@ import Preview from './Preview';
 
 import './Stake.scss';
 
+type StakePage = 'default' | 'preview' | 'withdraw' | 'claim';
+
 const Stake = () => {
   const wallet = useWallet();
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<StakePage>('default');
   const [amountToLock, setAmountToLock] = useState<string>('');
   const [deadline, setDeadline] = useState<Date>();
   const [period, setPeriod] = useState<number>();
 
   const onDeadlineChange = useCallback((value: Date) => {
+    console.log('deadline', value);
     setDeadline(value);
     setPeriod(undefined);
   }, []);
@@ -23,6 +26,11 @@ const Stake = () => {
     setDeadline(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS));
     setPeriod(year);
   }, []);
+
+  const goToDefaultPage = useCallback(() => setStep('default'), []);
+  const goToPreviewPage = useCallback(() => setStep('preview'), []);
+  const goToWithdrawPage = useCallback(() => setStep('withdraw'), []);
+  const goToClaimPage = useCallback(() => setStep('claim'), []);
 
   if (!wallet) {
     return (
@@ -37,29 +45,28 @@ const Stake = () => {
     );
   }
 
-  if (step === 1) {
-    return (
-      <Connected
-        amountToLock={amountToLock}
-        deadline={deadline}
-        period={period}
-        onAmountChange={setAmountToLock}
-        onDeadlineChange={onDeadlineChange}
-        onPeriodChange={onPeriodChange}
-        onNextStep={() => setStep(2)}
-      />
-    );
-  }
-
-  if (step === 2) {
-    return (
-      <Preview
-        amountToLock={amountToLock}
-        deadline={deadline}
-        onPrevStep={() => setStep(1)}
-        onNextStep={() => setStep(3)}
-      />
-    );
+  switch (step) {
+    case 'default':
+      return (
+        <Connected
+          amountToLock={amountToLock}
+          deadline={deadline}
+          period={period}
+          onAmountChange={setAmountToLock}
+          onDeadlineChange={onDeadlineChange}
+          onPeriodChange={onPeriodChange}
+          onNextStep={goToPreviewPage}
+        />
+      );
+    case 'preview':
+      return (
+        <Preview
+          amountToLock={amountToLock}
+          deadline={deadline}
+          onPrevStep={goToDefaultPage}
+          onNextStep={goToWithdrawPage}
+        />
+      );
   }
 
   return null;
