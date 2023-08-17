@@ -2,13 +2,15 @@ import { addMilliseconds, startOfDay } from 'date-fns';
 import { memo, useCallback, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
 import { useWallet } from '../../hooks';
+import Claim from './Claim';
 import Connected from './Connected';
 import NotConnected from './NotConnected';
 import Preview from './Preview';
 
 import './Stake.scss';
+import Withdraw from './Withdraw';
 
-type StakePage = 'default' | 'preview' | 'withdraw' | 'claim';
+export type StakePage = 'default' | 'preview' | 'withdraw' | 'claim';
 
 const Stake = () => {
   const wallet = useWallet();
@@ -26,11 +28,6 @@ const Stake = () => {
     setDeadline(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS));
     setPeriod(year);
   }, []);
-
-  const goToDefaultPage = useCallback(() => setStep('default'), []);
-  const goToPreviewPage = useCallback(() => setStep('preview'), []);
-  const goToWithdrawPage = useCallback(() => setStep('withdraw'), []);
-  const goToClaimPage = useCallback(() => setStep('claim'), []);
 
   if (!wallet) {
     return (
@@ -55,18 +52,15 @@ const Stake = () => {
           onAmountChange={setAmountToLock}
           onDeadlineChange={onDeadlineChange}
           onPeriodChange={onPeriodChange}
-          onNextStep={goToPreviewPage}
+          goToPage={setStep}
         />
       );
     case 'preview':
-      return (
-        <Preview
-          amountToLock={amountToLock}
-          deadline={deadline}
-          onPrevStep={goToDefaultPage}
-          onNextStep={goToWithdrawPage}
-        />
-      );
+      return <Preview amountToLock={amountToLock} deadline={deadline} goToPage={setStep} />;
+    case 'withdraw':
+      return <Withdraw goToPage={setStep} />;
+    case 'claim':
+      return <Claim goToPage={setStep} />;
   }
 
   return null;
