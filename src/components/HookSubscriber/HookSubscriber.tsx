@@ -28,6 +28,7 @@ import {
   subscribeRaftTokenAnnualGiveAway,
   subscribeUserVeRaftBalance,
   subscribeUserRaftBptBalance,
+  subscribeStakeBptForVeRaftStatus,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -63,6 +64,7 @@ const HookSubscriber: FC = () => {
     subscribeRaftTokenAnnualGiveAway();
     subscribeUserVeRaftBalance();
     subscribeUserRaftBptBalance();
+    subscribeStakeBptForVeRaftStatus();
   }, []);
 
   return null;

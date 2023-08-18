@@ -1,3 +1,4 @@
+import { RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
@@ -69,8 +70,12 @@ const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {bptLockedAmountFormatted ? (
               <>
-                <TokenLogo type="token-B-80RAFT-20ETH" size={20} />
-                <ValueLabel value={`${bptLockedAmountFormatted} B-80RAFT-20WETH`} valueSize="body" tickerSize="body2" />
+                <TokenLogo type={`token-${RAFT_BPT_TOKEN}`} size={20} />
+                <ValueLabel
+                  value={`${bptLockedAmountFormatted} ${RAFT_BPT_TOKEN}`}
+                  valueSize="body"
+                  tickerSize="body2"
+                />
               </>
             ) : (
               'N/A'

@@ -1,9 +1,10 @@
+import { RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { isValid, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
-import { useUserRaftBptBalance, useUserVeRaftBalance } from '../../hooks';
+import { useRaftTokenAnnualGiveAway, useUserRaftBptBalance, useUserVeRaftBalance } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
@@ -34,6 +35,7 @@ const Connected: FC<ConnectedProps> = ({
 }) => {
   const userVeRaftBalance = useUserVeRaftBalance();
   const userRaftBptBalance = useUserRaftBptBalance();
+  const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const unlockTime = useMemo(
@@ -52,6 +54,7 @@ const Connected: FC<ConnectedProps> = ({
 
     return bptAmount.mul(period);
   }, [bptAmount, unlockTime]);
+  const weeklyGiveaway = useMemo(() => raftTokenAnnualGiveAway?.div(52) ?? null, [raftTokenAnnualGiveAway]);
   const hasPosition = useMemo(
     () => Boolean(userVeRaftBalance?.bptLockedBalance.gt(0)),
     [userVeRaftBalance?.bptLockedBalance],
@@ -64,6 +67,10 @@ const Connected: FC<ConnectedProps> = ({
   const userRaftBptBalanceFormatted = useMemo(
     () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
     [userRaftBptBalance],
+  );
+  const weeklyGiveawayFormatted = useMemo(
+    () => formatDecimal(weeklyGiveaway, COLLATERAL_TOKEN_UI_PRECISION),
+    [weeklyGiveaway],
   );
 
   const onBalanceClick = useCallback(() => {
@@ -106,7 +113,7 @@ const Connected: FC<ConnectedProps> = ({
           <AmountInput
             value={amountToLock}
             balance={userRaftBptBalanceFormatted ?? undefined}
-            token="B-80RAFT-20ETH"
+            token={RAFT_BPT_TOKEN}
             onChange={onAmountChange}
             onBalanceClick={onBalanceClick}
           />
@@ -123,8 +130,8 @@ const Connected: FC<ConnectedProps> = ({
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {veRaftAmountFormatted ? (
               <>
-                <TokenLogo type="token-veRAFT" size={20} />
-                <ValueLabel value={`${veRaftAmountFormatted} veRAFT`} valueSize="body" tickerSize="body2" />
+                <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
+                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -134,11 +141,14 @@ const Connected: FC<ConnectedProps> = ({
             WEEKLY RAFT REWARDS
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {/* https://docs.balancer.fi/reference/vebal-and-gauges/estimating-gauge-incentive-aprs.html
-              The overall gauge vote percentage directs the weekly BAL emissions.
-              If the weekly total amount is 145,000 BAL per week, a pool gauge with 1% of the vote will net in 1,450 BAL towards that gauge
-          */}
-            N/A
+            {weeklyGiveawayFormatted ? (
+              <>
+                <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
+                <ValueLabel value={`${weeklyGiveawayFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+              </>
+            ) : (
+              'N/A'
+            )}
           </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             ESTIMATED APR
