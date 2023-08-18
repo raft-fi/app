@@ -1,3 +1,4 @@
+import { RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { format } from 'date-fns';
 import { FC, memo, ReactNode, useMemo } from 'react';
@@ -45,11 +46,11 @@ const CurrentPosition: FC<CurrentPositionProps> = ({ buttons }) => {
         STAKED
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
-        <TokenLogo type="token-B-80RAFT-20ETH" size={20} />
-        <ValueLabel value={`${bptLockedBalanceFormatted} B-80RAFT-20ETH`} valueSize="body" tickerSize="body2" />
+        <TokenLogo type={`token-${RAFT_BPT_TOKEN}`} size={20} />
+        <ValueLabel value={`${bptLockedBalanceFormatted} ${RAFT_BPT_TOKEN}`} valueSize="body" tickerSize="body2" />
       </Typography>
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-        MY veRAFT SHARE
+        YOUR SHARE
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
         {stakePoolShareFormatted ?? 'N/A'}

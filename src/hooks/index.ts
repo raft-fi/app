@@ -34,3 +34,4 @@ export * from './useRaftTokenAnnualGiveAway';
 export * from './useRaftToken';
 export * from './useUserVeRaftBalance';
 export * from './useUserRaftBptBalance';
+export * from './useStakeBptForVeRaft';

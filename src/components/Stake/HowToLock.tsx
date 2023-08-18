@@ -1,3 +1,4 @@
+import { RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import { FC, memo, useCallback, useState } from 'react';
 import { Link } from 'tempus-ui';
 import { Expandable, Typography } from '../shared';
@@ -18,13 +19,13 @@ const HowToLock: FC<HowToLockProps> = ({ defaultOpen }) => {
           <Typography variant="body">
             Add liquidity to the{' '}
             <Link href="https://app.balancer.fi/#/ethereum/pool/0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014">
-              B-80RAFT-20ETH pool on Balancer
+              {RAFT_BPT_TOKEN} pool on Balancer
             </Link>
             .
           </Typography>
         </li>
         <li>
-          <Typography variant="body">Lock-up the Balancer LP token (B-80RAFT-20ETH) on Raft.</Typography>
+          <Typography variant="body">Lock-up the Balancer LP token ({RAFT_BPT_TOKEN}) on Raft.</Typography>
         </li>
         <li>
           <Typography variant="body">
