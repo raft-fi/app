@@ -11,6 +11,8 @@ import {
   usePosition,
   useStakeBptForVeRaft,
   resetStakeBptForVeRaftStatus,
+  useWithdrawRaftBpt,
+  resetWithdrawRaftBptStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -27,6 +29,7 @@ const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { stakeBptForVeRaftStatus, stakeBptForVeRaft } = useStakeBptForVeRaft();
+  const { withdrawRaftBptStatus, withdrawRaftBpt } = useWithdrawRaftBpt();
   const { redeemStatus, redeem } = useRedeem();
   const collateralConversionRateMap = useCollateralConversionRates();
   const position = usePosition();
@@ -44,12 +47,15 @@ const TransactionModal = () => {
     if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
       return stakeBptForVeRaftStatus;
     }
+    if (withdrawRaftBptStatus) {
+      return withdrawRaftBptStatus;
+    }
     if (redeemStatus) {
       return redeemStatus;
     }
 
     return null;
-  }, [leveragePositionStatus, managePositionStatus, redeemStatus, stakeBptForVeRaftStatus]);
+  }, [leveragePositionStatus, managePositionStatus, redeemStatus, stakeBptForVeRaftStatus, withdrawRaftBptStatus]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -85,6 +91,8 @@ const TransactionModal = () => {
       resetLeverageStatus();
     } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
       resetStakeBptForVeRaftStatus();
+    } else if (currentStatus.statusType === 'stake-withdraw') {
+      resetWithdrawRaftBptStatus();
     } else if (currentStatus.statusType === 'redeem') {
       resetRedeemStatus();
     }
@@ -103,10 +111,20 @@ const TransactionModal = () => {
       leveragePosition?.();
     } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
       stakeBptForVeRaft?.();
+    } else if (currentStatus.statusType === 'stake-withdraw') {
+      withdrawRaftBpt(currentStatus.request);
     } else if (currentStatus.statusType === 'redeem') {
       redeem(currentStatus.request);
     }
-  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, redeem, stakeBptForVeRaft]);
+  }, [
+    currentStatus?.request,
+    currentStatus?.statusType,
+    leveragePosition,
+    managePosition,
+    redeem,
+    stakeBptForVeRaft,
+    withdrawRaftBpt,
+  ]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -215,6 +233,10 @@ const TransactionModal = () => {
       return <Typography variant="heading1">RAFT BPT staked</Typography>;
     }
 
+    if (withdrawRaftBptStatus) {
+      return <Typography variant="heading1">All RAFT BPT withdrawn</Typography>;
+    }
+
     if (!managePositionStatus.request || !debtChange || !collateralChange) {
       return '';
     }
@@ -271,6 +293,7 @@ const TransactionModal = () => {
     position,
     redeemStatus,
     stakeBptForVeRaftStatus.statusType,
+    withdrawRaftBptStatus,
   ]);
 
   /**
@@ -279,6 +302,9 @@ const TransactionModal = () => {
   const successModalSubtitle = useMemo(() => {
     if (redeemStatus) {
       return 'Successful redemption';
+    }
+    if (withdrawRaftBptStatus) {
+      return 'Successful withdrawal';
     }
 
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
@@ -313,6 +339,7 @@ const TransactionModal = () => {
     leveragePositionStatus.statusType,
     redeemStatus,
     stakeBptForVeRaftStatus.statusType,
+    withdrawRaftBptStatus,
   ]);
 
   const tokenToAdd = useMemo(() => {

@@ -12,7 +12,8 @@ export type AppEventType =
   | 'redeem'
   | 'stake-new'
   | 'stake-increase'
-  | 'stake-extend';
+  | 'stake-extend'
+  | 'stake-withdraw';
 
 export interface AppEventMetadata {
   collateralToken?: SupportedCollateralToken;

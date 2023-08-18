@@ -1,11 +1,12 @@
+import { v4 as uuid } from 'uuid';
 import { RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { FC, memo, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
-import { useUserVeRaftBalance } from '../../hooks';
+import { useUserVeRaftBalance, useWithdrawRaftBpt } from '../../hooks';
 import { formatDecimal } from '../../utils';
-import { Button, Typography, ValueLabel } from '../shared';
+import { Button, Loading, Typography, ValueLabel } from '../shared';
 import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
@@ -17,6 +18,9 @@ interface WithdrawProps {
 
 const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
   const userVeRaftBalance = useUserVeRaftBalance();
+  const { withdrawRaftBptStatus, withdrawRaftBpt } = useWithdrawRaftBpt();
+
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
 
   const bptLockedAmount = useMemo(
     () => userVeRaftBalance?.bptLockedBalance ?? null,
@@ -36,7 +40,12 @@ const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
 
   const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
   const goToClaim = useCallback(() => goToPage('claim'), [goToPage]);
-  const onWithdraw = useCallback(() => false, []);
+  const onWithdraw = useCallback(() => {
+    if (canWithdraw) {
+      const txnId = uuid();
+      withdrawRaftBpt({ txnId });
+    }
+  }, [canWithdraw, withdrawRaftBpt]);
 
   const positionButtons = useMemo(
     () => [
@@ -53,6 +62,23 @@ const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
     ],
     [goToClaim, goToDefault],
   );
+
+  /**
+   * Update action button state based on current redeem request status
+   */
+  useEffect(() => {
+    if (!withdrawRaftBptStatus) {
+      return;
+    }
+
+    if (withdrawRaftBptStatus.pending) {
+      setActionButtonState('loading');
+    } else if (withdrawRaftBptStatus.success) {
+      setActionButtonState('success');
+    } else {
+      setActionButtonState('default');
+    }
+  }, [withdrawRaftBptStatus]);
 
   return (
     <div className="raft__stake raft__stake__preview">
@@ -82,7 +108,13 @@ const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
             )}
           </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="primary" size="large" onClick={onWithdraw} disabled={!canWithdraw}>
+            <Button
+              variant="primary"
+              size="large"
+              onClick={onWithdraw}
+              disabled={!canWithdraw || actionButtonState === 'loading'}
+            >
+              {actionButtonState === 'loading' && <Loading />}
               <Typography variant="button-label" color="text-primary-inverted">
                 Withdraw
               </Typography>

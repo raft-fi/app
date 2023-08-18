@@ -35,3 +35,4 @@ export * from './useRaftToken';
 export * from './useUserVeRaftBalance';
 export * from './useUserRaftBptBalance';
 export * from './useStakeBptForVeRaft';
+export * from './useWithdrawRaftBpt';
