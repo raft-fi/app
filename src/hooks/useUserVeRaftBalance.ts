@@ -1,8 +1,21 @@
 import { RaftToken, UserVeRaftBalance } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
-import { tap, Observable, interval, Subscription, BehaviorSubject, combineLatest, startWith, mergeMap } from 'rxjs';
+import {
+  tap,
+  Observable,
+  interval,
+  Subscription,
+  BehaviorSubject,
+  combineLatest,
+  startWith,
+  mergeMap,
+  withLatestFrom,
+  filter,
+  merge,
+} from 'rxjs';
 import { POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
+import { AppEvent, appEvent$ } from './useAppEvent';
 import { raftToken$ } from './useRaftToken';
 
 const DEFAULT_VALUE: Nullable<UserVeRaftBalance> = null;
@@ -24,10 +37,29 @@ const fetchData = async (raftToken: Nullable<RaftToken>) => {
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
-const stream$: Observable<Nullable<UserVeRaftBalance>> = combineLatest([intervalBeat$, raftToken$]).pipe(
+// stream$ for periodic polling to fetch data
+const periodicStream$: Observable<Nullable<UserVeRaftBalance>> = combineLatest([intervalBeat$, raftToken$]).pipe(
   mergeMap<[number, Nullable<RaftToken>], Promise<Nullable<UserVeRaftBalance>>>(([, raftToken]) =>
     fetchData(raftToken),
   ),
+);
+
+// fetch when app event fire
+const appEventsStream$ = appEvent$.pipe(
+  withLatestFrom(raftToken$),
+  filter((value): value is [AppEvent, Nullable<RaftToken>] => {
+    const [appEvent, raftToken] = value;
+
+    return (
+      Boolean(raftToken) &&
+      Boolean(appEvent?.eventType) &&
+      ['stake-new', 'stake-increase', 'stake-extend'].includes(appEvent?.eventType as string)
+    );
+  }),
+  mergeMap(([, raftToken]) => fetchData(raftToken)),
+);
+
+const stream$: Observable<Nullable<UserVeRaftBalance>> = merge(periodicStream$, appEventsStream$).pipe(
   tap(userVeRaftBalance => userVeRaftBalance$.next(userVeRaftBalance)),
 );
 

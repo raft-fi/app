@@ -42,6 +42,10 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
 
     return bptAmount.mul(period);
   }, [bptAmount, unlockTime]);
+  const totalVeRaftAmount = useMemo(
+    () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
+    [userVeRaftBalance?.veRaftBalance, veRaftAmount],
+  );
   const hasPosition = useMemo(
     () => Boolean(userVeRaftBalance?.bptLockedBalance.gt(0)),
     [userVeRaftBalance?.bptLockedBalance],
@@ -49,9 +53,9 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
 
   const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
   const bptAmountFormatted = useMemo(() => formatDecimal(bptAmount, COLLATERAL_TOKEN_UI_PRECISION), [bptAmount]);
-  const veRaftAmountFormatted = useMemo(
-    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
-    [veRaftAmount],
+  const totalVeRaftAmountFormatted = useMemo(
+    () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    [totalVeRaftAmount],
   );
 
   const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
@@ -105,18 +109,30 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
 
   const positionButtons = useMemo(
     () => [
-      <Button variant="secondary" size="large" onClick={goToWithdraw} disabled={!hasPosition}>
+      <Button
+        key="btn-withdraw"
+        variant="secondary"
+        size="large"
+        onClick={goToWithdraw}
+        disabled={!hasPosition || actionButtonState === 'loading'}
+      >
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Withdraw
         </Typography>
       </Button>,
-      <Button variant="secondary" size="large" onClick={goToClaim} disabled={!hasPosition}>
+      <Button
+        key="btn-claim"
+        variant="secondary"
+        size="large"
+        onClick={goToClaim}
+        disabled={!hasPosition || actionButtonState === 'loading'}
+      >
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Claim
         </Typography>
       </Button>,
     ],
-    [goToClaim, goToWithdraw, hasPosition],
+    [actionButtonState, goToClaim, goToWithdraw, hasPosition],
   );
 
   useEffect(() => {
@@ -137,6 +153,12 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
       setActionButtonState('default');
     }
   }, [stakeBptForVeRaftStatus.pending, stakeBptForVeRaftStatus.success, stakeBptForVeRaftStepsStatus.pending]);
+
+  useEffect(() => {
+    if (stakeBptForVeRaftStatus.success && !stakeBptForVeRaftStepsStatus.result?.type) {
+      goToPage('default');
+    }
+  }, [goToPage, stakeBptForVeRaftStatus.success, stakeBptForVeRaftStepsStatus.result?.type]);
 
   return (
     <div className="raft__stake raft__stake__preview">
@@ -168,20 +190,24 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
             {unlockTimeFormatted ?? '---'}
           </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            RESULTING veRAFT
+            TOTAL VOTING ESCROW
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {veRaftAmountFormatted ? (
+            {totalVeRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel
+                  value={`${totalVeRaftAmountFormatted} ${VERAFT_TOKEN}`}
+                  valueSize="body"
+                  tickerSize="body2"
+                />
               </>
             ) : (
               'N/A'
             )}
           </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="secondary" size="large" onClick={goToDefault}>
+            <Button variant="secondary" size="large" onClick={goToDefault} disabled={actionButtonState === 'loading'}>
               <Typography variant="button-label" color="text-secondary">
                 Back
               </Typography>

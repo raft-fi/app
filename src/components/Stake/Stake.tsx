@@ -20,7 +20,6 @@ const Stake = () => {
   const [period, setPeriod] = useState<number>();
 
   const onDeadlineChange = useCallback((value: Date) => {
-    console.log('deadline', value);
     setDeadline(value);
     setPeriod(undefined);
   }, []);

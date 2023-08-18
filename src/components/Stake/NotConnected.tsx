@@ -4,7 +4,7 @@ import { useConnectWallet } from '@web3-onboard/react';
 import { isValid, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
 import { useRaftTokenAnnualGiveAway } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
@@ -46,7 +46,10 @@ const NotConnected: FC<NotConnectedProps> = ({
 
     return bptAmount.mul(period);
   }, [bptAmount, deadline]);
-  const weeklyGiveaway = useMemo(() => raftTokenAnnualGiveAway?.div(52) ?? null, [raftTokenAnnualGiveAway]);
+  const weeklyGiveaway = useMemo(
+    () => raftTokenAnnualGiveAway?.div(NUMBER_OF_WEEK_IN_YEAR) ?? null,
+    [raftTokenAnnualGiveAway],
+  );
 
   const veRaftAmountFormatted = useMemo(
     () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
@@ -81,7 +84,7 @@ const NotConnected: FC<NotConnectedProps> = ({
             onPeriodChange={onPeriodChange}
           />
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            RESULTING veRAFT
+            TOTAL VOTING ESCROW
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {veRaftAmountFormatted ? (

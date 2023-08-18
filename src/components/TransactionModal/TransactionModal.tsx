@@ -9,6 +9,8 @@ import {
   resetLeverageStatus,
   useCollateralConversionRates,
   usePosition,
+  useStakeBptForVeRaft,
+  resetStakeBptForVeRaftStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -24,6 +26,7 @@ import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
+  const { stakeBptForVeRaftStatus, stakeBptForVeRaft } = useStakeBptForVeRaft();
   const { redeemStatus, redeem } = useRedeem();
   const collateralConversionRateMap = useCollateralConversionRates();
   const position = usePosition();
@@ -38,12 +41,15 @@ const TransactionModal = () => {
     if (leveragePositionStatus.statusType === 'leverage') {
       return leveragePositionStatus;
     }
+    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+      return stakeBptForVeRaftStatus;
+    }
     if (redeemStatus) {
       return redeemStatus;
     }
 
     return null;
-  }, [leveragePositionStatus, managePositionStatus, redeemStatus]);
+  }, [leveragePositionStatus, managePositionStatus, redeemStatus, stakeBptForVeRaftStatus]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -77,10 +83,12 @@ const TransactionModal = () => {
       resetManageStatus();
     } else if (currentStatus.statusType === 'leverage') {
       resetLeverageStatus();
+    } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
+      resetStakeBptForVeRaftStatus();
     } else if (currentStatus.statusType === 'redeem') {
       resetRedeemStatus();
     }
-  }, [currentStatus]);
+  }, [currentStatus?.statusType]);
 
   const onRetryTransaction = useCallback(() => {
     if (!currentStatus?.statusType) {
@@ -93,10 +101,12 @@ const TransactionModal = () => {
       managePosition?.();
     } else if (currentStatus.statusType === 'leverage') {
       leveragePosition?.();
+    } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
+      stakeBptForVeRaft?.();
     } else if (currentStatus.statusType === 'redeem') {
       redeem(currentStatus.request);
     }
-  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, redeem]);
+  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, redeem, stakeBptForVeRaft]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -201,6 +211,10 @@ const TransactionModal = () => {
       );
     }
 
+    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+      return <Typography variant="heading1">RAFT BPT staked</Typography>;
+    }
+
     if (!managePositionStatus.request || !debtChange || !collateralChange) {
       return '';
     }
@@ -256,6 +270,7 @@ const TransactionModal = () => {
     managePositionStatus.request,
     position,
     redeemStatus,
+    stakeBptForVeRaftStatus.statusType,
   ]);
 
   /**
@@ -267,6 +282,10 @@ const TransactionModal = () => {
     }
 
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
+      return 'Successful transaction';
+    }
+
+    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
       return 'Successful transaction';
     }
 
@@ -288,7 +307,13 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [collateralChange, debtChange, leveragePositionStatus.statusType, redeemStatus]);
+  }, [
+    collateralChange,
+    debtChange,
+    leveragePositionStatus.statusType,
+    redeemStatus,
+    stakeBptForVeRaftStatus.statusType,
+  ]);
 
   const tokenToAdd = useMemo(() => {
     if (currentStatus?.statusType === 'manage') {

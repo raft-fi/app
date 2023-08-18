@@ -40,12 +40,12 @@ const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
 
   const positionButtons = useMemo(
     () => [
-      <Button variant="secondary" size="large" onClick={goToDefault}>
+      <Button key="btn-stake" variant="secondary" size="large" onClick={goToDefault}>
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Stake more
         </Typography>
       </Button>,
-      <Button variant="secondary" size="large" onClick={goToClaim}>
+      <Button key="btn-claim" variant="secondary" size="large" onClick={goToClaim}>
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Claim
         </Typography>
