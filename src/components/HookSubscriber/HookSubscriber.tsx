@@ -30,6 +30,7 @@ import {
   subscribeUserRaftBptBalance,
   subscribeStakeBptForVeRaftStatus,
 } from '../../hooks';
+import { subscribeWithdrawRaftBptStatus } from '../../hooks/useWithdrawRaftBpt';
 
 const HookSubscriber: FC = () => {
   // to keep at least one subscriber of the stream insides the state hooks
@@ -65,6 +66,7 @@ const HookSubscriber: FC = () => {
     subscribeUserVeRaftBalance();
     subscribeUserRaftBptBalance();
     subscribeStakeBptForVeRaftStatus();
+    subscribeWithdrawRaftBptStatus();
   }, []);
 
   return null;
