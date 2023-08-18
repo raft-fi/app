@@ -31,6 +31,7 @@ export const GAS_LIMIT_MULTIPLIER = new Decimal(1.3);
 export const DAY_IN_MS = 24 * 60 * 60 * 1000;
 export const WEEK_IN_MS = 7 * DAY_IN_MS;
 export const YEAR_IN_MS = 365 * DAY_IN_MS;
+export const NUMBER_OF_WEEK_IN_YEAR = 52;
 
 // app to control what is supported
 export const SUPPORTED_UNDERLYING_TOKENS = [

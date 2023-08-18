@@ -3,7 +3,7 @@ import { Decimal } from '@tempusfinance/decimal';
 import { isValid, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
 import { useRaftTokenAnnualGiveAway, useUserRaftBptBalance, useUserVeRaftBalance } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
@@ -54,15 +54,22 @@ const Connected: FC<ConnectedProps> = ({
 
     return bptAmount.mul(period);
   }, [bptAmount, unlockTime]);
-  const weeklyGiveaway = useMemo(() => raftTokenAnnualGiveAway?.div(52) ?? null, [raftTokenAnnualGiveAway]);
+  const totalVeRaftAmount = useMemo(
+    () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
+    [userVeRaftBalance?.veRaftBalance, veRaftAmount],
+  );
+  const weeklyGiveaway = useMemo(
+    () => raftTokenAnnualGiveAway?.div(NUMBER_OF_WEEK_IN_YEAR) ?? null,
+    [raftTokenAnnualGiveAway],
+  );
   const hasPosition = useMemo(
     () => Boolean(userVeRaftBalance?.bptLockedBalance.gt(0)),
     [userVeRaftBalance?.bptLockedBalance],
   );
 
-  const veRaftAmountFormatted = useMemo(
-    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
-    [veRaftAmount],
+  const totalVeRaftAmountFormatted = useMemo(
+    () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    [totalVeRaftAmount],
   );
   const userRaftBptBalanceFormatted = useMemo(
     () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
@@ -85,12 +92,12 @@ const Connected: FC<ConnectedProps> = ({
 
   const positionButtons = useMemo(
     () => [
-      <Button variant="secondary" size="large" onClick={goToWithdraw} disabled={!hasPosition}>
+      <Button key="btn-withdraw" variant="secondary" size="large" onClick={goToWithdraw} disabled={!hasPosition}>
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Withdraw
         </Typography>
       </Button>,
-      <Button variant="secondary" size="large" onClick={goToClaim} disabled={!hasPosition}>
+      <Button key="btn-claim" variant="secondary" size="large" onClick={goToClaim} disabled={!hasPosition}>
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Claim
         </Typography>
@@ -125,13 +132,17 @@ const Connected: FC<ConnectedProps> = ({
             onPeriodChange={onPeriodChange}
           />
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            RESULTING veRAFT
+            TOTAL VOTING ESCROW
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {veRaftAmountFormatted ? (
+            {totalVeRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel
+                  value={`${totalVeRaftAmountFormatted} ${VERAFT_TOKEN}`}
+                  valueSize="body"
+                  tickerSize="body2"
+                />
               </>
             ) : (
               'N/A'

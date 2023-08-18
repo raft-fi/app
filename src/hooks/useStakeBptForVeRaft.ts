@@ -112,15 +112,6 @@ const stakeBptForVeRaft$ = stakeBptForVeRaftStepsStatus$.pipe(
               throw receiptFetchFailed;
             }
 
-            stakeBptForVeRaftStatus$.next({
-              pending: false,
-              statusType,
-              success: true,
-              request,
-              response,
-              txHash: response.hash,
-            });
-
             if (statusType === 'approve') {
               notification$.next({
                 notificationId,
@@ -142,6 +133,15 @@ const stakeBptForVeRaft$ = stakeBptForVeRaftStepsStatus$.pipe(
               result: nextStep.value ?? null,
               generator,
               pending: false,
+            });
+
+            stakeBptForVeRaftStatus$.next({
+              pending: false,
+              statusType,
+              success: nextStep.done,
+              request,
+              response,
+              txHash: response.hash,
             });
 
             emitAppEvent({

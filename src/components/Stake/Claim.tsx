@@ -16,12 +16,12 @@ const Claim: FC<ClaimProps> = ({ goToPage }) => {
 
   const positionButtons = useMemo(
     () => [
-      <Button variant="secondary" size="large" onClick={goToDefault}>
+      <Button key="btn-stake" variant="secondary" size="large" onClick={goToDefault}>
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Increase stake
         </Typography>
       </Button>,
-      <Button variant="secondary" size="large" onClick={goToWithdraw}>
+      <Button key="btn-withdraw" variant="secondary" size="large" onClick={goToWithdraw}>
         <Typography variant="button-label" weight="medium" color="text-secondary">
           Withdraw
         </Typography>
