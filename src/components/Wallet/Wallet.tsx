@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import SafeAppsSDK, { SafeInfo } from '@safe-global/safe-apps-sdk';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
@@ -6,6 +7,7 @@ import WalletConnectModule from '@web3-onboard/walletconnect';
 import gnosisModule from '@web3-onboard/gnosis';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
+import { Nullable } from '../../interfaces';
 import {
   updateWalletFromEIP1193Provider,
   useAppLoaded,
@@ -22,6 +24,7 @@ import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
 
+const safeSdk = new SafeAppsSDK();
 const injected = injectedModule();
 const ledger = ledgerModule({
   walletConnectVersion: 2,
@@ -68,6 +71,7 @@ init({
 });
 
 const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
+const SAFE_TIMEOUT_IN_MS = 200;
 
 const Wallet = () => {
   const config = useConfig();
@@ -79,7 +83,21 @@ const Wallet = () => {
   const transactionHistory = useTransactionHistory();
 
   const [popupOpen, setPopupOpen] = useState(false);
+  const [safeApp, setSafeApp] = useState<Nullable<SafeInfo>>(null);
   const connectedAddress = wallet?.accounts?.[0]?.address ?? '';
+
+  useEffect(() => {
+    const tryToGetSafeApp = async () => {
+      const safe = await Promise.race([
+        safeSdk.safe.getInfo(),
+        new Promise<null>(resolve => setTimeout(resolve, SAFE_TIMEOUT_IN_MS)),
+      ]);
+
+      setSafeApp(safe);
+    };
+
+    tryToGetSafeApp();
+  }, []);
 
   /**
    * Update wallet hook every time user changes wallet
@@ -94,44 +112,54 @@ const Wallet = () => {
   }, [wallet]);
 
   /**
-   * Every time list of connected wallets changes, we want to store labels of those wallets in local storage.
+   * If it's not Gnosis Safe app,
+   * every time list of connected wallets changes, we store labels of those wallets in local storage.
    * Next time user opens the app, we will use this data to auto-connect wallet for the user.
    */
   useEffect(() => {
     const connectedWalletLabels = connectedWallets.map(connectedWallet => connectedWallet.label);
 
-    if (connectedWalletLabels.length > 0) {
+    if (connectedWalletLabels.length > 0 && !safeApp) {
       window.localStorage.setItem(LAST_CONNECTED_WALLET_STORAGE_KEY, JSON.stringify(connectedWalletLabels));
     }
-  }, [connectedWallets]);
+  }, [connectedWallets, safeApp]);
 
   /**
    * Check if user already connected any of his wallets in previous sessions, if yes,
    * automatically connect first wallet from list of previously connected wallets.
    */
   useEffect(() => {
-    const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem(LAST_CONNECTED_WALLET_STORAGE_KEY) || '[]',
-    ) as string[];
-    if (previouslyConnectedWallets && previouslyConnectedWallets.length > 0) {
+    if (safeApp && safeApp.chainId === 1) {
       connect({
         autoSelect: {
           disableModals: true,
-          label: previouslyConnectedWallets[0],
+          label: 'Safe',
         },
       });
+    } else {
+      const previouslyConnectedWallets = JSON.parse(
+        window.localStorage.getItem(LAST_CONNECTED_WALLET_STORAGE_KEY) || '[]',
+      ) as string[];
+      if (previouslyConnectedWallets && previouslyConnectedWallets.length > 0) {
+        connect({
+          autoSelect: {
+            disableModals: true,
+            label: previouslyConnectedWallets[0],
+          },
+        });
+      }
     }
-  }, [connect]);
+  }, [connect, safeApp]);
 
   /**
    * If user disconnected all of his wallets - we need to clear last connected wallet info from local
    * storage to prevent app from trying to connect automatically on app load
    */
   useEffect(() => {
-    if (connectedWallets.length === 0) {
+    if (connectedWallets.length === 0 && !safeApp) {
       window.localStorage.removeItem(LAST_CONNECTED_WALLET_STORAGE_KEY);
     }
-  }, [connectedWallets]);
+  }, [connectedWallets, safeApp]);
 
   const onConnect = useCallback(() => {
     connect();

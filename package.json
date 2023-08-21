@@ -24,6 +24,8 @@
     "@raft-fi/sdk": "^0.5.3",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
+    "@safe-global/safe-apps-provider": "^0.18.0",
+    "@safe-global/safe-apps-sdk": "^8.1.0",
     "@tempusfinance/decimal": "^0.0.12",
     "@web3-onboard/common": "^2.3.3",
     "@web3-onboard/gnosis": "^2.1.10",
