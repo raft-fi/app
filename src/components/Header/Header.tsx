@@ -20,6 +20,9 @@ const Header = () => {
       case '':
         setCurrentPage('your-position');
         break;
+      case '/savings':
+        setCurrentPage('savings');
+        break;
       case '/redeem':
         setCurrentPage('redeem');
         break;
@@ -41,6 +44,16 @@ const Header = () => {
             }`}
           >
             Your Position
+          </Typography>
+        </Link>
+      </div>,
+      <div key="navitem-savings" className="raft__header__nav-item">
+        <Link to="/savings">
+          <Typography
+            variant="menu-item"
+            className={`${currentPage === 'savings' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Earn
           </Typography>
         </Link>
       </div>,
