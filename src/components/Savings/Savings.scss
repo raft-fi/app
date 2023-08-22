@@ -1,0 +1,44 @@
+.raft__savings__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: 10px;
+
+  .raft__savings {
+    padding: 32px;
+    box-sizing: border-box;
+    background: var(--surfacePrimary);
+    border: 1px solid var(--borderPrimary);
+    border-radius: 8px;
+    width: 530px;
+
+    .raft__savings__input {
+      margin-top: 40px;
+    }
+
+    .raft__savings__action {
+      margin-top: 42px;
+
+      .raft__button {
+        width: 100%;
+      }
+
+      .raft__loading__container {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.raft__savings__infoTooltip {
+  max-width: 230px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    --externalLinkColor: var(--textAccent);
+  }
+}

@@ -17,6 +17,7 @@ import NotificationCenter from './components/NotificationCenter';
 import TransactionModal from './components/TransactionModal';
 import PositionPicker from './components/PositionPicker';
 import LeverageDashboard from './components/LeverageDashboard';
+import Savings from './components/Savings';
 
 import './index.scss';
 
@@ -43,6 +44,7 @@ if (mobile) {
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/redeem" element={<Redeem />} />
+            <Route path="/savings" element={<Savings />} />
             <Route
               path="/generate"
               element={
