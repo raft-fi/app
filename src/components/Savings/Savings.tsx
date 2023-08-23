@@ -1,24 +1,43 @@
-import { MouseEvent, memo, useCallback, useMemo, useState } from 'react';
+import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper } from 'tempus-ui';
-import { useAppLoaded } from '../../hooks';
+import { useAppLoaded, useManageSavings, useWallet } from '../../hooks';
 import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography } from '../shared';
 import LoadingSavings from '../LoadingSavings';
 
 import './Savings.scss';
-import { Decimal } from '@tempusfinance/decimal';
 
 const Savings = () => {
   const appLoaded = useAppLoaded();
+  const wallet = useWallet();
+  const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
   const [transactionState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
+  const [amount, setAmount] = useState<string>('');
+
+  const amountParsed = useMemo(() => {
+    return Decimal.parse(amount, 0);
+  }, [amount]);
+
+  useEffect(() => {
+    requestManageSavingsStep?.({
+      amount: amountParsed,
+    });
+  }, [amountParsed, requestManageSavingsStep]);
 
   const handleSwitchCollateralAction = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const addCollateral = event.currentTarget.getAttribute('data-id') === 'addCollateral';
     setIsAddCollateral(addCollateral);
   }, []);
 
-  const collateralLabelComponent = useMemo(
+  const handleCollateralValueUpdate = useCallback((amount: string) => {
+    setAmount(amount);
+  }, []);
+
+  const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
+
+  const rInputLabelComponent = useMemo(
     () => (
       <>
         <ButtonWrapper
@@ -46,13 +65,57 @@ const Savings = () => {
     [isAddCollateral, handleSwitchCollateralAction],
   );
 
+  const executionSteps = useMemo(
+    () => manageSavingsStepsStatus.result?.numberOfSteps,
+    [manageSavingsStepsStatus.result?.numberOfSteps],
+  );
+  const currentExecutionSteps = useMemo(
+    () => manageSavingsStepsStatus.result?.stepNumber,
+    [manageSavingsStepsStatus.result?.stepNumber],
+  );
+  const executionType = useMemo(
+    () => manageSavingsStepsStatus.result?.type?.name ?? null,
+    [manageSavingsStepsStatus.result?.type],
+  );
+
+  const hasNonEmptyInput = useMemo(() => !amountParsed.isZero(), [amountParsed]);
+
   const buttonLabel = useMemo(() => {
-    if (isAddCollateral) {
-      return 'DEPOSIT';
+    if (!walletConnected) {
+      return 'Connect wallet';
     }
 
-    return 'WITHDRAW';
-  }, [isAddCollateral]);
+    if (executionSteps === 1) {
+      return manageSavingsStatus.pending ? 'Executing' : 'Execute';
+    }
+
+    if (executionType === 'approve' || executionType === 'permit') {
+      return manageSavingsStatus.pending
+        ? `Approving R (${currentExecutionSteps}/${executionSteps})`
+        : `Approve R (${currentExecutionSteps}/${executionSteps})`;
+    }
+
+    if (executionType === 'manageSavings') {
+      return manageSavingsStatus.pending
+        ? `Executing (${currentExecutionSteps}/${executionSteps})`
+        : `Execute (${currentExecutionSteps}/${executionSteps})`;
+    }
+
+    // input is still empty, showing default button text
+    if (!hasNonEmptyInput) {
+      return 'Execute';
+    }
+
+    // executionType is null but input non-empty, still loading
+    return 'Loading';
+  }, [
+    walletConnected,
+    manageSavingsStatus.pending,
+    executionSteps,
+    executionType,
+    hasNonEmptyInput,
+    currentExecutionSteps,
+  ]);
 
   const subHeaderLabel = useMemo(() => {
     if (isAddCollateral) {
@@ -61,6 +124,10 @@ const Savings = () => {
 
     return 'Withdraw your savings and earned rewards.';
   }, [isAddCollateral]);
+
+  const onAction = useCallback(() => {
+    manageSavings?.();
+  }, [manageSavings]);
 
   if (!appLoaded) {
     return (
@@ -85,19 +152,13 @@ const Savings = () => {
 
           <div className="raft__savings__input">
             <CurrencyInput
-              label={collateralLabelComponent}
+              label={rInputLabelComponent}
               precision={18}
               selectedToken={'R'}
               tokens={['R']}
-              value={'0'}
-              previewValue={''}
+              value={amount}
               maxAmount={Decimal.ONE}
-              onTokenUpdate={() => null}
-              onValueUpdate={() => null}
-              disabled={false}
-              onBlur={() => null}
-              error={false}
-              errorMsg={undefined}
+              onValueUpdate={handleCollateralValueUpdate}
             />
           </div>
 
@@ -141,7 +202,7 @@ const Savings = () => {
           </div>
 
           <div className="raft__savings__action">
-            <Button variant="primary" size="large" onClick={() => null} disabled={false}>
+            <Button variant="primary" size="large" onClick={onAction} disabled={false}>
               {transactionState === 'loading' && <Loading />}
               <Typography variant="button-label" color="text-primary-inverted">
                 {buttonLabel}

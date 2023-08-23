@@ -3,7 +3,7 @@ import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
 import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken } from '../interfaces';
 
-export type AppEventType = 'whitelist' | 'approve' | 'permit' | 'manage' | 'leverage' | 'redeem';
+export type AppEventType = 'whitelist' | 'approve' | 'permit' | 'manage' | 'leverage' | 'redeem' | 'manageSavings';
 
 export interface AppEventMetadata {
   collateralToken?: SupportedCollateralToken;
