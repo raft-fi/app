@@ -15,7 +15,10 @@
 
   .raft__savings__left {
     margin-right: 16px;
-    background-color: yellow;
+
+    .raft__savings__subheader {
+      margin-top: 16px;
+    }
   }
 
   .raft__savings__right {
@@ -78,6 +81,7 @@
     .raft__savings__extraData {
       display: flex;
       flex-direction: column;
+      margin-top: 20px;
 
       .raft__savings__extraDataTitle {
         /* TODO: hardcode color as suggested */

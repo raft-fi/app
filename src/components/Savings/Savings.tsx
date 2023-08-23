@@ -1,10 +1,11 @@
-import { memo, useMemo, useState } from 'react';
+import { MouseEvent, memo, useCallback, useMemo, useState } from 'react';
 import { ButtonWrapper } from 'tempus-ui';
 import { useAppLoaded } from '../../hooks';
 import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography } from '../shared';
 import LoadingSavings from '../LoadingSavings';
 
 import './Savings.scss';
+import { Decimal } from '@tempusfinance/decimal';
 
 const Savings = () => {
   const appLoaded = useAppLoaded();
@@ -12,13 +13,19 @@ const Savings = () => {
   const [transactionState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
 
+  const handleSwitchCollateralAction = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    const addCollateral = event.currentTarget.getAttribute('data-id') === 'addCollateral';
+    setIsAddCollateral(addCollateral);
+  }, []);
+
   const collateralLabelComponent = useMemo(
     () => (
       <>
         <ButtonWrapper
           className="raft__savings__input-deposit"
+          data-id="addCollateral"
           selected={isAddCollateral}
-          onClick={() => setIsAddCollateral(true)}
+          onClick={handleSwitchCollateralAction}
         >
           <Typography variant="overline" weight="semi-bold">
             DEPOSIT
@@ -26,8 +33,9 @@ const Savings = () => {
         </ButtonWrapper>
         <ButtonWrapper
           className="raft__savings__input-withdraw"
+          data-id="removeCollateral"
           selected={!isAddCollateral}
-          onClick={() => setIsAddCollateral(false)}
+          onClick={handleSwitchCollateralAction}
         >
           <Typography variant="overline" weight="semi-bold">
             WITHDRAW
@@ -35,8 +43,24 @@ const Savings = () => {
         </ButtonWrapper>
       </>
     ),
-    [isAddCollateral],
+    [isAddCollateral, handleSwitchCollateralAction],
   );
+
+  const buttonLabel = useMemo(() => {
+    if (isAddCollateral) {
+      return 'DEPOSIT';
+    }
+
+    return 'WITHDRAW';
+  }, [isAddCollateral]);
+
+  const subHeaderLabel = useMemo(() => {
+    if (isAddCollateral) {
+      return 'Deposit R to earn more R.';
+    }
+
+    return 'Withdraw your savings and earned rewards.';
+  }, [isAddCollateral]);
 
   if (!appLoaded) {
     return (
@@ -53,6 +77,11 @@ const Savings = () => {
           <Typography variant="heading2" weight="medium">
             Earn
           </Typography>
+          <div className="raft__savings__subheader">
+            <Typography variant="menu-item" weight="regular" color="text-secondary">
+              {subHeaderLabel}
+            </Typography>
+          </div>
 
           <div className="raft__savings__input">
             <CurrencyInput
@@ -62,6 +91,7 @@ const Savings = () => {
               tokens={['R']}
               value={'0'}
               previewValue={''}
+              maxAmount={Decimal.ONE}
               onTokenUpdate={() => null}
               onValueUpdate={() => null}
               disabled={false}
@@ -114,7 +144,7 @@ const Savings = () => {
             <Button variant="primary" size="large" onClick={() => null} disabled={false}>
               {transactionState === 'loading' && <Loading />}
               <Typography variant="button-label" color="text-primary-inverted">
-                Deposit
+                {buttonLabel}
               </Typography>
             </Button>
           </div>
