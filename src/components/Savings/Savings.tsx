@@ -4,6 +4,7 @@ import { ButtonWrapper } from 'tempus-ui';
 import { useAppLoaded, useManageSavings, useWallet } from '../../hooks';
 import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography } from '../shared';
 import LoadingSavings from '../LoadingSavings';
+import FAQ from '../FAQ';
 
 import './Savings.scss';
 
@@ -213,7 +214,9 @@ const Savings = () => {
       </div>
       <div className="raft__savings__right">
         <div className="raft__savings__stats">XX</div>
-        <div className="raft__savings__faqs">FAQs</div>
+        <div className="raft__savings__faqs">
+          <FAQ />
+        </div>
       </div>
     </div>
   );

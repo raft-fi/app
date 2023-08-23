@@ -115,12 +115,8 @@
     }
   }
 
-  .raft__savings__stats,
-  .raft__savings__faqs {
-    @include boxStyle;
-  }
-
   .raft__savings__stats {
+    @include boxStyle;
     margin-bottom: 16px;
   }
 }
