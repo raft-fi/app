@@ -1,20 +1,101 @@
+@mixin boxStyle {
+  padding: 32px;
+  box-sizing: border-box;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+}
+
 .raft__savings__container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: center;
   width: 100%;
   padding-top: 10px;
 
+  .raft__savings__left {
+    margin-right: 16px;
+    background-color: yellow;
+  }
+
+  .raft__savings__right {
+    background-color: aquamarine;
+  }
+
   .raft__savings {
-    padding: 32px;
-    box-sizing: border-box;
-    background: var(--surfacePrimary);
-    border: 1px solid var(--borderPrimary);
-    border-radius: 8px;
+    @include boxStyle;
     width: 530px;
 
     .raft__savings__input {
+      display: flex;
       margin-top: 40px;
+
+      .raft__currencyInput {
+        margin: 0 16px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        .raft__savings__input-deposit,
+        .raft__savings__input-borrow {
+          margin-right: 8px;
+        }
+
+        .raft__savings__input-deposit,
+        .raft__savings__input-withdraw,
+        .raft__savings__input-borrow,
+        .raft__savings__input-repay {
+          &[data-selected="false"] {
+            &:hover {
+              div {
+                --textPrimary: var(--textAccent);
+              }
+            }
+          }
+
+          &[data-selected="true"] {
+            --textPrimary: var(--textAccent);
+
+            position: relative;
+
+            &::after {
+              content: " ";
+              border-bottom: 2px solid var(--textAccent);
+              width: 100%;
+              position: absolute;
+              top: 18px;
+            }
+          }
+        }
+      }
+    }
+
+    .raft__savings__extraData {
+      display: flex;
+      flex-direction: column;
+
+      .raft__savings__extraDataTitle {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-700);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-700);
+
+        display: flex;
+        align-items: center;
+
+        &:not(:first-child) {
+          margin-top: 42px;
+        }
+
+        .raft__tooltip-wrapper-anchor {
+          margin-left: 6px;
+        }
+      }
     }
 
     .raft__savings__action {
@@ -28,6 +109,15 @@
         margin-right: 8px;
       }
     }
+  }
+
+  .raft__savings__stats,
+  .raft__savings__faqs {
+    @include boxStyle;
+  }
+
+  .raft__savings__stats {
+    margin-bottom: 16px;
   }
 }
 
