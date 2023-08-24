@@ -1,11 +1,3 @@
-@mixin boxStyle {
-  padding: 32px;
-  box-sizing: border-box;
-  background: var(--surfacePrimary);
-  border: 1px solid var(--borderPrimary);
-  border-radius: 8px;
-}
-
 .raft__savings__container {
   display: flex;
   flex-direction: row;
@@ -21,12 +13,12 @@
     }
   }
 
-  .raft__savings__right {
-    background-color: aquamarine;
-  }
-
   .raft__savings {
-    @include boxStyle;
+    padding: 32px;
+    box-sizing: border-box;
+    background: var(--surfacePrimary);
+    border: 1px solid var(--borderPrimary);
+    border-radius: 8px;
     width: 530px;
 
     .raft__savings__input {
@@ -104,7 +96,6 @@
   }
 
   .raft__savings__stats {
-    @include boxStyle;
     margin-bottom: 16px;
   }
 }
