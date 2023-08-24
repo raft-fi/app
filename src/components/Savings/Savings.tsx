@@ -1,5 +1,6 @@
 import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
+import { useConnectWallet } from '@web3-onboard/react';
 import { ButtonWrapper } from 'tempus-ui';
 import { useAppLoaded, useManageSavings, useWallet } from '../../hooks';
 import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography } from '../shared';
@@ -9,6 +10,8 @@ import FAQ from '../FAQ';
 import './Savings.scss';
 
 const Savings = () => {
+  const [, connect] = useConnectWallet();
+
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
@@ -130,6 +133,10 @@ const Savings = () => {
     manageSavings?.();
   }, [manageSavings]);
 
+  const onConnectWallet = useCallback(() => {
+    connect();
+  }, [connect]);
+
   if (!appLoaded) {
     return (
       <div className="raft__savings__container">
@@ -203,7 +210,12 @@ const Savings = () => {
           </div>
 
           <div className="raft__savings__action">
-            <Button variant="primary" size="large" onClick={onAction} disabled={false}>
+            <Button
+              variant="primary"
+              size="large"
+              onClick={walletConnected ? onAction : onConnectWallet}
+              disabled={false}
+            >
               {transactionState === 'loading' && <Loading />}
               <Typography variant="button-label" color="text-primary-inverted">
                 {buttonLabel}
