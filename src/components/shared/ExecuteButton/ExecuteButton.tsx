@@ -1,30 +1,30 @@
 import { FC, useMemo } from 'react';
-import { Button, Typography, Loading } from '../shared';
+import { Button, Typography, Loading } from '..';
 
-import './PositionAction.scss';
+import './ExecuteButton.scss';
 
 interface PositionActionProps {
   actionButtonState: string;
-  canBorrow: boolean;
+  canExecute: boolean;
   buttonLabel: string;
   walletConnected: boolean;
   onClick: () => void;
 }
 
-export const PositionAction: FC<PositionActionProps> = ({
+export const ExecuteButton: FC<PositionActionProps> = ({
   actionButtonState,
   buttonLabel,
-  canBorrow,
+  canExecute,
   walletConnected,
   onClick,
 }) => {
   const buttonDisabled = useMemo(
-    () => actionButtonState === 'loading' || (walletConnected && !canBorrow),
-    [canBorrow, actionButtonState, walletConnected],
+    () => actionButtonState === 'loading' || (walletConnected && !canExecute),
+    [canExecute, actionButtonState, walletConnected],
   );
 
   return (
-    <div className="raft__position-action">
+    <div className="raft__executeButton">
       <Button variant="primary" size="large" onClick={onClick} disabled={buttonDisabled}>
         {actionButtonState === 'loading' && <Loading />}
         <Typography variant="button-label" color="text-primary-inverted">

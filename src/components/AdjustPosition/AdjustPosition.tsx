@@ -32,8 +32,8 @@ import {
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import { Nullable, Position, SupportedCollateralToken, SupportedUnderlyingCollateralToken } from '../../interfaces';
-import { Button, CurrencyInput, Typography } from '../shared';
-import { PositionAction, PositionAfter } from '../Position';
+import { Button, CurrencyInput, Typography, ExecuteButton } from '../shared';
+import { PositionAfter } from '../Position';
 
 import './AdjustPosition.scss';
 
@@ -874,9 +874,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
-      <PositionAction
+      <ExecuteButton
         actionButtonState={transactionState}
-        canBorrow={canAdjust}
+        canExecute={canAdjust}
         buttonLabel={buttonLabel}
         walletConnected={true}
         onClick={onAction}

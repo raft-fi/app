@@ -53,7 +53,7 @@
         .raft__savings__input-withdraw,
         .raft__savings__input-borrow,
         .raft__savings__input-repay {
-          &[data-selected="false"] {
+          &[data-selected='false'] {
             &:hover {
               div {
                 --textPrimary: var(--textAccent);
@@ -61,13 +61,13 @@
             }
           }
 
-          &[data-selected="true"] {
+          &[data-selected='true'] {
             --textPrimary: var(--textAccent);
 
             position: relative;
 
             &::after {
-              content: " ";
+              content: ' ';
               border-bottom: 2px solid var(--textAccent);
               width: 100%;
               position: absolute;
@@ -99,18 +99,6 @@
         .raft__tooltip-wrapper-anchor {
           margin-left: 6px;
         }
-      }
-    }
-
-    .raft__savings__action {
-      margin-top: 42px;
-
-      .raft__button {
-        width: 100%;
-      }
-
-      .raft__loading__container {
-        margin-right: 8px;
       }
     }
   }
