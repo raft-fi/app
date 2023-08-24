@@ -1,5 +1,5 @@
 import { CSSProperties, useCallback, useMemo, useState } from 'react';
-import { Icon, Typography } from '../shared';
+import { Icon, Typography } from '../../shared';
 
 import './FAQ.scss';
 

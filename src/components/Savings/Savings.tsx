@@ -14,7 +14,8 @@ import {
 import { formatCurrency } from '../../utils';
 import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography } from '../shared';
 import LoadingSavings from '../LoadingSavings';
-import FAQ from '../FAQ';
+import FAQ from './FAQ';
+import Stats from './Stats';
 
 import './Savings.scss';
 
@@ -333,10 +334,8 @@ const Savings = () => {
         </div>
       </div>
       <div className="raft__savings__right">
-        <div className="raft__savings__stats">XX</div>
-        <div className="raft__savings__faqs">
-          <FAQ />
-        </div>
+        <Stats />
+        <FAQ />
       </div>
     </div>
   );

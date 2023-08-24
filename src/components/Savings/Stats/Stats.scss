@@ -1,0 +1,51 @@
+.raft__savings__stats {
+  display: flex;
+  justify-self: center;
+  flex-direction: column;
+  padding: 0 16px;
+  width: 342px;
+  box-sizing: border-box;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+
+  .raft__savings__stats__item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--raft-grey-400);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    > div:first-child {
+      padding-bottom: 16px;
+    }
+
+    .raft__savings__stats__item-token {
+      display: flex;
+      flex-direction: row;
+      align-items: baseline;
+
+      > svg {
+        width: 24px;
+        height: 24px;
+        box-shadow: var(--shadowPrimary);
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+    }
+
+    .raft__savings__stats__item-value {
+      display: flex;
+      flex-direction: row;
+      align-items: baseline;
+
+      > div:first-child {
+        margin-right: 6px;
+      }
+    }
+  }
+}
