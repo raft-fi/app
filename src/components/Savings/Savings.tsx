@@ -116,6 +116,7 @@ const Savings = () => {
     return amountParsed.lte(savingsMaxDeposit);
   }, [amountParsed, savingsMaxDeposit]);
 
+  // TODO - Handle withdraw error messages inside this hook
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
       return 'Connect wallet';
@@ -177,12 +178,33 @@ const Savings = () => {
 
   const hasInputFilled = useMemo(() => !amountParsed.isZero(), [amountParsed]);
 
-  const canExecute = useMemo(
+  const canExecuteDeposit = useMemo(
     () => Boolean(hasInputFilled && hasEnoughRTokenBalance && !isWrongNetwork && isPositionWithinDepositCap),
     [hasEnoughRTokenBalance, hasInputFilled, isPositionWithinDepositCap, isWrongNetwork],
   );
 
-  const errorMessage = useMemo(() => {
+  const canExecuteWithdraw = useMemo(() => {
+    // TODO - Handle withdraw disabled state
+    return true;
+  }, []);
+
+  const canExecute = useMemo(() => {
+    if (isAddCollateral) {
+      return canExecuteDeposit;
+    }
+    return canExecuteWithdraw;
+  }, [canExecuteDeposit, canExecuteWithdraw, isAddCollateral]);
+
+  const errorMessageWithdraw = useMemo(() => {
+    // TODO - Handle withdraw error messages
+    return '';
+  }, []);
+
+  const errorMessageDeposit = useMemo(() => {
+    if (!walletConnected) {
+      return;
+    }
+
     if (!hasEnoughRTokenBalance) {
       return 'Insufficient funds';
     }
@@ -199,7 +221,14 @@ const Savings = () => {
 
       return `Deposit amount exceeds max deposit amount of ${maxDeposit}. Please reduce the deposit amount.`;
     }
-  }, [hasEnoughRTokenBalance, isPositionWithinDepositCap, isWrongNetwork, savingsMaxDeposit]);
+  }, [hasEnoughRTokenBalance, isPositionWithinDepositCap, isWrongNetwork, savingsMaxDeposit, walletConnected]);
+
+  const errorMessage = useMemo(() => {
+    if (isAddCollateral) {
+      return errorMessageDeposit;
+    }
+    return errorMessageWithdraw;
+  }, [errorMessageDeposit, errorMessageWithdraw, isAddCollateral]);
 
   const onAction = useCallback(() => {
     manageSavings?.();
