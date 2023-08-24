@@ -31,3 +31,4 @@ export * from './useEstimateSwapPrice';
 export * from './useLeveragePosition';
 export * from './useRFlashMintFee';
 export * from './useManageSavings';
+export * from './useSavingsMaxDeposit';

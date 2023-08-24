@@ -1,9 +1,18 @@
 import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
+import { R_TOKEN } from '@raft-fi/sdk';
 import { ButtonWrapper } from 'tempus-ui';
-import { useAppLoaded, useManageSavings, useWallet } from '../../hooks';
-import { Button, CurrencyInput, Icon, Loading, Tooltip, TooltipWrapper, Typography } from '../shared';
+import {
+  useAppLoaded,
+  useManageSavings,
+  useNetwork,
+  useSavingsMaxDeposit,
+  useTokenBalances,
+  useWallet,
+} from '../../hooks';
+import { formatCurrency } from '../../utils';
+import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography } from '../shared';
 import LoadingSavings from '../LoadingSavings';
 import FAQ from '../FAQ';
 
@@ -13,12 +22,15 @@ const Savings = () => {
   const [, connect] = useConnectWallet();
 
   const appLoaded = useAppLoaded();
+  const { isWrongNetwork } = useNetwork();
   const wallet = useWallet();
+  const tokenBalanceMap = useTokenBalances();
+  const savingsMaxDeposit = useSavingsMaxDeposit();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
-  const [transactionState] = useState<string>('default');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
   const [amount, setAmount] = useState<string>('');
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
 
   const amountParsed = useMemo(() => {
     return Decimal.parse(amount, 0);
@@ -40,6 +52,8 @@ const Savings = () => {
   }, []);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
+
+  const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
 
   const rInputLabelComponent = useMemo(
     () => (
@@ -84,9 +98,40 @@ const Savings = () => {
 
   const hasNonEmptyInput = useMemo(() => !amountParsed.isZero(), [amountParsed]);
 
+  const hasEnoughRTokenBalance = useMemo(() => {
+    // In case R token balance is still loading
+    if (!rTokenBalance) {
+      return false;
+    }
+
+    return amountParsed.lte(rTokenBalance);
+  }, [amountParsed, rTokenBalance]);
+
+  const isPositionWithinDepositCap = useMemo(() => {
+    // In case savingsMaxDeposit is still loading
+    if (!savingsMaxDeposit) {
+      return false;
+    }
+
+    return amountParsed.lte(savingsMaxDeposit);
+  }, [amountParsed, savingsMaxDeposit]);
+
+  // TODO - Handle withdraw error messages inside this hook
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
       return 'Connect wallet';
+    }
+
+    if (isWrongNetwork) {
+      return 'Unsupported network';
+    }
+
+    if (!hasEnoughRTokenBalance) {
+      return 'Insufficient funds';
+    }
+
+    if (!isPositionWithinDepositCap) {
+      return 'Deposit capacity reached, please try again later';
     }
 
     if (executionSteps === 1) {
@@ -110,14 +155,16 @@ const Savings = () => {
       return 'Execute';
     }
 
-    // executionType is null but input non-empty, still loading
-    return 'Loading';
+    return 'Execute';
   }, [
     walletConnected,
-    manageSavingsStatus.pending,
+    isWrongNetwork,
+    hasEnoughRTokenBalance,
+    isPositionWithinDepositCap,
     executionSteps,
     executionType,
     hasNonEmptyInput,
+    manageSavingsStatus.pending,
     currentExecutionSteps,
   ]);
 
@@ -129,6 +176,60 @@ const Savings = () => {
     return 'Withdraw your savings and earned rewards.';
   }, [isAddCollateral]);
 
+  const hasInputFilled = useMemo(() => !amountParsed.isZero(), [amountParsed]);
+
+  const canExecuteDeposit = useMemo(
+    () => Boolean(hasInputFilled && hasEnoughRTokenBalance && !isWrongNetwork && isPositionWithinDepositCap),
+    [hasEnoughRTokenBalance, hasInputFilled, isPositionWithinDepositCap, isWrongNetwork],
+  );
+
+  const canExecuteWithdraw = useMemo(() => {
+    // TODO - Handle withdraw disabled state
+    return true;
+  }, []);
+
+  const canExecute = useMemo(() => {
+    if (isAddCollateral) {
+      return canExecuteDeposit;
+    }
+    return canExecuteWithdraw;
+  }, [canExecuteDeposit, canExecuteWithdraw, isAddCollateral]);
+
+  const errorMessageWithdraw = useMemo(() => {
+    // TODO - Handle withdraw error messages
+    return '';
+  }, []);
+
+  const errorMessageDeposit = useMemo(() => {
+    if (!walletConnected) {
+      return;
+    }
+
+    if (!hasEnoughRTokenBalance) {
+      return 'Insufficient funds';
+    }
+
+    if (isWrongNetwork) {
+      return 'You are connected to unsupported network. Please switch to Ethereum Mainnet.';
+    }
+
+    if (!isPositionWithinDepositCap) {
+      const maxDeposit = formatCurrency(savingsMaxDeposit, {
+        currency: R_TOKEN,
+        fractionDigits: 2,
+      });
+
+      return `Deposit amount exceeds max deposit amount of ${maxDeposit}. Please reduce the deposit amount.`;
+    }
+  }, [hasEnoughRTokenBalance, isPositionWithinDepositCap, isWrongNetwork, savingsMaxDeposit, walletConnected]);
+
+  const errorMessage = useMemo(() => {
+    if (isAddCollateral) {
+      return errorMessageDeposit;
+    }
+    return errorMessageWithdraw;
+  }, [errorMessageDeposit, errorMessageWithdraw, isAddCollateral]);
+
   const onAction = useCallback(() => {
     manageSavings?.();
   }, [manageSavings]);
@@ -136,6 +237,17 @@ const Savings = () => {
   const onConnectWallet = useCallback(() => {
     connect();
   }, [connect]);
+
+  /**
+   * Update action button state based on current approve/borrow request status
+   */
+  useEffect(() => {
+    if (manageSavingsStatus.pending || manageSavingsStepsStatus.pending) {
+      setActionButtonState('loading');
+    } else {
+      setActionButtonState('default');
+    }
+  }, [manageSavingsStatus.pending, manageSavingsStepsStatus.pending]);
 
   if (!appLoaded) {
     return (
@@ -167,6 +279,8 @@ const Savings = () => {
               value={amount}
               maxAmount={Decimal.ONE}
               onValueUpdate={handleCollateralValueUpdate}
+              error={Boolean(errorMessage)}
+              errorMsg={errorMessage}
             />
           </div>
 
@@ -209,19 +323,13 @@ const Savings = () => {
             <Typography variant="overline">N/A</Typography>
           </div>
 
-          <div className="raft__savings__action">
-            <Button
-              variant="primary"
-              size="large"
-              onClick={walletConnected ? onAction : onConnectWallet}
-              disabled={false}
-            >
-              {transactionState === 'loading' && <Loading />}
-              <Typography variant="button-label" color="text-primary-inverted">
-                {buttonLabel}
-              </Typography>
-            </Button>
-          </div>
+          <ExecuteButton
+            actionButtonState={actionButtonState}
+            buttonLabel={buttonLabel}
+            canExecute={canExecute}
+            onClick={walletConnected ? onAction : onConnectWallet}
+            walletConnected={walletConnected}
+          />
         </div>
       </div>
       <div className="raft__savings__right">

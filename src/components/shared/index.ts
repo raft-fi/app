@@ -15,6 +15,7 @@ import Tooltip from './Tooltip';
 import Checkbox from './Checkbox';
 import InfoBox from './InfoBox';
 import SliderInput from './SliderInput';
+import ExecuteButton from './ExecuteButton';
 
 export {
   BaseInput,
@@ -34,6 +35,7 @@ export {
   Checkbox,
   InfoBox,
   SliderInput,
+  ExecuteButton,
 };
 
 export { colors } from './Colors';

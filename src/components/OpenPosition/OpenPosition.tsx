@@ -37,8 +37,8 @@ import {
   isCollateralToken,
   isDisplayBaseToken,
 } from '../../utils';
-import { Button, CurrencyInput, Icon, Typography } from '../shared';
-import { PositionAfter, PositionAction } from '../Position';
+import { Button, CurrencyInput, Icon, Typography, ExecuteButton } from '../shared';
+import { PositionAfter } from '../Position';
 
 import './OpenPosition.scss';
 
@@ -735,9 +735,9 @@ const OpenPosition = () => {
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
-      <PositionAction
+      <ExecuteButton
         actionButtonState={actionButtonState}
-        canBorrow={canBorrow}
+        canExecute={canBorrow}
         buttonLabel={buttonLabel}
         walletConnected={walletConnected}
         onClick={walletConnected ? onAction : onConnectWallet}

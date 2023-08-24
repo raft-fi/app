@@ -25,6 +25,7 @@ import {
   subscribeLeveragePosition,
   subscribeRFlashMintFee,
   subscribeManageSavingsStatus,
+  subscribeSavingsMaxDeposit,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -57,6 +58,7 @@ const HookSubscriber: FC = () => {
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
     subscribeRFlashMintFee();
+    subscribeSavingsMaxDeposit();
   }, []);
 
   return null;
