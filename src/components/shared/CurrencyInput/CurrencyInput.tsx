@@ -30,6 +30,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   maxIntegralDigits?: number;
   maxAmount?: Nullable<Decimal>;
   maxAmountFormatted?: string;
+  maxAmountIconVisible?: boolean;
   onValueUpdate?: (value: string) => void;
   onValueDebounceUpdate?: (value: string) => void;
   onTokenUpdate?: (token: string) => void;
@@ -53,6 +54,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     maxIntegralDigits = MAX_INTEGRAL_DIGIT,
     maxAmount,
     maxAmountFormatted = '',
+    maxAmountIconVisible: showWalletIcon = true,
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
@@ -131,7 +133,7 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
           {maxAmount && (
             <ButtonWrapper onClick={onMaxAmountClick} disabled={!onMaxAmountClick}>
               <div className="raft__currencyInput__maxAmountValue">
-                <Icon variant="wallet" size="tiny" />
+                {showWalletIcon && <Icon variant="wallet" size="tiny" />}
                 <div className="raft__currencyInput__maxAmountValue">
                   <ValueLabel
                     valueSize="caption"
