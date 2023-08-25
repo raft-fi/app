@@ -117,6 +117,12 @@
 
       .raft__savings__transactionInfoValue {
         margin-top: 8px;
+        display: flex;
+        align-items: center;
+
+        .common-ui__logo-token-R {
+          margin-right: 8px;
+        }
       }
     }
   }
