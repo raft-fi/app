@@ -93,6 +93,32 @@
         }
       }
     }
+
+    .raft__savings__transactionInfo {
+      margin-top: 12px;
+
+      .raft__savings__transactionInfoTitle {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-700);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-700);
+
+        display: flex;
+        align-items: center;
+
+        &:not(:first-child) {
+          margin-top: 32px;
+        }
+
+        .raft__tooltip-wrapper-anchor {
+          margin-left: 4px;
+        }
+      }
+
+      .raft__savings__transactionInfoValue {
+        margin-top: 8px;
+      }
+    }
   }
 
   .raft__savings__stats {

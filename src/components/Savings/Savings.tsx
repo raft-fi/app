@@ -14,7 +14,7 @@ import {
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
-import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography } from '../shared';
+import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
 import LoadingSavings from '../LoadingSavings';
 import FAQ from './FAQ';
 import Stats from './Stats';
@@ -334,13 +334,13 @@ const Savings = () => {
             />
           </div>
 
-          <div className="raft__savings__extraData">
-            <div className="raft__savings__extraDataTitle">
-              <Typography variant="overline">TITLE</Typography>
+          <div className="raft__savings__transactionInfo">
+            <div className="raft__savings__transactionInfoTitle">
+              <Typography variant="overline">PROTOCOL FEES</Typography>
               <TooltipWrapper
                 tooltipContent={
                   <Tooltip className="raft__savings__infoTooltip">
-                    <Typography variant="body2">Activated charcoal paleo selvage synth hexagon.</Typography>
+                    <Typography variant="body2">TODO - Need text for tooltip</Typography>
                   </Tooltip>
                 }
                 placement="top"
@@ -348,8 +348,9 @@ const Savings = () => {
                 <Icon variant="info" size="tiny" />
               </TooltipWrapper>
             </div>
-
-            <Typography variant="overline">N/A</Typography>
+            <div className="raft__savings__transactionInfoValue">
+              <ValueLabel value="Free" valueSize="body" />
+            </div>
           </div>
 
           <div className="raft__savings__extraData">
