@@ -9,6 +9,8 @@ import {
   useManageSavings,
   useNetwork,
   useSavingsMaxDeposit,
+  useSavingsTvl,
+  useSavingsYield,
   useTokenBalances,
   useWallet,
 } from '../../hooks';
@@ -30,6 +32,8 @@ const Savings = () => {
   const tokenBalanceMap = useTokenBalances();
   const savingsMaxDeposit = useSavingsMaxDeposit();
   const currentUserSavings = useCurrentUserSavings();
+  const savingsTvl = useSavingsTvl();
+  const savingsYield = useSavingsYield();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
@@ -384,7 +388,12 @@ const Savings = () => {
         </div>
       </div>
       <div className="raft__savings__right">
-        <Stats />
+        <Stats
+          currentSavings={currentUserSavings}
+          currentYield={savingsYield}
+          tvl={savingsTvl}
+          savingsMaxDeposit={savingsMaxDeposit}
+        />
         <FAQ />
       </div>
     </div>
