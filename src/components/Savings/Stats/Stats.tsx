@@ -1,5 +1,6 @@
 import { FC, useMemo } from 'react';
 import { R_TOKEN } from '@raft-fi/sdk';
+import { TokenLogo } from 'tempus-ui';
 import { DecimalFormat, Decimal } from '@tempusfinance/decimal';
 import { R_TOKEN_UI_PRECISION } from '../../../constants';
 import { Nullable } from '../../../interfaces';
@@ -36,7 +37,7 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
 
     return DecimalFormat.format(currentYield, {
       style: 'percentage',
-      fractionDigits: R_TOKEN_UI_PRECISION,
+      fractionDigits: 2,
       lessThanFormat: true,
       pad: true,
     });
@@ -91,12 +92,15 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
               <Icon variant="info" size="tiny" color="var(--textAccentInverted)" />
             </TooltipWrapper>
           </div>
-          <ValueLabel
-            value={currentSavingsFormatted}
-            valueSize="heading1"
-            tickerSize="heading2"
-            color="text-primary-inverted"
-          />
+          <div className="raft__savings__stats__item-token">
+            <TokenLogo type="token-R" size="small" />
+            <ValueLabel
+              value={currentSavingsFormatted}
+              valueSize="heading1"
+              tickerSize="heading2"
+              color="text-primary-inverted"
+            />
+          </div>
         </div>
       )}
 
@@ -114,21 +118,27 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
         <Typography variant="overline" weight="semi-bold" color="text-accent">
           TOTAL VALUE LOCKED
         </Typography>
-        {currentTvlFormatted ? (
-          <ValueLabel value={currentTvlFormatted} valueSize="heading1" tickerSize="heading2" />
-        ) : (
-          '---'
-        )}
+        <div className="raft__savings__stats__item-token">
+          <TokenLogo type="token-R" size="small" />
+          {currentTvlFormatted ? (
+            <ValueLabel value={currentTvlFormatted} valueSize="heading1" tickerSize="heading2" />
+          ) : (
+            '---'
+          )}
+        </div>
       </div>
       <div className="raft__savings__stats__item">
         <Typography variant="overline" weight="semi-bold" color="text-accent">
           REMAINING CAPACITY
         </Typography>
-        {savingsMaxDepositFormatted ? (
-          <ValueLabel value={savingsMaxDepositFormatted} valueSize="heading1" tickerSize="heading2" />
-        ) : (
-          '---'
-        )}
+        <div className="raft__savings__stats__item-token">
+          <TokenLogo type="token-R" size="small" />
+          {savingsMaxDepositFormatted ? (
+            <ValueLabel value={savingsMaxDepositFormatted} valueSize="heading1" tickerSize="heading2" />
+          ) : (
+            '---'
+          )}
+        </div>
       </div>
     </div>
   );
