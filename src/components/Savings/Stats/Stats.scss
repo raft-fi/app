@@ -24,12 +24,13 @@
       }
     }
 
-    &.raft__savings__stats__item-inverse {
-      background-color: var(--raft-blue-900);
-    }
-
     &:first-child {
       border-radius: 8px 8px 0 0;
+    }
+
+    &.raft__savings__stats__item-inverse {
+      border-radius: 8px;
+      background-color: var(--raft-blue-900);
     }
 
     &:last-child {
@@ -51,6 +52,19 @@
         box-shadow: var(--shadowPrimary);
         border-radius: 50%;
         margin-right: 10px;
+      }
+    }
+
+    .raft__savings__stats__capacity__progress-bar__container {
+      height: 8px;
+      border-radius: 10px;
+      margin-top: 8px;
+      background-color: var(--raft-grey-400);
+
+      .raft__savings__stats__capacity__progress-bar {
+        height: 8px;
+        border-radius: 10px;
+        background-color: var(--textAccent);
       }
     }
   }

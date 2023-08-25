@@ -357,27 +357,6 @@ const Savings = () => {
             </div>
           </div>
 
-          <div className="raft__savings__extraData">
-            <div className="raft__savings__extraDataTitle">
-              <Typography variant="overline">TITLE 2</Typography>
-              <TooltipWrapper
-                tooltipContent={
-                  <Tooltip className="raft__savings__infoTooltip">
-                    <Typography variant="body2">
-                      Next level roof party bicycle rights same big mood, artisan VHS quinoa polaroid art party
-                      mustache.
-                    </Typography>
-                  </Tooltip>
-                }
-                placement="top"
-              >
-                <Icon variant="info" size="tiny" />
-              </TooltipWrapper>
-            </div>
-
-            <Typography variant="overline">N/A</Typography>
-          </div>
-
           <ExecuteButton
             actionButtonState={actionButtonState}
             buttonLabel={buttonLabel}

@@ -25,10 +25,19 @@ const FAQ = () => {
       <div className="raft__savings__faq-body" style={style}>
         <div className="raft__savings__faq-item">
           <Typography variant="body" weight="medium">
-            What is RR?
+            What is R?
           </Typography>
           <Typography variant="body">
             R is the most capital-efficient Ethereum USD stablecoin backed by liquid staking tokens.
+          </Typography>
+        </div>
+        <div className="raft__savings__faq-item">
+          <Typography variant="body" weight="medium">
+            What is RR?
+          </Typography>
+          <Typography variant="body">
+            RR is an ERC-20 token that lets you earn interest on R. It can be transferred freely and is always
+            redeemable for an ever-growing amount of R.
           </Typography>
         </div>
         <div className="raft__savings__faq-item">
