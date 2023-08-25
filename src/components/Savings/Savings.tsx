@@ -1,5 +1,5 @@
 import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Decimal } from '@tempusfinance/decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { R_TOKEN } from '@raft-fi/sdk';
 import { ButtonWrapper } from 'tempus-ui';
@@ -12,6 +12,7 @@ import {
   useTokenBalances,
   useWallet,
 } from '../../hooks';
+import { R_TOKEN_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
 import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography } from '../shared';
 import LoadingSavings from '../LoadingSavings';
@@ -213,6 +214,27 @@ const Savings = () => {
     return canExecuteWithdraw;
   }, [canExecuteDeposit, canExecuteWithdraw, isAddCollateral]);
 
+  const inputMaxAmount = useMemo(() => {
+    if (isAddCollateral) {
+      return rTokenBalance;
+    }
+    return currentUserSavings;
+  }, [currentUserSavings, isAddCollateral, rTokenBalance]);
+
+  const inputMaxAmountFormatted = useMemo(() => {
+    if (!inputMaxAmount) {
+      return null;
+    }
+
+    return DecimalFormat.format(inputMaxAmount, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [inputMaxAmount]);
+
   const errorMessage = useMemo(() => {
     if (!walletConnected) {
       return;
@@ -247,6 +269,14 @@ const Savings = () => {
     savingsMaxDeposit,
     walletConnected,
   ]);
+
+  const onMaxAmountClick = useCallback(() => {
+    if (!inputMaxAmount) {
+      return null;
+    }
+
+    setAmount(inputMaxAmount.toString());
+  }, [inputMaxAmount]);
 
   const onAction = useCallback(() => {
     manageSavings?.();
@@ -295,10 +325,12 @@ const Savings = () => {
               selectedToken={'R'}
               tokens={['R']}
               value={amount}
-              maxAmount={Decimal.ONE}
               onValueUpdate={handleCollateralValueUpdate}
               error={Boolean(errorMessage)}
               errorMsg={errorMessage}
+              maxAmount={inputMaxAmount}
+              maxAmountFormatted={inputMaxAmountFormatted || ''}
+              onMaxAmountClick={onMaxAmountClick}
             />
           </div>
 
