@@ -40,10 +40,11 @@ const Savings = () => {
   }, [amount]);
 
   useEffect(() => {
+    // In case user is withdrawing we need to set negative amount value.
     requestManageSavingsStep?.({
-      amount: amountParsed,
+      amount: isAddCollateral ? amountParsed : amountParsed.mul(-1),
     });
-  }, [amountParsed, requestManageSavingsStep]);
+  }, [amountParsed, isAddCollateral, requestManageSavingsStep]);
 
   const handleSwitchCollateralAction = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const addCollateral = event.currentTarget.getAttribute('data-id') === 'addCollateral';
