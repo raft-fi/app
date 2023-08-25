@@ -48,7 +48,6 @@ const fetchData = (signer: Signer) => {
 
 // Fetch current user savings data every time wallet changes
 const walletChangeStream$ = walletSigner$.pipe(
-  filter((signer): signer is JsonRpcSigner => Boolean(signer)),
   concatMap(signer => {
     if (!signer) {
       return of(DEFAULT_VALUE);

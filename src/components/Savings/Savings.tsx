@@ -2,7 +2,7 @@ import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'rea
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { R_TOKEN } from '@raft-fi/sdk';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import {
   useAppLoaded,
   useCurrentUserSavings,
@@ -274,6 +274,31 @@ const Savings = () => {
     walletConnected,
   ]);
 
+  const savingsAfter = useMemo(() => {
+    if (!currentUserSavings) {
+      return null;
+    }
+
+    if (isAddCollateral) {
+      return currentUserSavings.add(amountParsed);
+    }
+    return Decimal.max(currentUserSavings.sub(amountParsed), Decimal.ZERO);
+  }, [amountParsed, currentUserSavings, isAddCollateral]);
+
+  const savingsAfterFormatted = useMemo(() => {
+    if (!savingsAfter) {
+      return null;
+    }
+
+    return DecimalFormat.format(savingsAfter, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [savingsAfter]);
+
   const onMaxAmountClick = useCallback(() => {
     if (!inputMaxAmount) {
       return null;
@@ -339,6 +364,28 @@ const Savings = () => {
           </div>
 
           <div className="raft__savings__transactionInfo">
+            {savingsAfterFormatted && (
+              <>
+                <div className="raft__savings__transactionInfoTitle">
+                  <Typography variant="overline">SAVINGS AFTER</Typography>
+                  <TooltipWrapper
+                    tooltipContent={
+                      <Tooltip className="raft__savings__infoTooltip">
+                        <Typography variant="body2">TODO - Need text for tooltip</Typography>
+                      </Tooltip>
+                    }
+                    placement="top"
+                  >
+                    <Icon variant="info" size="tiny" />
+                  </TooltipWrapper>
+                </div>
+                <div className="raft__savings__transactionInfoValue">
+                  <TokenLogo type="token-R" size={20} />
+                  <ValueLabel value={savingsAfterFormatted} valueSize="body" />
+                </div>
+              </>
+            )}
+
             <div className="raft__savings__transactionInfoTitle">
               <Typography variant="overline">PROTOCOL FEES</Typography>
               <TooltipWrapper
