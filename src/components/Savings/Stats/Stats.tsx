@@ -1,15 +1,35 @@
+import { useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { Icon, Tooltip, TooltipWrapper, Typography } from '../../shared';
+import { R_TOKEN } from '@raft-fi/sdk';
+import { DecimalFormat } from '@tempusfinance/decimal';
+import { R_TOKEN_UI_PRECISION } from '../../../constants';
+import { useCurrentUserSavings } from '../../../hooks';
+import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../../shared';
 
 import './Stats.scss';
 
 const Stats = () => {
+  const currentSavings = useCurrentUserSavings();
+
   const currentYield = '5.00%';
-  const TVL = '1,234,556.00';
-  const capacity = '1,234,556.00';
+  const TVL = '1,234,556.00 R';
+  const capacity = '1,234,556.00 R';
 
   const showSavings = true;
-  const savings = '1,234,556.00';
+
+  const currentSavingsFormatted = useMemo(() => {
+    if (!currentSavings) {
+      return null;
+    }
+
+    return DecimalFormat.format(currentSavings, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [currentSavings]);
 
   return (
     <div className="raft__savings__stats">
@@ -34,14 +54,16 @@ const Stats = () => {
           </div>
           <div className="raft__savings__stats__item-token">
             <TokenLogo type="token-R" size="small" />
-            <div className="raft__savings__stats__item-value">
-              <Typography variant="heading1" color="text-primary-inverted">
-                {savings}
-              </Typography>
-              <Typography variant="heading2" color="text-primary-inverted">
-                R
-              </Typography>
-            </div>
+            {currentSavingsFormatted ? (
+              <ValueLabel
+                value={currentSavingsFormatted}
+                valueSize="heading1"
+                tickerSize="heading2"
+                color="text-primary-inverted"
+              />
+            ) : (
+              '---'
+            )}
           </div>
         </div>
       )}
@@ -50,7 +72,7 @@ const Stats = () => {
         <Typography variant="overline" weight="semi-bold" color="text-accent">
           CURRENT YIELD
         </Typography>
-        <Typography variant="heading1">{currentYield}</Typography>
+        <ValueLabel value={currentYield} valueSize="heading1" tickerSize="heading2" label="APR fixed" />
       </div>
       <div className="raft__savings__stats__item">
         <Typography variant="overline" weight="semi-bold" color="text-accent">
@@ -58,10 +80,7 @@ const Stats = () => {
         </Typography>
         <div className="raft__savings__stats__item-token">
           <TokenLogo type="token-R" size="small" />
-          <div className="raft__savings__stats__item-value">
-            <Typography variant="heading1">{TVL}</Typography>
-            <Typography variant="heading2">R</Typography>
-          </div>
+          <ValueLabel value={TVL} valueSize="heading1" tickerSize="heading2" />
         </div>
       </div>
       <div className="raft__savings__stats__item">
@@ -70,10 +89,7 @@ const Stats = () => {
         </Typography>
         <div className="raft__savings__stats__item-token">
           <TokenLogo type="token-R" size="small" />
-          <div className="raft__savings__stats__item-value">
-            <Typography variant="heading1">{capacity}</Typography>
-            <Typography variant="heading2">R</Typography>
-          </div>
+          <ValueLabel value={capacity} valueSize="heading1" tickerSize="heading2" />
         </div>
       </div>
     </div>

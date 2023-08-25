@@ -43,7 +43,7 @@
     .raft__savings__stats__item-token {
       display: flex;
       flex-direction: row;
-      align-items: baseline;
+      align-items: center;
 
       > svg {
         width: 24px;
@@ -51,16 +51,6 @@
         box-shadow: var(--shadowPrimary);
         border-radius: 50%;
         margin-right: 10px;
-      }
-    }
-
-    .raft__savings__stats__item-value {
-      display: flex;
-      flex-direction: row;
-      align-items: baseline;
-
-      > div:first-child {
-        margin-right: 6px;
       }
     }
   }
