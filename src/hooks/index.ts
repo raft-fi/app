@@ -33,3 +33,5 @@ export * from './useRFlashMintFee';
 export * from './useManageSavings';
 export * from './useSavingsMaxDeposit';
 export * from './useCurrentUserSavings';
+export * from './useSavingsTvl';
+export * from './useSavingsYield';

@@ -1,22 +1,21 @@
-import { useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { FC, useMemo } from 'react';
 import { R_TOKEN } from '@raft-fi/sdk';
-import { DecimalFormat } from '@tempusfinance/decimal';
+import { TokenLogo } from 'tempus-ui';
+import { DecimalFormat, Decimal } from '@tempusfinance/decimal';
 import { R_TOKEN_UI_PRECISION } from '../../../constants';
-import { useCurrentUserSavings } from '../../../hooks';
+import { Nullable } from '../../../interfaces';
 import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../../shared';
 
 import './Stats.scss';
 
-const Stats = () => {
-  const currentSavings = useCurrentUserSavings();
+type StatsProps = {
+  currentSavings: Nullable<Decimal>;
+  currentYield: Nullable<Decimal>;
+  tvl: Nullable<Decimal>;
+  savingsMaxDeposit?: Nullable<Decimal>;
+};
 
-  const currentYield = '5.00%';
-  const TVL = '1,234,556.00 R';
-  const capacity = '1,234,556.00 R';
-
-  const showSavings = true;
-
+const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDeposit }) => {
   const currentSavingsFormatted = useMemo(() => {
     if (!currentSavings) {
       return null;
@@ -31,9 +30,50 @@ const Stats = () => {
     });
   }, [currentSavings]);
 
+  const currentYieldFormatted = useMemo(() => {
+    if (!currentYield) {
+      return null;
+    }
+
+    return DecimalFormat.format(currentYield, {
+      style: 'percentage',
+      fractionDigits: 2,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [currentYield]);
+
+  const currentTvlFormatted = useMemo(() => {
+    if (!tvl) {
+      return null;
+    }
+
+    return DecimalFormat.format(tvl, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [tvl]);
+
+  const savingsMaxDepositFormatted = useMemo(() => {
+    if (!savingsMaxDeposit) {
+      return null;
+    }
+
+    return DecimalFormat.format(savingsMaxDeposit, {
+      style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [savingsMaxDeposit]);
+
   return (
     <div className="raft__savings__stats">
-      {showSavings && (
+      {currentSavingsFormatted && (
         <div className="raft__savings__stats__item raft__savings__stats__item-inverse">
           <div className="raft__savings__stats__item-title">
             <Typography variant="overline" weight="semi-bold" color="text-accent-inverted">
@@ -54,16 +94,12 @@ const Stats = () => {
           </div>
           <div className="raft__savings__stats__item-token">
             <TokenLogo type="token-R" size="small" />
-            {currentSavingsFormatted ? (
-              <ValueLabel
-                value={currentSavingsFormatted}
-                valueSize="heading1"
-                tickerSize="heading2"
-                color="text-primary-inverted"
-              />
-            ) : (
-              '---'
-            )}
+            <ValueLabel
+              value={currentSavingsFormatted}
+              valueSize="heading1"
+              tickerSize="heading2"
+              color="text-primary-inverted"
+            />
           </div>
         </div>
       )}
@@ -72,7 +108,11 @@ const Stats = () => {
         <Typography variant="overline" weight="semi-bold" color="text-accent">
           CURRENT YIELD
         </Typography>
-        <ValueLabel value={currentYield} valueSize="heading1" tickerSize="heading2" label="APR fixed" />
+        {currentYieldFormatted ? (
+          <ValueLabel value={currentYieldFormatted} valueSize="heading1" tickerSize="heading2" label="APR fixed" />
+        ) : (
+          '---'
+        )}
       </div>
       <div className="raft__savings__stats__item">
         <Typography variant="overline" weight="semi-bold" color="text-accent">
@@ -80,7 +120,11 @@ const Stats = () => {
         </Typography>
         <div className="raft__savings__stats__item-token">
           <TokenLogo type="token-R" size="small" />
-          <ValueLabel value={TVL} valueSize="heading1" tickerSize="heading2" />
+          {currentTvlFormatted ? (
+            <ValueLabel value={currentTvlFormatted} valueSize="heading1" tickerSize="heading2" />
+          ) : (
+            '---'
+          )}
         </div>
       </div>
       <div className="raft__savings__stats__item">
@@ -89,7 +133,11 @@ const Stats = () => {
         </Typography>
         <div className="raft__savings__stats__item-token">
           <TokenLogo type="token-R" size="small" />
-          <ValueLabel value={capacity} valueSize="heading1" tickerSize="heading2" />
+          {savingsMaxDepositFormatted ? (
+            <ValueLabel value={savingsMaxDepositFormatted} valueSize="heading1" tickerSize="heading2" />
+          ) : (
+            '---'
+          )}
         </div>
       </div>
     </div>
