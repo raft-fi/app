@@ -5,6 +5,7 @@ import { R_TOKEN } from '@raft-fi/sdk';
 import { ButtonWrapper } from 'tempus-ui';
 import {
   useAppLoaded,
+  useCurrentUserSavings,
   useManageSavings,
   useNetwork,
   useSavingsMaxDeposit,
@@ -27,6 +28,7 @@ const Savings = () => {
   const wallet = useWallet();
   const tokenBalanceMap = useTokenBalances();
   const savingsMaxDeposit = useSavingsMaxDeposit();
+  const currentUserSavings = useCurrentUserSavings();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
@@ -100,7 +102,7 @@ const Savings = () => {
 
   const hasNonEmptyInput = useMemo(() => !amountParsed.isZero(), [amountParsed]);
 
-  const hasEnoughRTokenBalance = useMemo(() => {
+  const hasEnoughRToDeposit = useMemo(() => {
     // In case R token balance is still loading
     if (!rTokenBalance) {
       return false;
@@ -108,6 +110,15 @@ const Savings = () => {
 
     return amountParsed.lte(rTokenBalance);
   }, [amountParsed, rTokenBalance]);
+
+  const hasEnoughRToWithdraw = useMemo(() => {
+    // In case current user savings are still loading
+    if (!currentUserSavings) {
+      return false;
+    }
+
+    return amountParsed.lte(currentUserSavings);
+  }, [amountParsed, currentUserSavings]);
 
   const isPositionWithinDepositCap = useMemo(() => {
     // In case savingsMaxDeposit is still loading
@@ -128,11 +139,15 @@ const Savings = () => {
       return 'Unsupported network';
     }
 
-    if (!hasEnoughRTokenBalance) {
+    if (isAddCollateral && !hasEnoughRToDeposit) {
       return 'Insufficient funds';
     }
 
-    if (!isPositionWithinDepositCap) {
+    if (!isAddCollateral && !hasEnoughRToWithdraw) {
+      return 'Insufficient balance';
+    }
+
+    if (isAddCollateral && !isPositionWithinDepositCap) {
       return 'Deposit capacity reached, please try again later';
     }
 
@@ -161,7 +176,9 @@ const Savings = () => {
   }, [
     walletConnected,
     isWrongNetwork,
-    hasEnoughRTokenBalance,
+    hasEnoughRToDeposit,
+    hasEnoughRToWithdraw,
+    isAddCollateral,
     isPositionWithinDepositCap,
     executionSteps,
     executionType,
@@ -181,14 +198,13 @@ const Savings = () => {
   const hasInputFilled = useMemo(() => !amountParsed.isZero(), [amountParsed]);
 
   const canExecuteDeposit = useMemo(
-    () => Boolean(hasInputFilled && hasEnoughRTokenBalance && !isWrongNetwork && isPositionWithinDepositCap),
-    [hasEnoughRTokenBalance, hasInputFilled, isPositionWithinDepositCap, isWrongNetwork],
+    () => Boolean(hasInputFilled && hasEnoughRToDeposit && !isWrongNetwork && isPositionWithinDepositCap),
+    [hasEnoughRToDeposit, hasInputFilled, isPositionWithinDepositCap, isWrongNetwork],
   );
 
   const canExecuteWithdraw = useMemo(() => {
-    // TODO - Handle withdraw disabled state
-    return true;
-  }, []);
+    return Boolean(hasInputFilled && hasEnoughRToWithdraw && !isWrongNetwork);
+  }, [hasEnoughRToWithdraw, hasInputFilled, isWrongNetwork]);
 
   const canExecute = useMemo(() => {
     if (isAddCollateral) {
@@ -197,25 +213,24 @@ const Savings = () => {
     return canExecuteWithdraw;
   }, [canExecuteDeposit, canExecuteWithdraw, isAddCollateral]);
 
-  const errorMessageWithdraw = useMemo(() => {
-    // TODO - Handle withdraw error messages
-    return '';
-  }, []);
-
-  const errorMessageDeposit = useMemo(() => {
+  const errorMessage = useMemo(() => {
     if (!walletConnected) {
       return;
     }
 
-    if (!hasEnoughRTokenBalance) {
+    if (isAddCollateral && !hasEnoughRToDeposit) {
       return 'Insufficient funds';
+    }
+
+    if (!isAddCollateral && !hasEnoughRToWithdraw) {
+      return 'Insufficient balance';
     }
 
     if (isWrongNetwork) {
       return 'You are connected to unsupported network. Please switch to Ethereum Mainnet.';
     }
 
-    if (!isPositionWithinDepositCap) {
+    if (isAddCollateral && !isPositionWithinDepositCap) {
       const maxDeposit = formatCurrency(savingsMaxDeposit, {
         currency: R_TOKEN,
         fractionDigits: 2,
@@ -223,14 +238,15 @@ const Savings = () => {
 
       return `Deposit amount exceeds max deposit amount of ${maxDeposit}. Please reduce the deposit amount.`;
     }
-  }, [hasEnoughRTokenBalance, isPositionWithinDepositCap, isWrongNetwork, savingsMaxDeposit, walletConnected]);
-
-  const errorMessage = useMemo(() => {
-    if (isAddCollateral) {
-      return errorMessageDeposit;
-    }
-    return errorMessageWithdraw;
-  }, [errorMessageDeposit, errorMessageWithdraw, isAddCollateral]);
+  }, [
+    hasEnoughRToDeposit,
+    hasEnoughRToWithdraw,
+    isAddCollateral,
+    isPositionWithinDepositCap,
+    isWrongNetwork,
+    savingsMaxDeposit,
+    walletConnected,
+  ]);
 
   const onAction = useCallback(() => {
     manageSavings?.();
