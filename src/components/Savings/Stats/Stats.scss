@@ -68,4 +68,8 @@
       }
     }
   }
+
+  .raft__icon__info {
+    --infoColor: var(--textAccentInverted);
+  }
 }
