@@ -194,7 +194,7 @@ const Savings = () => {
 
   const subHeaderLabel = useMemo(() => {
     if (isAddCollateral) {
-      return 'Deposit R to earn more R.';
+      return 'Deposit into the R Savings Rate to earn more R.';
     }
 
     return 'Withdraw your savings and earned rewards.';
@@ -342,7 +342,7 @@ const Savings = () => {
             Earn
           </Typography>
           <div className="raft__savings__subheader">
-            <Typography variant="menu-item" weight="regular" color="text-secondary">
+            <Typography variant="body" weight="regular" color="text-secondary">
               {subHeaderLabel}
             </Typography>
           </div>

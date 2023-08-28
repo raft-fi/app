@@ -2,8 +2,6 @@
   display: flex;
   justify-self: center;
   flex-direction: column;
-  width: 340px;
-  box-sizing: border-box;
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
@@ -31,6 +29,7 @@
     &.raft__savings__stats__item-inverse {
       border-radius: 8px;
       background-color: var(--raft-blue-900);
+      border: none;
     }
 
     &:last-child {
@@ -75,8 +74,8 @@
   }
 
   .raft__savings__divider {
-    margin-right: 0.15rem;
-    margin-left: 0.15rem;
+    margin-right: 0.3rem;
+    margin-left: 0.3rem;
   }
 }
 
