@@ -28,7 +28,8 @@ export type TypographyColor =
   | 'text-accent-inverted'
   | 'text-success'
   | 'text-warning'
-  | 'text-error';
+  | 'text-error'
+  | 'text-disabled';
 export type TypographyWeight = 'regular' | 'medium' | 'semi-bold' | 'bold';
 
 const typographyVariantMap: TypographyVariantMap = {
@@ -94,6 +95,7 @@ const typographyColorMap: TypographyColorMap = {
   'text-success': 'var(--textSuccess)',
   'text-warning': 'var(--textWarning)',
   'text-error': 'var(--textError)',
+  'text-disabled': 'var(--textDisabled)',
 };
 
 const typographyWeightMap: TypographyWeightMap = {

@@ -57,6 +57,20 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
     });
   }, [tvl]);
 
+  const currentTvlMultiplier = useMemo(() => {
+    if (!tvl) {
+      return null;
+    }
+
+    return DecimalFormat.format(tvl, {
+      style: 'multiplier',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [tvl]);
+
   const savingsMaxDepositFormatted = useMemo(() => {
     if (!savingsMaxDeposit) {
       return null;
@@ -64,6 +78,20 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
 
     return DecimalFormat.format(savingsMaxDeposit, {
       style: 'currency',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [savingsMaxDeposit]);
+
+  const savingsMaxDepositMultiplier = useMemo(() => {
+    if (!savingsMaxDeposit) {
+      return null;
+    }
+
+    return DecimalFormat.format(savingsMaxDeposit, {
+      style: 'multiplier',
       currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
       lessThanFormat: true,
@@ -92,7 +120,7 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
               </Typography>
               <TooltipWrapper
                 tooltipContent={
-                  <Tooltip className="raft__leveragePositionAfter__infoTooltip">
+                  <Tooltip className="raft__savings__tooltip">
                     <Typography variant="body2">
                       Your savings include your deposited amount plus earned rewards.
                     </Typography>
@@ -128,33 +156,63 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
           )}
         </div>
         <div className="raft__savings__stats__item">
-          <Typography variant="overline" weight="semi-bold" color="text-accent">
-            TOTAL VALUE LOCKED
-          </Typography>
-          <div className="raft__savings__stats__item-token">
-            <TokenLogo type="token-R" size="small" />
-            {currentTvlFormatted ? (
-              <ValueLabel value={currentTvlFormatted} valueSize="heading1" tickerSize="heading2" />
-            ) : (
-              '---'
-            )}
-          </div>
-        </div>
-        <div className="raft__savings__stats__item">
-          <Typography variant="overline" weight="semi-bold" color="text-accent">
-            REMAINING CAPACITY
-          </Typography>
-          <div className="raft__savings__stats__item-token">
-            <TokenLogo type="token-R" size="small" />
-            {savingsMaxDepositFormatted ? (
-              <ValueLabel value={savingsMaxDepositFormatted} valueSize="heading1" tickerSize="heading2" />
-            ) : (
-              '---'
-            )}
-          </div>
-          <div className="raft__savings__stats__capacity__progress-bar__container">
-            <div className="raft__savings__stats__capacity__progress-bar" style={progressBarStyle} />
-          </div>
+          <TooltipWrapper
+            tooltipContent={
+              <Tooltip className="raft__savings__tvlTooltip-container">
+                <div className="raft__savings__tvlTooltip">
+                  <Typography variant="overline" color="text-secondary">
+                    TOTAL VALUE LOCKED
+                  </Typography>
+                  {currentTvlFormatted ? (
+                    <div className="raft__savings__stats__item-token">
+                      <TokenLogo type="token-R" size="small" />
+                      <ValueLabel value={currentTvlFormatted} valueSize="body" tickerSize="caption" />
+                    </div>
+                  ) : (
+                    '---'
+                  )}
+                  <div className="raft__savings__tvlTooltip-container__spacer" />
+                  <Typography variant="overline" color="text-secondary">
+                    SAVINGS CAPACITY
+                  </Typography>
+                  {savingsMaxDepositFormatted ? (
+                    <div className="raft__savings__stats__item-token">
+                      <TokenLogo type="token-R" size="small" />
+                      <ValueLabel value={savingsMaxDepositFormatted} valueSize="body" tickerSize="caption" />
+                    </div>
+                  ) : (
+                    '---'
+                  )}
+                </div>
+              </Tooltip>
+            }
+            placement="bottom"
+          >
+            <Typography variant="overline" weight="semi-bold" color="text-accent">
+              TOTAL VALUE LOCKED
+            </Typography>
+            <div className="raft__savings__stats__item-token">
+              <TokenLogo type="token-R" size="small" />
+              {currentTvlMultiplier ? (
+                <ValueLabel value={currentTvlMultiplier} valueSize="heading1" tickerSize="heading2" />
+              ) : (
+                '---'
+              )}
+              <div className="raft__savings__divider">
+                <Typography variant="heading1" weight="medium" color="text-disabled">
+                  /
+                </Typography>
+              </div>
+              {savingsMaxDepositMultiplier ? (
+                <ValueLabel value={savingsMaxDepositMultiplier} valueSize="heading1" tickerSize="heading2" />
+              ) : (
+                '---'
+              )}
+            </div>
+            <div className="raft__savings__stats__capacity__progress-bar__container">
+              <div className="raft__savings__stats__capacity__progress-bar" style={progressBarStyle} />
+            </div>
+          </TooltipWrapper>
         </div>
       </div>
     </>
