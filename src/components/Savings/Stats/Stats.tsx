@@ -72,7 +72,8 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
   }, [savingsMaxDeposit]);
 
   const leftCapacityProgressBar = useMemo(() => {
-    const capacity = tvl?.div(savingsMaxDeposit || 0).mul(100);
+    const totalCapacity = tvl?.add(savingsMaxDeposit || 0) || Decimal.ZERO;
+    const capacity = tvl?.div(totalCapacity).mul(100);
     return `${capacity}%`;
   }, [tvl, savingsMaxDeposit]);
 
