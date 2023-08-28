@@ -371,7 +371,9 @@ const Savings = () => {
                   <TooltipWrapper
                     tooltipContent={
                       <Tooltip className="raft__savings__infoTooltip">
-                        <Typography variant="body2">TODO - Need text for tooltip</Typography>
+                        <Typography variant="body2">
+                          Summary of your savings after the transaction is executed.
+                        </Typography>
                       </Tooltip>
                     }
                     placement="top"
@@ -391,7 +393,7 @@ const Savings = () => {
               <TooltipWrapper
                 tooltipContent={
                   <Tooltip className="raft__savings__infoTooltip">
-                    <Typography variant="body2">TODO - Need text for tooltip</Typography>
+                    <Typography variant="body2">No protocol fees when depositing or withdrawing.</Typography>
                   </Tooltip>
                 }
                 placement="top"
