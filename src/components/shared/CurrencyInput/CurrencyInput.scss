@@ -40,7 +40,7 @@
         }
       }
 
-      button[data-disabled='true'] {
+      button[data-disabled="true"] {
         cursor: initial;
       }
     }
@@ -109,7 +109,7 @@
   }
 
   .raft__currencyInput__errorContainer {
-    height: 16px;
+    min-height: 16px;
     padding-top: 4px;
   }
 

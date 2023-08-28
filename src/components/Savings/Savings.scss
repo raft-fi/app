@@ -6,11 +6,16 @@
   padding-top: 10px;
 
   .raft__savings__left {
+    width: 500px;
     margin-right: 16px;
 
     .raft__savings__subheader {
       margin-top: 16px;
     }
+  }
+
+  .raft__savings__right {
+    width: 340px;
   }
 
   .raft__savings {
@@ -19,7 +24,6 @@
     background: var(--surfacePrimary);
     border: 1px solid var(--borderPrimary);
     border-radius: 8px;
-    width: 530px;
 
     .raft__savings__input {
       display: flex;
@@ -45,7 +49,7 @@
         .raft__savings__input-withdraw,
         .raft__savings__input-borrow,
         .raft__savings__input-repay {
-          &[data-selected='false'] {
+          &[data-selected="false"] {
             &:hover {
               div {
                 --textPrimary: var(--textAccent);
@@ -53,13 +57,13 @@
             }
           }
 
-          &[data-selected='true'] {
+          &[data-selected="true"] {
             --textPrimary: var(--textAccent);
 
             position: relative;
 
             &::after {
-              content: ' ';
+              content: " ";
               border-bottom: 2px solid var(--textAccent);
               width: 100%;
               position: absolute;

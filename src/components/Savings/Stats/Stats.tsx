@@ -71,6 +71,11 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
     });
   }, [tvl]);
 
+  const shouldShowSavings = useMemo(
+    () => currentSavings && currentSavings.gt(Decimal.ZERO) && currentSavingsFormatted,
+    [currentSavings, currentSavingsFormatted],
+  );
+
   const savingsMaxDepositFormatted = useMemo(() => {
     if (!savingsMaxDeposit) {
       return null;
@@ -85,25 +90,32 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
     });
   }, [savingsMaxDeposit]);
 
-  const savingsMaxDepositMultiplier = useMemo(() => {
-    if (!savingsMaxDeposit) {
+  const totalCapacity = useMemo(() => {
+    if (!savingsMaxDeposit || !tvl) {
       return null;
     }
 
-    return DecimalFormat.format(savingsMaxDeposit, {
+    return tvl.add(savingsMaxDeposit);
+  }, [tvl, savingsMaxDeposit]);
+
+  const totalCapacityMultiplier = useMemo(() => {
+    if (!totalCapacity) {
+      return null;
+    }
+
+    return DecimalFormat.format(totalCapacity, {
       style: 'multiplier',
       currency: R_TOKEN,
       fractionDigits: R_TOKEN_UI_PRECISION,
       lessThanFormat: true,
       pad: true,
     });
-  }, [savingsMaxDeposit]);
+  }, [totalCapacity]);
 
   const leftCapacityProgressBar = useMemo(() => {
-    const totalCapacity = tvl?.add(savingsMaxDeposit || 0) || Decimal.ZERO;
-    const capacity = tvl?.div(totalCapacity).mul(100);
+    const capacity = tvl?.div(totalCapacity || -1).mul(100);
     return `${capacity}%`;
-  }, [tvl, savingsMaxDeposit]);
+  }, [tvl, totalCapacity]);
 
   const progressBarStyle: CSSProperties = {
     width: leftCapacityProgressBar,
@@ -111,7 +123,7 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
 
   return (
     <>
-      {currentSavingsFormatted && (
+      {shouldShowSavings && (
         <div className="raft__savings__stats">
           <div className="raft__savings__stats__item raft__savings__stats__item-inverse">
             <div className="raft__savings__stats__item-title">
@@ -134,7 +146,7 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
             <div className="raft__savings__stats__item-token">
               <TokenLogo type="token-R" size="small" />
               <ValueLabel
-                value={currentSavingsFormatted}
+                value={currentSavingsFormatted as string}
                 valueSize="heading1"
                 tickerSize="heading2"
                 color="text-primary-inverted"
@@ -203,8 +215,8 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
                   /
                 </Typography>
               </div>
-              {savingsMaxDepositMultiplier ? (
-                <ValueLabel value={savingsMaxDepositMultiplier} valueSize="heading1" tickerSize="heading2" />
+              {totalCapacityMultiplier ? (
+                <ValueLabel value={totalCapacityMultiplier} valueSize="heading1" tickerSize="heading2" />
               ) : (
                 '---'
               )}
