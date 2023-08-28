@@ -2,7 +2,7 @@
   display: flex;
   justify-self: center;
   flex-direction: column;
-  width: 342px;
+  width: 340px;
   box-sizing: border-box;
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
@@ -37,21 +37,20 @@
       border-bottom: none;
     }
 
-    > div:first-child {
-      padding-bottom: 16px;
+    > .raft__valueLabel {
+      padding-top: 16px;
     }
 
-    .raft__savings__stats__item-token {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
+    > div {
+      > .raft__tooltip-wrapper-anchor {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
 
-      > svg {
-        width: 24px;
-        height: 24px;
-        box-shadow: var(--shadowPrimary);
-        border-radius: 50%;
-        margin-right: 10px;
+        > div:first-child {
+          padding-bottom: 16px;
+        }
       }
     }
 
@@ -59,6 +58,7 @@
       height: 8px;
       border-radius: 10px;
       margin-top: 8px;
+      width: 100%;
       overflow: hidden;
       background-color: var(--raft-grey-400);
 
@@ -72,5 +72,47 @@
 
   .raft__icon__info {
     --infoColor: var(--textAccentInverted);
+  }
+
+  .raft__savings__divider {
+    margin-right: 0.15rem;
+    margin-left: 0.15rem;
+  }
+}
+
+.raft__savings__stats__item-token {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  > svg {
+    width: 24px;
+    height: 24px;
+    box-shadow: var(--shadowPrimary);
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+}
+
+.raft__savings__tooltip {
+  max-width: 250px;
+}
+
+.raft__savings__tvlTooltip-container {
+  width: 340px;
+  box-sizing: border-box;
+  padding: 12px 16px;
+
+  .raft__savings__tvlTooltip {
+    display: flex;
+    flex-direction: column;
+
+    .raft__savings__stats__item-token {
+      margin-top: 8px;
+    }
+
+    .raft__savings__tvlTooltip-container__spacer {
+      height: 24px;
+    }
   }
 }
