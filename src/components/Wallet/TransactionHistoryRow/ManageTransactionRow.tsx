@@ -6,11 +6,11 @@ import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../../co
 import { useConfig } from '../../../hooks';
 import { Icon, Typography } from '../../shared';
 
-interface TransactionHistoryRowProps {
+interface ManageTransactionRowProps {
   transaction: PositionTransaction;
 }
 
-const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) => {
+const ManageTransactionRow: FC<ManageTransactionRowProps> = ({ transaction }) => {
   const config = useConfig();
 
   const [collateralChange, collateralToken] = useMemo(() => {
@@ -163,4 +163,4 @@ const TransactionHistoryRow: FC<TransactionHistoryRowProps> = ({ transaction }) 
     </Link>
   );
 };
-export { TransactionHistoryRow };
+export { ManageTransactionRow };

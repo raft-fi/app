@@ -35,3 +35,5 @@ export * from './useSavingsMaxDeposit';
 export * from './useCurrentUserSavings';
 export * from './useSavingsTvl';
 export * from './useSavingsYield';
+export * from './useSavingsTransactions';
+export * from './useManageTransactions';

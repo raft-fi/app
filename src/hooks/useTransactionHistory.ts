@@ -1,76 +1,32 @@
-import { JsonRpcSigner } from 'ethers';
 import { bind } from '@react-rxjs/core';
-import { PositionTransaction, UserPosition } from '@raft-fi/sdk';
-import {
-  from,
-  of,
-  merge,
-  tap,
-  filter,
-  Observable,
-  catchError,
-  debounce,
-  interval,
-  Subscription,
-  concatMap,
-  BehaviorSubject,
-  startWith,
-  withLatestFrom,
-} from 'rxjs';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { PositionTransaction, SavingsTransaction } from '@raft-fi/sdk';
+import { tap, filter, debounce, interval, Subscription, BehaviorSubject, combineLatest } from 'rxjs';
+import { DEBOUNCE_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
-import { appEvent$ } from './useAppEvent';
-import { walletSigner$ } from './useWalletSigner';
+import { manageTransactions$ } from './useManageTransactions';
+import { savingsTransactions$ } from './useSavingsTransactions';
 
-const transactionHistory$ = new BehaviorSubject<Nullable<PositionTransaction[]>>(null);
+export type HistoryTransaction = PositionTransaction | SavingsTransaction;
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
-
-const fetchData = (walletSigner: Nullable<JsonRpcSigner>) => {
-  if (!walletSigner) {
-    return of([]);
-  }
-
-  try {
-    const dummyUnderlyingToken = SUPPORTED_UNDERLYING_TOKENS[0];
-
-    const userPosition = new UserPosition(walletSigner, dummyUnderlyingToken);
-
-    return from(userPosition.getTransactions()).pipe(
-      catchError(error => {
-        console.error('useTransactionHistory - failed to fetch transaction history', error);
-        return of(null);
-      }),
-    );
-  } catch (error) {
-    console.error('useTransactionHistory - failed to fetch transaction history', error);
-    return of(null);
-  }
-};
-
-// Stream that fetches on wallet change
-const walletChangeStream$ = walletSigner$.pipe(concatMap(walletSigner => fetchData(walletSigner)));
-
-// Stream that fetches transaction history periodically
-const intervalStream$ = intervalBeat$.pipe(
-  withLatestFrom(walletSigner$),
-  concatMap<[number, Nullable<JsonRpcSigner>], Observable<Nullable<PositionTransaction[]>>>(([, walletSigner]) =>
-    fetchData(walletSigner),
-  ),
-);
-
-// fetch when app event fire
-const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletSigner$),
-  concatMap(([, walletSigner]) => fetchData(walletSigner)),
-);
+const transactionHistory$ = new BehaviorSubject<Nullable<HistoryTransaction[]>>(null);
 
 // merge all stream$ into one if there are multiple
-const stream$ = merge(intervalStream$, appEventsStream$, walletChangeStream$).pipe(
-  filter((transactions): transactions is PositionTransaction[] => Boolean(transactions)),
-  debounce<PositionTransaction[]>(() => interval(DEBOUNCE_IN_MS)),
+const stream$ = combineLatest([manageTransactions$, savingsTransactions$]).pipe(
+  filter((transactions): transactions is [PositionTransaction[], SavingsTransaction[]] => {
+    const [positionTransactions, savingsTransactions] = transactions;
+
+    return Boolean(positionTransactions && savingsTransactions);
+  }),
+  debounce<[PositionTransaction[], SavingsTransaction[]]>(() => interval(DEBOUNCE_IN_MS)),
   tap(transactions => {
-    transactionHistory$.next(transactions);
+    const manageTransactions = transactions[0];
+    const savingsTransactions = transactions[1];
+
+    const result: HistoryTransaction[] = [...manageTransactions, ...savingsTransactions].sort((a, b) => {
+      return b.timestamp.getTime() - a.timestamp.getTime();
+    });
+
+    transactionHistory$.next(result);
   }),
 );
 

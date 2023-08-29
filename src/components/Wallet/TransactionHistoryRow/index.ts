@@ -1,3 +1,2 @@
-import { TransactionHistoryRow } from './TransactionHistoryRow';
-
-export default TransactionHistoryRow;
+export { ManageTransactionRow } from './ManageTransactionRow';
+export { SavingsTransactionRow } from './SavingsTransactionRow';

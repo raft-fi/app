@@ -29,6 +29,8 @@ import {
   subscribeCurrentUserSavings,
   subscribeSavingsTvl,
   subscribeSavingsYield,
+  subscribeManageTransactions,
+  subscribeSavingsTransactions,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -65,6 +67,8 @@ const HookSubscriber: FC = () => {
     subscribeCurrentUserSavings();
     subscribeSavingsTvl();
     subscribeSavingsYield();
+    subscribeManageTransactions();
+    subscribeSavingsTransactions();
   }, []);
 
   return null;
