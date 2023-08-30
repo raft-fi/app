@@ -159,7 +159,7 @@ const OpenPosition = () => {
       collateralChange: collateralAmountDecimal,
       debtChange: borrowAmountDecimal,
     });
-  }, [borrowAmountDecimal, collateralAmountDecimal, requestManagePositionStep, selectedCollateralToken]);
+  }, [borrowAmountDecimal, collateralAmountDecimal, requestManagePositionStep, selectedCollateralToken, wallet]);
 
   /**
    * Fill in collateral and debt input fields automatically if they are empty.

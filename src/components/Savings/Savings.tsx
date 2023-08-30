@@ -49,7 +49,7 @@ const Savings = () => {
     requestManageSavingsStep?.({
       amount: isAddCollateral ? amountParsed : amountParsed.mul(-1),
     });
-  }, [amountParsed, isAddCollateral, requestManageSavingsStep]);
+  }, [amountParsed, isAddCollateral, wallet, requestManageSavingsStep]);
 
   const handleSwitchCollateralAction = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const addCollateral = event.currentTarget.getAttribute('data-id') === 'addCollateral';

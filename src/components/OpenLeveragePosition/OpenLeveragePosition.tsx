@@ -507,6 +507,7 @@ const OpenLeveragePosition = () => {
     requestLeveragePositionStep,
     selectedCollateralToken,
     slippage,
+    wallet,
   ]);
 
   useEffect(() => {
