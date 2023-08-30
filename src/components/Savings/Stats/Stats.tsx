@@ -124,8 +124,8 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, savingsMaxDe
   return (
     <>
       {shouldShowSavings && (
-        <div className="raft__savings__stats">
-          <div className="raft__savings__stats__item raft__savings__stats__item-inverse">
+        <div className="raft__savings__stats raft__savings__stats-inverse">
+          <div className="raft__savings__stats__item">
             <div className="raft__savings__stats__item-title">
               <Typography variant="overline" weight="semi-bold" color="text-accent-inverted">
                 YOUR SAVINGS

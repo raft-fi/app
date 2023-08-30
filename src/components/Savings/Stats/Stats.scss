@@ -6,11 +6,17 @@
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
 
+  &.raft__savings__stats-inverse {
+    background-color: var(--raft-blue-900);
+    border: none;
+  }
+
   .raft__savings__stats__item {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 20px 16px;
+    padding: 20px 0;
+    margin: auto 16px;
     border-bottom: 1px solid var(--raft-grey-400);
 
     .raft__savings__stats__item-title {
@@ -24,12 +30,6 @@
 
     &:first-child {
       border-radius: 8px 8px 0 0;
-    }
-
-    &.raft__savings__stats__item-inverse {
-      border-radius: 8px;
-      background-color: var(--raft-blue-900);
-      border: none;
     }
 
     &:last-child {
