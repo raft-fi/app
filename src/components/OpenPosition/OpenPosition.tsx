@@ -37,7 +37,7 @@ import {
   isCollateralToken,
   isDisplayBaseToken,
 } from '../../utils';
-import { Button, CurrencyInput, Icon, Typography, ExecuteButton } from '../shared';
+import { Button, CurrencyInput, Icon, Typography, ExecuteButton, InfoBox } from '../shared';
 import { PositionAfter } from '../Position';
 
 import './OpenPosition.scss';
@@ -401,10 +401,14 @@ const OpenPosition = () => {
     [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
+  // Opening new generate position is disabled until future notice
+  const openPositionDisabled = true;
+
   const canBorrow = useMemo(
     () =>
       Boolean(
-        hasInputFilled &&
+        !openPositionDisabled &&
+          hasInputFilled &&
           hasEnoughCollateralTokenBalance &&
           hasMinBorrow &&
           hasMinRatio &&
@@ -415,6 +419,7 @@ const OpenPosition = () => {
           !isWrongNetwork,
       ),
     [
+      openPositionDisabled,
       hasInputFilled,
       hasEnoughCollateralTokenBalance,
       hasMinBorrow,
@@ -474,6 +479,10 @@ const OpenPosition = () => {
       return 'Connect wallet';
     }
 
+    if (openPositionDisabled) {
+      return 'Borrowing disabled';
+    }
+
     if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
@@ -512,6 +521,7 @@ const OpenPosition = () => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    openPositionDisabled,
     walletConnected,
     isTotalSupplyWithinCollateralProtocolCap,
     managePositionStatus.pending,
@@ -724,6 +734,12 @@ const OpenPosition = () => {
           errorMsg={debtErrorMsg}
         />
       </div>
+      {openPositionDisabled && (
+        <InfoBox
+          text="Borrowing R through the stETH and rETH vaults is temporarily disabled as we prepare to launch interest-based vaults soon. You can repay your debt if you have an open position."
+          variant="error"
+        />
+      )}
       <PositionAfter
         displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
         displayCollateralTokenAmount={displayCollateralTokenAmount}
