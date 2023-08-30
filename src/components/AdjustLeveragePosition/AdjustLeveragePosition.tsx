@@ -704,6 +704,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     selectedCollateralToken,
     closePositionActive,
     slippage,
+    wallet,
   ]);
 
   useEffect(() => {

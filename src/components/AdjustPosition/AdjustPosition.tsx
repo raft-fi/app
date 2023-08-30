@@ -12,6 +12,7 @@ import {
   useProtocolStats,
   useTokenBalances,
   useTokenPrices,
+  useWallet,
 } from '../../hooks';
 import {
   formatCurrency,
@@ -42,6 +43,7 @@ interface AdjustPositionProps {
 }
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
+  const wallet = useWallet();
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
   const borrowingRateMap = useCollateralBorrowingRates();
@@ -333,6 +335,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     newDebtTokenWithFeeValues.amount,
     requestManagePositionStep,
     selectedCollateralToken,
+    wallet,
   ]);
 
   const executionSteps = useMemo(
