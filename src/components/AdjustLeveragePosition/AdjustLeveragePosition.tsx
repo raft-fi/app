@@ -469,10 +469,18 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
+  const isLeverageIncrease = useMemo(() => {
+    return effectiveLeverage.lt(leverage);
+  }, [effectiveLeverage, leverage]);
+
+  // Increase leverage is disabled until further notice
+  const increaseLeverageDisabled = true;
+
   const canLeverage = useMemo(
     () =>
       Boolean(
-        hasLeveraged &&
+        !(increaseLeverageDisabled && isLeverageIncrease) &&
+          hasLeveraged &&
           hasMinDeposit &&
           hasNonEmptyInput &&
           inputChanged &&
@@ -484,6 +492,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
           !isWrongNetwork,
       ),
     [
+      increaseLeverageDisabled,
+      isLeverageIncrease,
       errTxn,
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
@@ -536,6 +546,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return 'Connect wallet';
     }
 
+    if (increaseLeverageDisabled && isLeverageIncrease) {
+      return 'Leveraging disabled';
+    }
+
     if (leveragePositionStepsStatus.error?.message) {
       return leveragePositionStepsStatus.error.message;
     }
@@ -578,6 +592,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    increaseLeverageDisabled,
+    isLeverageIncrease,
     walletConnected,
     leveragePositionStatus.pending,
     leveragePositionStepsStatus.error?.message,
@@ -816,10 +832,17 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
           onValueChange={onLeverageChange}
         />
       </div>
-      <InfoBox
-        variant="warning"
-        text="This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks here."
-      />
+      {increaseLeverageDisabled && isLeverageIncrease ? (
+        <InfoBox
+          text="Increasing leverage positions is temporarily disabled as we prepare to launch interest-based vaults soon. You can reduce your leverage or close your position if you have one open."
+          variant="error"
+        />
+      ) : (
+        <InfoBox
+          variant="warning"
+          text="This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks here."
+        />
+      )}
       <LeveragePositionAfter
         liquidationPrice={liquidationPrice}
         liquidationPriceChange={liquidationPriceDropPercent}
