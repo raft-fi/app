@@ -103,7 +103,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
             tooltipContent={
               <Tooltip className="raft__leveragePositionAfter__infoTooltip">
                 <Typography variant="body2">
-                  The resulting APR is based on your collateral deposit and target leverage.{' '}
+                  The resulting APR is based on your target leverage.{' '}
                   <Link href="https://docs.raft.fi/glossary">Learn more</Link>.
                 </Typography>
               </Tooltip>
@@ -115,7 +115,7 @@ const LeveragePositionAfter: FC<LeveragePositionAfterProps> = ({
         </div>
         <div className="raft__leveragePositionAfter__dataRow">
           <div className="raft__leveragePositionAfter__dataRowValues">
-            <ValueLabel value={leverageAPRFormatted ?? '---'} valueSize="body" tickerSize="caption" />
+            <ValueLabel value={leverageAPRFormatted ?? 'N/A'} valueSize="body" tickerSize="caption" />
           </div>
         </div>
       </div>

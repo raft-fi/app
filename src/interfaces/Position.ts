@@ -6,12 +6,12 @@ export interface Position {
   ownerAddress: string;
   underlyingCollateralToken: Nullable<UnderlyingCollateralToken>;
   hasPosition: boolean;
+  hasLeveragePosition: boolean;
   collateralBalance: Decimal;
   debtBalance: Decimal;
-  principalCollateralBalance: Nullable<Decimal>;
+  netBalance: Nullable<Decimal>;
 }
 
 export interface LeveragePosition extends Position {
-  hasLeveragePosition: boolean;
   effectiveLeverage: Decimal;
 }

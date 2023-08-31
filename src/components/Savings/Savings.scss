@@ -1,0 +1,149 @@
+.raft__savings__container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  padding-top: 10px;
+
+  .raft__savings__left {
+    width: 500px;
+    margin-right: 16px;
+
+    .raft__savings__subheader {
+      margin-top: 16px;
+    }
+  }
+
+  .raft__savings__right {
+    width: 340px;
+  }
+
+  .raft__savings {
+    padding: 32px;
+    box-sizing: border-box;
+    background: var(--surfacePrimary);
+    border: 1px solid var(--borderPrimary);
+    border-radius: 8px;
+
+    .raft__savings__input {
+      display: flex;
+      margin-top: 40px;
+
+      .raft__currencyInput {
+        margin: 0 16px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        .raft__savings__input-deposit,
+        .raft__savings__input-borrow {
+          margin-right: 8px;
+        }
+
+        .raft__savings__input-deposit,
+        .raft__savings__input-withdraw,
+        .raft__savings__input-borrow,
+        .raft__savings__input-repay {
+          &[data-selected="false"] {
+            &:hover {
+              div {
+                --textPrimary: var(--textAccent);
+              }
+            }
+          }
+
+          &[data-selected="true"] {
+            --textPrimary: var(--textAccent);
+
+            position: relative;
+
+            &::after {
+              content: " ";
+              border-bottom: 2px solid var(--textAccent);
+              width: 100%;
+              position: absolute;
+              top: 18px;
+            }
+          }
+        }
+      }
+    }
+
+    .raft__savings__extraData {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+
+      .raft__savings__extraDataTitle {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-700);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-700);
+
+        display: flex;
+        align-items: center;
+
+        &:not(:first-child) {
+          margin-top: 42px;
+        }
+
+        .raft__tooltip-wrapper-anchor {
+          margin-left: 6px;
+        }
+      }
+    }
+
+    .raft__savings__transactionInfo {
+      margin-top: 12px;
+
+      .raft__savings__transactionInfoTitle {
+        /* TODO: hardcode color as suggested */
+        --textPrimary: var(--raft-grey-700);
+        /* TODO: hardcode color as suggested */
+        --infoColor: var(--raft-grey-700);
+
+        display: flex;
+        align-items: center;
+
+        &:not(:first-child) {
+          margin-top: 32px;
+        }
+
+        .raft__tooltip-wrapper-anchor {
+          margin-left: 4px;
+        }
+      }
+
+      .raft__savings__transactionInfoValue {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+
+        .common-ui__logo-token-R {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  .raft__savings__stats {
+    margin-bottom: 16px;
+  }
+}
+
+.raft__savings__infoTooltip {
+  max-width: 230px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    --externalLinkColor: var(--textAccent);
+  }
+}

@@ -37,8 +37,8 @@ import {
   isCollateralToken,
   isDisplayBaseToken,
 } from '../../utils';
-import { Button, CurrencyInput, Icon, Typography } from '../shared';
-import { PositionAfter, PositionAction } from '../Position';
+import { Button, CurrencyInput, Icon, Typography, ExecuteButton, InfoBox } from '../shared';
+import { PositionAfter } from '../Position';
 
 import './OpenPosition.scss';
 
@@ -159,7 +159,7 @@ const OpenPosition = () => {
       collateralChange: collateralAmountDecimal,
       debtChange: borrowAmountDecimal,
     });
-  }, [borrowAmountDecimal, collateralAmountDecimal, requestManagePositionStep, selectedCollateralToken]);
+  }, [borrowAmountDecimal, collateralAmountDecimal, requestManagePositionStep, selectedCollateralToken, wallet]);
 
   /**
    * Fill in collateral and debt input fields automatically if they are empty.
@@ -290,6 +290,31 @@ const OpenPosition = () => {
     [rTokenBalance],
   );
 
+  const selectedCollateralTokenPrice = useMemo(
+    () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
+    [selectedCollateralToken, tokenPriceMap],
+  );
+  const liquidationPrice = useMemo(() => {
+    if (
+      !selectedCollateralTokenPrice ||
+      !collateralizationRatio ||
+      collateralizationRatio.equals(Decimal.MAX_DECIMAL)
+    ) {
+      return null;
+    }
+
+    return selectedCollateralTokenPrice
+      .div(collateralizationRatio)
+      .mul(MIN_COLLATERAL_RATIO[selectedUnderlyingCollateralToken]);
+  }, [collateralizationRatio, selectedCollateralTokenPrice, selectedUnderlyingCollateralToken]);
+  const liquidationPriceDropPercent = useMemo(() => {
+    if (!liquidationPrice || !selectedCollateralTokenPrice) {
+      return null;
+    }
+
+    return Decimal.max(selectedCollateralTokenPrice.sub(liquidationPrice).div(selectedCollateralTokenPrice), 0);
+  }, [liquidationPrice, selectedCollateralTokenPrice]);
+
   const collateralSupply: Nullable<Decimal> = useMemo(
     () => protocolStats?.collateralSupply[selectedUnderlyingCollateralToken] ?? null,
     [protocolStats?.collateralSupply, selectedUnderlyingCollateralToken],
@@ -376,10 +401,14 @@ const OpenPosition = () => {
     [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
+  // Opening new generate position is disabled until future notice
+  const openPositionDisabled = true;
+
   const canBorrow = useMemo(
     () =>
       Boolean(
-        hasInputFilled &&
+        !openPositionDisabled &&
+          hasInputFilled &&
           hasEnoughCollateralTokenBalance &&
           hasMinBorrow &&
           hasMinRatio &&
@@ -390,6 +419,7 @@ const OpenPosition = () => {
           !isWrongNetwork,
       ),
     [
+      openPositionDisabled,
       hasInputFilled,
       hasEnoughCollateralTokenBalance,
       hasMinBorrow,
@@ -449,6 +479,10 @@ const OpenPosition = () => {
       return 'Connect wallet';
     }
 
+    if (openPositionDisabled) {
+      return 'Borrowing disabled';
+    }
+
     if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
@@ -487,6 +521,7 @@ const OpenPosition = () => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    openPositionDisabled,
     walletConnected,
     isTotalSupplyWithinCollateralProtocolCap,
     managePositionStatus.pending,
@@ -699,18 +734,26 @@ const OpenPosition = () => {
           errorMsg={debtErrorMsg}
         />
       </div>
+      {openPositionDisabled && (
+        <InfoBox
+          text="Borrowing R through the stETH and rETH vaults is temporarily disabled as we prepare to launch interest-based vaults soon. You can repay your debt if you have an open position."
+          variant="error"
+        />
+      )}
       <PositionAfter
         displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
         displayCollateralTokenAmount={displayCollateralTokenAmount}
         collateralTokenValueFormatted={selectedCollateralTokenInputValues.valueFormatted}
         borrowTokenAmountFormatted={debtTokenWithFeeValues.amountFormatted}
         collateralizationRatio={collateralizationRatio}
+        liquidationPrice={liquidationPrice}
+        liquidationPriceChange={liquidationPriceDropPercent}
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
-      <PositionAction
+      <ExecuteButton
         actionButtonState={actionButtonState}
-        canBorrow={canBorrow}
+        canExecute={canBorrow}
         buttonLabel={buttonLabel}
         walletConnected={walletConnected}
         onClick={walletConnected ? onAction : onConnectWallet}

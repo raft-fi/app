@@ -18,7 +18,12 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import {
+  GAS_LIMIT_MULTIPLIER,
+  NUMBER_OF_CONFIRMATIONS_FOR_TX,
+  SUPPORTED_TOKENS,
+  SUPPORTED_UNDERLYING_TOKENS,
+} from '../constants';
 import {
   Nullable,
   SupportedCollateralToken,
@@ -45,7 +50,6 @@ const DEFAULT_STEPS = {
   result: null,
   generator: null,
 };
-const GAS_LIMIT_MULTIPLIER = new Decimal(2);
 
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
@@ -228,11 +232,13 @@ const requestManagePositionStep$ = walletSigner$.pipe(
       return;
     }
 
-    let userPosition = userPositionMap[request.underlyingCollateralToken];
+    const userPositionMapKey = `${signer.address}-${request.underlyingCollateralToken}`;
+
+    let userPosition = userPositionMap[userPositionMapKey];
 
     if (!userPosition) {
       userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
-      userPositionMap[request.underlyingCollateralToken] = userPosition;
+      userPositionMap[userPositionMapKey] = userPosition;
     }
 
     setManagePositionStepsRequest(request);
@@ -262,9 +268,18 @@ const distinctRequest$ = managePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(tokenWhitelists$, tokenAllowances$),
-  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap]) => {
+  withLatestFrom(tokenWhitelists$, tokenAllowances$, walletSigner$),
+  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap, walletSigner]) => {
     const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
+
+    if (!walletSigner) {
+      return of({
+        request,
+        result: null,
+        generator: null,
+        error: 'Wallet signer is not defined!',
+      } as ManagePositionStepsResponse);
+    }
 
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
@@ -284,10 +299,10 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       } as ManagePositionStepsResponse);
     }
 
+    const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
+
     try {
-      const userPosition = userPositionMap[
-        underlyingCollateralToken
-      ] as UserPosition<SupportedUnderlyingCollateralToken>;
+      const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
       const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
       const actualDebtChange = isClosePosition ? Decimal.MAX_DECIMAL.mul(-1) : debtChange;
 

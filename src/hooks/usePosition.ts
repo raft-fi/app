@@ -11,20 +11,22 @@ import {
   concatMap,
   BehaviorSubject,
   withLatestFrom,
+  combineLatest,
 } from 'rxjs';
 import { Decimal } from '@tempusfinance/decimal';
 import { JsonRpcSigner } from 'ethers';
 import { DEBOUNCE_IN_MS } from '../constants';
-import { Nullable, Position, SupportedUnderlyingCollateralToken } from '../interfaces';
-import { AppEvent, appEvent$, AppEventMetadata } from './useAppEvent';
-import { UserPosition } from '@raft-fi/sdk';
+import { Nullable, Position } from '../interfaces';
+import { AppEvent, appEvent$ } from './useAppEvent';
+import { R_TOKEN, UserPosition } from '@raft-fi/sdk';
 import { walletSigner$ } from './useWalletSigner';
-import { CollateralConversionRateMap, collateralConversionRates$ } from './useCollateralConversionRates';
 import { getDecimalFromTokenMap } from '../utils';
+import { TokenPriceMap, tokenPrices$ } from './useTokenPrices';
 
-export const position$ = new BehaviorSubject<Nullable<Position>>(null);
+type NullablePosition = Nullable<Position>;
+export const position$ = new BehaviorSubject<NullablePosition>(null);
 
-const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Position>> => {
+const fetchData = async (signer: Nullable<JsonRpcSigner>, tokenPrices: TokenPriceMap): Promise<NullablePosition> => {
   if (!signer) {
     return null;
   }
@@ -38,9 +40,10 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
         ownerAddress: signer.address,
         underlyingCollateralToken: null,
         hasPosition: false,
+        hasLeveragePosition: false,
         collateralBalance: Decimal.ZERO,
         debtBalance: Decimal.ZERO,
-        principalCollateralBalance: null,
+        netBalance: Decimal.ZERO,
       };
     }
 
@@ -49,13 +52,21 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
     const debtBalance = userPosition.getDebt();
     const hasPosition = underlyingCollateralToken && collateralBalance.gt(0) && debtBalance.gt(0);
 
+    const collateralPrice = getDecimalFromTokenMap(tokenPrices, underlyingCollateralToken);
+    const debtPrice = getDecimalFromTokenMap(tokenPrices, R_TOKEN);
+    const collateralValue = collateralPrice?.mul(collateralBalance) ?? null;
+    const debtValue = debtPrice?.mul(debtBalance) ?? null;
+    const netValue = collateralValue && debtValue ? collateralValue.sub(debtValue) : null;
+    const netBalance = collateralPrice && netValue ? netValue.div(collateralPrice) : null;
+
     return {
       ownerAddress: signer.address,
       underlyingCollateralToken,
       hasPosition,
+      hasLeveragePosition: hasPosition && userPosition.getIsLeveraged(),
       collateralBalance,
       debtBalance,
-      principalCollateralBalance: userPosition.getPrincipalCollateral(),
+      netBalance,
     };
   } catch (error) {
     console.error('usePosition (catch) - failed to fetch collateral balance!', error);
@@ -63,76 +74,27 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>): Promise<Nullable<Posi
   }
 };
 
-// fetch from chain vs fetch from subgraph. from chain is supposed to have most updated
-const fetchDataFromChain = async (
-  signer: Nullable<JsonRpcSigner>,
-  underlyingCollateralToken: Nullable<SupportedUnderlyingCollateralToken>,
-  updatedPrincipalCollateralBalance: Nullable<Decimal> = null,
-): Promise<Nullable<Position>> => {
-  if (!signer || !underlyingCollateralToken) {
-    return null;
-  }
-
-  try {
-    // fetch data from chain manually to get the most updated data
-    const userPosition = new UserPosition(signer, underlyingCollateralToken);
-    await userPosition.fetch();
-
-    const collateralBalance = userPosition.getCollateral();
-    const debtBalance = userPosition.getDebt();
-    const hasPosition = collateralBalance.gt(0) && debtBalance.gt(0);
-
-    return {
-      ownerAddress: signer.address,
-      underlyingCollateralToken,
-      hasPosition,
-      collateralBalance,
-      debtBalance,
-      principalCollateralBalance: updatedPrincipalCollateralBalance,
-    };
-  } catch (error) {
-    console.error('usePosition (catch) - failed to fetch collateral balance from chain!', error);
-    return null;
-  }
-};
-
 // Stream that fetches collateral balance for currently connected wallet, this happens only when wallet address changes
-const walletStream$ = walletSigner$.pipe(
-  concatMap<Nullable<JsonRpcSigner>, Observable<Nullable<Position>>>(signer => from(fetchData(signer))),
+const walletStream$ = combineLatest([walletSigner$, tokenPrices$]).pipe(
+  concatMap<[Nullable<JsonRpcSigner>, TokenPriceMap], Observable<NullablePosition>>(([signer, tokenPrices]) =>
+    from(fetchData(signer, tokenPrices)),
+  ),
 );
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletSigner$, collateralConversionRates$),
-  filter((value): value is [AppEvent, JsonRpcSigner, CollateralConversionRateMap] => {
+  withLatestFrom(walletSigner$, tokenPrices$),
+  filter((value): value is [AppEvent, JsonRpcSigner, TokenPriceMap] => {
     const [appEvent, signer] = value;
 
     return Boolean(signer && appEvent?.metadata?.underlyingCollateralToken && appEvent?.metadata);
   }),
-  concatMap(([appEvent, signer, collateralConversionRates]) => {
-    const metadata = appEvent.metadata as AppEventMetadata;
-
-    if (appEvent.eventType === 'leverage') {
-      const { tokenAmount, currentPrincipalCollateral, collateralToken, underlyingCollateralToken } = metadata;
-
-      if (tokenAmount && currentPrincipalCollateral && collateralToken && underlyingCollateralToken) {
-        const collateralTokenConversionRate = getDecimalFromTokenMap(collateralConversionRates, collateralToken);
-
-        if (collateralTokenConversionRate && !collateralTokenConversionRate.isZero()) {
-          const underlyingCollateralTokenAmount = tokenAmount.div(collateralTokenConversionRate);
-          const updatedPrincipalCollateralBalance = currentPrincipalCollateral.add(underlyingCollateralTokenAmount);
-          return fetchDataFromChain(signer, underlyingCollateralToken, updatedPrincipalCollateralBalance);
-        }
-      }
-    }
-
-    return fetchDataFromChain(signer, metadata.underlyingCollateralToken ?? null);
-  }),
+  concatMap(([, signer, tokenPrices]) => from(fetchData(signer, tokenPrices))),
 );
 
 // merge all stream$ into one if there are multiple
 const stream$ = merge(walletStream$, appEventsStream$).pipe(
-  debounce<Nullable<Position>>(() => interval(DEBOUNCE_IN_MS)),
+  debounce<NullablePosition>(() => interval(DEBOUNCE_IN_MS)),
   tap(position => position$.next(position)),
 );
 

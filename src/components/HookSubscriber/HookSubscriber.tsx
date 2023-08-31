@@ -24,6 +24,13 @@ import {
   subscribeEstimateSwapPrice,
   subscribeLeveragePosition,
   subscribeRFlashMintFee,
+  subscribeManageSavingsStatus,
+  subscribeSavingsMaxDeposit,
+  subscribeCurrentUserSavings,
+  subscribeSavingsTvl,
+  subscribeSavingsYield,
+  subscribeManageTransactions,
+  subscribeSavingsTransactions,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -51,10 +58,17 @@ const HookSubscriber: FC = () => {
     subscribeCollateralProtocolCaps();
     subscribeCollateralTokenAprs();
     subscribeManageStatus();
+    subscribeManageSavingsStatus();
     subscribeLeverageStatus();
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
     subscribeRFlashMintFee();
+    subscribeSavingsMaxDeposit();
+    subscribeCurrentUserSavings();
+    subscribeSavingsTvl();
+    subscribeSavingsYield();
+    subscribeManageTransactions();
+    subscribeSavingsTransactions();
   }, []);
 
   return null;

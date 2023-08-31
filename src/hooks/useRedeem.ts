@@ -18,7 +18,11 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_COLLATERAL_TOKEN_SETTINGS } from '../constants';
+import {
+  GAS_LIMIT_MULTIPLIER,
+  NUMBER_OF_CONFIRMATIONS_FOR_TX,
+  SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
+} from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
@@ -57,8 +61,6 @@ interface RedeemResponse {
   error?: Error;
   txnId: string;
 }
-
-const GAS_LIMIT_MULTIPLIER = new Decimal(2);
 
 const [redeem$, redeem] = createSignal<RedeemRequest>();
 const redeemStatus$ = new BehaviorSubject<Nullable<RedeemStatus>>(null);

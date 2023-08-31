@@ -1,0 +1,26 @@
+.raft__savings__faq {
+  display: flex;
+  justify-self: center;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+
+  .raft__savings__faq-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .raft__savings__faq-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.6s ease-out;
+
+    .raft__savings__faq-item {
+      margin-top: 24px;
+    }
+  }
+}

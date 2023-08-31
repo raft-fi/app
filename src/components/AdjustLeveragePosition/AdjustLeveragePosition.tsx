@@ -50,7 +50,7 @@ interface AdjustPositionProps {
 }
 
 const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
-  position: { effectiveLeverage, principalCollateralBalance, debtBalance },
+  position: { effectiveLeverage, netBalance, debtBalance },
 }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
@@ -114,12 +114,12 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return getTokenValues(0, Decimal.ONE, R_TOKEN);
     }
 
-    if (!principalCollateralBalance || !selectedUnderlyingCollateralTokenPrice) {
+    if (!netBalance || !selectedUnderlyingCollateralTokenPrice) {
       return getTokenValues(null, null, R_TOKEN);
     }
 
     const collateralChange = isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1);
-    const newDebt = principalCollateralBalance
+    const newDebt = netBalance
       .add(collateralChange)
       .mul(selectedUnderlyingCollateralTokenPrice)
       .mul(leverage - 1);
@@ -129,19 +129,19 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     collateralAmountDecimal,
     isAddCollateral,
     leverage,
-    principalCollateralBalance,
+    netBalance,
     selectedUnderlyingCollateralTokenPrice,
     tokenPriceMap,
   ]);
   const estimatedUnderlyingCollateralTokenValues = useMemo(() => {
-    if (!newDebtTokenValues.value || !selectedUnderlyingCollateralTokenPrice || !principalCollateralBalance) {
+    if (!newDebtTokenValues.value || !selectedUnderlyingCollateralTokenPrice || !netBalance) {
       return getTokenValues(null, null, selectedUnderlyingCollateralToken);
     }
 
     const leveragedCollateralAmount = newDebtTokenValues.value
       .div(selectedUnderlyingCollateralTokenPrice)
       .mul(Decimal.ONE.sub(slippage));
-    const totalCollateralAmount = principalCollateralBalance.add(leveragedCollateralAmount);
+    const totalCollateralAmount = netBalance.add(leveragedCollateralAmount);
 
     return getTokenValues(
       totalCollateralAmount,
@@ -149,8 +149,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       selectedUnderlyingCollateralToken,
     );
   }, [
+    netBalance,
     newDebtTokenValues.value,
-    principalCollateralBalance,
     selectedUnderlyingCollateralToken,
     selectedUnderlyingCollateralTokenPrice,
     slippage,
@@ -171,12 +171,20 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   const selectedCollateralTokenLeveragedApr = useMemo(() => {
     const apr = getDecimalFromTokenMap(collateralTokenAprMap, selectedCollateralToken);
 
+    /**
+     * In case leverage in unchanged we don't need to show resulting leveraged APR
+     */
+    const currentLeverageParsed = Number(effectiveLeverage.toRounded(1));
+    if (leverage === currentLeverageParsed || leverage === 1) {
+      return null;
+    }
+
     if (!apr) {
       return null;
     }
 
     return apr.mul(leverage);
-  }, [collateralTokenAprMap, leverage, selectedCollateralToken]);
+  }, [collateralTokenAprMap, effectiveLeverage, leverage, selectedCollateralToken]);
   const selectedCollateralTokenProtocolCap = useMemo(
     () => getDecimalFromTokenMap(collateralProtocolCapMap, selectedCollateralToken),
     [collateralProtocolCapMap, selectedCollateralToken],
@@ -245,15 +253,15 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   }, [collateralAmountDecimal, collateralConversionRateMap, selectedCollateralToken]);
 
   /**
-   * Collateral balance after tx. Takes current amount of principal collateral user has and adds or subtracts input amount.
+   * Collateral balance after tx. Takes current amount of net collateral user has and adds or subtracts input amount.
    */
-  const newPrincipalCollateralAmount = useMemo(() => {
-    if (!principalCollateralBalance || !underlyingCollateralAmount) {
+  const newNetCollateralAmount = useMemo(() => {
+    if (!netBalance || !underlyingCollateralAmount) {
       return null;
     }
 
-    return principalCollateralBalance.add(underlyingCollateralAmount.mul(isAddCollateral ? 1 : -1));
-  }, [isAddCollateral, principalCollateralBalance, underlyingCollateralAmount]);
+    return netBalance.add(underlyingCollateralAmount.mul(isAddCollateral ? 1 : -1));
+  }, [isAddCollateral, netBalance, underlyingCollateralAmount]);
 
   /**
    * Price of currently selected underlying collateral token (e.g. wstETH)
@@ -267,17 +275,17 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return Decimal.MAX_DECIMAL;
     }
 
-    if (!newPrincipalCollateralAmount || !selectedUnderlyingCollateralPrice) {
+    if (!newNetCollateralAmount || !selectedUnderlyingCollateralPrice) {
       return Decimal.MAX_DECIMAL;
     }
 
-    const newPrincipalCollateralValue = newPrincipalCollateralAmount.mul(selectedUnderlyingCollateralPrice);
-    if (newPrincipalCollateralValue.isZero()) {
+    const newNetCollateralValue = newNetCollateralAmount.mul(selectedUnderlyingCollateralPrice);
+    if (newNetCollateralValue.isZero()) {
       return Decimal.MAX_DECIMAL;
     }
 
-    return new Decimal(MIN_BORROW_AMOUNT).div(newPrincipalCollateralValue.mul(leverage - 1));
-  }, [leverage, newPrincipalCollateralAmount, selectedUnderlyingCollateralPrice]);
+    return new Decimal(MIN_BORROW_AMOUNT).div(newNetCollateralValue.mul(leverage - 1));
+  }, [leverage, newNetCollateralAmount, selectedUnderlyingCollateralPrice]);
 
   const isDebtIncrease = useMemo(
     () => Boolean(newDebtTokenValues.amount?.gte(debtBalance)),
@@ -431,8 +439,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   }, [collateralAmountDecimal, effectiveLeverage, leverage]);
 
   const hasMinDeposit = useMemo(
-    () => newPrincipalCollateralAmount?.gte(minDepositAmount) || closePositionActive,
-    [closePositionActive, minDepositAmount, newPrincipalCollateralAmount],
+    () => newNetCollateralAmount?.gte(minDepositAmount) || closePositionActive,
+    [closePositionActive, minDepositAmount, newNetCollateralAmount],
   );
 
   /**
@@ -461,10 +469,18 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
+  const isLeverageIncrease = useMemo(() => {
+    return effectiveLeverage.lt(leverage);
+  }, [effectiveLeverage, leverage]);
+
+  // Increase leverage is disabled until further notice
+  const increaseLeverageDisabled = true;
+
   const canLeverage = useMemo(
     () =>
       Boolean(
-        hasLeveraged &&
+        !(increaseLeverageDisabled && isLeverageIncrease) &&
+          hasLeveraged &&
           hasMinDeposit &&
           hasNonEmptyInput &&
           inputChanged &&
@@ -476,6 +492,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
           !isWrongNetwork,
       ),
     [
+      increaseLeverageDisabled,
+      isLeverageIncrease,
       errTxn,
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
@@ -528,6 +546,10 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return 'Connect wallet';
     }
 
+    if (increaseLeverageDisabled && isLeverageIncrease) {
+      return 'Leveraging disabled';
+    }
+
     if (leveragePositionStepsStatus.error?.message) {
       return leveragePositionStepsStatus.error.message;
     }
@@ -570,6 +592,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    increaseLeverageDisabled,
+    isLeverageIncrease,
     walletConnected,
     leveragePositionStatus.pending,
     leveragePositionStepsStatus.error?.message,
@@ -604,19 +628,19 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   }, [canLeverage, leveragePosition]);
 
   const onToggleClosePosition = useCallback(() => {
-    if (!principalCollateralBalance) {
+    if (!netBalance) {
       return;
     }
 
     if (!closePositionActive) {
       if (isUnderlyingCollateralToken(selectedCollateralToken)) {
-        setCollateralAmount(principalCollateralBalance.toString());
+        setCollateralAmount(netBalance.toString());
         setIsAddCollateral(false);
       } else {
         const collateralConversionRate = collateralConversionRateMap[selectedCollateralToken];
 
         if (collateralConversionRate) {
-          const collateralBalanceInSelectedCollateralToken = principalCollateralBalance.mul(collateralConversionRate);
+          const collateralBalanceInSelectedCollateralToken = netBalance.mul(collateralConversionRate);
 
           setCollateralAmount(collateralBalanceInSelectedCollateralToken.toString());
           setIsAddCollateral(false);
@@ -631,13 +655,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     }
 
     setClosePositionActive(prevState => !prevState);
-  }, [
-    closePositionActive,
-    collateralConversionRateMap,
-    defaultLeverage,
-    principalCollateralBalance,
-    selectedCollateralToken,
-  ]);
+  }, [closePositionActive, collateralConversionRateMap, defaultLeverage, netBalance, selectedCollateralToken]);
 
   /**
    * Update action button state based on current approve/borrow request status
@@ -675,7 +693,6 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       collateralToken: selectedCollateralToken,
       collateralChange: isAddCollateral ? collateralAmountDecimal : collateralAmountDecimal.mul(-1),
       leverage: new Decimal(leverage),
-      currentPrincipalCollateral: principalCollateralBalance ?? Decimal.ZERO,
       isClosePosition: closePositionActive, // TODO - If new user position is also zero, set this to true
       slippage,
     });
@@ -687,7 +704,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     selectedCollateralToken,
     closePositionActive,
     slippage,
-    principalCollateralBalance,
+    wallet,
   ]);
 
   useEffect(() => {
@@ -816,17 +833,24 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
           onValueChange={onLeverageChange}
         />
       </div>
-      <InfoBox
-        variant="warning"
-        text="This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks here."
-      />
+      {increaseLeverageDisabled && isLeverageIncrease ? (
+        <InfoBox
+          text="Increasing leverage positions is temporarily disabled as we prepare to launch interest-based vaults soon. You can reduce your leverage or close your position if you have one open."
+          variant="error"
+        />
+      ) : (
+        <InfoBox
+          variant="warning"
+          text="This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks here."
+        />
+      )}
       <LeveragePositionAfter
         liquidationPrice={liquidationPrice}
         liquidationPriceChange={liquidationPriceDropPercent}
         leverageAPR={selectedCollateralTokenLeveragedApr}
         totalFee={totalFee}
         liquidationPriceLabel="RESULTING LIQUIDATION PRICE"
-        leverageAPRLabel="STAKING YIELD APR AFTER"
+        leverageAPRLabel="LEVERAGE APR AFTER"
       />
       <LeveragePositionAction
         actionButtonState={actionButtonState}

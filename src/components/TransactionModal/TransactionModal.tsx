@@ -7,6 +7,10 @@ import {
   useRedeem,
   useLeverage,
   resetLeverageStatus,
+  useCollateralConversionRates,
+  usePosition,
+  useManageSavings,
+  resetManageSavingsStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -17,12 +21,15 @@ import {
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 } from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
-import { formatCurrency } from '../../utils';
+import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
 
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { redeemStatus, redeem } = useRedeem();
+  const { manageSavingsStatus, manageSavings } = useManageSavings();
+  const collateralConversionRateMap = useCollateralConversionRates();
+  const position = usePosition();
 
   const [successModalOpened, setSuccessModalOpened] = useState<boolean>(false);
   const [failedModalOpened, setFailedModalOpened] = useState<boolean>(false);
@@ -34,12 +41,16 @@ const TransactionModal = () => {
     if (leveragePositionStatus.statusType === 'leverage') {
       return leveragePositionStatus;
     }
+    if (manageSavingsStatus.statusType === 'manageSavings') {
+      return manageSavingsStatus;
+    }
+
     if (redeemStatus) {
       return redeemStatus;
     }
 
     return null;
-  }, [leveragePositionStatus, managePositionStatus, redeemStatus]);
+  }, [leveragePositionStatus, managePositionStatus, manageSavingsStatus, redeemStatus]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -73,6 +84,8 @@ const TransactionModal = () => {
       resetManageStatus();
     } else if (currentStatus.statusType === 'leverage') {
       resetLeverageStatus();
+    } else if (currentStatus.statusType === 'manageSavings') {
+      resetManageSavingsStatus();
     } else if (currentStatus.statusType === 'redeem') {
       resetRedeemStatus();
     }
@@ -89,10 +102,12 @@ const TransactionModal = () => {
       managePosition?.();
     } else if (currentStatus.statusType === 'leverage') {
       leveragePosition?.();
+    } else if (currentStatus.statusType === 'manageSavings') {
+      manageSavings?.();
     } else if (currentStatus.statusType === 'redeem') {
       redeem(currentStatus.request);
     }
-  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, redeem]);
+  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, manageSavings, redeem]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -119,10 +134,16 @@ const TransactionModal = () => {
     return managePositionStatus.request?.debtChange ?? null;
   }, [managePositionStatus.request?.debtChange, managePositionStatus.statusType]);
 
-  // TODO: add checking close position for leverage
   const isClosePosition = useMemo(
-    () => managePositionStatus.statusType === 'manage' && managePositionStatus.request?.isClosePosition,
-    [managePositionStatus.request?.isClosePosition, managePositionStatus.statusType],
+    () =>
+      (managePositionStatus.statusType === 'manage' && managePositionStatus.request?.isClosePosition) ||
+      (leveragePositionStatus.statusType === 'leverage' && leveragePositionStatus.request?.isClosePosition),
+    [
+      leveragePositionStatus.request?.isClosePosition,
+      leveragePositionStatus.statusType,
+      managePositionStatus.request?.isClosePosition,
+      managePositionStatus.statusType,
+    ],
   );
 
   /**
@@ -139,24 +160,73 @@ const TransactionModal = () => {
       return <Typography variant="heading1">{debtValueFormatted} redeemed</Typography>;
     }
 
-    if (leveragePositionStatus.statusType === 'leverage' && collateralChange && leveragePositionStatus.request) {
-      const collateralLabel = collateralChange.lt(0) ? 'withdrawn' : 'deposited';
+    if (leveragePositionStatus.statusType === 'leverage' && leveragePositionStatus.request) {
+      const { collateralChange, collateralToken, underlyingCollateralToken, leverage, isClosePosition } =
+        leveragePositionStatus.request;
 
-      const collateralValueFormatted = formatCurrency(collateralChange.abs(), {
-        currency: leveragePositionStatus.request.collateralToken,
+      const displayToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
+      const collateralTokenRate = getDecimalFromTokenMap(collateralConversionRateMap, collateralToken);
+      const displayTokenRate = getDecimalFromTokenMap(collateralConversionRateMap, displayToken);
+
+      if (!collateralTokenRate || !displayTokenRate || !position) {
+        return '';
+      }
+
+      const collateralBalanceInDisplayToken = position.collateralBalance.mul(displayTokenRate);
+      const netBalanceInDisplayToken = position.netBalance?.mul(displayTokenRate) ?? null;
+
+      const collateralChangeFormatted = formatCurrency(collateralChange.abs(), {
+        currency: collateralToken,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+      const totalPrincipalCollateralBalanceFormatted = formatCurrency(netBalanceInDisplayToken, {
+        currency: displayToken,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+      const collateralBalanceFormatted = formatCurrency(collateralBalanceInDisplayToken, {
+        currency: displayToken,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         lessThanFormat: true,
       });
 
+      if (isClosePosition) {
+        return (
+          <>
+            <Typography variant="heading1">Leverage position closed</Typography>
+            <Typography variant="heading1">{collateralChangeFormatted} withdrawn</Typography>
+          </>
+        );
+      }
+
       return (
         <>
-          {!collateralChange.isZero() && (
-            <Typography variant="heading1">
-              {collateralValueFormatted} {collateralLabel}
-            </Typography>
-          )}
-          <Typography variant="heading1">{`with ${leveragePositionStatus.request.leverage}x leverage`}</Typography>
+          <Typography variant="heading1">Leverage set to {leverage.toRounded(1)}x</Typography>
+          <Typography variant="heading1">
+            with {totalPrincipalCollateralBalanceFormatted ?? '---'} collateral
+          </Typography>
+          <Typography variant="heading1">for {collateralBalanceFormatted} exposure</Typography>
         </>
+      );
+    }
+
+    if (manageSavingsStatus.statusType === 'manageSavings' && manageSavingsStatus.request) {
+      const { amount } = manageSavingsStatus.request;
+
+      const isDeposit = amount.gte(0);
+
+      const amountFormatted = formatCurrency(amount.abs(), {
+        currency: R_TOKEN,
+        fractionDigits: R_TOKEN_UI_PRECISION,
+        pad: true,
+        lessThanFormat: true,
+      });
+
+      return (
+        <Typography variant="heading1">
+          {amountFormatted} {isDeposit ? 'deposited' : 'withdrawn'}
+        </Typography>
       );
     }
 
@@ -208,10 +278,14 @@ const TransactionModal = () => {
     );
   }, [
     collateralChange,
+    collateralConversionRateMap,
     debtChange,
     leveragePositionStatus.request,
     leveragePositionStatus.statusType,
     managePositionStatus.request,
+    manageSavingsStatus.request,
+    manageSavingsStatus.statusType,
+    position,
     redeemStatus,
   ]);
 
@@ -224,6 +298,10 @@ const TransactionModal = () => {
     }
 
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
+      return 'Successful transaction';
+    }
+
+    if (manageSavingsStatus.statusType === 'manageSavings') {
       return 'Successful transaction';
     }
 
@@ -245,7 +323,7 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [collateralChange, debtChange, leveragePositionStatus.statusType, redeemStatus]);
+  }, [collateralChange, debtChange, leveragePositionStatus.statusType, manageSavingsStatus.statusType, redeemStatus]);
 
   const tokenToAdd = useMemo(() => {
     if (currentStatus?.statusType === 'manage') {
@@ -253,6 +331,21 @@ const TransactionModal = () => {
         label: 'Add R to wallet',
         address: RaftConfig.getTokenAddress(R_TOKEN) || '',
         symbol: R_TOKEN,
+        decimals: 18,
+        image: 'https://raft.fi/rtoken.png',
+      };
+    }
+
+    if (currentStatus?.statusType === 'manageSavings') {
+      const isDeposit = manageSavingsStatus.request?.amount.gt(0);
+      if (!isDeposit) {
+        return null;
+      }
+
+      return {
+        label: 'Add RR to wallet',
+        address: RaftConfig.networkConfig.rSavingsModule,
+        symbol: 'RR',
         decimals: 18,
         image: 'https://raft.fi/rtoken.png',
       };
@@ -272,12 +365,17 @@ const TransactionModal = () => {
     }
 
     return null;
-  }, [currentStatus?.statusType, redeemStatus]);
+  }, [currentStatus?.statusType, manageSavingsStatus.request?.amount, redeemStatus]);
 
   return (
     <>
       {successModalOpened && isClosePosition && (
-        <TransactionCloseModal open={successModalOpened} title={successModalTitle} onClose={onCloseModal} />
+        <TransactionCloseModal
+          open={successModalOpened}
+          title={successModalTitle}
+          txHash={currentStatus?.txHash}
+          onClose={onCloseModal}
+        />
       )}
       {successModalOpened && !isClosePosition && (
         <TransactionSuccessModal
