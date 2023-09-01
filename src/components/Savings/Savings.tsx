@@ -326,6 +326,15 @@ const Savings = () => {
     }
   }, [manageSavingsStatus.pending, manageSavingsStepsStatus.pending]);
 
+  /**
+   * Once the savings transaction is executed, reset the input value
+   */
+  useEffect(() => {
+    if (manageSavingsStatus.success && manageSavingsStatus.statusType === 'manageSavings') {
+      setAmount('');
+    }
+  }, [manageSavingsStatus.statusType, manageSavingsStatus.success]);
+
   if (!appLoaded) {
     return (
       <div className="raft__savings__container">
