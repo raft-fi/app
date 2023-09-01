@@ -347,7 +347,7 @@ const TransactionModal = () => {
         address: RaftConfig.networkConfig.rSavingsModule,
         symbol: 'RR',
         decimals: 18,
-        image: 'https://raft.fi/rtoken.png',
+        image: 'https://raft.fi/rrToken.png',
       };
     }
 
