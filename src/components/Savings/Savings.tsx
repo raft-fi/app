@@ -257,12 +257,7 @@ const Savings = () => {
     }
 
     if (isAddCollateral && !isPositionWithinDepositCap) {
-      const maxDeposit = formatCurrency(savingsMaxDeposit, {
-        currency: R_TOKEN,
-        fractionDigits: 2,
-      });
-
-      return `Deposit amount exceeds max deposit amount of ${maxDeposit}. Please reduce the deposit amount.`;
+      return `Not enough capacity for the deposit amount. Please reduce and try again.`;
     }
   }, [
     hasEnoughRToDeposit,
@@ -270,7 +265,6 @@ const Savings = () => {
     isAddCollateral,
     isPositionWithinDepositCap,
     isWrongNetwork,
-    savingsMaxDeposit,
     walletConnected,
   ]);
 
