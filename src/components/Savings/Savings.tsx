@@ -361,6 +361,8 @@ const Savings = () => {
               error={Boolean(errorMessage)}
               errorMsg={errorMessage}
               maxAmount={inputMaxAmount}
+              maxAmountIconVisible={isAddCollateral}
+              maxAmountLabel={isAddCollateral ? '' : 'Balance'}
               maxAmountFormatted={inputMaxAmountFormatted || ''}
               onMaxAmountClick={onMaxAmountClick}
             />

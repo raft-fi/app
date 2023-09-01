@@ -29,6 +29,7 @@ export interface CurrencyInputProps extends BaseInputProps {
   allowNegativeNumbers?: boolean;
   maxIntegralDigits?: number;
   maxAmount?: Nullable<Decimal>;
+  maxAmountLabel?: string;
   maxAmountFormatted?: string;
   maxAmountIconVisible?: boolean;
   onValueUpdate?: (value: string) => void;
@@ -53,8 +54,9 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
     allowNegativeNumbers = false,
     maxIntegralDigits = MAX_INTEGRAL_DIGIT,
     maxAmount,
+    maxAmountLabel = '',
     maxAmountFormatted = '',
-    maxAmountIconVisible: showWalletIcon = true,
+    maxAmountIconVisible = true,
     onValueUpdate,
     onValueDebounceUpdate,
     onTokenUpdate,
@@ -132,9 +134,18 @@ const CurrencyInput: FC<CurrencyInputProps> = props => {
         <div className="raft__currencyInput__maxAmount">
           {maxAmount && (
             <ButtonWrapper onClick={onMaxAmountClick} disabled={!onMaxAmountClick}>
-              <div className="raft__currencyInput__maxAmountValue">
-                {showWalletIcon && <Icon variant="wallet" size="tiny" />}
+              <div className="raft__currencyInput__maxAmountValueContainer">
+                {maxAmountIconVisible && <Icon variant="wallet" size="tiny" />}
                 <div className="raft__currencyInput__maxAmountValue">
+                  {maxAmountLabel && (
+                    <Typography
+                      className="raft__currencyInput__maxAmountLabel"
+                      variant="caption"
+                      color="text-secondary"
+                    >
+                      {maxAmountLabel}
+                    </Typography>
+                  )}
                   <ValueLabel
                     valueSize="caption"
                     tickerSize="body2"
