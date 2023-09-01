@@ -15,7 +15,6 @@ import {
   useWallet,
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
-import { formatCurrency } from '../../utils';
 import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
 import LoadingSavings from '../LoadingSavings';
 import FAQ from './FAQ';
@@ -421,12 +420,7 @@ const Savings = () => {
         </div>
       </div>
       <div className="raft__savings__right">
-        <Stats
-          currentSavings={currentUserSavings}
-          currentYield={savingsYield}
-          tvl={savingsTvl}
-          savingsMaxDeposit={savingsMaxDeposit}
-        />
+        <Stats currentSavings={currentUserSavings} currentYield={savingsYield} tvl={savingsTvl} />
         <FAQ />
       </div>
     </div>
