@@ -1,4 +1,5 @@
 import { CSSProperties, useCallback, useMemo, useState } from 'react';
+import { ButtonWrapper } from 'tempus-ui';
 import { Icon, Typography } from '../../shared';
 
 import './FAQ.scss';
@@ -18,12 +19,12 @@ const FAQ = () => {
 
   return (
     <div className="raft__savings__faq">
-      <div className="raft__savings__faq-header" onClick={handleClick}>
+      <ButtonWrapper className="raft__savings__faq-header" onClick={handleClick}>
         <Typography variant="body2" weight="medium">
           Frequently Asked Questions
         </Typography>
         {open ? <Icon variant="chevron-up" /> : <Icon variant="chevron-down" />}
-      </div>
+      </ButtonWrapper>
       <div className="raft__savings__faq-body" style={style}>
         <div className="raft__savings__faq-item">
           <Typography variant="body" weight="medium">
