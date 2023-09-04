@@ -4,21 +4,17 @@ import {
   interval,
   BehaviorSubject,
   mergeMap,
-  map,
-  from,
   merge,
   debounce,
   tap,
   Subscription,
   withLatestFrom,
   filter,
-  of,
-  catchError,
   concatMap,
 } from 'rxjs';
 import { UserSavings } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { DEBOUNCE_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, SAVING_POSITION_BALANCE_THRESHOLD } from '../constants';
 import { Nullable } from '../interfaces';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
@@ -27,30 +23,28 @@ const DEFAULT_VALUE = null;
 
 export const currentUserSavings$ = new BehaviorSubject<Nullable<Decimal>>(DEFAULT_VALUE);
 
-const fetchData = (signer: Signer) => {
+const fetchData = async (signer: Signer) => {
   try {
     const savings = new UserSavings(signer);
 
-    return from(savings.currentSavings()).pipe(
-      map(currentUserSavings => {
-        return currentUserSavings;
-      }),
-      catchError(error => {
-        console.error('useCurrentUserSavings (catchError) - failed to fetch current user savings!', error);
-        return of(null);
-      }),
-    );
+    const currentSavings = await savings.currentSavings();
+
+    if (currentSavings.abs().lt(SAVING_POSITION_BALANCE_THRESHOLD)) {
+      return Decimal.ZERO;
+    }
+
+    return currentSavings;
   } catch (error) {
     console.error('useCurrentUserSavings (catch) - failed to fetch current user savings!', error);
-    return of(null);
+    return DEFAULT_VALUE;
   }
 };
 
 // Fetch current user savings data every time wallet changes
 const walletChangeStream$ = walletSigner$.pipe(
-  concatMap(signer => {
+  concatMap(async signer => {
     if (!signer) {
-      return of(DEFAULT_VALUE);
+      return DEFAULT_VALUE;
     }
 
     return fetchData(signer);
