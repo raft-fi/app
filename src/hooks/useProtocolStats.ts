@@ -37,9 +37,16 @@ const fetchData = (provider: JsonRpcProvider) => {
       from(stats.fetchDebtSupply()),
       from(stats.fetchOpenPositionCount()),
       from(stats.fetchTokenTotalSupply(R_TOKEN)),
+      from(stats.fetchPsmTvl()),
     ]).pipe(
       map(([, , , totalRSupply]) => {
-        if (!stats.collateralSupply || !stats.debtSupply || !stats.openPositionCount || !totalRSupply) {
+        if (
+          !stats.collateralSupply ||
+          !stats.debtSupply ||
+          !stats.openPositionCount ||
+          !totalRSupply ||
+          !stats.psmTvl
+        ) {
           return null;
         }
 
@@ -48,6 +55,8 @@ const fetchData = (provider: JsonRpcProvider) => {
           debtSupply: stats.debtSupply,
           openPositions: stats.openPositionCount,
           totalRSupply,
+          psmTvlToken: stats.psmTvl.daiLocked,
+          psmTvlFiat: stats.psmTvl.usdValue,
         };
       }),
       catchError(error => {

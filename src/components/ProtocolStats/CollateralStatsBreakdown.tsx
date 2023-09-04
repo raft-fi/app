@@ -70,6 +70,22 @@ const CollateralStatsBreakdown = () => {
     [collateralSupplyMap, tokenPriceMap],
   );
 
+  const psmTvlFormatted = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return formatDecimal(protocolStats.psmTvlToken, USD_UI_PRECISION);
+  }, [protocolStats]);
+
+  const psmTvlValueFormatted = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return formatDecimal(protocolStats.psmTvlFiat, USD_UI_PRECISION);
+  }, [protocolStats]);
+
   return (
     <Tooltip className="raft__protocol-stats__collateral-breakdown">
       <ul>
@@ -102,6 +118,36 @@ const CollateralStatsBreakdown = () => {
             </div>
           </li>
         ))}
+        {/* Include PSM in breakdown as well */}
+
+        <li key={`breakdown-psm-dai`}>
+          <TokenLogo type="token-DAI" size="small" />
+          <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">
+            DAI
+            <div className="raft__protocol-stats__collateral-breakdown__labelBadge">
+              <Typography variant="caption" color="text-secondary" weight="semi-bold">
+                PSM
+              </Typography>
+            </div>
+          </Typography>
+
+          <div className="raft__protocol-stats__collateral-breakdown__token-values">
+            <div className="raft__protocol-stats__collateral-breakdown__token-amount">
+              <Typography variant="body" weight="medium">
+                {psmTvlFormatted ?? '---'}&nbsp;
+              </Typography>
+              <Typography variant="body2">DAI</Typography>
+            </div>
+            <div className="raft__protocol-stats__collateral-breakdown__token-value">
+              <Typography variant="caption" color="text-secondary">
+                $
+              </Typography>
+              <Typography variant="body2" weight="medium" color="text-secondary">
+                {psmTvlValueFormatted ?? '---'}
+              </Typography>
+            </div>
+          </div>
+        </li>
       </ul>
     </Tooltip>
   );

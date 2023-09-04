@@ -6,4 +6,6 @@ export interface ProtocolStats {
   collateralSupply: TokenDecimalMap<UnderlyingCollateralToken>;
   debtSupply: TokenDecimalMap<UnderlyingCollateralToken>;
   totalRSupply: Decimal;
+  psmTvlToken: Decimal;
+  psmTvlFiat: Decimal;
 }
