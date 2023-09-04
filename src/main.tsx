@@ -7,7 +7,6 @@ import MobileBanner from './components/MobileBanner';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GenerateDashboard from './components/GenerateDashboard';
-import Redeem from './components/Redeem';
 import Geoblock from './components/Geoblock';
 import HookSubscriber from './components/HookSubscriber';
 import NoticePopup from './components/NoticePopup';
@@ -43,7 +42,6 @@ if (mobile) {
           <Routes>
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/redeem" element={<Redeem />} />
             <Route path="/savings" element={<Savings />} />
             <Route
               path="/generate"
