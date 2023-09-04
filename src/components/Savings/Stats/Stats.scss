@@ -52,30 +52,10 @@
         }
       }
     }
-
-    .raft__savings__stats__capacity__progress-bar__container {
-      height: 8px;
-      border-radius: 10px;
-      margin-top: 8px;
-      width: 100%;
-      overflow: hidden;
-      background-color: var(--raft-grey-400);
-
-      .raft__savings__stats__capacity__progress-bar {
-        height: 8px;
-        border-radius: 10px;
-        background-color: var(--textAccent);
-      }
-    }
   }
 
   .raft__icon__info {
     --infoColor: var(--textAccentInverted);
-  }
-
-  .raft__savings__divider {
-    margin-right: 0.3rem;
-    margin-left: 0.3rem;
   }
 }
 
@@ -83,6 +63,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding-top: 16px;
 
   > svg {
     width: 24px;
@@ -95,23 +76,4 @@
 
 .raft__savings__tooltip {
   max-width: 250px;
-}
-
-.raft__savings__tvlTooltip-container {
-  width: 340px;
-  box-sizing: border-box;
-  padding: 12px 16px;
-
-  .raft__savings__tvlTooltip {
-    display: flex;
-    flex-direction: column;
-
-    .raft__savings__stats__item-token {
-      margin-top: 8px;
-    }
-
-    .raft__savings__tvlTooltip-container__spacer {
-      height: 24px;
-    }
-  }
 }
