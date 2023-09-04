@@ -31,7 +31,8 @@ const FAQ = () => {
             What is R?
           </Typography>
           <Typography variant="body">
-            R is the most capital-efficient Ethereum USD stablecoin backed by liquid staking tokens.
+            R is the most capital-efficient USD stablecoin, backed by both collateralized debt positions (CDPs) and
+            protocol reserves.
           </Typography>
         </div>
         <div className="raft__savings__faq-item">
@@ -48,7 +49,8 @@ const FAQ = () => {
             Where does the yield come from?
           </Typography>
           <Typography variant="body">
-            The yield earned comes from the revenue earned from the Raft protocol and liquidation fees.
+            The yield comes from a combination of protocol fees (borrowing fees, liquidation fees, flash mint fees) and
+            the yield accumulated on protocol reserves.
           </Typography>
         </div>
       </div>
