@@ -1,7 +1,7 @@
 {
   "short_name": "Raft",
-  "name": "Raft - Generate R stablecoin against your liquid staking tokens",
-  "description": "Use your liquid staking token as collateral on Raft to generate the USD stablecoin R while continuing to earn staking rewards.",
+  "name": "Raft App - Generate R against your collateral",
+  "description": "Raft allows you to borrow in the most capital-efficient way. Generate R, the ultimate decentralized currency for our digital economy.",
   "providedBy": { "name": "Raft", "url": "https://raft.fi/" },
   "icons": [
     {

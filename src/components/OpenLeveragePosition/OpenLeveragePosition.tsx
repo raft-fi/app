@@ -305,10 +305,14 @@ const OpenLeveragePosition = () => {
     [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
+  // Opening new generate position is disabled until future notice
+  const openLeveragePositionDisabled = true;
+
   const canLeverage = useMemo(
     () =>
       Boolean(
-        hasLeveraged &&
+        !openLeveragePositionDisabled &&
+          hasLeveraged &&
           hasMinDeposit &&
           hasNonEmptyInput &&
           hasEnoughCollateralTokenBalance &&
@@ -319,6 +323,7 @@ const OpenLeveragePosition = () => {
           !isWrongNetwork,
       ),
     [
+      openLeveragePositionDisabled,
       errTxn,
       hasEnoughCollateralTokenBalance,
       hasLeveraged,
@@ -369,6 +374,10 @@ const OpenLeveragePosition = () => {
       return 'Connect wallet';
     }
 
+    if (openLeveragePositionDisabled) {
+      return 'Leveraging disabled';
+    }
+
     if (leveragePositionStepsStatus.error?.message) {
       return leveragePositionStepsStatus.error.message;
     }
@@ -411,6 +420,7 @@ const OpenLeveragePosition = () => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    openLeveragePositionDisabled,
     walletConnected,
     leveragePositionStepsStatus.error?.message,
     isTotalSupplyWithinCollateralProtocolCap,
@@ -497,6 +507,7 @@ const OpenLeveragePosition = () => {
     requestLeveragePositionStep,
     selectedCollateralToken,
     slippage,
+    wallet,
   ]);
 
   useEffect(() => {
@@ -573,18 +584,25 @@ const OpenLeveragePosition = () => {
           onValueChange={onLeverageChange}
         />
       </div>
-      {/* TODO - Check if link inside info box is correct */}
-      <InfoBox
-        variant="warning"
-        text={
-          <div className="raft__infoBox__warningLink">
-            <Typography variant="body2" color="text-warning">
-              This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the risks{' '}
-              <ExternalLink href="https://docs.raft.fi">here.</ExternalLink>
-            </Typography>
-          </div>
-        }
-      />
+
+      {openLeveragePositionDisabled ? (
+        <InfoBox
+          text="New leverage positions are temporarily disabled as we prepare to launch interest-based vaults soon. You can close or reduce your position if you have one open."
+          variant="error"
+        />
+      ) : (
+        <InfoBox
+          variant="warning"
+          text={
+            <div className="raft__infoBox__warningLink">
+              <Typography variant="body2" color="text-warning">
+                This feature flash mints R, and sources liquidity from decentralized exchanges. Read more about the
+                risks <ExternalLink href="https://docs.raft.fi">here.</ExternalLink>
+              </Typography>
+            </div>
+          }
+        />
+      )}
       <LeveragePositionAfter
         liquidationPrice={liquidationPrice}
         liquidationPriceChange={liquidationPriceDropPercent}

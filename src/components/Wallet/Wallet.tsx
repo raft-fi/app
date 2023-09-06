@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import SafeAppsSDK, { SafeInfo } from '@safe-global/safe-apps-sdk';
+import { PositionTransaction, SavingsTransaction } from '@raft-fi/sdk';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
@@ -9,6 +10,7 @@ import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
 import { Nullable } from '../../interfaces';
 import {
+  HistoryTransaction,
   updateWalletFromEIP1193Provider,
   useAppLoaded,
   useConfig,
@@ -19,10 +21,14 @@ import {
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
-import TransactionHistoryRow from './TransactionHistoryRow';
+import { ManageTransactionRow, SavingsTransactionRow } from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
+
+const isSavingsTransaction = (transaction: HistoryTransaction): transaction is SavingsTransaction => {
+  return transaction.type === 'DEPOSIT' || transaction.type === 'WITHDRAW';
+};
 
 const safeSdk = new SafeAppsSDK();
 const injected = injectedModule();
@@ -191,7 +197,10 @@ const Wallet = () => {
   }, [connectedAddress, ens.name, wallet]);
 
   const lastLiquidation = useMemo(
-    () => (transactionHistory?.filter(transaction => transaction.type === 'LIQUIDATION') ?? [])[0],
+    () =>
+      (transactionHistory?.filter((transaction): transaction is PositionTransaction => {
+        return transaction.type === 'LIQUIDATION';
+      }) ?? [])[0],
     [transactionHistory],
   );
 
@@ -291,7 +300,10 @@ const Wallet = () => {
             <div className="raft__wallet__popupTransactionsContainer">
               {transactionHistory?.length ? (
                 transactionHistory.map(transaction => {
-                  return <TransactionHistoryRow key={transaction.id} transaction={transaction} />;
+                  if (isSavingsTransaction(transaction)) {
+                    return <SavingsTransactionRow key={transaction.id} transaction={transaction} />;
+                  }
+                  return <ManageTransactionRow key={transaction.id} transaction={transaction} />;
                 })
               ) : (
                 <Typography

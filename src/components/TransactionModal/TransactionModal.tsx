@@ -9,6 +9,8 @@ import {
   resetLeverageStatus,
   useCollateralConversionRates,
   usePosition,
+  useManageSavings,
+  resetManageSavingsStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -25,6 +27,7 @@ const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { redeemStatus, redeem } = useRedeem();
+  const { manageSavingsStatus, manageSavings } = useManageSavings();
   const collateralConversionRateMap = useCollateralConversionRates();
   const position = usePosition();
 
@@ -38,12 +41,16 @@ const TransactionModal = () => {
     if (leveragePositionStatus.statusType === 'leverage') {
       return leveragePositionStatus;
     }
+    if (manageSavingsStatus.statusType === 'manageSavings') {
+      return manageSavingsStatus;
+    }
+
     if (redeemStatus) {
       return redeemStatus;
     }
 
     return null;
-  }, [leveragePositionStatus, managePositionStatus, redeemStatus]);
+  }, [leveragePositionStatus, managePositionStatus, manageSavingsStatus, redeemStatus]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -77,6 +84,8 @@ const TransactionModal = () => {
       resetManageStatus();
     } else if (currentStatus.statusType === 'leverage') {
       resetLeverageStatus();
+    } else if (currentStatus.statusType === 'manageSavings') {
+      resetManageSavingsStatus();
     } else if (currentStatus.statusType === 'redeem') {
       resetRedeemStatus();
     }
@@ -93,10 +102,12 @@ const TransactionModal = () => {
       managePosition?.();
     } else if (currentStatus.statusType === 'leverage') {
       leveragePosition?.();
+    } else if (currentStatus.statusType === 'manageSavings') {
+      manageSavings?.();
     } else if (currentStatus.statusType === 'redeem') {
       redeem(currentStatus.request);
     }
-  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, redeem]);
+  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, manageSavings, redeem]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -123,7 +134,6 @@ const TransactionModal = () => {
     return managePositionStatus.request?.debtChange ?? null;
   }, [managePositionStatus.request?.debtChange, managePositionStatus.statusType]);
 
-  // TODO: add checking close position for leverage
   const isClosePosition = useMemo(
     () =>
       (managePositionStatus.statusType === 'manage' && managePositionStatus.request?.isClosePosition) ||
@@ -201,6 +211,25 @@ const TransactionModal = () => {
       );
     }
 
+    if (manageSavingsStatus.statusType === 'manageSavings' && manageSavingsStatus.request) {
+      const { amount } = manageSavingsStatus.request;
+
+      const isDeposit = amount.gte(0);
+
+      const amountFormatted = formatCurrency(amount.abs(), {
+        currency: R_TOKEN,
+        fractionDigits: R_TOKEN_UI_PRECISION,
+        pad: true,
+        lessThanFormat: true,
+      });
+
+      return (
+        <Typography variant="heading1">
+          {amountFormatted} {isDeposit ? 'deposited' : 'withdrawn'}
+        </Typography>
+      );
+    }
+
     if (!managePositionStatus.request || !debtChange || !collateralChange) {
       return '';
     }
@@ -254,6 +283,8 @@ const TransactionModal = () => {
     leveragePositionStatus.request,
     leveragePositionStatus.statusType,
     managePositionStatus.request,
+    manageSavingsStatus.request,
+    manageSavingsStatus.statusType,
     position,
     redeemStatus,
   ]);
@@ -267,6 +298,10 @@ const TransactionModal = () => {
     }
 
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
+      return 'Successful transaction';
+    }
+
+    if (manageSavingsStatus.statusType === 'manageSavings') {
       return 'Successful transaction';
     }
 
@@ -288,7 +323,7 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [collateralChange, debtChange, leveragePositionStatus.statusType, redeemStatus]);
+  }, [collateralChange, debtChange, leveragePositionStatus.statusType, manageSavingsStatus.statusType, redeemStatus]);
 
   const tokenToAdd = useMemo(() => {
     if (currentStatus?.statusType === 'manage') {
@@ -298,6 +333,21 @@ const TransactionModal = () => {
         symbol: R_TOKEN,
         decimals: 18,
         image: 'https://raft.fi/rtoken.png',
+      };
+    }
+
+    if (currentStatus?.statusType === 'manageSavings') {
+      const isDeposit = manageSavingsStatus.request?.amount.gt(0);
+      if (!isDeposit) {
+        return null;
+      }
+
+      return {
+        label: 'Add RR to wallet',
+        address: RaftConfig.networkConfig.rSavingsModule,
+        symbol: 'RR',
+        decimals: 18,
+        image: 'https://raft.fi/rrToken.svg',
       };
     }
 
@@ -315,7 +365,7 @@ const TransactionModal = () => {
     }
 
     return null;
-  }, [currentStatus?.statusType, redeemStatus]);
+  }, [currentStatus?.statusType, manageSavingsStatus.request?.amount, redeemStatus]);
 
   return (
     <>

@@ -12,6 +12,7 @@ import {
   useProtocolStats,
   useTokenBalances,
   useTokenPrices,
+  useWallet,
 } from '../../hooks';
 import {
   formatCurrency,
@@ -32,8 +33,8 @@ import {
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
 import { Nullable, Position, SupportedCollateralToken, SupportedUnderlyingCollateralToken } from '../../interfaces';
-import { Button, CurrencyInput, Typography } from '../shared';
-import { PositionAction, PositionAfter } from '../Position';
+import { Button, CurrencyInput, Typography, ExecuteButton, InfoBox } from '../shared';
+import { PositionAfter } from '../Position';
 
 import './AdjustPosition.scss';
 
@@ -42,6 +43,7 @@ interface AdjustPositionProps {
 }
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
+  const wallet = useWallet();
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
   const borrowingRateMap = useCollateralBorrowingRates();
@@ -333,6 +335,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     newDebtTokenWithFeeValues.amount,
     requestManagePositionStep,
     selectedCollateralToken,
+    wallet,
   ]);
 
   const executionSteps = useMemo(
@@ -533,10 +536,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     [isTotalSupplyWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
+  // Generating more R is disabled until further notice
+  const generateDisabled = true;
+
   const canAdjust = useMemo(
     () =>
       Boolean(
-        isInputNonEmpty &&
+        !(generateDisabled && isAddDebt && borrowAmount) &&
+          isInputNonEmpty &&
           hasEnoughCollateralTokenBalance &&
           hasEnoughDebtTokenBalance &&
           hasMinBorrow &&
@@ -547,6 +554,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           isPositionWithinDebtPositionCap,
       ),
     [
+      borrowAmount,
+      generateDisabled,
+      isAddDebt,
       isInputNonEmpty,
       hasEnoughCollateralTokenBalance,
       hasEnoughDebtTokenBalance,
@@ -615,6 +625,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   }, [errTotalSupplyOutOfCollateralProtocolCap, hasMinBorrow, hasMinNewRatio, hasNonNegativeDebt]);
 
   const buttonLabel = useMemo(() => {
+    if (generateDisabled && isAddDebt && borrowAmount) {
+      return 'Borrowing disabled';
+    }
+
     if (!isTotalSupplyWithinCollateralProtocolCap && !managePositionStatus.pending) {
       const collateralProtocolCapFormatted = formatCurrency(collateralProtocolCapMap[selectedCollateralToken], {
         currency: selectedCollateralToken,
@@ -657,6 +671,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    borrowAmount,
+    generateDisabled,
+    isAddDebt,
     isTotalSupplyWithinCollateralProtocolCap,
     managePositionStatus.pending,
     hasEnoughDebtTokenBalance,
@@ -862,6 +879,12 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           maxIntegralDigits={10}
         />
       </div>
+      {generateDisabled && isAddDebt && borrowAmount && (
+        <InfoBox
+          text="Additional borrowing of R through the stETH and rETH vaults is temporarily disabled as we prepare to launch interest-based vaults soon. You can repay your debt if you have an open position."
+          variant="error"
+        />
+      )}
       <PositionAfter
         displayCollateralToken={TOKEN_TO_DISPLAY_BASE_TOKEN_MAP[selectedCollateralToken]}
         displayCollateralTokenAmount={newCollateralInDisplayTokenValues.amount}
@@ -874,9 +897,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
       />
-      <PositionAction
+      <ExecuteButton
         actionButtonState={transactionState}
-        canBorrow={canAdjust}
+        canExecute={canAdjust}
         buttonLabel={buttonLabel}
         walletConnected={true}
         onClick={onAction}

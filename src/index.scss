@@ -80,9 +80,11 @@
   --textSecondary: var(--raft-grey-700);
   --textAccent: var(--raft-orange-700);
   --textPrimaryInverted: var(--raft-white);
+  --textAccentInverted: var(--raft-blue-600);
   --textSuccess: var(--raft-green-800);
   --textWarning: var(--raft-yellow-800);
   --textError: var(--raft-red-800);
+  --textDisabled: var(--raft-grey-500);
 
   --toastBackground: var(--raft-blue-200);
   --toastText: var(--raft-blue-900);
@@ -148,7 +150,7 @@
   --text-color: var(--textPrimary);
   --w3o-border-radius: 8px;
   --w3o-border-color: transparent;
-  --w3o-font-family: 'Work Sans', sans-serif;
+  --w3o-font-family: "Work Sans", sans-serif;
 }
 
 html,

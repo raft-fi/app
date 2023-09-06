@@ -17,21 +17,30 @@
     }
 
     .raft__currencyInput__maxAmount {
-      .raft__currencyInput__maxAmountValue {
+      .raft__currencyInput__maxAmountValueContainer {
         display: flex;
         align-items: center;
 
-        // TODO: remove the following css and update ValueLabel
-        .raft__valueLabel {
-          > div:nth-child(1) {
-            line-height: 14px !important;
-            color: var(--raft-grey-800) !important;
+        .raft__currencyInput__maxAmountValue {
+          display: flex;
+          align-items: baseline;
+
+          .raft__currencyInput__maxAmountLabel {
+            margin-right: 4px;
           }
 
-          > div:nth-child(2) {
-            font-size: 12px !important;
-            line-height: 14px !important;
-            color: var(--raft-grey-800) !important;
+          // TODO: remove the following css and update ValueLabel
+          .raft__valueLabel {
+            > div:nth-child(1) {
+              line-height: 14px !important;
+              color: var(--raft-grey-800) !important;
+            }
+
+            > div:nth-child(2) {
+              font-size: 12px !important;
+              line-height: 14px !important;
+              color: var(--raft-grey-800) !important;
+            }
           }
         }
 
@@ -109,7 +118,7 @@
   }
 
   .raft__currencyInput__errorContainer {
-    height: 16px;
+    min-height: 16px;
     padding-top: 4px;
   }
 
