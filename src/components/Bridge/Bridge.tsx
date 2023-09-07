@@ -42,7 +42,7 @@ const Bridge = () => {
 
   const amountDecimal = useMemo(() => Decimal.parse(amount, 0), [amount]);
 
-  const hasNonEmptyInput = useMemo(() => !amountDecimal.isZero(), [amountDecimal]);
+  const hasInput = useMemo(() => !amountDecimal.isZero(), [amountDecimal]);
 
   const amountWithEllipse = useMemo(() => {
     const original = amountDecimal.toString();
@@ -104,19 +104,12 @@ const Bridge = () => {
     }
 
     // input is still empty, showing default button text
-    if (!hasNonEmptyInput) {
+    if (!hasInput) {
       return 'Execute';
     }
 
     return 'Execute';
-  }, [
-    walletConnected,
-    executionSteps,
-    executionType,
-    hasNonEmptyInput,
-    bridgeTokensStatus.pending,
-    currentExecutionSteps,
-  ]);
+  }, [walletConnected, executionSteps, executionType, hasInput, bridgeTokensStatus.pending, currentExecutionSteps]);
 
   // TODO - Check if execute button should be enabled
   const canExecute = useMemo(() => {
