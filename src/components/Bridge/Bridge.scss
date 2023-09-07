@@ -122,20 +122,4 @@
       }
     }
   }
-
-  .raft__bridge__btn-container {
-    margin-top: 32px;
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-
-    .raft__button {
-      width: 100%;
-      white-space: nowrap;
-    }
-
-    .raft__loading__container {
-      margin-right: 8px;
-    }
-  }
 }

@@ -48,7 +48,6 @@ let bridge: Nullable<Bridge> = null;
 interface BridgeTokensStepsRequest {
   sourceChainName: SupportedBridgeNetworks;
   destinationChainName: SupportedBridgeNetworks;
-  destinationWalletAddress: string;
   amountToBridge: Decimal;
 }
 
@@ -220,8 +219,7 @@ const distinctRequest$ = bridgeTokensStepsRequest$.pipe(
     (prev, current) =>
       prev.amountToBridge.equals(current.amountToBridge) &&
       prev.sourceChainName === current.sourceChainName &&
-      prev.destinationChainName === current.destinationChainName &&
-      prev.destinationWalletAddress === current.destinationWalletAddress,
+      prev.destinationChainName === current.destinationChainName,
   ),
 );
 
@@ -229,7 +227,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded),
   withLatestFrom(tokenAllowances$),
   concatMap(([[request], tokenAllowanceMap]) => {
-    const { sourceChainName, destinationChainName, destinationWalletAddress, amountToBridge } = request;
+    const { sourceChainName, destinationChainName, amountToBridge } = request;
 
     const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
 
@@ -244,16 +242,10 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
     try {
       bridgeTokensStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const steps = bridge.getBridgeRSteps(
-        sourceChainName,
-        destinationChainName,
-        destinationWalletAddress,
-        amountToBridge,
-        {
-          rTokenAllowance,
-          gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
-        },
-      );
+      const steps = bridge.getBridgeRSteps(sourceChainName, destinationChainName, amountToBridge, {
+        rTokenAllowance,
+        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+      });
       const nextStep$ = from(steps.next());
 
       return nextStep$.pipe(

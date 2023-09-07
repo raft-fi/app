@@ -1,7 +1,6 @@
 import { ERC20PermitSignatureStruct, Token } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import {
-  SUPPORTED_BRIDGE_NETWORKS,
   SUPPORTED_COLLATERAL_TOKENS,
   SUPPORTED_SWAP_TOKENS,
   SUPPORTED_TOKENS,
@@ -23,4 +22,3 @@ export type SupportedCollateralToken = (typeof SUPPORTED_COLLATERAL_TOKENS)[numb
 export type SupportedUnderlyingCollateralToken = (typeof SUPPORTED_UNDERLYING_TOKENS)[number];
 export type SupportedSwapToken = (typeof SUPPORTED_SWAP_TOKENS)[number];
 export type SupportedToken = (typeof SUPPORTED_TOKENS)[number];
-export type SupportedBridgeNetwork = (typeof SUPPORTED_BRIDGE_NETWORKS)[number];

@@ -37,3 +37,4 @@ export * from './useSavingsTvl';
 export * from './useSavingsYield';
 export * from './useSavingsTransactions';
 export * from './useManageTransactions';
+export * from './useBridgeTokens';
