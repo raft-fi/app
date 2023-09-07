@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-const RaftLogo = () => {
+const PoweredBy = () => {
   return (
     <svg width="184" height="30" viewBox="0 0 184 30" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -72,4 +72,4 @@ const RaftLogo = () => {
   );
 };
 
-export default memo(RaftLogo);
+export default memo(PoweredBy);
