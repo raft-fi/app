@@ -12,6 +12,7 @@ import { Nullable } from '../../interfaces';
 import {
   HistoryTransaction,
   updateWalletFromEIP1193Provider,
+  updateWalletLabel,
   useAppLoaded,
   useConfig,
   useENS,
@@ -111,10 +112,12 @@ const Wallet = () => {
   useEffect(() => {
     if (!wallet) {
       updateWalletFromEIP1193Provider(null);
+      updateWalletLabel(null);
       return;
     }
 
     updateWalletFromEIP1193Provider(wallet.provider);
+    updateWalletLabel(wallet.label);
   }, [wallet]);
 
   /**
