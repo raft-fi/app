@@ -1,12 +1,12 @@
 import { MouseEvent, FC, useCallback, useState, memo } from 'react';
+import { SupportedBridgeNetworks } from '@raft-fi/sdk';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { SupportedBridgeNetwork } from '../../interfaces';
 import { Icon, Menu, Typography } from '../shared';
 
 type NetworkSelectorProps = {
-  networks: SupportedBridgeNetwork[];
+  networks: SupportedBridgeNetworks[];
   selectedNetwork: string;
-  onNetworkChange: (network: SupportedBridgeNetwork) => void;
+  onNetworkChange: (network: SupportedBridgeNetworks) => void;
 };
 
 const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, onNetworkChange }) => {
@@ -18,7 +18,7 @@ const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, 
   const handleNetworkUpdate = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       onCloseDropdown();
-      onNetworkChange(event.currentTarget.getAttribute('data-network') as SupportedBridgeNetwork);
+      onNetworkChange(event.currentTarget.getAttribute('data-network') as SupportedBridgeNetworks);
     },
     [onCloseDropdown, onNetworkChange],
   );

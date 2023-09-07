@@ -1,12 +1,12 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
-import { R_TOKEN } from '@raft-fi/sdk';
+import { R_TOKEN, SUPPORTED_BRIDGE_NETWORKS, SupportedBridgeNetworks } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { Button, CurrencyInput, Icon, Typography, ValueLabel } from '../shared';
-import { INPUT_PREVIEW_DIGITS, SUPPORTED_BRIDGE_NETWORKS, USD_UI_PRECISION } from '../../constants';
-import { SupportedBridgeNetwork } from '../../interfaces';
+import { INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
+import { useBridgeTokens, useWallet } from '../../hooks';
+import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
 import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
 
@@ -14,11 +14,36 @@ import './Bridge.scss';
 
 const Bridge = () => {
   const [, connect] = useConnectWallet();
-  const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetwork>('ethereum');
-  const [toNetwork, setToNetwork] = useState<SupportedBridgeNetwork>('base');
+
+  const wallet = useWallet();
+  const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
+
+  const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetworks>('ethereum');
+  const [toNetwork, setToNetwork] = useState<SupportedBridgeNetworks>('base');
   const [amount, setAmount] = useState<string>('');
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
+
+  const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
+
+  const executionSteps = useMemo(
+    () => bridgeTokensStepsStatus.result?.numberOfSteps,
+    [bridgeTokensStepsStatus.result?.numberOfSteps],
+  );
+
+  const currentExecutionSteps = useMemo(
+    () => bridgeTokensStepsStatus.result?.stepNumber,
+    [bridgeTokensStepsStatus.result?.stepNumber],
+  );
+
+  const executionType = useMemo(
+    () => bridgeTokensStepsStatus.result?.type?.name ?? null,
+    [bridgeTokensStepsStatus.result?.type],
+  );
 
   const amountDecimal = useMemo(() => Decimal.parse(amount, 0), [amount]);
+
+  const hasInput = useMemo(() => !amountDecimal.isZero(), [amountDecimal]);
+
   const amountWithEllipse = useMemo(() => {
     const original = amountDecimal.toString();
     const truncated = amountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
@@ -56,6 +81,41 @@ const Bridge = () => {
     [toBalanceAfter],
   );
 
+  // TODO - Handle withdraw error messages inside this hook
+  const buttonLabel = useMemo(() => {
+    if (!walletConnected) {
+      return 'Connect wallet';
+    }
+
+    if (executionSteps === 1) {
+      return bridgeTokensStatus.pending ? 'Executing' : 'Execute';
+    }
+
+    if (executionType === 'approve') {
+      return bridgeTokensStatus.pending
+        ? `Approving R (${currentExecutionSteps}/${executionSteps})`
+        : `Approve R (${currentExecutionSteps}/${executionSteps})`;
+    }
+
+    if (executionType === 'bridgeTokens') {
+      return bridgeTokensStatus.pending
+        ? `Executing (${currentExecutionSteps}/${executionSteps})`
+        : `Execute (${currentExecutionSteps}/${executionSteps})`;
+    }
+
+    // input is still empty, showing default button text
+    if (!hasInput) {
+      return 'Execute';
+    }
+
+    return 'Execute';
+  }, [walletConnected, executionSteps, executionType, hasInput, bridgeTokensStatus.pending, currentExecutionSteps]);
+
+  // TODO - Check if execute button should be enabled
+  const canExecute = useMemo(() => {
+    return true;
+  }, []);
+
   const onSwapNetwork = useCallback(() => {
     setFromNetwork(toNetwork);
     setToNetwork(fromNetwork);
@@ -65,6 +125,30 @@ const Bridge = () => {
   const onConnectWallet = useCallback(() => {
     connect();
   }, [connect]);
+
+  const onAction = useCallback(() => {
+    bridgeTokens?.();
+  }, [bridgeTokens]);
+
+  /**
+   * Update action button state based on current approve/borrow request status
+   */
+  useEffect(() => {
+    if (bridgeTokensStatus.pending || bridgeTokensStepsStatus.pending) {
+      setActionButtonState('loading');
+    } else {
+      setActionButtonState('default');
+    }
+  }, [bridgeTokensStatus.pending, bridgeTokensStepsStatus.pending]);
+
+  useEffect(() => {
+    // In case user is withdrawing we need to set negative amount value.
+    requestBridgeTokensStep?.({
+      amountToBridge: amountDecimal,
+      destinationChainName: toNetwork,
+      sourceChainName: fromNetwork,
+    });
+  }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork]);
 
   return (
     <div className="raft__bridge">
@@ -177,13 +261,13 @@ const Bridge = () => {
           </div>
         </div>
       </div>
-      <div className="raft__bridge__btn-container">
-        <Button variant="primary" size="large" onClick={onConnectWallet}>
-          <Typography variant="button-label" color="text-primary-inverted">
-            Connect wallet
-          </Typography>
-        </Button>
-      </div>
+      <ExecuteButton
+        actionButtonState={actionButtonState}
+        buttonLabel={buttonLabel}
+        canExecute={canExecute}
+        onClick={walletConnected ? onAction : onConnectWallet}
+        walletConnected={walletConnected}
+      />
     </div>
   );
 };
