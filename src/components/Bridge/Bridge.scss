@@ -85,58 +85,6 @@
 
   .raft__bridge__send-amount {
     margin-top: 42px;
-
-    .raft__bridge__amount-input__label {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .raft__bridge__amount-input__balance {
-      .common-ui__btn > svg {
-        margin-right: 8px;
-      }
-    }
-
-    .raft__bridge__amount-input__input-container {
-      margin-top: 8px;
-      height: 48px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-      border-bottom: 1px solid var(--borderPrimary);
-
-      > .common-ui__logo-token-R {
-        margin-right: 8px;
-      }
-
-      .raft__bridge__amount-input__input {
-        width: 100%;
-        min-width: 0px;
-        margin-right: 8px;
-
-        .raft__bridge__amount-input__input-amount {
-          .raft__baseInput {
-            width: 100%;
-            padding: 0px;
-            color: inherit;
-            font: inherit;
-            background-color: transparent;
-            border: none;
-
-            &:focus {
-              outline: none;
-            }
-
-            &::placeholder {
-              opacity: 1;
-              color: var(--textPrimary);
-            }
-          }
-        }
-      }
-    }
   }
 
   .raft__bridge__receive-amount {

@@ -3,13 +3,12 @@ import { useConnectWallet } from '@web3-onboard/react';
 import { R_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { Button, Icon, Typography, ValueLabel } from '../shared';
-import { SUPPORTED_BRIDGE_NETWORKS, USD_UI_PRECISION } from '../../constants';
+import { Button, CurrencyInput, Icon, Typography, ValueLabel } from '../shared';
+import { INPUT_PREVIEW_DIGITS, SUPPORTED_BRIDGE_NETWORKS, USD_UI_PRECISION } from '../../constants';
 import { SupportedBridgeNetwork } from '../../interfaces';
 import { formatCurrency } from '../../utils';
 import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
-import AmountInput from './AmountInput';
 
 import './Bridge.scss';
 
@@ -20,6 +19,12 @@ const Bridge = () => {
   const [amount, setAmount] = useState<string>('');
 
   const amountDecimal = useMemo(() => Decimal.parse(amount, 0), [amount]);
+  const amountWithEllipse = useMemo(() => {
+    const original = amountDecimal.toString();
+    const truncated = amountDecimal.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [amountDecimal]);
 
   // TODO: hardcode balance for now
   const fromBalance = useMemo(() => new Decimal(123), []);
@@ -95,12 +100,17 @@ const Bridge = () => {
         </div>
       </div>
       <div className="raft__bridge__send-amount">
-        <AmountInput
+        <CurrencyInput
+          label="YOU SEND"
+          precision={18}
+          selectedToken={R_TOKEN}
+          tokens={[R_TOKEN]}
           value={amount}
-          balance={fromBalanceFormatted ?? undefined}
-          onChange={setAmount}
-          onMax={onMaxAmount}
-          token={R_TOKEN}
+          previewValue={amountWithEllipse}
+          maxAmount={fromBalance}
+          maxAmountFormatted={fromBalanceFormatted ?? undefined}
+          onValueUpdate={setAmount}
+          onMaxAmountClick={onMaxAmount}
         />
       </div>
       <div className="raft__bridge__receive-amount">
