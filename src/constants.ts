@@ -80,3 +80,5 @@ export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduc
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
 }, {} as TokenGenericMap<SupportedCollateralToken, SupportedCollateralToken>);
+
+export const SUPPORTED_BRIDGE_NETWORKS = ['ethereum', 'base'];

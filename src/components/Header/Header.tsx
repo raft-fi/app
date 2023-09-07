@@ -23,8 +23,8 @@ const Header = () => {
       case '/savings':
         setCurrentPage('savings');
         break;
-      case '/redeem':
-        setCurrentPage('redeem');
+      case '/bridge':
+        setCurrentPage('bridge');
         break;
       default:
         setCurrentPage(null);
@@ -54,6 +54,16 @@ const Header = () => {
             className={`${currentPage === 'savings' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
             Earn
+          </Typography>
+        </Link>
+      </div>,
+      <div key="navitem-bridge" className="raft__header__nav-item">
+        <Link to="/bridge">
+          <Typography
+            variant="menu-item"
+            className={`${currentPage === 'bridge' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Bridge
           </Typography>
         </Link>
       </div>,

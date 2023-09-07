@@ -10,6 +10,7 @@ export type {
   SupportedUnderlyingCollateralToken,
   SupportedSwapToken,
   SupportedToken,
+  SupportedBridgeNetwork,
 } from './types';
 export type { StrictPartial } from './StrictPartial';
 export type { Position, LeveragePosition } from './Position';

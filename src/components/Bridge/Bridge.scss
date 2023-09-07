@@ -1,0 +1,141 @@
+.raft__bridge {
+  width: 466px;
+  padding: 24px 32px;
+  margin-top: 48px;
+  box-sizing: border-box;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+
+  .raft__bridge__title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .raft__bridge__network {
+    margin-top: 42px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .raft__bridge__network-selector-container {
+      width: 180px;
+      height: 40px;
+      margin-top: 8px;
+      padding: 0 12px;
+      background: var(--surfacePrimary);
+      border: 1px solid var(--borderPrimary);
+      border-radius: 8px;
+      box-sizing: border-box;
+      position: relative;
+
+      .raft__bridge__network-selector {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+
+        .raft__bridge__token-label {
+          padding-left: 8px;
+          flex: 1;
+          text-align: left;
+        }
+      }
+
+      .raft__menu {
+        box-shadow: initial;
+      }
+
+      .raft__bridge__dropdown-container {
+        width: 180px;
+        background: var(--surfacePrimary);
+        border: 1px solid var(--borderPrimary);
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+
+        .raft__bridge__dropdown-item {
+          display: flex;
+          justify-content: flex-start;
+          width: 100%;
+          padding: 12px;
+          border-radius: 4px;
+          box-sizing: border-box;
+
+          .raft__bridge__dropdown-item-label {
+            padding-left: 8px;
+          }
+
+          &:hover {
+            background-color: var(--surfacePrimaryHover);
+          }
+        }
+      }
+    }
+
+    .raft__bridge__network-swap {
+      margin-top: 25px;
+    }
+  }
+
+  .raft__bridge__send-amount {
+    margin-top: 42px;
+  }
+
+  .raft__bridge__receive-amount {
+    margin-top: 42px;
+
+    .raft__bridge__receive-amount__value {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .raft__bridge__receive-amount__metadata {
+      --textPrimary: var(--raft-grey-800);
+      --textSecondary: var(--raft-grey-600);
+
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .raft__bridge__receive-amount__metadata__entry {
+        display: flex;
+        justify-content: space-between;
+
+        .raft__bridge__receive-amount__metadata__entry-inner {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          &:last-child {
+            gap: 8px;
+          }
+        }
+      }
+    }
+  }
+
+  .raft__bridge__btn-container {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+
+    .raft__button {
+      width: 100%;
+      white-space: nowrap;
+    }
+
+    .raft__loading__container {
+      margin-right: 8px;
+    }
+  }
+}

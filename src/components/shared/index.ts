@@ -16,6 +16,7 @@ import Checkbox from './Checkbox';
 import InfoBox from './InfoBox';
 import SliderInput from './SliderInput';
 import ExecuteButton from './ExecuteButton';
+import Menu from './Menu';
 
 export {
   BaseInput,
@@ -36,6 +37,7 @@ export {
   InfoBox,
   SliderInput,
   ExecuteButton,
+  Menu,
 };
 
 export { colors } from './Colors';

@@ -35,6 +35,7 @@ import TriangleUp from './TriangleUp';
 import Stars from './Stars';
 import ArrowLeft from './ArrowLeft';
 import Settings from './Settings';
+import Swap from './Swap';
 
 type IconVariant =
   | 'discord'
@@ -71,7 +72,8 @@ type IconVariant =
   | 'info-sign'
   | 'metamask'
   | 'stars'
-  | 'settings';
+  | 'settings'
+  | 'swap';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -109,6 +111,7 @@ const ICON_MAP: IconMap = {
   metamask: Metamask,
   stars: Stars,
   settings: Settings,
+  swap: Swap,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;
