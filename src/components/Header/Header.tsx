@@ -57,7 +57,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <div key="navitem-savings" className="raft__header__nav-item">
+      <div key="navitem-bridge" className="raft__header__nav-item">
         <Link to="/bridge">
           <Typography
             variant="menu-item"

@@ -1,17 +1,17 @@
 import { memo, useCallback, useMemo, useState } from 'react';
-import { Button, Icon, Typography, ValueLabel } from '../shared';
-import PoweredBy from './PoweredBy';
-import NetworkSelector from './NetworkSelector';
-
-import './Bridge.scss';
-import { SUPPORTED_BRIDGE_NETWORKS, USD_UI_PRECISION } from '../../constants';
-import { SupportedBridgeNetwork } from '../../interfaces';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import AmountInput from './AmountInput';
+import { useConnectWallet } from '@web3-onboard/react';
 import { R_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
+import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { Button, Icon, Typography, ValueLabel } from '../shared';
+import { SUPPORTED_BRIDGE_NETWORKS, USD_UI_PRECISION } from '../../constants';
+import { SupportedBridgeNetwork } from '../../interfaces';
 import { formatCurrency } from '../../utils';
-import { useConnectWallet } from '@web3-onboard/react';
+import PoweredBy from './PoweredBy';
+import NetworkSelector from './NetworkSelector';
+import AmountInput from './AmountInput';
+
+import './Bridge.scss';
 
 const Bridge = () => {
   const [, connect] = useConnectWallet();
@@ -19,12 +19,12 @@ const Bridge = () => {
   const [toNetwork, setToNetwork] = useState<SupportedBridgeNetwork>('base');
   const [amount, setAmount] = useState<string>('');
 
-  const amountDeciaml = useMemo(() => Decimal.parse(amount, 0), [amount]);
+  const amountDecimal = useMemo(() => Decimal.parse(amount, 0), [amount]);
 
   // TODO: hardcode balance for now
   const fromBalance = useMemo(() => new Decimal(123), []);
   const toBalance = useMemo(() => new Decimal(123), []);
-  const toBalanceAfter = useMemo(() => toBalance.add(amountDeciaml), [amountDeciaml, toBalance]);
+  const toBalanceAfter = useMemo(() => toBalance.add(amountDecimal), [amountDecimal, toBalance]);
 
   const fromBalanceFormatted = useMemo(
     () =>
