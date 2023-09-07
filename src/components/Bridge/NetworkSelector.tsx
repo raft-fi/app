@@ -2,6 +2,7 @@ import { MouseEvent, FC, useCallback, useState, memo } from 'react';
 import { SupportedBridgeNetworks } from '@raft-fi/sdk';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { Icon, Menu, Typography } from '../shared';
+import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../networks';
 
 type NetworkSelectorProps = {
   networks: SupportedBridgeNetworks[];
@@ -26,10 +27,9 @@ const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, 
   return (
     <div className="raft__bridge__network-selector-container">
       <ButtonWrapper className="raft__bridge__network-selector" onClick={onOpenDropdown}>
-        {/* use network logo */}
-        <TokenLogo type="token-ETH" size={20} />
+        <TokenLogo type={NETWORK_LOGO_VARIANTS[selectedNetwork]} size={20} />
         <Typography className="raft__bridge__token-label" variant="button-label">
-          {selectedNetwork}
+          {NETWORK_NAMES[selectedNetwork]}
         </Typography>
         <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={16} />
       </ButtonWrapper>
@@ -39,13 +39,14 @@ const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, 
             <ButtonWrapper
               key={network}
               data-network={network}
-              className="raft__bridge__dropdown-item"
+              className={`raft__bridge__dropdown-item ${
+                network === selectedNetwork ? 'raft__bridge__dropdown-item-selected' : ''
+              }`}
               onClick={handleNetworkUpdate}
             >
-              {/* use network logo */}
-              <TokenLogo type="token-ETH" size={20} />
+              <TokenLogo type={NETWORK_LOGO_VARIANTS[network]} size={20} />
               <Typography className="raft__bridge__dropdown-item-label" variant="caption">
-                {network}
+                {NETWORK_NAMES[network]}
               </Typography>
             </ButtonWrapper>
           ))}

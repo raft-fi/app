@@ -42,6 +42,7 @@
           padding-left: 8px;
           flex: 1;
           text-align: left;
+          white-space: nowrap;
         }
       }
 
@@ -69,10 +70,15 @@
 
           .raft__bridge__dropdown-item-label {
             padding-left: 8px;
+            white-space: nowrap;
+          }
+
+          &.raft__bridge__dropdown-item-selected {
+            background-color: var(--surfacePrimaryHover);
           }
 
           &:hover {
-            background-color: var(--surfacePrimaryHover);
+            background-color: var(--surfaceSecondaryHover);
           }
         }
       }
@@ -119,6 +125,42 @@
             gap: 8px;
           }
         }
+      }
+    }
+  }
+
+  .raft__bridge__time {
+    margin-top: 42px;
+
+    .raft__bridge__time__label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .raft__bridge__time__value {
+      margin-top: 8px;
+    }
+  }
+
+  .raft__bridge__fees {
+    margin-top: 42px;
+
+    .raft__bridge__fees__label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .raft__bridge__fees__value {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .raft__bridge__fees__value-container {
+        display: flex;
+        align-items: baseline;
       }
     }
   }

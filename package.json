@@ -48,7 +48,7 @@
     "react-router-dom": "^6.10.0",
     "react-toastify": "^9.1.3",
     "sass": "^1.62.0",
-    "tempus-ui": "github:tempusfinance/tempus-ui#89cfabf9bf1e9f38985968e42f4bc2d3c6d6cc24",
+    "tempus-ui": "github:tempusfinance/tempus-ui#034ddaf449e0f6a35f82a4631d8237bf9b38b1d5",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

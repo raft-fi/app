@@ -36,6 +36,8 @@ import Stars from './Stars';
 import ArrowLeft from './ArrowLeft';
 import Settings from './Settings';
 import Swap from './Swap';
+import Gas from './Gas';
+import CCIP from './CCIP';
 
 type IconVariant =
   | 'discord'
@@ -73,7 +75,9 @@ type IconVariant =
   | 'metamask'
   | 'stars'
   | 'settings'
-  | 'swap';
+  | 'swap'
+  | 'gas'
+  | 'ccip';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -112,6 +116,8 @@ const ICON_MAP: IconMap = {
   stars: Stars,
   settings: Settings,
   swap: Swap,
+  gas: Gas,
+  ccip: CCIP,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;
