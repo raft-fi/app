@@ -11,10 +11,10 @@ import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
 
 import './Bridge.scss';
+import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../networks';
 
 const Bridge = () => {
   const [, connect] = useConnectWallet();
-
   const wallet = useWallet();
   const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
 
@@ -53,8 +53,6 @@ const Bridge = () => {
 
   // TODO: hardcode balance for now
   const fromBalance = useMemo(() => new Decimal(123), []);
-  const toBalance = useMemo(() => new Decimal(123), []);
-  const toBalanceAfter = useMemo(() => toBalance.add(amountDecimal), [amountDecimal, toBalance]);
 
   const fromBalanceFormatted = useMemo(
     () =>
@@ -63,22 +61,6 @@ const Bridge = () => {
         fractionDigits: USD_UI_PRECISION,
       }),
     [fromBalance],
-  );
-  const toBalanceFormatted = useMemo(
-    () =>
-      formatCurrency(toBalance, {
-        currency: R_TOKEN,
-        fractionDigits: USD_UI_PRECISION,
-      }),
-    [toBalance],
-  );
-  const toBalanceAfterFormatted = useMemo(
-    () =>
-      formatCurrency(toBalanceAfter, {
-        currency: R_TOKEN,
-        fractionDigits: USD_UI_PRECISION,
-      }),
-    [toBalanceAfter],
   );
 
   // TODO - Handle withdraw error messages inside this hook
@@ -210,54 +192,52 @@ const Bridge = () => {
           <TokenLogo type={`token-${R_TOKEN}`} size={20} />
           <Typography variant="input-value">{amount || '0.00'}</Typography>
           <Typography variant="button-label">on</Typography>
-          {/* TODO: use network logo */}
-          <TokenLogo type="token-ETH" size={20} />
-          <Typography variant="button-label">{toNetwork}</Typography>
+          <TokenLogo type={NETWORK_LOGO_VARIANTS[toNetwork]} size={20} />
+          <Typography variant="button-label">{NETWORK_NAMES[toNetwork]}</Typography>
         </div>
-        <div className="raft__bridge__receive-amount__metadata">
-          <div className="raft__bridge__receive-amount__metadata__entry">
-            <Typography variant="caption" weight="medium" color="text-secondary">
-              Current balance on {toNetwork}
+      </div>
+      <div className="raft__bridge__time">
+        <div className="raft__bridge__time__label">
+          <Typography variant="overline" weight="semi-bold" color="text-secondary">
+            TIME TO ARRIVAL
+          </Typography>
+          <Icon variant="info" size="tiny" />
+        </div>
+        <Typography className="raft__bridge__time__value" variant="body" weight="medium">
+          ~1-2 minutes
+        </Typography>
+      </div>
+      <div className="raft__bridge__fees">
+        <div className="raft__bridge__fees__label">
+          <Typography variant="overline" weight="semi-bold" color="text-secondary">
+            FEES
+          </Typography>
+          <Icon variant="info" size="tiny" />
+        </div>
+        <div className="raft__bridge__fees__value">
+          <Icon variant="gas" size="small" />
+          <ValueLabel valueSize="body" tickerSize="caption" value="~0.0013 ETH" />
+          <div className="raft__bridge__fees__value-container">
+            <Typography variant="body" weight="medium" color="text-secondary">
+              (~
             </Typography>
-            <ValueLabel valueSize="caption" tickerSize="caption" value={toBalanceFormatted ?? '---'} />
-          </div>
-          <div className="raft__bridge__receive-amount__metadata__entry">
-            <Typography variant="caption" weight="medium" color="text-secondary">
-              Balance after transfer
-            </Typography>
-            <ValueLabel valueSize="caption" tickerSize="caption" value={toBalanceAfterFormatted ?? '---'} />
-          </div>
-          <div className="raft__bridge__receive-amount__metadata__entry">
-            <Typography variant="caption" weight="medium" color="text-secondary">
-              Time of arrival
-            </Typography>
-            <Typography variant="caption" weight="medium">
-              ~1-2 minutes
+            <ValueLabel valueSize="body" tickerSize="caption" value="$14.55" color="text-secondary" />
+            <Typography variant="body" weight="medium" color="text-secondary">
+              )
             </Typography>
           </div>
-          <div className="raft__bridge__receive-amount__metadata__entry">
-            <div className="raft__bridge__receive-amount__metadata__entry-inner">
-              <Typography variant="caption" weight="medium" color="text-secondary">
-                Network fee
-              </Typography>
-              <Icon variant="info" size="tiny" />
-            </div>
-            <div className="raft__bridge__receive-amount__metadata__entry-inner">
-              <ValueLabel valueSize="caption" tickerSize="caption" color="text-disabled" value="~$ 14.55" />
-              <ValueLabel valueSize="caption" tickerSize="caption" value="~0.0013 ETH" />
-            </div>
-          </div>
-          <div className="raft__bridge__receive-amount__metadata__entry">
-            <div className="raft__bridge__receive-amount__metadata__entry-inner">
-              <Typography variant="caption" weight="medium" color="text-secondary">
-                CCIP fee
-              </Typography>
-              <Icon variant="info" size="tiny" />
-            </div>
-            <div className="raft__bridge__receive-amount__metadata__entry-inner">
-              <ValueLabel valueSize="caption" tickerSize="caption" color="text-disabled" value="~$ 21.03" />
-              <ValueLabel valueSize="caption" tickerSize="caption" value="~0.002 ETH" />
-            </div>
+        </div>
+        <div className="raft__bridge__fees__value">
+          <Icon variant="ccip" size="small" />
+          <ValueLabel valueSize="body" tickerSize="caption" value="~0.0013 ETH" />
+          <div className="raft__bridge__fees__value-container">
+            <Typography variant="body" weight="medium" color="text-secondary">
+              (~
+            </Typography>
+            <ValueLabel valueSize="body" tickerSize="caption" value="$14.55" color="text-secondary" />
+            <Typography variant="body" weight="medium" color="text-secondary">
+              )
+            </Typography>
           </div>
         </div>
       </div>
