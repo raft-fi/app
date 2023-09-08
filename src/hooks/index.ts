@@ -38,3 +38,4 @@ export * from './useSavingsYield';
 export * from './useSavingsTransactions';
 export * from './useManageTransactions';
 export * from './useBridgeTokens';
+export * from './useBridgeBalances';

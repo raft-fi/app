@@ -1,12 +1,18 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
-import { R_TOKEN, SUPPORTED_BRIDGE_NETWORKS, BRIDGE_NETWORK_LANES, SupportedBridgeNetwork } from '@raft-fi/sdk';
+import {
+  R_TOKEN,
+  SUPPORTED_BRIDGE_NETWORKS,
+  BRIDGE_NETWORK_LANES,
+  SupportedBridgeNetwork,
+  BRIDGE_NETWORKS,
+} from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
 import { MAINNET_NETWORKS, NETWORK_LOGO_VARIANTS, NETWORK_NAMES, TESTNET_NETWORKS } from '../../networks';
-import { useBridgeTokens, useWallet } from '../../hooks';
+import { useBridgeBalances, useBridgeTokens, useWallet } from '../../hooks';
 import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
 import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
@@ -26,6 +32,7 @@ const Bridge = () => {
 
   const [, connect] = useConnectWallet();
   const wallet = useWallet();
+  const bridgeBalances = useBridgeBalances();
   const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
 
   const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetwork>(defaultFromNetwork);
@@ -71,18 +78,6 @@ const Bridge = () => {
     return original === truncated ? original : `${truncated}...`;
   }, [amountDecimal]);
 
-  // TODO: hardcode balance for now
-  const fromBalance = useMemo(() => new Decimal(123), []);
-
-  const fromBalanceFormatted = useMemo(
-    () =>
-      formatCurrency(fromBalance, {
-        currency: R_TOKEN,
-        fractionDigits: USD_UI_PRECISION,
-      }),
-    [fromBalance],
-  );
-
   // TODO - Handle withdraw error messages inside this hook
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
@@ -118,12 +113,30 @@ const Bridge = () => {
     return true;
   }, []);
 
+  const fromBridgeBalance = useMemo(() => {
+    return bridgeBalances[fromNetwork];
+  }, [bridgeBalances, fromNetwork]);
+
+  const fromBridgeBalanceFormatted = useMemo(() => {
+    return formatCurrency(fromBridgeBalance, {
+      currency: BRIDGE_NETWORKS[fromNetwork].tokenTicker,
+      fractionDigits: USD_UI_PRECISION,
+    });
+  }, [fromBridgeBalance, fromNetwork]);
+
   const onSwapNetwork = useCallback(() => {
     setFromNetwork(toNetwork);
     setToNetwork(fromNetwork);
   }, [fromNetwork, toNetwork]);
 
-  const onMaxAmount = useCallback(() => setAmount(fromBalance.toString()), [fromBalance]);
+  const onMaxAmount = useCallback(() => {
+    if (!fromBridgeBalance) {
+      return;
+    }
+
+    setAmount(fromBridgeBalance.toString());
+  }, [fromBridgeBalance]);
+
   const onConnectWallet = useCallback(() => {
     connect();
   }, [connect]);
@@ -197,8 +210,8 @@ const Bridge = () => {
           tokens={[R_TOKEN]}
           value={amount}
           previewValue={amountWithEllipse}
-          maxAmount={fromBalance}
-          maxAmountFormatted={fromBalanceFormatted ?? undefined}
+          maxAmount={fromBridgeBalance}
+          maxAmountFormatted={fromBridgeBalanceFormatted ?? undefined}
           onValueUpdate={setAmount}
           onMaxAmountClick={onMaxAmount}
         />
