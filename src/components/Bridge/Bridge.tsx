@@ -1,27 +1,47 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
-import { R_TOKEN, SUPPORTED_BRIDGE_NETWORKS, SupportedBridgeNetworks } from '@raft-fi/sdk';
+import { R_TOKEN, SUPPORTED_BRIDGE_NETWORKS, BRIDGE_NETWORK_LANES, SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
+import { MAINNET_NETWORKS, NETWORK_LOGO_VARIANTS, NETWORK_NAMES, TESTNET_NETWORKS } from '../../networks';
 import { useBridgeTokens, useWallet } from '../../hooks';
 import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
 import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
 
 import './Bridge.scss';
-import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../networks';
 
 const Bridge = () => {
+  let defaultFromNetwork: SupportedBridgeNetwork;
+  let defaultToNetwork: SupportedBridgeNetwork;
+  if (import.meta.env.VITE_BRIDGE_ENVIRONMENT === 'mainnet') {
+    defaultFromNetwork = 'ethereum';
+    defaultToNetwork = 'base';
+  } else {
+    defaultFromNetwork = 'ethereumSepolia';
+    defaultToNetwork = 'arbitrumGoerli';
+  }
+
   const [, connect] = useConnectWallet();
   const wallet = useWallet();
   const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
 
-  const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetworks>('ethereum');
-  const [toNetwork, setToNetwork] = useState<SupportedBridgeNetworks>('base');
+  const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetwork>(defaultFromNetwork);
+  const [toNetwork, setToNetwork] = useState<SupportedBridgeNetwork>(defaultToNetwork);
   const [amount, setAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
+
+  const availableBridgeNetworks = useMemo(() => {
+    return SUPPORTED_BRIDGE_NETWORKS.filter(network => {
+      if (import.meta.env.VITE_BRIDGE_ENVIRONMENT === 'mainnet') {
+        return MAINNET_NETWORKS.includes(network);
+      } else {
+        return TESTNET_NETWORKS.includes(network);
+      }
+    });
+  }, []);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
@@ -132,6 +152,10 @@ const Bridge = () => {
     });
   }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork]);
 
+  useEffect(() => {
+    setToNetwork(BRIDGE_NETWORK_LANES[fromNetwork][0]);
+  }, [fromNetwork]);
+
   return (
     <div className="raft__bridge">
       <div className="raft__bridge__title">
@@ -141,12 +165,12 @@ const Bridge = () => {
         <PoweredBy />
       </div>
       <div className="raft__bridge__network">
-        <div className="raft__bridge__network-selector">
+        <div className="raft__bridge__network-selector-container">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
             FROM
           </Typography>
           <NetworkSelector
-            networks={SUPPORTED_BRIDGE_NETWORKS}
+            networks={availableBridgeNetworks}
             selectedNetwork={fromNetwork}
             onNetworkChange={setFromNetwork}
           />
@@ -154,12 +178,12 @@ const Bridge = () => {
         <ButtonWrapper className="raft__bridge__network-swap" onClick={onSwapNetwork}>
           <Icon variant="swap" size="small" />
         </ButtonWrapper>
-        <div className="raft__bridge__network-selector">
+        <div className="raft__bridge__network-selector-container">
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
             TO
           </Typography>
           <NetworkSelector
-            networks={SUPPORTED_BRIDGE_NETWORKS}
+            networks={BRIDGE_NETWORK_LANES[fromNetwork]}
             selectedNetwork={toNetwork}
             onNetworkChange={setToNetwork}
           />

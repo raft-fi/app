@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { R_TOKEN, BridgeTokensStep, Bridge, SupportedBridgeNetworks } from '@raft-fi/sdk';
+import { R_TOKEN, BridgeTokensStep, Bridge, SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -46,8 +46,8 @@ type BridgeTokensStatusType = 'approve' | 'bridgeTokens';
 let bridge: Nullable<Bridge> = null;
 
 interface BridgeTokensStepsRequest {
-  sourceChainName: SupportedBridgeNetworks;
-  destinationChainName: SupportedBridgeNetworks;
+  sourceChainName: SupportedBridgeNetwork;
+  destinationChainName: SupportedBridgeNetwork;
   amountToBridge: Decimal;
 }
 

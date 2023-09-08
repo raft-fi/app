@@ -51,6 +51,7 @@ const fetchData = async (
     const userPosition = new UserPosition(
       walletSigner,
       underlyingCollateralToken,
+      'v1',
       position.collateralBalance,
       position.debtBalance,
     );

@@ -46,7 +46,7 @@ const DEFAULT_STEPS = {
 
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
-  Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
+  Nullable<UserPosition<'v1', SupportedUnderlyingCollateralToken>>
 >;
 type LeveragePositionStepsGenerator = AsyncGenerator<
   LeveragePositionStep,
@@ -225,7 +225,10 @@ const requestLeveragePositionStep$ = walletSigner$.pipe(
     let userPosition = userPositionMap[userPositionMapKey];
 
     if (!userPosition) {
-      userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
+      userPosition = new UserPosition<'v1', SupportedUnderlyingCollateralToken>(
+        signer,
+        request.underlyingCollateralToken,
+      );
       userPositionMap[userPositionMapKey] = userPosition;
     }
 
@@ -304,7 +307,10 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
 
       try {
-        const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
+        const userPosition = userPositionMap[userPositionMapKey] as UserPosition<
+          'v1',
+          SupportedUnderlyingCollateralToken
+        >;
         const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
         //Setting leverage to 1 will close leverage position
         const actualLeverage = isClosePosition ? Decimal.ONE : leverage;
