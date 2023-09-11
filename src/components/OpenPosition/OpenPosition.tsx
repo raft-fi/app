@@ -626,6 +626,11 @@ const OpenPosition = () => {
     [selectedCollateralBorrowRate],
   );
 
+  const interestRateFormatted = useMemo(() => {
+    // TODO - Fetch from contracts
+    return '3.50%';
+  }, []);
+
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
       return null;
@@ -750,6 +755,7 @@ const OpenPosition = () => {
         liquidationPriceChange={liquidationPriceDropPercent}
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
+        interestRateFormatted={interestRateFormatted}
       />
       <ExecuteButton
         actionButtonState={actionButtonState}
