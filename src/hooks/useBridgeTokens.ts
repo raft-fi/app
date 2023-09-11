@@ -3,7 +3,7 @@ import { R_TOKEN, BridgeTokensStep, Bridge, SupportedBridgeNetwork } from '@raft
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
-import { BrowserProvider, JsonRpcSigner, TransactionResponse } from 'ethers';
+import { BrowserProvider, JsonRpcSigner, TransactionReceipt, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,
@@ -45,10 +45,15 @@ type BridgeTokensStatusType = 'approve' | 'bridgeTokens';
 
 let bridge: Nullable<Bridge> = null;
 
-interface BridgeTokensStepsRequest {
+export interface BridgeTokensStepsRequest {
   sourceChainName: SupportedBridgeNetwork;
   destinationChainName: SupportedBridgeNetwork;
   amountToBridge: Decimal;
+}
+
+interface BridgeTransactionResponse {
+  txnResponse: TransactionResponse;
+  txnReceipt: TransactionReceipt;
 }
 
 interface BridgeTokensStatus {
@@ -56,7 +61,7 @@ interface BridgeTokensStatus {
   success?: boolean;
   statusType: Nullable<BridgeTokensStatusType>;
   request: Nullable<BridgeTokensStepsRequest>;
-  response?: TransactionResponse;
+  response?: BridgeTransactionResponse;
   txHash?: string;
   error?: Error;
 }
@@ -75,9 +80,9 @@ interface BridgeTokensStepsResponse {
   generator: Nullable<BridgeTokensGenerator>;
 }
 
-const [bridgeTokensStepsRequest$, setBridgeTokensStepsRequest] = createSignal<BridgeTokensStepsRequest>();
+export const [bridgeTokensStepsRequest$, setBridgeTokensStepsRequest] = createSignal<BridgeTokensStepsRequest>();
 const bridgeTokensStepsStatus$ = new BehaviorSubject<BridgeTokensStepsStatus>(DEFAULT_STEPS);
-const bridgeTokensStatus$ = new BehaviorSubject<BridgeTokensStatus>(DEFAULT_VALUE);
+export const bridgeTokensStatus$ = new BehaviorSubject<BridgeTokensStatus>(DEFAULT_VALUE);
 
 const bridgeTokens$ = bridgeTokensStepsStatus$.pipe(
   withLatestFrom(wallet$),
@@ -111,12 +116,12 @@ const bridgeTokens$ = bridgeTokensStepsStatus$.pipe(
           }
 
           if (isTransactionResponse) {
-            const transactionReceipt = await walletProvider.waitForTransaction(
+            const txnReceipt = await walletProvider.waitForTransaction(
               txnResponse.hash,
               NUMBER_OF_CONFIRMATIONS_FOR_TX,
             );
 
-            if (!transactionReceipt) {
+            if (!txnReceipt) {
               const receiptFetchFailed = new Error('Failed to fetch bridge tokens step transaction receipt!');
               throw receiptFetchFailed;
             }
@@ -126,7 +131,7 @@ const bridgeTokens$ = bridgeTokensStepsStatus$.pipe(
               statusType,
               success: true,
               request,
-              response: txnResponse,
+              response: { txnResponse, txnReceipt },
               txHash: txnResponse.hash,
             });
 

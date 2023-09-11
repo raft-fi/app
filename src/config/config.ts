@@ -22,6 +22,7 @@ const config: Config = {
     nativeTokenPrecision: 18,
     blockExplorerName: 'Etherscan',
     blockExplorerUrl: 'https://etherscan.io',
+    ccipExplorerUrl: ' https://ccip.chain.link/',
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
   },
   goerli: {
@@ -38,6 +39,7 @@ const config: Config = {
     nativeTokenPrecision: 18,
     blockExplorerName: 'Etherscan',
     blockExplorerUrl: 'https://goerli.etherscan.io',
+    ccipExplorerUrl: ' https://ccip.chain.link/',
     rpcUrl: import.meta.env.VITE_GOERLI_RPC_URL,
   },
 };
