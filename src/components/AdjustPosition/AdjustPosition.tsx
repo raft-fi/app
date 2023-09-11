@@ -700,6 +700,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return formatPercentage(selectedCollateralBorrowRate);
   }, [borrowingFeeAmount, selectedCollateralBorrowRate]);
 
+  const interestRateFormatted = useMemo(() => {
+    // TODO - Fetch from contracts
+    return '3.50%';
+  }, []);
+
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
       return null;
@@ -896,6 +901,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
         liquidationPriceChange={liquidationPriceDropPercent}
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
+        interestRateFormatted={interestRateFormatted}
       />
       <ExecuteButton
         actionButtonState={transactionState}
