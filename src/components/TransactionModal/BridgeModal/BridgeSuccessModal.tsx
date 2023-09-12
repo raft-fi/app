@@ -70,7 +70,7 @@ const BridgeSuccessModal: FC<BridgeSuccessModalProps> = ({
         <div className="raft__bridgeModal__status">
           <TokenLogo type={NETWORK_LOGO_VARIANTS[fromNetwork]} size={40} />
           <div className="raft__bridgeModal__icon">
-            <Icon variant="success" size={48} />
+            <Icon variant="checkmark" size={48} />
           </div>
           <TokenLogo type={NETWORK_LOGO_VARIANTS[toNetwork]} size={40} />
         </div>

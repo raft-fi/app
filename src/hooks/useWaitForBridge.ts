@@ -54,9 +54,12 @@ const stream$ = combineLatest([bridgeTokensStatus$, walletSigner$]).pipe(
     try {
       const bridge = new Bridge(signer);
 
-      waitForBridgeStatus$.next({ ...DEFAULT_VALUE, pending: true, request, txHash: status.txHash });
+      waitForBridgeStatus$.next({ ...DEFAULT_VALUE, pending: true, request });
 
       const messageId = await bridge.getBridgeMessageId(txnResponse as ContractTransactionResponse, txnReceipt);
+
+      waitForBridgeStatus$.next({ ...DEFAULT_VALUE, pending: true, request, txHash: messageId });
+
       await bridge.waitForBridgeToComplete(messageId, sourceChainName, rpc, destinationChainName);
 
       waitForBridgeStatus$.next({ ...DEFAULT_VALUE, success: true, request, txHash: messageId });

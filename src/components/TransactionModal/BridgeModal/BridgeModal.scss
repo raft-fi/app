@@ -10,8 +10,15 @@
   .raft__bridgeModal__status {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     background: url(./background.svg);
     margin-top: 36px;
+    width: 322px;
+    height: 142px;
+
+    > .common-ui__logo {
+      margin-top: 6px;
+    }
 
     .raft__bridgeModal__icon {
       display: flex;
@@ -24,8 +31,13 @@
     margin-top: 16px;
   }
 
+  .raft__bridgeModal__subtitle {
+    margin-top: 16px;
+  }
+
   .raft__bridgeModal__description {
     margin-top: 24px;
+    display: flex;
   }
 
   .raft__bridgeModal__errorMessage {

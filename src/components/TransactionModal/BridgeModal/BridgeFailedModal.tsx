@@ -34,7 +34,7 @@ const BridgeFailedModal: FC<BridgeFailedModalProps> = ({
         <div className="raft__bridgeModal__status">
           <TokenLogo type={NETWORK_LOGO_VARIANTS[fromNetwork]} size={40} />
           <div className="raft__bridgeModal__icon">
-            <Icon variant="error" size={48} />
+            <Icon variant="error-inverted" size={48} />
           </div>
           <TokenLogo type={NETWORK_LOGO_VARIANTS[toNetwork]} size={40} />
         </div>

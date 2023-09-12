@@ -75,11 +75,11 @@ const BridgePendingModal: FC<BridgePendingModalProps> = ({
           <TokenLogo type={NETWORK_LOGO_VARIANTS[toNetwork]} size={40} />
         </div>
         <div className="raft__bridgeModal__title">
-          <Typography variant="heading1">Transaction successful</Typography>
+          <Typography variant="heading1">Transaction sent</Typography>
         </div>
         <div className="raft__bridgeModal__subtitle">
           <Typography variant="heading2">
-            {amountFormatted} bridged from {NETWORK_NAMES[fromNetwork]} to {NETWORK_NAMES[toNetwork]}
+            Bridging {amountFormatted} from {NETWORK_NAMES[fromNetwork]} to {NETWORK_NAMES[toNetwork]}
           </Typography>
         </div>
         <div className="raft__bridgeModal__description">
