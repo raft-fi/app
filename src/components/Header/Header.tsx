@@ -8,6 +8,8 @@ import Wallet from '../Wallet';
 
 import './Header.scss';
 
+const SKIP_NETWORK_CHECKING_PAGES = ['bridge'];
+
 const Header = () => {
   const location = useLocation();
 
@@ -67,7 +69,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <Wallet key="navitem-wallet" />,
+      <Wallet key="navitem-wallet" skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />,
     ],
     [currentPage],
   );

@@ -432,18 +432,16 @@ const TransactionModal = () => {
       );
     }
 
-    return (
-      failedModalOpened && (
-        <BridgeFailedModal
-          open
-          error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
-          onClose={onCloseModal}
-          fromNetwork={sourceChainName}
-          toNetwork={destinationChainName}
-          onTryAgain={onRetryTransaction}
-        />
-      )
-    );
+    return failedModalOpened ? (
+      <BridgeFailedModal
+        open
+        error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
+        onClose={onCloseModal}
+        fromNetwork={sourceChainName}
+        toNetwork={destinationChainName}
+        onTryAgain={onRetryTransaction}
+      />
+    ) : null;
   }
 
   return (
