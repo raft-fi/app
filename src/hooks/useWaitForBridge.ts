@@ -2,6 +2,7 @@ import { Bridge } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { ContractTransactionResponse } from 'ethers';
 import { BehaviorSubject, Subscription, combineLatest, tap, withLatestFrom } from 'rxjs';
+import { NETWORK_RPC_URLS } from '../constants';
 import { Nullable } from '../interfaces';
 import { bridgeTokensStatus$, BridgeTokensStepsRequest, bridgeTokensStepsRequest$ } from './useBridgeTokens';
 import { walletSigner$ } from './useWalletSigner';
@@ -35,21 +36,7 @@ const stream$ = combineLatest([bridgeTokensStatus$, walletSigner$]).pipe(
     const { txnResponse, txnReceipt } = status.response;
     const { sourceChainName, destinationChainName } = request;
 
-    let rpc = '';
-    switch (destinationChainName) {
-      case 'arbitrumGoerli':
-        rpc = import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL;
-        break;
-      case 'base':
-        rpc = import.meta.env.VITE_BASE_MAINNET_RPC_URL;
-        break;
-      case 'ethereum':
-        rpc = import.meta.env.VITE_MAINNET_RPC_URL;
-        break;
-      case 'ethereumSepolia':
-        rpc = import.meta.env.VITE_ETHEREUM_SEPOLIA_RPC_URL;
-        break;
-    }
+    const rpc = NETWORK_RPC_URLS[destinationChainName];
 
     try {
       const bridge = new Bridge(signer);

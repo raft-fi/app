@@ -2,8 +2,8 @@ import { R_TOKEN, SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { FC, memo, useCallback, useMemo } from 'react';
 import { Link, TokenLogo } from 'tempus-ui';
-import { USD_UI_PRECISION } from '../../../constants';
-import { useConfig, useEIP1193Provider } from '../../../hooks';
+import { CCIP_EXPLORER_URL, USD_UI_PRECISION } from '../../../constants';
+import { useEIP1193Provider } from '../../../hooks';
 import { Nullable } from '../../../interfaces';
 import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../../networks';
 import { formatCurrency } from '../../../utils';
@@ -37,7 +37,6 @@ const BridgeSuccessModal: FC<BridgeSuccessModalProps> = ({
   onClose,
 }) => {
   const eip1193Provider = useEIP1193Provider();
-  const config = useConfig();
 
   const onAddTokenToWallet = useCallback(() => {
     if (eip1193Provider && tokenToAdd) {
@@ -84,7 +83,7 @@ const BridgeSuccessModal: FC<BridgeSuccessModalProps> = ({
         </div>
         <div className="raft__bridgeModal__description">
           <Typography variant="body">View transaction on&nbsp;</Typography>
-          <Link href={`${config.ccipExplorerUrl}/msg/${messageId}`}>
+          <Link href={`${CCIP_EXPLORER_URL}/msg/${messageId}`}>
             <Typography variant="body" color="text-accent" weight="medium">
               CCIP Explorer
             </Typography>

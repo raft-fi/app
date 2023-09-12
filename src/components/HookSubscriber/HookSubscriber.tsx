@@ -72,7 +72,6 @@ const HookSubscriber: FC = () => {
     subscribeSavingsYield();
     subscribeManageTransactions();
     subscribeSavingsTransactions();
-    subscribeBridgeTokensStatus();
     subscribeWaitForBridgeStatus();
   }, []);
 
