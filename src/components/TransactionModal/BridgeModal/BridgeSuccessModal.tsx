@@ -93,7 +93,7 @@ const BridgeSuccessModal: FC<BridgeSuccessModalProps> = ({
         </div>
         <div className="raft__bridgeModal__actions">
           {tokenToAdd && (
-            <div className="raft__transactionSuccessModal__action">
+            <div className="raft__bridgeModal__action">
               <Button variant="secondary" size="large" text={tokenToAdd.label} onClick={onAddTokenToWallet} />
             </div>
           )}

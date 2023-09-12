@@ -63,8 +63,9 @@ const stream$ = combineLatest([bridgeTokensStatus$, walletSigner$]).pipe(
       await bridge.waitForBridgeToComplete(messageId, sourceChainName, rpc, destinationChainName);
 
       waitForBridgeStatus$.next({ ...DEFAULT_VALUE, success: true, request, txHash: messageId });
-    } catch (e) {
-      waitForBridgeStatus$.next({ ...DEFAULT_VALUE, error: e as Error });
+    } catch (error) {
+      console.error(`useWaitForBridge (error) - failed to wait for bridge status!`, error);
+      waitForBridgeStatus$.next({ ...DEFAULT_VALUE, error: error as Error });
     }
   }),
 );

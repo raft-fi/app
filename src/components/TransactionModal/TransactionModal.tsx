@@ -404,41 +404,45 @@ const TransactionModal = () => {
   if (['bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '') && bridgeTokensStatus.request) {
     const { sourceChainName, destinationChainName, amountToBridge } = bridgeTokensStatus.request;
 
+    if (currentStatus?.statusType === 'waitForBridge' && currentStatus.success) {
+      return (
+        <BridgeSuccessModal
+          open
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          amount={amountToBridge}
+          tokenToAdd={tokenToAdd}
+          messageId={currentStatus?.txHash}
+        />
+      );
+    }
+
+    if (currentStatus?.statusType === 'waitForBridge' && currentStatus.pending) {
+      return (
+        <BridgePendingModal
+          open
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          amount={amountToBridge}
+          tokenToAdd={tokenToAdd}
+          messageId={currentStatus?.txHash}
+        />
+      );
+    }
+
     return (
-      <>
-        {successModalOpened && (
-          <BridgeSuccessModal
-            open
-            onClose={onCloseModal}
-            fromNetwork={sourceChainName}
-            toNetwork={destinationChainName}
-            amount={amountToBridge}
-            tokenToAdd={tokenToAdd}
-            messageId={currentStatus?.txHash}
-          />
-        )}
-        {currentStatus?.pending && (
-          <BridgePendingModal
-            open
-            onClose={onCloseModal}
-            fromNetwork={sourceChainName}
-            toNetwork={destinationChainName}
-            amount={amountToBridge}
-            tokenToAdd={tokenToAdd}
-            messageId={currentStatus?.txHash}
-          />
-        )}
-        {failedModalOpened && (
-          <BridgeFailedModal
-            open
-            error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
-            onClose={onCloseModal}
-            fromNetwork={sourceChainName}
-            toNetwork={destinationChainName}
-            onTryAgain={onRetryTransaction}
-          />
-        )}
-      </>
+      failedModalOpened && (
+        <BridgeFailedModal
+          open
+          error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          onTryAgain={onRetryTransaction}
+        />
+      )
     );
   }
 
