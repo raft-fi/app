@@ -38,6 +38,7 @@ import Settings from './Settings';
 import Swap from './Swap';
 import Gas from './Gas';
 import CCIP from './CCIP';
+import ErrorInverted from './ErrorInverted';
 
 type IconVariant =
   | 'discord'
@@ -47,6 +48,7 @@ type IconVariant =
   | 'gitbook'
   | 'favorite'
   | 'error'
+  | 'error-inverted'
   | 'success'
   | 'chevron-left'
   | 'chevron-right'
@@ -87,6 +89,7 @@ const ICON_MAP: IconMap = {
   gitbook: Gitbook,
   favorite: Favorite,
   error: Error,
+  'error-inverted': ErrorInverted,
   success: Success,
   'chevron-left': LeftChevron,
   'chevron-right': RightChevron,

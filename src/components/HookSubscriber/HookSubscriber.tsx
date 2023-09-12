@@ -32,6 +32,7 @@ import {
   subscribeManageTransactions,
   subscribeSavingsTransactions,
   subscribeBridgeTokensStatus,
+  subscribeWaitForBridgeStatus,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -71,6 +72,7 @@ const HookSubscriber: FC = () => {
     subscribeSavingsYield();
     subscribeManageTransactions();
     subscribeSavingsTransactions();
+    subscribeWaitForBridgeStatus();
   }, []);
 
   return null;

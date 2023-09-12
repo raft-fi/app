@@ -11,6 +11,10 @@ import {
   usePosition,
   useManageSavings,
   resetManageSavingsStatus,
+  useBridgeTokens,
+  useWaitForBridge,
+  resetBridgeTokensStatus,
+  resetWaitForBridgeStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -21,6 +25,7 @@ import {
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 } from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
+import { BridgeFailedModal, BridgePendingModal, BridgeSuccessModal } from './BridgeModal';
 import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
 
 const TransactionModal = () => {
@@ -28,6 +33,8 @@ const TransactionModal = () => {
   const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { redeemStatus, redeem } = useRedeem();
   const { manageSavingsStatus, manageSavings } = useManageSavings();
+  const { bridgeTokensStatus, bridgeTokens } = useBridgeTokens();
+  const waitForBridgeStatus = useWaitForBridge();
   const collateralConversionRateMap = useCollateralConversionRates();
   const position = usePosition();
 
@@ -44,13 +51,26 @@ const TransactionModal = () => {
     if (manageSavingsStatus.statusType === 'manageSavings') {
       return manageSavingsStatus;
     }
+    if (bridgeTokensStatus.statusType === 'bridgeTokens') {
+      if (waitForBridgeStatus.pending || waitForBridgeStatus.success || waitForBridgeStatus.error) {
+        return waitForBridgeStatus;
+      }
 
+      return bridgeTokensStatus;
+    }
     if (redeemStatus) {
       return redeemStatus;
     }
 
     return null;
-  }, [leveragePositionStatus, managePositionStatus, manageSavingsStatus, redeemStatus]);
+  }, [
+    bridgeTokensStatus,
+    leveragePositionStatus,
+    managePositionStatus,
+    manageSavingsStatus,
+    redeemStatus,
+    waitForBridgeStatus,
+  ]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -88,6 +108,10 @@ const TransactionModal = () => {
       resetManageSavingsStatus();
     } else if (currentStatus.statusType === 'redeem') {
       resetRedeemStatus();
+    } else if (currentStatus.statusType === 'bridgeTokens') {
+      resetBridgeTokensStatus();
+    } else if (currentStatus.statusType === 'waitForBridge') {
+      resetWaitForBridgeStatus();
     }
   }, [currentStatus]);
 
@@ -106,8 +130,18 @@ const TransactionModal = () => {
       manageSavings?.();
     } else if (currentStatus.statusType === 'redeem') {
       redeem(currentStatus.request);
+    } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
+      bridgeTokens?.();
     }
-  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, manageSavings, redeem]);
+  }, [
+    bridgeTokens,
+    currentStatus?.request,
+    currentStatus?.statusType,
+    leveragePosition,
+    managePosition,
+    manageSavings,
+    redeem,
+  ]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -326,7 +360,7 @@ const TransactionModal = () => {
   }, [collateralChange, debtChange, leveragePositionStatus.statusType, manageSavingsStatus.statusType, redeemStatus]);
 
   const tokenToAdd = useMemo(() => {
-    if (currentStatus?.statusType === 'manage') {
+    if (['manage', 'bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '')) {
       return {
         label: 'Add R to wallet',
         address: RaftConfig.getTokenAddress(R_TOKEN) || '',
@@ -366,6 +400,51 @@ const TransactionModal = () => {
 
     return null;
   }, [currentStatus?.statusType, manageSavingsStatus.request?.amount, redeemStatus]);
+
+  if (['bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '') && bridgeTokensStatus.request) {
+    const { sourceChainName, destinationChainName, amountToBridge } = bridgeTokensStatus.request;
+
+    if (currentStatus?.statusType === 'waitForBridge' && currentStatus.success) {
+      return (
+        <BridgeSuccessModal
+          open
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          amount={amountToBridge}
+          tokenToAdd={tokenToAdd}
+          messageId={currentStatus?.txHash}
+        />
+      );
+    }
+
+    if (currentStatus?.statusType === 'waitForBridge' && currentStatus.pending) {
+      return (
+        <BridgePendingModal
+          open
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          amount={amountToBridge}
+          tokenToAdd={tokenToAdd}
+          messageId={currentStatus?.txHash}
+        />
+      );
+    }
+
+    return (
+      failedModalOpened && (
+        <BridgeFailedModal
+          open
+          error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          onTryAgain={onRetryTransaction}
+        />
+      )
+    );
+  }
 
   return (
     <>
