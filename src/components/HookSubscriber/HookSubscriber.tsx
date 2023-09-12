@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, memo, useEffect } from 'react';
 import {
   subscribeENS,
   subscribeProtocolStats,
@@ -78,4 +78,5 @@ const HookSubscriber: FC = () => {
   return null;
 };
 
-export default HookSubscriber;
+// TODO: remove this HookSubscriber later
+export default memo(HookSubscriber);

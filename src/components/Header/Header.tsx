@@ -8,11 +8,13 @@ import Wallet from '../Wallet';
 
 import './Header.scss';
 
+const SKIP_NETWORK_CHECKING_PAGES = ['bridge'];
+
 const Header = () => {
   const location = useLocation();
 
   const [, setMenuOpened] = useState(false);
-  const [currentPage, setCurrentPage] = useState<Nullable<string>>(null);
+  const [currentPage, setCurrentPage] = useState<Nullable<string>>('');
 
   useEffect(() => {
     const sanitizedPath = location.pathname.replace(/\/$/, '');
@@ -67,7 +69,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <Wallet key="navitem-wallet" />,
+      <Wallet key="navitem-wallet" skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />,
     ],
     [currentPage],
   );

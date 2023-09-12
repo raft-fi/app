@@ -9,10 +9,10 @@ import {
 } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
+import { BRIDGE_NETWORK_IDS, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
 import { MAINNET_NETWORKS, NETWORK_LOGO_VARIANTS, NETWORK_NAMES, TESTNET_NETWORKS } from '../../networks';
-import { useBridgeBalances, useBridgeTokens, useWallet } from '../../hooks';
+import { useBridgeBalances, useBridgeTokens, useEIP1193Provider, useNetwork, useWallet } from '../../hooks';
 import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
 import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
@@ -32,6 +32,8 @@ const Bridge = () => {
 
   const [, connect] = useConnectWallet();
   const wallet = useWallet();
+  const { network } = useNetwork();
+  const eip1193Provider = useEIP1193Provider();
   const bridgeBalances = useBridgeBalances();
   const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
 
@@ -78,10 +80,19 @@ const Bridge = () => {
     return original === truncated ? original : `${truncated}...`;
   }, [amountDecimal]);
 
+  const isWrongNetwork = useMemo(
+    () => network?.chainId.toString() !== String(BRIDGE_NETWORK_IDS[fromNetwork]),
+    [fromNetwork, network?.chainId],
+  );
+
   // TODO - Handle withdraw error messages inside this hook
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
       return 'Connect wallet';
+    }
+
+    if (isWrongNetwork) {
+      return `Switch to ${NETWORK_NAMES[fromNetwork]}`;
     }
 
     if (executionSteps === 1) {
@@ -106,7 +117,16 @@ const Bridge = () => {
     }
 
     return 'Execute';
-  }, [walletConnected, executionSteps, executionType, hasInput, bridgeTokensStatus.pending, currentExecutionSteps]);
+  }, [
+    walletConnected,
+    isWrongNetwork,
+    executionSteps,
+    executionType,
+    hasInput,
+    fromNetwork,
+    bridgeTokensStatus.pending,
+    currentExecutionSteps,
+  ]);
 
   // TODO - Check if execute button should be enabled
   const canExecute = useMemo(() => {
@@ -141,9 +161,31 @@ const Bridge = () => {
     connect();
   }, [connect]);
 
+  const onSwitchNetwork = useCallback(() => {
+    if (eip1193Provider) {
+      // https://eips.ethereum.org/EIPS/eip-3326
+      eip1193Provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${BRIDGE_NETWORK_IDS[fromNetwork].toString(16)}` }],
+      });
+    }
+  }, [eip1193Provider, fromNetwork]);
+
   const onAction = useCallback(() => {
     bridgeTokens?.();
   }, [bridgeTokens]);
+
+  const onExecute = useMemo(() => {
+    if (!walletConnected) {
+      return onConnectWallet;
+    }
+
+    if (isWrongNetwork) {
+      return onSwitchNetwork;
+    }
+
+    return onAction;
+  }, [isWrongNetwork, onAction, onConnectWallet, onSwitchNetwork, walletConnected]);
 
   /**
    * Update action button state based on current approve/borrow request status
@@ -282,7 +324,7 @@ const Bridge = () => {
         actionButtonState={actionButtonState}
         buttonLabel={buttonLabel}
         canExecute={canExecute}
-        onClick={walletConnected ? onAction : onConnectWallet}
+        onClick={onExecute}
         walletConnected={walletConnected}
       />
     </div>
