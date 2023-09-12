@@ -14,7 +14,7 @@ const Header = () => {
   const location = useLocation();
 
   const [, setMenuOpened] = useState(false);
-  const [currentPage, setCurrentPage] = useState<Nullable<string>>('');
+  const [currentPage, setCurrentPage] = useState<Nullable<string>>(null);
 
   useEffect(() => {
     const sanitizedPath = location.pathname.replace(/\/$/, '');
