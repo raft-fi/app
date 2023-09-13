@@ -100,7 +100,7 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     isRebasing: true,
   },
   'wcrETH-v1': {
-    tokens: ['rETH'] as SupportedCollateralToken[],
+    tokens: ['rETH-v1'] as SupportedCollateralToken[],
     displayBaseToken: 'rETH',
     underlyingToken: 'wcrETH-v1',
     redeemToken: 'rETH',
@@ -168,13 +168,6 @@ export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
   base: import.meta.env.VITE_BASE_MAINNET_RPC_URL,
   ethereumSepolia: import.meta.env.VITE_ETHEREUM_SEPOLIA_RPC_URL,
   arbitrumGoerli: import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL,
-};
-
-export const BRIDGE_NETWORK_IDS: Record<SupportedBridgeNetwork, number> = {
-  ethereum: 1,
-  base: 8453,
-  ethereumSepolia: 11155111,
-  arbitrumGoerli: 421613,
 };
 
 export const MANAGE_POSITION_V1_TOKENS: SupportedCollateralToken[] = ['stETH', 'wstETH-v1', 'rETH'];

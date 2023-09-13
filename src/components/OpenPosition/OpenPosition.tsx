@@ -638,7 +638,6 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
   }, [vaultVersion]);
 
   const interestRateFormatted = useMemo(() => {
-    // TODO - Fetch from contracts
     return formatPercentage(protocolStats?.interestRate[selectedUnderlyingCollateralToken]);
   }, [protocolStats?.interestRate, selectedUnderlyingCollateralToken]);
 
