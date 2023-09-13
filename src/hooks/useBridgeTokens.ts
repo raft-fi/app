@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { R_TOKEN, BridgeTokensStep, Bridge, SupportedBridgeNetwork } from '@raft-fi/sdk';
+import { BridgeTokensStep, Bridge, SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -13,18 +13,16 @@ import {
   concatMap,
   Subscription,
   tap,
-  combineLatest,
   distinctUntilChanged,
-  filter,
   catchError,
 } from 'rxjs';
 import { GAS_LIMIT_MULTIPLIER, NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
 import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
-import { tokenAllowances$ } from './useTokenAllowances';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
+import { bridgeAllowances$ } from './useBridgeAllowances';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -208,16 +206,6 @@ const requestBridgeTokensStep$ = walletSigner$.pipe(
   }),
 );
 
-// Stream that waits for token allowances to be loaded before we can send request to SDK to get manage savings steps
-const tokenMapsLoaded$ = combineLatest([tokenAllowances$]).pipe(
-  map(([tokenAllowanceMap]) => {
-    const rTokenAllowance = tokenAllowanceMap[R_TOKEN];
-
-    return Boolean(rTokenAllowance);
-  }),
-  distinctUntilChanged(),
-);
-
 // Stream that checks if request is distinct from previous one
 const distinctRequest$ = bridgeTokensStepsRequest$.pipe(
   distinctUntilChanged(
@@ -228,13 +216,12 @@ const distinctRequest$ = bridgeTokensStepsRequest$.pipe(
   ),
 );
 
-const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
-  filter(([, tokenMapsLoaded]) => tokenMapsLoaded),
-  withLatestFrom(tokenAllowances$),
-  concatMap(([[request], tokenAllowanceMap]) => {
+const stream$ = distinctRequest$.pipe(
+  withLatestFrom(bridgeAllowances$),
+  concatMap(([request, bridgeAllowances]) => {
     const { sourceChainName, destinationChainName, amountToBridge } = request;
 
-    const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
+    const rTokenAllowance = bridgeAllowances[sourceChainName] ?? undefined;
 
     if (amountToBridge.isZero() || !bridge) {
       return of({
