@@ -41,3 +41,4 @@ export * from './useBridgeTokens';
 export * from './useBridgeBalances';
 export * from './useVaultVersion';
 export * from './useWaitForBridge';
+export * from './useBridgeAllowances';
