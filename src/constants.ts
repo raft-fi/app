@@ -88,9 +88,3 @@ export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
   ethereumSepolia: import.meta.env.VITE_ETHEREUM_SEPOLIA_RPC_URL,
   arbitrumGoerli: import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL,
 };
-export const BRIDGE_NETWORK_IDS: Record<SupportedBridgeNetwork, number> = {
-  ethereum: 1,
-  base: 8453,
-  ethereumSepolia: 11155111,
-  arbitrumGoerli: 421613,
-};
