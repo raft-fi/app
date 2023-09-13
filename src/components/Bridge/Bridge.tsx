@@ -9,9 +9,17 @@ import {
 } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { BRIDGE_NETWORK_IDS, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
+import { INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
-import { MAINNET_NETWORKS, NETWORK_LOGO_VARIANTS, NETWORK_NAMES, TESTNET_NETWORKS } from '../../networks';
+import {
+  MAINNET_NETWORKS,
+  NETWORK_IDS,
+  NETWORK_LOGO_VARIANTS,
+  NETWORK_NAMES,
+  NETWORK_WALLET_CURRENCIES,
+  NETWORK_WALLET_ENDPOINTS,
+  TESTNET_NETWORKS,
+} from '../../networks';
 import { useBridgeBalances, useBridgeTokens, useEIP1193Provider, useNetwork, useWallet } from '../../hooks';
 import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
 import PoweredBy from './PoweredBy';
@@ -81,7 +89,7 @@ const Bridge = () => {
   }, [amountDecimal]);
 
   const isWrongNetwork = useMemo(
-    () => network?.chainId.toString() !== String(BRIDGE_NETWORK_IDS[fromNetwork]),
+    () => network?.chainId.toString() !== String(NETWORK_IDS[fromNetwork]),
     [fromNetwork, network?.chainId],
   );
 
@@ -161,13 +169,33 @@ const Bridge = () => {
     connect();
   }, [connect]);
 
-  const onSwitchNetwork = useCallback(() => {
+  const onSwitchNetwork = useCallback(async () => {
     if (eip1193Provider) {
-      // https://eips.ethereum.org/EIPS/eip-3326
-      eip1193Provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: `0x${BRIDGE_NETWORK_IDS[fromNetwork].toString(16)}` }],
-      });
+      try {
+        // https://eips.ethereum.org/EIPS/eip-3326
+        await eip1193Provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: `0x${NETWORK_IDS[fromNetwork].toString(16)}` }],
+        });
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((error as any).code === 4902) {
+          // https://eips.ethereum.org/EIPS/eip-3085
+          await eip1193Provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${NETWORK_IDS[fromNetwork].toString(16)}`,
+                chainName: NETWORK_NAMES[fromNetwork],
+                rpcUrls: [NETWORK_WALLET_ENDPOINTS[fromNetwork]],
+                nativeCurrency: NETWORK_WALLET_CURRENCIES[fromNetwork],
+              },
+            ],
+          });
+        } else {
+          console.error(`Failed to switch network to ${fromNetwork}`);
+        }
+      }
     }
   }, [eip1193Provider, fromNetwork]);
 
