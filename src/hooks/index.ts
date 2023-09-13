@@ -17,7 +17,6 @@ export * from './useCollateralBorrowingRates';
 export * from './useRedeem';
 export * from './useCollateralConversionRates';
 export * from './usePosition';
-export * from './useCollateralTokenConfig';
 export * from './useCalculateRedemptionRate';
 export * from './useCollateralPositionCaps';
 export * from './useCollateralProtocolCaps';

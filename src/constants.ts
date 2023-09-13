@@ -35,14 +35,16 @@ export const SAVING_POSITION_BALANCE_THRESHOLD = 0.001;
 export const SUPPORTED_UNDERLYING_TOKENS = [
   'wstETH',
   'wcrETH',
+  'WETH',
 ] as const satisfies ReadonlyArray<UnderlyingCollateralToken>;
 export const SUPPORTED_COLLATERAL_TOKENS = [
   'stETH',
   'wstETH',
   'rETH',
+  'WETH',
 ] as const satisfies ReadonlyArray<CollateralToken>;
 export const SUPPORTED_SWAP_TOKENS = ['wstETH', 'rETH', 'R'] as const satisfies ReadonlyArray<Token>;
-export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH', 'rETH'] as const satisfies ReadonlyArray<Token>;
+export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH', 'rETH', 'WETH'] as const satisfies ReadonlyArray<Token>;
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   SupportedUnderlyingCollateralToken,
   {
@@ -68,6 +70,14 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     underlyingToken: 'wcrETH',
     redeemToken: 'rETH',
     swapToken: 'rETH',
+    isRebasing: false,
+  },
+  WETH: {
+    tokens: ['WETH'] as SupportedCollateralToken[],
+    displayBaseToken: 'WETH',
+    underlyingToken: 'WETH',
+    redeemToken: 'WETH',
+    swapToken: 'rETH', // TODO - Update to correct swap token
     isRebasing: false,
   },
 };

@@ -12,6 +12,7 @@ import {
   BehaviorSubject,
   combineLatest,
 } from 'rxjs';
+import { VaultVersion } from '@raft-fi/sdk';
 import { DEBOUNCE_IN_MS } from '../constants';
 import { Nullable, Position } from '../interfaces';
 import { position$ } from './usePosition';
@@ -19,8 +20,6 @@ import { wallet$ } from './useWallet';
 import { BrowserProvider } from 'ethers';
 
 const DEFAULT_VALUE = null;
-
-type VaultVersion = 'v1' | 'v2';
 
 export const vaultVersion$ = new BehaviorSubject<Nullable<VaultVersion>>(DEFAULT_VALUE);
 
@@ -30,12 +29,7 @@ const fetchData = (position: Position, wallet: Nullable<BrowserProvider>): Obser
     return of('v2');
   }
 
-  const { debtBalance } = position;
-
-  if (debtBalance && debtBalance.gt(0)) {
-    return of('v1');
-  }
-  return of('v2');
+  return of(position.vaultVersion);
 };
 
 // Stream that fetches savings max deposit every time provider changes

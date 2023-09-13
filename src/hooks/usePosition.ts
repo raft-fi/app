@@ -44,6 +44,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>, tokenPrices: TokenPric
         collateralBalance: Decimal.ZERO,
         debtBalance: Decimal.ZERO,
         netBalance: Decimal.ZERO,
+        vaultVersion: 'v2',
       };
     }
 
@@ -58,6 +59,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>, tokenPrices: TokenPric
     const debtValue = debtPrice?.mul(debtBalance) ?? null;
     const netValue = collateralValue && debtValue ? collateralValue.sub(debtValue) : null;
     const netBalance = collateralPrice && netValue ? netValue.div(collateralPrice) : null;
+    const vaultVersion = userPosition.getVaultVersion();
 
     return {
       ownerAddress: signer.address,
@@ -67,6 +69,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>, tokenPrices: TokenPric
       collateralBalance,
       debtBalance,
       netBalance,
+      vaultVersion,
     };
   } catch (error) {
     console.error('usePosition (catch) - failed to fetch collateral balance!', error);
