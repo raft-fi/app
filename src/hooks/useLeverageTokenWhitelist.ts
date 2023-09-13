@@ -45,11 +45,15 @@ const fetchData = async (
   walletSigner: Signer,
   position: Position,
 ): Promise<Nullable<boolean>> => {
+  if (RaftConfig.networkId !== 1) {
+    console.warn('Leverage is only available on mainnet.');
+    return false;
+  }
+
   try {
     const userPosition = new UserPosition(
       walletSigner,
       TOKEN_TO_UNDERLYING_TOKEN_MAP[token],
-      'v1',
       position.collateralBalance,
       position.debtBalance,
     );

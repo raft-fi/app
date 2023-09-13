@@ -18,7 +18,7 @@ import { position$ } from './usePosition';
 import { wallet$ } from './useWallet';
 import { BrowserProvider } from 'ethers';
 
-const DEFAULT_VALUE = null;
+const DEFAULT_VALUE = 'v2';
 
 type VaultVersion = 'v1' | 'v2';
 

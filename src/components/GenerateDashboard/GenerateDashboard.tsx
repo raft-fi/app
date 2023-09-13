@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useNetwork, useAppLoaded, useWallet, usePosition } from '../../hooks';
+import { useNetwork, useAppLoaded, useWallet, usePosition, useVaultVersion } from '../../hooks';
+import { MANAGE_POSITION_V1_TOKENS, MANAGE_POSITION_V2_TOKENS } from '../../constants';
 import LoadingDashboard from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -13,9 +14,20 @@ const GenerateDashboard = () => {
   const appLoaded = useAppLoaded();
   const wallet = useWallet();
   const position = usePosition();
+  const vaultVersion = useVaultVersion();
   const { isWrongNetwork } = useNetwork();
 
   const shouldShowAdjustPosition = wallet && position?.hasPosition && !isWrongNetwork;
+
+  /**
+   * Collateral token that will be selected by default when user opens the 'Open Position' screen is determined by the vault version.
+   */
+  const initialCollateralToken = useMemo(() => {
+    if (vaultVersion === 'v2') {
+      return MANAGE_POSITION_V2_TOKENS[0];
+    }
+    return MANAGE_POSITION_V1_TOKENS[0];
+  }, [vaultVersion]);
 
   if (!appLoaded) {
     return <LoadingDashboard />;
@@ -36,7 +48,7 @@ const GenerateDashboard = () => {
       ) : (
         <>
           <ProtocolStats />
-          <OpenPosition />
+          <OpenPosition initialCollateralToken={initialCollateralToken} />
         </>
       )}
     </div>

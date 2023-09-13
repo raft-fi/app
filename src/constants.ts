@@ -33,16 +33,36 @@ export const SAVING_POSITION_BALANCE_THRESHOLD = 0.001;
 
 // app to control what is supported
 export const SUPPORTED_UNDERLYING_TOKENS = [
-  'wstETH',
+  // v1 vaults
+  'wstETH-v1',
   'wcrETH',
+
+  // v2 vaults
+  'wstETH',
+  'WETH',
 ] as const satisfies ReadonlyArray<UnderlyingCollateralToken>;
 export const SUPPORTED_COLLATERAL_TOKENS = [
+  // v1 vaults
   'stETH',
-  'wstETH',
+  'wstETH-v1',
   'rETH',
+  'wcrETH',
+
+  // v2 vaults
+  'wstETH',
+  'WETH',
 ] as const satisfies ReadonlyArray<CollateralToken>;
 export const SUPPORTED_SWAP_TOKENS = ['wstETH', 'rETH', 'R'] as const satisfies ReadonlyArray<Token>;
-export const SUPPORTED_TOKENS = ['R', 'stETH', 'wstETH', 'rETH'] as const satisfies ReadonlyArray<Token>;
+export const SUPPORTED_TOKENS = [
+  'R',
+  'wstETH-v1',
+  'wcrETH',
+  'wstETH',
+  'WETH',
+  'stETH',
+  'rETH',
+] as const satisfies ReadonlyArray<Token>;
+
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   SupportedUnderlyingCollateralToken,
   {
@@ -55,9 +75,17 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
   }
 > = {
   wstETH: {
-    tokens: ['stETH', 'wstETH'] as SupportedCollateralToken[],
-    displayBaseToken: 'stETH',
+    tokens: ['wstETH'] as SupportedCollateralToken[],
+    displayBaseToken: 'wstETH',
     underlyingToken: 'wstETH',
+    redeemToken: 'wstETH',
+    swapToken: 'wstETH',
+    isRebasing: false,
+  },
+  'wstETH-v1': {
+    tokens: ['stETH', 'wstETH-v1'] as SupportedCollateralToken[],
+    displayBaseToken: 'stETH',
+    underlyingToken: 'wstETH-v1',
     redeemToken: 'wstETH',
     swapToken: 'wstETH',
     isRebasing: true,
@@ -70,12 +98,29 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     swapToken: 'rETH',
     isRebasing: false,
   },
+  WETH: {
+    tokens: ['WETH'] as SupportedCollateralToken[],
+    displayBaseToken: 'WETH',
+    underlyingToken: 'WETH',
+    redeemToken: 'WETH',
+    swapToken: 'wstETH', // TODO - Update to correct swap token once we add leverage support for v2 vaults
+    isRebasing: false,
+  },
 };
 // token to underlying token map
-export const TOKEN_TO_UNDERLYING_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
-  const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
-  return setting ? { ...map, [token]: setting.underlyingToken } : map;
-}, {} as TokenGenericMap<SupportedCollateralToken, SupportedUnderlyingCollateralToken>);
+export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
+  [token in SupportedCollateralToken]: SupportedUnderlyingCollateralToken;
+} = {
+  // v1 vaults
+  stETH: 'wstETH-v1',
+  'wstETH-v1': 'wstETH-v1',
+  rETH: 'wcrETH',
+  wcrETH: 'wcrETH',
+
+  // v2 vaults
+  wstETH: 'wstETH',
+  WETH: 'WETH',
+};
 // token to display base token map
 export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
   const setting = Object.values(SUPPORTED_COLLATERAL_TOKEN_SETTINGS).find(setting => setting.tokens.includes(token));
@@ -88,9 +133,22 @@ export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
   ethereumSepolia: import.meta.env.VITE_ETHEREUM_SEPOLIA_RPC_URL,
   arbitrumGoerli: import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL,
 };
+
 export const BRIDGE_NETWORK_IDS: Record<SupportedBridgeNetwork, number> = {
   ethereum: 1,
   base: 8453,
   ethereumSepolia: 11155111,
   arbitrumGoerli: 421613,
+};
+
+export const MANAGE_POSITION_V1_TOKENS: SupportedCollateralToken[] = ['stETH', 'wstETH-v1', 'rETH'];
+export const MANAGE_POSITION_V2_TOKENS: SupportedCollateralToken[] = ['wstETH'];
+
+export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: string } = {
+  stETH: 'stETH',
+  'wstETH-v1': 'wstETH',
+  rETH: 'rETH',
+  wcrETH: 'wcrETH',
+  WETH: 'WETH',
+  wstETH: 'wstETH',
 };
