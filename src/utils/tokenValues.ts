@@ -74,7 +74,6 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
           pad: true,
         }),
       };
-    case 'ETH':
     case 'stETH':
     case 'wstETH':
     case 'rETH':

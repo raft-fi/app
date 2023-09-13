@@ -305,7 +305,6 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
 
       try {
         const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
-
         const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
         //Setting leverage to 1 will close leverage position
         const actualLeverage = isClosePosition ? Decimal.ONE : leverage;

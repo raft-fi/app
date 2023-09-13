@@ -1,4 +1,4 @@
-import { UnderlyingCollateralToken } from '@raft-fi/sdk';
+import { UnderlyingCollateralToken, VaultVersion } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { Nullable } from './Nullable';
 
@@ -10,6 +10,7 @@ export interface Position {
   collateralBalance: Decimal;
   debtBalance: Decimal;
   netBalance: Nullable<Decimal>;
+  vaultVersion: VaultVersion;
 }
 
 export interface LeveragePosition extends Position {

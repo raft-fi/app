@@ -7,7 +7,6 @@ import {
   useCollateralConversionRates,
   useCollateralPositionCaps,
   useCollateralProtocolCaps,
-  useCollateralTokenConfig,
   useManage,
   useProtocolStats,
   useTokenBalances,
@@ -53,7 +52,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const protocolStats = useProtocolStats();
-  const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
   const { managePositionStatus, managePosition, managePositionStepsStatus, requestManagePositionStep } = useManage();
 
   const { collateralBalance, debtBalance } = position;
@@ -68,11 +66,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const [isAddDebt, setIsAddDebt] = useState<boolean>(true);
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
-
-  // when selectedCollateralToken changed, change the token config as well
-  useEffect(() => {
-    setCollateralTokenForConfig(selectedCollateralToken);
-  }, [selectedCollateralToken, setCollateralTokenForConfig]);
 
   const handleCollateralTokenChange = useCallback((token: string) => {
     if (isCollateralToken(token)) {
@@ -97,9 +90,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     () =>
       getDecimalFromTokenMap<SupportedUnderlyingCollateralToken>(
         borrowingRateMap,
-        collateralTokenConfig?.underlyingTokenTicker ?? null,
+        TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken] ?? null,
       ),
-    [borrowingRateMap, collateralTokenConfig],
+    [borrowingRateMap, selectedCollateralToken],
   );
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);

@@ -3,7 +3,7 @@ import { ERC20PermitSignatureStruct, R_TOKEN, UserPosition, ManagePositionStep }
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
-import { BrowserProvider, JsonRpcSigner, TransactionResponse } from 'ethers';
+import { BrowserProvider, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,

@@ -118,8 +118,8 @@ const CollateralStatsBreakdown = () => {
             </div>
           </li>
         ))}
-        {/* Include PSM in breakdown as well */}
 
+        {/* Include PSM in breakdown as well */}
         <li key={`breakdown-psm-dai`}>
           <TokenLogo type="token-DAI" size="small" />
           <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">

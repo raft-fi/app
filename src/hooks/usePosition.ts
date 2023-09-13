@@ -44,6 +44,7 @@ const fetchData = async (signer: Nullable<JsonRpcSigner>, tokenPrices: TokenPric
         collateralBalance: Decimal.ZERO,
         debtBalance: Decimal.ZERO,
         netBalance: Decimal.ZERO,
+        vaultVersion: 'v2',
       };
     }
 
