@@ -89,35 +89,43 @@ const CollateralStatsBreakdown = () => {
   return (
     <Tooltip className="raft__protocol-stats__collateral-breakdown">
       <ul>
-        {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => (
-          <li key={`breakdown-${underlyingToken}`}>
-            <TokenLogo
-              type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
-              size="small"
-            />
-            <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">
-              {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}
-            </Typography>
-            <div className="raft__protocol-stats__collateral-breakdown__token-values">
-              <div className="raft__protocol-stats__collateral-breakdown__token-amount">
-                <Typography variant="body" weight="medium">
-                  {collateralSupplyAmountInDisplayTokenFormattedMap[underlyingToken] ?? '---'}&nbsp;
-                </Typography>
-                <Typography variant="body2">
-                  {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}
-                </Typography>
+        {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => {
+          let tokenLabel: string = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken;
+
+          if (underlyingToken.endsWith('v1')) {
+            tokenLabel = `${tokenLabel} (Old)`;
+          }
+
+          return (
+            <li key={`breakdown-${underlyingToken}`}>
+              <TokenLogo
+                type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
+                size="small"
+              />
+              <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">
+                {tokenLabel}
+              </Typography>
+              <div className="raft__protocol-stats__collateral-breakdown__token-values">
+                <div className="raft__protocol-stats__collateral-breakdown__token-amount">
+                  <Typography variant="body" weight="medium">
+                    {collateralSupplyAmountInDisplayTokenFormattedMap[underlyingToken] ?? '---'}&nbsp;
+                  </Typography>
+                  <Typography variant="body2">
+                    {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}
+                  </Typography>
+                </div>
+                <div className="raft__protocol-stats__collateral-breakdown__token-value">
+                  <Typography variant="caption" color="text-secondary">
+                    $
+                  </Typography>
+                  <Typography variant="body2" weight="medium" color="text-secondary">
+                    {collateralSupplyValueFormattedMap[underlyingToken] ?? '---'}
+                  </Typography>
+                </div>
               </div>
-              <div className="raft__protocol-stats__collateral-breakdown__token-value">
-                <Typography variant="caption" color="text-secondary">
-                  $
-                </Typography>
-                <Typography variant="body2" weight="medium" color="text-secondary">
-                  {collateralSupplyValueFormattedMap[underlyingToken] ?? '---'}
-                </Typography>
-              </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
 
         {/* Include PSM in breakdown as well */}
         <li key={`breakdown-psm-dai`}>

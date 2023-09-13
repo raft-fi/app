@@ -25,7 +25,7 @@ export const vaultVersion$ = new BehaviorSubject<Nullable<VaultVersion>>(DEFAULT
 
 const fetchData = (position: Position, wallet: Nullable<BrowserProvider>): Observable<VaultVersion> => {
   // In case wallet is not connected, show v2 vaults UI
-  if (!wallet) {
+  if (!wallet || !position.hasPosition) {
     return of('v2');
   }
 

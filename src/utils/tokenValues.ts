@@ -77,7 +77,12 @@ export const getTokenValues = (amount: Nullable<Numberish>, price: Nullable<Deci
     case 'stETH':
     case 'wstETH':
     case 'rETH':
-    case 'wcrETH':
+    case 'wcrETH-v1':
+    case 'WETH':
+    case 'rETH-v1':
+    case 'wstETH-v1':
+    case 'cbETH':
+    case 'swETH':
     default:
       return {
         amount: tokenAmount,

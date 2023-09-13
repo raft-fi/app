@@ -23,10 +23,10 @@ const GenerateDashboard = () => {
    * Collateral token that will be selected by default when user opens the 'Open Position' screen is determined by the vault version.
    */
   const initialCollateralToken = useMemo(() => {
-    if (vaultVersion === 'v2') {
-      return MANAGE_POSITION_V2_TOKENS[0];
+    if (vaultVersion === 'v1') {
+      return MANAGE_POSITION_V1_TOKENS[0];
     }
-    return MANAGE_POSITION_V1_TOKENS[0];
+    return MANAGE_POSITION_V2_TOKENS[0];
   }, [vaultVersion]);
 
   if (!appLoaded) {

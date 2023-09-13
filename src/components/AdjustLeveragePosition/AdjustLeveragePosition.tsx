@@ -470,8 +470,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
   );
 
   const isLeverageIncrease = useMemo(() => {
-    return effectiveLeverage.lt(leverage);
-  }, [effectiveLeverage, leverage]);
+    return effectiveLeverage.lt(leverage) && !closePositionActive;
+  }, [effectiveLeverage, leverage, closePositionActive]);
 
   // Increase leverage is disabled until further notice
   const increaseLeverageDisabled = true;

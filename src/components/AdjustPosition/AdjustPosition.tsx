@@ -27,6 +27,7 @@ import {
   INPUT_PREVIEW_DIGITS,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
+  PRETTIFY_TOKEN_NAME_MAP,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
@@ -67,11 +68,22 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
 
-  const handleCollateralTokenChange = useCallback((token: string) => {
-    if (isCollateralToken(token)) {
-      setSelectedCollateralToken(token);
-    }
-  }, []);
+  const handleCollateralTokenChange = useCallback(
+    (token: string) => {
+      if (isCollateralToken(token)) {
+        let parsedToken = token;
+        if (vaultVersion === 'v1' && token === 'wstETH') {
+          parsedToken = 'wstETH-v1';
+        }
+        if (vaultVersion === 'v1' && token === 'rETH') {
+          parsedToken = 'rETH-v1';
+        }
+
+        setSelectedCollateralToken(parsedToken);
+      }
+    },
+    [vaultVersion],
+  );
 
   const handleCollateralAmountBlur = useCallback(() => {
     const decimal = Decimal.parse(collateralAmount, 0);
@@ -860,7 +872,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           label={collateralLabelComponent}
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].tokens}
+          tokens={SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].tokens.map(
+            token => PRETTIFY_TOKEN_NAME_MAP[token],
+          )}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse}
           onTokenUpdate={handleCollateralTokenChange}
