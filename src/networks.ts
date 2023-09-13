@@ -23,7 +23,7 @@ export const NETWORK_IDS: Record<SupportedBridgeNetwork, number> = {
 
 export const NETWORK_WALLET_ENDPOINTS: Record<SupportedBridgeNetwork, string> = {
   ethereum: 'https://mainnet.infura.io/v3/',
-  base: 'https://base-goerli.infura.io/v3/',
+  base: 'https://mainnet.base.org',
   ethereumSepolia: 'https://sepolia.infura.io/v3/',
   arbitrumGoerli: 'https://goerli-rollup.arbitrum.io/rpc',
 };
