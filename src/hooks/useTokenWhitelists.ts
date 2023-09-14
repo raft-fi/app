@@ -31,6 +31,7 @@ import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
 import { getNullTokenMap } from '../utils';
+import { isWrongNetwork$ } from './useNetwork';
 
 export type TokenWhitelistMap = TokenGenericMap<SupportedCollateralToken, Nullable<boolean>>;
 
@@ -127,16 +128,21 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
-  scan(
-    (allWhitelists, tokenWhitelists) => ({
-      ...allWhitelists,
-      ...tokenWhitelists,
-    }),
-    {} as TokenWhitelistMap,
+const stream$ = isWrongNetwork$.pipe(
+  filter(isWrongNetwork => !isWrongNetwork),
+  map(() =>
+    merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
+      scan(
+        (allWhitelists, tokenWhitelists) => ({
+          ...allWhitelists,
+          ...tokenWhitelists,
+        }),
+        {} as TokenWhitelistMap,
+      ),
+      debounce<TokenWhitelistMap>(() => interval(DEBOUNCE_IN_MS)),
+      tap(allWhitelists => tokenWhitelists$.next(allWhitelists)),
+    ),
   ),
-  debounce<TokenWhitelistMap>(() => interval(DEBOUNCE_IN_MS)),
-  tap(allWhitelists => tokenWhitelists$.next(allWhitelists)),
 );
 
 export const [useTokenWhitelists] = bind(tokenWhitelists$, DEFAULT_VALUE);

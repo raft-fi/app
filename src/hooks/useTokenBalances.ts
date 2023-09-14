@@ -26,6 +26,7 @@ import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { getNullTokenMap } from '../utils';
+import { isWrongNetwork$ } from './useNetwork';
 
 export type TokenBalanceMap = TokenDecimalMap<SupportedToken>;
 
@@ -104,16 +105,21 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
-  scan(
-    (allBalances, tokenBalances) => ({
-      ...allBalances,
-      ...tokenBalances,
-    }),
-    {} as TokenBalanceMap,
+const stream$ = isWrongNetwork$.pipe(
+  filter(isWrongNetwork => !isWrongNetwork),
+  map(() =>
+    merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
+      scan(
+        (allBalances, tokenBalances) => ({
+          ...allBalances,
+          ...tokenBalances,
+        }),
+        {} as TokenBalanceMap,
+      ),
+      debounce<TokenBalanceMap>(() => interval(DEBOUNCE_IN_MS)),
+      tap(allBalances => tokenBalances$.next(allBalances)),
+    ),
   ),
-  debounce<TokenBalanceMap>(() => interval(DEBOUNCE_IN_MS)),
-  tap(allBalances => tokenBalances$.next(allBalances)),
 );
 
 export const [useTokenBalances] = bind(tokenBalances$, DEFAULT_VALUE);
