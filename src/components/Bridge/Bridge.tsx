@@ -67,7 +67,6 @@ const Bridge = () => {
       }
     });
   }, []);
-  console.log('ethPrice', ethPrice?.toString());
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
@@ -107,7 +106,7 @@ const Bridge = () => {
     () =>
       formatCurrency(gasEstimateInUsd, {
         currency: '$',
-        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        fractionDigits: USD_UI_PRECISION,
         approximate: true,
       }),
     [gasEstimateInUsd],
@@ -116,7 +115,7 @@ const Bridge = () => {
     () =>
       formatCurrency(ccipFeeInUsd, {
         currency: '$',
-        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        fractionDigits: USD_UI_PRECISION,
         approximate: true,
       }),
     [ccipFeeInUsd],
