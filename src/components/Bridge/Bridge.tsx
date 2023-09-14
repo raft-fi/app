@@ -310,7 +310,7 @@ const Bridge = () => {
         sourceChainName: fromNetwork,
       });
     }
-  }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork, isWrongNetwork, network]);
+  }, [requestBridgeTokensStep, amountDecimal, toNetwork, fromNetwork, isWrongNetwork]);
 
   useEffect(() => {
     setToNetwork(BRIDGE_NETWORK_LANES[fromNetwork][0]);
