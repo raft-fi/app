@@ -12,7 +12,7 @@ import { Nullable } from '../../interfaces';
 import {
   HistoryTransaction,
   updateWalletFromEIP1193Provider,
-  useAppLoaded,
+  useWalletLoaded,
   useConfig,
   useENS,
   useNetwork,
@@ -85,7 +85,7 @@ interface WalletProps {
 
 const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   const config = useConfig();
-  const appLoaded = useAppLoaded();
+  const walletLoaded = useWalletLoaded();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
@@ -232,9 +232,10 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
     navigator.clipboard.writeText(connectedAddress);
   }, [connectedAddress, wallet]);
 
-  if (!appLoaded) {
+  if (!walletLoaded) {
     return <div className="raft__wallet raft__wallet-loading" />;
   }
+
   return (
     <div className="raft__wallet">
       {!wallet && (
