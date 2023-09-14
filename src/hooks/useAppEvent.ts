@@ -9,7 +9,6 @@ export type AppEventType =
   | 'permit'
   | 'manage'
   | 'leverage'
-  | 'redeem'
   | 'manageSavings'
   | 'bridgeTokens';
 
