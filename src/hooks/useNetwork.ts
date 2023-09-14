@@ -1,4 +1,4 @@
-import { of, from, concatMap, combineLatest, map } from 'rxjs';
+import { concatMap, combineLatest, map } from 'rxjs';
 import { bind } from '@react-rxjs/core';
 import { eip1193Provider$, wallet$ } from './useWallet';
 import { config$ } from './useConfig';
@@ -11,18 +11,22 @@ const DEFAULT_VALUE = {
 };
 
 export const network$ = wallet$.pipe(
-  concatMap(wallet => {
+  concatMap(async wallet => {
     if (!wallet) {
-      return of(null);
+      return null;
     }
-    return from(wallet.getNetwork());
+    return wallet.getNetwork();
   }),
 );
 
-const props$ = combineLatest([network$, eip1193Provider$, config$]).pipe(
-  map(([network, eip1193Provider, config]) => ({
+export const isWrongNetwork$ = combineLatest([network$, config$]).pipe(
+  map(([network, config]) => Boolean(network && network.chainId.toString() !== String(config.chainId))),
+);
+
+const props$ = combineLatest([network$, eip1193Provider$, config$, isWrongNetwork$]).pipe(
+  map(([network, eip1193Provider, config, isWrongNetwork]) => ({
     network,
-    isWrongNetwork: Boolean(network && network.chainId.toString() !== String(config.chainId)),
+    isWrongNetwork,
     switchToSupportedNetwork: () => {
       if (eip1193Provider) {
         // https://eips.ethereum.org/EIPS/eip-3326
