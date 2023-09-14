@@ -9,7 +9,7 @@ import {
 } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
 import {
   MAINNET_NETWORKS,
@@ -20,7 +20,14 @@ import {
   NETWORK_WALLET_ENDPOINTS,
   TESTNET_NETWORKS,
 } from '../../networks';
-import { useBridgeBalances, useBridgeTokens, useEIP1193Provider, useNetwork, useWallet } from '../../hooks';
+import {
+  useBridgeBalances,
+  useBridgeTokens,
+  useEIP1193Provider,
+  useEthPrice,
+  useNetwork,
+  useWallet,
+} from '../../hooks';
 import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
 import PoweredBy from './PoweredBy';
 import NetworkSelector from './NetworkSelector';
@@ -43,6 +50,7 @@ const Bridge = () => {
   const { network } = useNetwork();
   const eip1193Provider = useEIP1193Provider();
   const bridgeBalances = useBridgeBalances();
+  const ethPrice = useEthPrice();
   const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
 
   const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetwork>(defaultFromNetwork);
@@ -61,6 +69,57 @@ const Bridge = () => {
   }, []);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
+
+  const gasEstimate = useMemo(
+    () => bridgeTokensStepsStatus.result?.gasEstimate ?? null,
+    [bridgeTokensStepsStatus.result?.gasEstimate],
+  );
+  const ccipFee = useMemo(
+    () => bridgeTokensStepsStatus.result?.ccipFee ?? null,
+    [bridgeTokensStepsStatus.result?.ccipFee],
+  );
+  const gasEstimateInUsd = useMemo(
+    () => (gasEstimate && ethPrice ? gasEstimate.mul(ethPrice) : null),
+    [ethPrice, gasEstimate],
+  );
+  const ccipFeeInUsd = useMemo(() => (ccipFee && ethPrice ? ccipFee.mul(ethPrice) : null), [ccipFee, ethPrice]);
+
+  const gasEstimateFormatted = useMemo(
+    () =>
+      formatCurrency(gasEstimate, {
+        currency: 'ETH',
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        approximate: true,
+      }),
+    [gasEstimate],
+  );
+  const ccipFeeFormatted = useMemo(
+    () =>
+      formatCurrency(ccipFee, {
+        currency: 'ETH',
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        approximate: true,
+      }),
+    [ccipFee],
+  );
+  const gasEstimateInUsdFormatted = useMemo(
+    () =>
+      formatCurrency(gasEstimateInUsd, {
+        currency: '$',
+        fractionDigits: USD_UI_PRECISION,
+        approximate: true,
+      }),
+    [gasEstimateInUsd],
+  );
+  const ccipFeeInUsdFormatted = useMemo(
+    () =>
+      formatCurrency(ccipFeeInUsd, {
+        currency: '$',
+        fractionDigits: USD_UI_PRECISION,
+        approximate: true,
+      }),
+    [ccipFeeInUsd],
+  );
 
   const executionSteps = useMemo(
     () => bridgeTokensStepsStatus.result?.numberOfSteps,
@@ -323,29 +382,38 @@ const Bridge = () => {
         </div>
         <div className="raft__bridge__fees__value">
           <Icon variant="gas" size="small" />
-          <ValueLabel valueSize="body" tickerSize="caption" value="~0.0013 ETH" />
-          <div className="raft__bridge__fees__value-container">
-            <Typography variant="body" weight="medium" color="text-secondary">
-              (~
-            </Typography>
-            <ValueLabel valueSize="body" tickerSize="caption" value="$14.55" color="text-secondary" />
-            <Typography variant="body" weight="medium" color="text-secondary">
-              )
-            </Typography>
-          </div>
+          <ValueLabel valueSize="body" tickerSize="caption" value={gasEstimateFormatted ?? 'N/A'} />
+          {gasEstimateInUsdFormatted && (
+            <div className="raft__bridge__fees__value-container">
+              <Typography variant="body" weight="medium" color="text-secondary">
+                (
+              </Typography>
+              <ValueLabel
+                valueSize="body"
+                tickerSize="caption"
+                value={gasEstimateInUsdFormatted}
+                color="text-secondary"
+              />
+              <Typography variant="body" weight="medium" color="text-secondary">
+                )
+              </Typography>
+            </div>
+          )}
         </div>
         <div className="raft__bridge__fees__value">
           <Icon variant="ccip" size="small" />
-          <ValueLabel valueSize="body" tickerSize="caption" value="~0.0013 ETH" />
-          <div className="raft__bridge__fees__value-container">
-            <Typography variant="body" weight="medium" color="text-secondary">
-              (~
-            </Typography>
-            <ValueLabel valueSize="body" tickerSize="caption" value="$14.55" color="text-secondary" />
-            <Typography variant="body" weight="medium" color="text-secondary">
-              )
-            </Typography>
-          </div>
+          <ValueLabel valueSize="body" tickerSize="caption" value={ccipFeeFormatted ?? 'N/A'} />
+          {ccipFeeInUsdFormatted && (
+            <div className="raft__bridge__fees__value-container">
+              <Typography variant="body" weight="medium" color="text-secondary">
+                (
+              </Typography>
+              <ValueLabel valueSize="body" tickerSize="caption" value={ccipFeeInUsdFormatted} color="text-secondary" />
+              <Typography variant="body" weight="medium" color="text-secondary">
+                )
+              </Typography>
+            </div>
+          )}
         </div>
       </div>
       <ExecuteButton
