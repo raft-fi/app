@@ -90,6 +90,7 @@ const Bridge = () => {
         currency: 'ETH',
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         approximate: true,
+        lessThanFormat: true,
       }),
     [gasEstimate],
   );
@@ -99,6 +100,7 @@ const Bridge = () => {
         currency: 'ETH',
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         approximate: true,
+        lessThanFormat: true,
       }),
     [ccipFee],
   );
@@ -108,6 +110,7 @@ const Bridge = () => {
         currency: '$',
         fractionDigits: USD_UI_PRECISION,
         approximate: true,
+        lessThanFormat: true,
       }),
     [gasEstimateInUsd],
   );
@@ -117,6 +120,7 @@ const Bridge = () => {
         currency: '$',
         fractionDigits: USD_UI_PRECISION,
         approximate: true,
+        lessThanFormat: true,
       }),
     [ccipFeeInUsd],
   );
@@ -195,10 +199,7 @@ const Bridge = () => {
     currentExecutionSteps,
   ]);
 
-  // TODO - Check if execute button should be enabled
-  const canExecute = useMemo(() => {
-    return true;
-  }, []);
+  const canExecute = useMemo(() => !amountDecimal.isZero() && !isWrongNetwork, [amountDecimal, isWrongNetwork]);
 
   const fromBridgeBalance = useMemo(() => {
     return bridgeBalances[fromNetwork];
@@ -259,8 +260,10 @@ const Bridge = () => {
   }, [eip1193Provider, fromNetwork]);
 
   const onAction = useCallback(() => {
-    bridgeTokens?.();
-  }, [bridgeTokens]);
+    if (canExecute) {
+      bridgeTokens?.();
+    }
+  }, [bridgeTokens, canExecute]);
 
   const onExecute = useMemo(() => {
     if (!walletConnected) {
@@ -287,12 +290,20 @@ const Bridge = () => {
 
   useEffect(() => {
     // In case user is withdrawing we need to set negative amount value.
-    requestBridgeTokensStep?.({
-      amountToBridge: amountDecimal,
-      destinationChainName: toNetwork,
-      sourceChainName: fromNetwork,
-    });
-  }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork]);
+    if (!isWrongNetwork) {
+      requestBridgeTokensStep?.({
+        amountToBridge: amountDecimal,
+        destinationChainName: toNetwork,
+        sourceChainName: fromNetwork,
+      });
+    } else {
+      requestBridgeTokensStep?.({
+        amountToBridge: Decimal.ZERO,
+        destinationChainName: toNetwork,
+        sourceChainName: fromNetwork,
+      });
+    }
+  }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork, isWrongNetwork]);
 
   useEffect(() => {
     setToNetwork(BRIDGE_NETWORK_LANES[fromNetwork][0]);
@@ -419,7 +430,7 @@ const Bridge = () => {
       <ExecuteButton
         actionButtonState={actionButtonState}
         buttonLabel={buttonLabel}
-        canExecute={canExecute}
+        canExecute={!amountDecimal.isZero() || isWrongNetwork}
         onClick={onExecute}
         walletConnected={walletConnected}
       />
