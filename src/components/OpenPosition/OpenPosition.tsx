@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Decimal } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
@@ -14,15 +14,17 @@ import {
   useCollateralPositionCaps,
   useCollateralProtocolCaps,
   useManage,
+  useVaultVersion,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   INPUT_PREVIEW_DIGITS,
+  MANAGE_POSITION_V1_TOKENS,
+  MANAGE_POSITION_V2_TOKENS,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
-  SUPPORTED_COLLATERAL_TOKENS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
   TOKEN_TO_UNDERLYING_TOKEN_MAP,
 } from '../../constants';
@@ -41,10 +43,15 @@ import { PositionAfter } from '../Position';
 
 import './OpenPosition.scss';
 
-const OpenPosition = () => {
+interface OpenPositionProps {
+  initialCollateralToken: SupportedCollateralToken;
+}
+
+const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
 
+  const vaultVersion = useVaultVersion();
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
@@ -55,9 +62,8 @@ const OpenPosition = () => {
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const { managePositionStatus, managePosition, managePositionStepsStatus, requestManagePositionStep } = useManage();
 
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(
-    SUPPORTED_COLLATERAL_TOKENS[0],
-  );
+  const [selectedCollateralToken, setSelectedCollateralToken] =
+    useState<SupportedCollateralToken>(initialCollateralToken);
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
@@ -370,6 +376,11 @@ const OpenPosition = () => {
   }, [collateralSupply, selectedCollateralTokenProtocolCap]);
 
   const isPositionWithinDebtPositionCap = useMemo(() => {
+    // Interest based vaults do not have per position debt cap
+    if (vaultVersion === 'v2') {
+      return true;
+    }
+
     // only wstETH group has this requirement
     if (selectedUnderlyingCollateralToken === 'wstETH') {
       const totalDebtSupply = protocolStats?.debtSupply.wstETH;
@@ -383,7 +394,7 @@ const OpenPosition = () => {
     }
 
     return true;
-  }, [borrowAmountDecimal, protocolStats?.debtSupply.wstETH, selectedUnderlyingCollateralToken]);
+  }, [borrowAmountDecimal, protocolStats?.debtSupply.wstETH, selectedUnderlyingCollateralToken, vaultVersion]);
 
   const errPositionOutOfCollateralPositionCap = useMemo(
     () => !isPositionWithinCollateralPositionCap && Boolean(selectedCollateralTokenPositionCap),
@@ -394,8 +405,8 @@ const OpenPosition = () => {
     [isPositionWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
-  // Opening new generate position is disabled until future notice
-  const openPositionDisabled = true;
+  // Opening new generate position is disabled until future notice for v1 vaults
+  const openPositionDisabled = vaultVersion === 'v1';
 
   const canBorrow = useMemo(
     () =>
@@ -619,10 +630,16 @@ const OpenPosition = () => {
     [selectedCollateralBorrowRate],
   );
 
+  const availableCollateralTokens = useMemo(() => {
+    if (vaultVersion === 'v2') {
+      return MANAGE_POSITION_V2_TOKENS;
+    }
+    return MANAGE_POSITION_V1_TOKENS;
+  }, [vaultVersion]);
+
   const interestRateFormatted = useMemo(() => {
-    // TODO - Fetch from contracts
-    return '3.50%';
-  }, []);
+    return formatPercentage(protocolStats?.interestRate[selectedUnderlyingCollateralToken]);
+  }, [protocolStats?.interestRate, selectedUnderlyingCollateralToken]);
 
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
@@ -701,7 +718,7 @@ const OpenPosition = () => {
           label="YOU DEPOSIT"
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={[...SUPPORTED_COLLATERAL_TOKENS]}
+          tokens={[...availableCollateralTokens]}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse ?? undefined}
           maxAmount={selectedCollateralTokenBalanceValues.amount}

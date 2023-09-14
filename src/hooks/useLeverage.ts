@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { ERC20PermitSignatureStruct, LeveragePositionStep, UserPosition, VaultVersion } from '@raft-fi/sdk';
+import { ERC20PermitSignatureStruct, LeveragePositionStep, UserPosition } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -31,7 +31,6 @@ import { position$ } from './usePosition';
 import { collateralConversionRates$ } from './useCollateralConversionRates';
 import { collateralBorrowingRates$ } from './useCollateralBorrowingRates';
 import { tokenPrices$ } from './useTokenPrices';
-import { vaultVersion$ } from './useVaultVersion';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -47,7 +46,7 @@ const DEFAULT_STEPS = {
 
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
-  Nullable<UserPosition<VaultVersion, SupportedUnderlyingCollateralToken>>
+  Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
 >;
 type LeveragePositionStepsGenerator = AsyncGenerator<
   LeveragePositionStep,
@@ -216,29 +215,22 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
   ),
 );
 
-const requestLeveragePositionStep$ = combineLatest([walletSigner$, vaultVersion$]).pipe(
-  map<[Nullable<JsonRpcSigner>, Nullable<VaultVersion>], RequestLeveragePositionStepFunc>(
-    ([signer, vaultVersion]) =>
-      (request: LeveragePositionStepsRequest) => {
-        if (!signer || !vaultVersion) {
-          return;
-        }
-        const userPositionMapKey = `${signer.address}-${request.underlyingCollateralToken}`;
+const requestLeveragePositionStep$ = walletSigner$.pipe(
+  map<Nullable<JsonRpcSigner>, RequestLeveragePositionStepFunc>(signer => (request: LeveragePositionStepsRequest) => {
+    if (!signer) {
+      return;
+    }
+    const userPositionMapKey = `${signer.address}-${request.underlyingCollateralToken}`;
 
-        let userPosition = userPositionMap[userPositionMapKey];
+    let userPosition = userPositionMap[userPositionMapKey];
 
-        if (!userPosition) {
-          userPosition = new UserPosition<VaultVersion, SupportedUnderlyingCollateralToken>(
-            signer,
-            request.underlyingCollateralToken,
-            vaultVersion,
-          );
-          userPositionMap[userPositionMapKey] = userPosition;
-        }
+    if (!userPosition) {
+      userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
+      userPositionMap[userPositionMapKey] = userPosition;
+    }
 
-        setLeveragePositionStepsRequest(request);
-      },
-  ),
+    setLeveragePositionStepsRequest(request);
+  }),
 );
 
 const tokenMapsLoaded$ = combineLatest([
@@ -312,10 +304,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
 
       try {
-        const userPosition = userPositionMap[userPositionMapKey] as UserPosition<
-          VaultVersion,
-          SupportedUnderlyingCollateralToken
-        >;
+        const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
         const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
         //Setting leverage to 1 will close leverage position
         const actualLeverage = isClosePosition ? Decimal.ONE : leverage;

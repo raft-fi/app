@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { ERC20PermitSignatureStruct, R_TOKEN, UserPosition, ManagePositionStep, VaultVersion } from '@raft-fi/sdk';
+import { ERC20PermitSignatureStruct, R_TOKEN, UserPosition, ManagePositionStep } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -38,7 +38,6 @@ import { tokenWhitelists$ } from './useTokenWhitelists';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { getNullTokenMap, isSignatureValid } from '../utils';
-import { vaultVersion$ } from './useVaultVersion';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -54,7 +53,7 @@ const DEFAULT_STEPS = {
 
 type UserPositionMap = TokenGenericMap<
   SupportedUnderlyingCollateralToken,
-  Nullable<UserPosition<VaultVersion, SupportedUnderlyingCollateralToken>>
+  Nullable<UserPosition<SupportedUnderlyingCollateralToken>>
 >;
 type SignatureMap = TokenGenericMap<SupportedToken, Nullable<ERC20PermitSignatureStruct>>;
 type ManagePositionStepsGenerator = AsyncGenerator<ManagePositionStep, void, ERC20PermitSignatureStruct | undefined>;
@@ -227,9 +226,9 @@ const managePosition$ = managePositionStepsStatus$.pipe(
   ),
 );
 
-const requestManagePositionStep$ = combineLatest([walletSigner$, vaultVersion$]).pipe(
-  map(([signer, vaultVersion]) => (request: ManagePositionStepsRequest) => {
-    if (!signer || !vaultVersion) {
+const requestManagePositionStep$ = walletSigner$.pipe(
+  map(signer => (request: ManagePositionStepsRequest) => {
+    if (!signer) {
       return;
     }
 
@@ -238,11 +237,7 @@ const requestManagePositionStep$ = combineLatest([walletSigner$, vaultVersion$])
     let userPosition = userPositionMap[userPositionMapKey];
 
     if (!userPosition) {
-      userPosition = new UserPosition<VaultVersion, SupportedUnderlyingCollateralToken>(
-        signer,
-        request.underlyingCollateralToken,
-        vaultVersion,
-      );
+      userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
       userPositionMap[userPositionMapKey] = userPosition;
     }
 
@@ -307,10 +302,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
     const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
 
     try {
-      const userPosition = userPositionMap[userPositionMapKey] as UserPosition<
-        VaultVersion,
-        SupportedUnderlyingCollateralToken
-      >;
+      const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
       const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
       const actualDebtChange = isClosePosition ? Decimal.MAX_DECIMAL.mul(-1) : debtChange;
 
