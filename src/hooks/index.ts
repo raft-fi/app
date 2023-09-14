@@ -42,3 +42,4 @@ export * from './useVaultVersion';
 export * from './useWaitForBridge';
 export * from './useBridgeAllowances';
 export * from './useEthPrice';
+export * from './useWalletLoaded';
