@@ -3,7 +3,7 @@ import { BridgeTokensStep, Bridge, SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
-import { BrowserProvider, JsonRpcSigner, TransactionReceipt, TransactionResponse } from 'ethers';
+import { BrowserProvider, TransactionReceipt, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,
@@ -21,7 +21,6 @@ import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { wallet$ } from './useWallet';
-import { walletSigner$ } from './useWalletSigner';
 import { bridgeAllowances$ } from './useBridgeAllowances';
 
 const DEFAULT_VALUE = {
@@ -39,7 +38,7 @@ const DEFAULT_STEPS = {
 type BridgeTokensGenerator = AsyncGenerator<BridgeTokensStep>;
 type BridgeTokensFunc = () => void;
 type RequestBridgeTokensStepFunc = (request: BridgeTokensStepsRequest) => void;
-type BridgeTokensStatusType = 'approve' | 'bridgeTokens';
+type BridgeTokensStatusType = 'approve' | 'bridge';
 
 let bridge: Nullable<Bridge> = null;
 
@@ -194,17 +193,19 @@ const bridgeTokens$ = bridgeTokensStepsStatus$.pipe(
   }),
 );
 
-const requestBridgeTokensStep$ = walletSigner$.pipe(
-  map<Nullable<JsonRpcSigner>, RequestBridgeTokensStepFunc>(signer => (request: BridgeTokensStepsRequest) => {
-    if (!signer) {
-      return;
-    }
+const requestBridgeTokensStep = async (request: BridgeTokensStepsRequest) => {
+  // to prevent race condition from rxjs, this function needs to get the latest signer when network switched
+  const wallet = wallet$.getValue();
+  const signer = await wallet?.getSigner();
 
-    bridge = new Bridge(signer);
+  if (!signer) {
+    return;
+  }
 
-    setBridgeTokensStepsRequest(request);
-  }),
-);
+  bridge = new Bridge(signer);
+
+  setBridgeTokensStepsRequest(request);
+};
 
 // Stream that checks if request is distinct from previous one
 const distinctRequest$ = bridgeTokensStepsRequest$.pipe(
@@ -282,7 +283,6 @@ const stream$ = distinctRequest$.pipe(
 );
 
 const [bridgeTokens] = bind<Nullable<BridgeTokensFunc>>(bridgeTokens$, null);
-const [requestBridgeTokensStep] = bind<Nullable<RequestBridgeTokensStepFunc>>(requestBridgeTokensStep$, null);
 const [bridgeTokensStatus] = bind<BridgeTokensStatus>(bridgeTokensStatus$, DEFAULT_VALUE);
 const [bridgeTokensStepsStatus] = bind<BridgeTokensStepsStatus>(bridgeTokensStepsStatus$, DEFAULT_STEPS);
 
@@ -295,7 +295,7 @@ export const useBridgeTokens = (): {
   bridgeTokensStatus: bridgeTokensStatus(),
   bridgeTokensStepsStatus: bridgeTokensStepsStatus(),
   bridgeTokens: bridgeTokens(),
-  requestBridgeTokensStep: requestBridgeTokensStep(),
+  requestBridgeTokensStep,
 });
 
 let subscriptions: Subscription[];

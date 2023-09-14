@@ -74,15 +74,16 @@ const Bridge = () => {
     () => bridgeTokensStepsStatus.result?.gasEstimate ?? null,
     [bridgeTokensStepsStatus.result?.gasEstimate],
   );
-  const ccipFee = useMemo(
-    () => bridgeTokensStepsStatus.result?.ccipFee ?? null,
-    [bridgeTokensStepsStatus.result?.ccipFee],
+  const bridgeFee = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (bridgeTokensStepsStatus.result as any)?.bridgeFee ?? null,
+    [bridgeTokensStepsStatus.result],
   );
   const gasEstimateInUsd = useMemo(
     () => (gasEstimate && ethPrice ? gasEstimate.mul(ethPrice) : null),
     [ethPrice, gasEstimate],
   );
-  const ccipFeeInUsd = useMemo(() => (ccipFee && ethPrice ? ccipFee.mul(ethPrice) : null), [ccipFee, ethPrice]);
+  const bridgeFeeInUsd = useMemo(() => (bridgeFee && ethPrice ? bridgeFee.mul(ethPrice) : null), [bridgeFee, ethPrice]);
 
   const gasEstimateFormatted = useMemo(
     () =>
@@ -94,15 +95,15 @@ const Bridge = () => {
       }),
     [gasEstimate],
   );
-  const ccipFeeFormatted = useMemo(
+  const bridgeFeeFormatted = useMemo(
     () =>
-      formatCurrency(ccipFee, {
+      formatCurrency(bridgeFee, {
         currency: 'ETH',
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
         approximate: true,
         lessThanFormat: true,
       }),
-    [ccipFee],
+    [bridgeFee],
   );
   const gasEstimateInUsdFormatted = useMemo(
     () =>
@@ -114,15 +115,15 @@ const Bridge = () => {
       }),
     [gasEstimateInUsd],
   );
-  const ccipFeeInUsdFormatted = useMemo(
+  const bridgeFeeInUsdFormatted = useMemo(
     () =>
-      formatCurrency(ccipFeeInUsd, {
+      formatCurrency(bridgeFeeInUsd, {
         currency: '$',
         fractionDigits: USD_UI_PRECISION,
         approximate: true,
         lessThanFormat: true,
       }),
-    [ccipFeeInUsd],
+    [bridgeFeeInUsd],
   );
 
   const executionSteps = useMemo(
@@ -176,7 +177,7 @@ const Bridge = () => {
         : `Approve R (${currentExecutionSteps}/${executionSteps})`;
     }
 
-    if (executionType === 'bridgeTokens') {
+    if (executionType === 'bridge') {
       return bridgeTokensStatus.pending
         ? `Executing (${currentExecutionSteps}/${executionSteps})`
         : `Execute (${currentExecutionSteps}/${executionSteps})`;
@@ -199,18 +200,24 @@ const Bridge = () => {
     currentExecutionSteps,
   ]);
 
-  const canExecute = useMemo(() => !amountDecimal.isZero() && !isWrongNetwork, [amountDecimal, isWrongNetwork]);
+  const fromBridgeBalance = useMemo(() => bridgeBalances[fromNetwork], [bridgeBalances, fromNetwork]);
 
-  const fromBridgeBalance = useMemo(() => {
-    return bridgeBalances[fromNetwork];
-  }, [bridgeBalances, fromNetwork]);
+  const fromBridgeBalanceFormatted = useMemo(
+    () =>
+      formatCurrency(fromBridgeBalance, {
+        currency: BRIDGE_NETWORKS[fromNetwork].tokenTicker,
+        fractionDigits: USD_UI_PRECISION,
+      }),
+    [fromBridgeBalance, fromNetwork],
+  );
 
-  const fromBridgeBalanceFormatted = useMemo(() => {
-    return formatCurrency(fromBridgeBalance, {
-      currency: BRIDGE_NETWORKS[fromNetwork].tokenTicker,
-      fractionDigits: USD_UI_PRECISION,
-    });
-  }, [fromBridgeBalance, fromNetwork]);
+  const isInputValid = useMemo(
+    () => !amountDecimal.isZero() && fromBridgeBalance?.gte(amountDecimal),
+    [amountDecimal, fromBridgeBalance],
+  );
+  const canExecute = useMemo(() => isInputValid && !isWrongNetwork, [isInputValid, isWrongNetwork]);
+  // enable button if input is non-zero, or user need to switch network
+  const isButtonEnabled = useMemo(() => isInputValid || isWrongNetwork, [isInputValid, isWrongNetwork]);
 
   const onSwapNetwork = useCallback(() => {
     setFromNetwork(toNetwork);
@@ -303,7 +310,7 @@ const Bridge = () => {
         sourceChainName: fromNetwork,
       });
     }
-  }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork, isWrongNetwork]);
+  }, [requestBridgeTokensStep, wallet, amountDecimal, toNetwork, fromNetwork, isWrongNetwork, network]);
 
   useEffect(() => {
     setToNetwork(BRIDGE_NETWORK_LANES[fromNetwork][0]);
@@ -381,7 +388,7 @@ const Bridge = () => {
           <Icon variant="info" size="tiny" />
         </div>
         <Typography className="raft__bridge__time__value" variant="body" weight="medium">
-          ~1-2 minutes
+          &lt;20 minutes
         </Typography>
       </div>
       <div className="raft__bridge__fees">
@@ -413,13 +420,18 @@ const Bridge = () => {
         </div>
         <div className="raft__bridge__fees__value">
           <Icon variant="ccip" size="small" />
-          <ValueLabel valueSize="body" tickerSize="caption" value={ccipFeeFormatted ?? 'N/A'} />
-          {ccipFeeInUsdFormatted && (
+          <ValueLabel valueSize="body" tickerSize="caption" value={bridgeFeeFormatted ?? 'N/A'} />
+          {bridgeFeeInUsdFormatted && (
             <div className="raft__bridge__fees__value-container">
               <Typography variant="body" weight="medium" color="text-secondary">
                 (
               </Typography>
-              <ValueLabel valueSize="body" tickerSize="caption" value={ccipFeeInUsdFormatted} color="text-secondary" />
+              <ValueLabel
+                valueSize="body"
+                tickerSize="caption"
+                value={bridgeFeeInUsdFormatted}
+                color="text-secondary"
+              />
               <Typography variant="body" weight="medium" color="text-secondary">
                 )
               </Typography>
@@ -430,7 +442,7 @@ const Bridge = () => {
       <ExecuteButton
         actionButtonState={actionButtonState}
         buttonLabel={buttonLabel}
-        canExecute={!amountDecimal.isZero() || isWrongNetwork}
+        canExecute={isButtonEnabled}
         onClick={onExecute}
         walletConnected={walletConnected}
       />

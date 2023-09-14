@@ -11,7 +11,7 @@ export type AppEventType =
   | 'leverage'
   | 'redeem'
   | 'manageSavings'
-  | 'bridgeTokens';
+  | 'bridge';
 
 export interface AppEventMetadata {
   collateralToken?: SupportedCollateralToken;
