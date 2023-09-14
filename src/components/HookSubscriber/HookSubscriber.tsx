@@ -12,7 +12,6 @@ import {
   subscribeCollateralBorrowingRates,
   subscribeCollateralConversionRates,
   subscribePosition,
-  subscribeCalculateRedemptionRate,
   subscribeCollateralPositionCaps,
   subscribeCollateralProtocolCaps,
   subscribeManageStatus,
@@ -53,7 +52,6 @@ const HookSubscriber: FC = () => {
     subscribeCollateralBorrowingRates();
     subscribeCollateralConversionRates();
     subscribePosition();
-    subscribeCalculateRedemptionRate();
     subscribeCollateralPositionCaps();
     subscribeCollateralProtocolCaps();
     subscribeCollateralTokenAprs();

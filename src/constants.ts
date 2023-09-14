@@ -43,6 +43,7 @@ export const SUPPORTED_UNDERLYING_TOKENS = [
   'rETH',
   'cbETH',
   'swETH',
+  'WBTC',
 ] as const satisfies ReadonlyArray<UnderlyingCollateralToken>;
 export const SUPPORTED_COLLATERAL_TOKENS = [
   // v1 vaults
@@ -57,6 +58,7 @@ export const SUPPORTED_COLLATERAL_TOKENS = [
   'rETH',
   'cbETH',
   'swETH',
+  'WBTC',
 ] as const satisfies ReadonlyArray<CollateralToken>;
 export const SUPPORTED_SWAP_TOKENS = ['wstETH', 'rETH', 'R'] as const satisfies ReadonlyArray<Token>;
 export const SUPPORTED_TOKENS = [
@@ -70,6 +72,7 @@ export const SUPPORTED_TOKENS = [
   'rETH-v1',
   'cbETH',
   'swETH',
+  'WBTC',
 ] as const satisfies ReadonlyArray<Token>;
 
 export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
@@ -78,7 +81,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: SupportedCollateralToken[];
     displayBaseToken: SupportedCollateralToken;
     underlyingToken: SupportedUnderlyingCollateralToken;
-    redeemToken: SupportedCollateralToken;
     swapToken: SupportedSwapToken;
     isRebasing: boolean;
   }
@@ -87,7 +89,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['wstETH'] as SupportedCollateralToken[],
     displayBaseToken: 'wstETH',
     underlyingToken: 'wstETH',
-    redeemToken: 'wstETH',
     swapToken: 'wstETH',
     isRebasing: false,
   },
@@ -95,7 +96,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['stETH', 'wstETH-v1'] as SupportedCollateralToken[],
     displayBaseToken: 'stETH',
     underlyingToken: 'wstETH-v1',
-    redeemToken: 'wstETH',
     swapToken: 'wstETH',
     isRebasing: true,
   },
@@ -103,7 +103,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['rETH-v1'] as SupportedCollateralToken[],
     displayBaseToken: 'rETH',
     underlyingToken: 'wcrETH-v1',
-    redeemToken: 'rETH',
     swapToken: 'rETH',
     isRebasing: false,
   },
@@ -111,7 +110,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['WETH'] as SupportedCollateralToken[],
     displayBaseToken: 'WETH',
     underlyingToken: 'WETH',
-    redeemToken: 'WETH',
     swapToken: 'wstETH', // TODO - Update to correct swap token once we add leverage support for v2 vaults
     isRebasing: false,
   },
@@ -119,7 +117,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['rETH'] as SupportedCollateralToken[],
     displayBaseToken: 'rETH',
     underlyingToken: 'rETH',
-    redeemToken: 'rETH',
     swapToken: 'rETH', // TODO - Update to correct swap token once we add leverage support for v2 vaults
     isRebasing: false,
   },
@@ -127,7 +124,6 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['cbETH'] as SupportedCollateralToken[],
     displayBaseToken: 'cbETH',
     underlyingToken: 'cbETH',
-    redeemToken: 'cbETH',
     swapToken: 'rETH', // TODO - Update to correct swap token once we add leverage support for v2 vaults
     isRebasing: false,
   },
@@ -135,7 +131,13 @@ export const SUPPORTED_COLLATERAL_TOKEN_SETTINGS: Record<
     tokens: ['swETH'] as SupportedCollateralToken[],
     displayBaseToken: 'swETH',
     underlyingToken: 'swETH',
-    redeemToken: 'swETH',
+    swapToken: 'rETH', // TODO - Update to correct swap token once we add leverage support for v2 vaults
+    isRebasing: false,
+  },
+  WBTC: {
+    tokens: ['WBTC'] as SupportedCollateralToken[],
+    displayBaseToken: 'WBTC',
+    underlyingToken: 'WBTC',
     swapToken: 'rETH', // TODO - Update to correct swap token once we add leverage support for v2 vaults
     isRebasing: false,
   },
@@ -156,6 +158,7 @@ export const TOKEN_TO_UNDERLYING_TOKEN_MAP: {
   rETH: 'rETH',
   cbETH: 'cbETH',
   swETH: 'swETH',
+  WBTC: 'WBTC',
 };
 // token to display base token map
 export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduce((map, token) => {
@@ -171,7 +174,14 @@ export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
 };
 
 export const MANAGE_POSITION_V1_TOKENS: SupportedCollateralToken[] = ['stETH', 'wstETH-v1', 'rETH'];
-export const MANAGE_POSITION_V2_TOKENS: SupportedCollateralToken[] = ['wstETH', 'WETH', 'rETH', 'cbETH', 'swETH'];
+export const MANAGE_POSITION_V2_TOKENS: SupportedCollateralToken[] = [
+  'wstETH',
+  'WETH',
+  'rETH',
+  'cbETH',
+  'swETH',
+  'WBTC',
+];
 
 export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: string } = {
   stETH: 'stETH',
@@ -183,4 +193,5 @@ export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: str
   'rETH-v1': 'rETH',
   cbETH: 'cbETH',
   swETH: 'swETH',
+  WBTC: 'WBTC',
 };
