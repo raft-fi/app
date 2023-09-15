@@ -418,26 +418,28 @@ const Bridge = () => {
             </div>
           )}
         </div>
-        <div className="raft__bridge__fees__value">
-          <Icon variant="ccip" size="small" />
-          <ValueLabel valueSize="body" tickerSize="caption" value={bridgeFeeFormatted ?? 'N/A'} />
-          {bridgeFeeInUsdFormatted && (
-            <div className="raft__bridge__fees__value-container">
-              <Typography variant="body" weight="medium" color="text-secondary">
-                (
-              </Typography>
-              <ValueLabel
-                valueSize="body"
-                tickerSize="caption"
-                value={bridgeFeeInUsdFormatted}
-                color="text-secondary"
-              />
-              <Typography variant="body" weight="medium" color="text-secondary">
-                )
-              </Typography>
-            </div>
-          )}
-        </div>
+        {bridgeFee && (
+          <div className="raft__bridge__fees__value">
+            <Icon variant="ccip" size="small" />
+            <ValueLabel valueSize="body" tickerSize="caption" value={bridgeFeeFormatted ?? 'N/A'} />
+            {bridgeFeeInUsdFormatted && (
+              <div className="raft__bridge__fees__value-container">
+                <Typography variant="body" weight="medium" color="text-secondary">
+                  (
+                </Typography>
+                <ValueLabel
+                  valueSize="body"
+                  tickerSize="caption"
+                  value={bridgeFeeInUsdFormatted}
+                  color="text-secondary"
+                />
+                <Typography variant="body" weight="medium" color="text-secondary">
+                  )
+                </Typography>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <ExecuteButton
         actionButtonState={actionButtonState}

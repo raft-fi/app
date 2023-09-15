@@ -11,7 +11,7 @@ import {
   getTokenValues,
 } from '../../utils';
 import { SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
-import { TooltipWrapper, Typography } from '../shared';
+import { Icon, TooltipWrapper, Typography } from '../shared';
 import { SupportedUnderlyingCollateralToken, TokenDecimalMap } from '../../interfaces';
 import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
@@ -100,27 +100,30 @@ const ProtocolStats = () => {
 
   return (
     <div className="raft__protocol-stats">
-      <TooltipWrapper tooltipContent={<CollateralStatsBreakdown />} placement="bottom">
-        <div className="raft__protocol-stats__collateral">
+      <div className="raft__protocol-stats__collateral">
+        <div className="raft__protocol-stats__collateral__title">
           <Typography variant="overline" color="text-accent">
             TOTAL VALUE LOCKED
           </Typography>
-          <div className="raft__protocol-stats__collateral__amount">
-            <div className="raft__protocol-stats__collateral__amount__number">
-              <Typography variant="heading2">$</Typography>
-              <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
-            </div>
-          </div>
-          <div className="raft__protocol-stats__collateral__value__number">
-            <Typography variant="caption" color="text-secondary">
-              $
-            </Typography>
-            <Typography variant="body" weight="medium" color="text-secondary">
-              {totalCollateralValueDecimalFormatted}
-            </Typography>
+          <TooltipWrapper tooltipContent={<CollateralStatsBreakdown />} placement="bottom">
+            <Icon variant="info" size="tiny" />
+          </TooltipWrapper>
+        </div>
+        <div className="raft__protocol-stats__collateral__amount">
+          <div className="raft__protocol-stats__collateral__amount__number">
+            <Typography variant="heading2">$</Typography>
+            <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
           </div>
         </div>
-      </TooltipWrapper>
+        <div className="raft__protocol-stats__collateral__value__number">
+          <Typography variant="caption" color="text-secondary">
+            $
+          </Typography>
+          <Typography variant="body" weight="medium" color="text-secondary">
+            {totalCollateralValueDecimalFormatted}
+          </Typography>
+        </div>
+      </div>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
           R MARKET CAP
