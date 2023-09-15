@@ -209,7 +209,8 @@ export const PositionAfter: FC<PositionAfterProps> = ({
                 tooltipContent={
                   <Tooltip className="raft__position-after__infoTooltip">
                     <Typography variant="body2">
-                      Borrowing fee associated with the total amount of R generated. Read the docs for more information.{' '}
+                      Annual borrowing fee associated with the total amount of R generated. Read the docs for more
+                      information.{' '}
                       <Link href="https://docs.raft.fi/raft-protocol/how-is-r-backed/cdp-vaults/active-vaults/interest-rate-vaults-new">
                         Docs
                       </Link>

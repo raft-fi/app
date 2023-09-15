@@ -58,7 +58,7 @@ const fetchData = async (
 
     const positionManagerAddress = RaftConfig.getPositionManagerAddress(underlyingCollateralToken, token);
 
-    const result = await userPosition.isDelegateWhitelisted(positionManagerAddress, await walletSigner.getAddress());
+    const result = await userPosition.isDelegateWhitelisted(positionManagerAddress);
 
     return result;
   } catch (error) {

@@ -58,10 +58,7 @@ const fetchData = async (
       position.debtBalance,
     );
 
-    const result = await userPosition.isDelegateWhitelisted(
-      RaftConfig.networkConfig.oneInchOneStepLeverageStEth,
-      await walletSigner.getAddress(),
-    );
+    const result = await userPosition.isDelegateWhitelisted(RaftConfig.networkConfig.oneInchOneStepLeverageStEth);
 
     return result;
   } catch (error) {

@@ -28,7 +28,7 @@ export const waitForBridgeStatus$ = new BehaviorSubject<WaitForBridgeStatus>(DEF
 const stream$ = combineLatest([bridgeTokensStatus$, walletSigner$]).pipe(
   withLatestFrom(bridgeTokensStepsRequest$),
   tap(async ([[status, signer], request]) => {
-    if (status.statusType !== 'bridgeTokens' || !status.response || !status.success || !signer) {
+    if (status.statusType !== 'bridge' || !status.response || !status.success || !signer) {
       waitForBridgeStatus$.next(DEFAULT_VALUE);
       return;
     }
