@@ -23,6 +23,8 @@ const config: Config = {
     blockExplorerName: 'Etherscan',
     blockExplorerUrl: 'https://etherscan.io',
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
+    managePositionTokensV1: ['stETH', 'wstETH-v1', 'rETH'],
+    managePositionTokensV2: ['wstETH', 'WETH', 'rETH', 'cbETH', 'swETH'],
   },
   goerli: {
     publicNetworkUrl: '',
@@ -39,6 +41,8 @@ const config: Config = {
     blockExplorerName: 'Etherscan',
     blockExplorerUrl: 'https://goerli.etherscan.io',
     rpcUrl: import.meta.env.VITE_GOERLI_RPC_URL,
+    managePositionTokensV1: ['stETH', 'wstETH-v1', 'rETH'],
+    managePositionTokensV2: ['wstETH'],
   },
 };
 export default config;

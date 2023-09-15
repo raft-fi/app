@@ -173,16 +173,6 @@ export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
   arbitrumGoerli: import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL,
 };
 
-export const MANAGE_POSITION_V1_TOKENS: SupportedCollateralToken[] = ['stETH', 'wstETH-v1', 'rETH'];
-export const MANAGE_POSITION_V2_TOKENS: SupportedCollateralToken[] = [
-  'wstETH',
-  'WETH',
-  'rETH',
-  'cbETH',
-  'swETH',
-  'WBTC',
-];
-
 export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: string } = {
   stETH: 'stETH',
   'wstETH-v1': 'wstETH',
