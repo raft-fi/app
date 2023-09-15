@@ -1,7 +1,6 @@
 import { memo, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useNetwork, useAppLoaded, useWallet, usePosition, useVaultVersion } from '../../hooks';
-import { MANAGE_POSITION_V1_TOKENS, MANAGE_POSITION_V2_TOKENS } from '../../constants';
+import { useNetwork, useAppLoaded, useWallet, usePosition, useVaultVersion, useConfig } from '../../hooks';
 import LoadingDashboard from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
@@ -15,6 +14,7 @@ const GenerateDashboard = () => {
   const wallet = useWallet();
   const position = usePosition();
   const vaultVersion = useVaultVersion();
+  const config = useConfig();
   const { isWrongNetwork } = useNetwork();
 
   const shouldShowAdjustPosition = wallet && position?.hasPosition && !isWrongNetwork;
@@ -24,10 +24,10 @@ const GenerateDashboard = () => {
    */
   const initialCollateralToken = useMemo(() => {
     if (vaultVersion === 'v1') {
-      return MANAGE_POSITION_V1_TOKENS[0];
+      return config.managePositionTokensV1[0];
     }
-    return MANAGE_POSITION_V2_TOKENS[0];
-  }, [vaultVersion]);
+    return config.managePositionTokensV2[0];
+  }, [config.managePositionTokensV1, config.managePositionTokensV2, vaultVersion]);
 
   if (!appLoaded) {
     return <LoadingDashboard />;

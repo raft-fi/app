@@ -15,14 +15,13 @@ import {
   useCollateralProtocolCaps,
   useManage,
   useVaultVersion,
+  useConfig,
 } from '../../hooks';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   HEALTHY_RATIO,
   HEALTHY_RATIO_BUFFER,
   INPUT_PREVIEW_DIGITS,
-  MANAGE_POSITION_V1_TOKENS,
-  MANAGE_POSITION_V2_TOKENS,
   MIN_BORROW_AMOUNT,
   R_TOKEN_UI_PRECISION,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
@@ -61,6 +60,7 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const { managePositionStatus, managePosition, managePositionStepsStatus, requestManagePositionStep } = useManage();
+  const config = useConfig();
 
   const [selectedCollateralToken, setSelectedCollateralToken] =
     useState<SupportedCollateralToken>(initialCollateralToken);
@@ -632,10 +632,10 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
 
   const availableCollateralTokens = useMemo(() => {
     if (vaultVersion === 'v2') {
-      return MANAGE_POSITION_V2_TOKENS;
+      return config.managePositionTokensV2;
     }
-    return MANAGE_POSITION_V1_TOKENS;
-  }, [vaultVersion]);
+    return config.managePositionTokensV1;
+  }, [config.managePositionTokensV1, config.managePositionTokensV2, vaultVersion]);
 
   const interestRateFormatted = useMemo(() => {
     return formatPercentage(protocolStats?.interestRate[selectedUnderlyingCollateralToken]);
