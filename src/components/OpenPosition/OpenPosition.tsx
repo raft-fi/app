@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Decimal } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
+import { useAtom } from 'jotai';
 import {
   useWallet,
   useTokenPrices,
@@ -42,6 +43,7 @@ import { Button, CurrencyInput, Icon, Typography, ExecuteButton, InfoBox } from 
 import { PositionAfter } from '../Position';
 
 import './OpenPosition.scss';
+import { walletAtom } from '../../hooks/useWallet.jot';
 
 interface OpenPositionProps {
   initialCollateralToken: SupportedCollateralToken;
@@ -51,11 +53,14 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
   const [, connect] = useConnectWallet();
   const { isWrongNetwork } = useNetwork();
 
+  const [wallet] = useAtom(walletAtom);
+
   const vaultVersion = useVaultVersion();
   const protocolStats = useProtocolStats();
   const tokenPriceMap = useTokenPrices();
   const tokenBalanceMap = useTokenBalances();
-  const wallet = useWallet();
+  const wallet1 = useWallet();
+  console.log(wallet1);
   const borrowingRateMap = useCollateralBorrowingRates();
   const collateralConversionRateMap = useCollateralConversionRates();
   const collateralPositionCapMap = useCollateralPositionCaps();

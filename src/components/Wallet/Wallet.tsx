@@ -7,6 +7,7 @@ import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import gnosisModule from '@web3-onboard/gnosis';
 import { ButtonWrapper } from 'tempus-ui';
+import { useAtom } from 'jotai';
 import { shortenAddress } from '../../utils';
 import { Nullable } from '../../interfaces';
 import {
@@ -25,6 +26,7 @@ import { ManageTransactionRow, SavingsTransactionRow } from './TransactionHistor
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
+import { eip1193ProviderAtom } from '../../hooks/useWallet.jot';
 
 const isSavingsTransaction = (transaction: HistoryTransaction): transaction is SavingsTransaction => {
   return transaction.type === 'DEPOSIT' || transaction.type === 'WITHDRAW';
@@ -91,6 +93,7 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   const connectedWallets = useWallets();
   const ens = useENS();
   const transactionHistory = useTransactionHistory();
+  const [, setEipProvider] = useAtom(eip1193ProviderAtom);
 
   const [popupOpen, setPopupOpen] = useState(false);
   const [safeApp, setSafeApp] = useState<Nullable<SafeInfo>>(null);
@@ -115,11 +118,13 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   useEffect(() => {
     if (!wallet) {
       updateWalletFromEIP1193Provider(null);
+      setEipProvider(null);
       return;
     }
 
     updateWalletFromEIP1193Provider(wallet.provider);
-  }, [wallet]);
+    setEipProvider(wallet.provider);
+  }, [wallet, setEipProvider]);
 
   /**
    * If it's not Gnosis Safe app,

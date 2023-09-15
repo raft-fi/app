@@ -132,3 +132,5 @@ export const subscribeTokenBalances = (): void => {
 };
 export const unsubscribeTokenBalances = (): void => subscription?.unsubscribe();
 export const resetTokenBalances = (): void => tokenBalances$.next(DEFAULT_VALUE);
+
+subscribeTokenBalances();

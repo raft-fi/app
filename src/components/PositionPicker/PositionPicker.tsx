@@ -1,13 +1,17 @@
 import { Navigate } from 'react-router-dom';
 import { TokenLogo } from 'tempus-ui';
+import { useAtom } from 'jotai';
 import { Icon, Typography } from '../shared';
 import PositionPickerItem from './PositionPickerItem';
 import { usePosition } from '../../hooks';
 
 import './PositionPicker.scss';
+import { walletAtom } from '../../hooks/useWallet.jot';
 
 const PositionPicker = () => {
   const position = usePosition();
+
+  const [wallet] = useAtom(walletAtom);
 
   /**
    * If user has position, redirect to generate or leverage page
