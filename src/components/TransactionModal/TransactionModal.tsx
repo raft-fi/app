@@ -48,7 +48,7 @@ const TransactionModal = () => {
     if (manageSavingsStatus.statusType === 'manageSavings') {
       return manageSavingsStatus;
     }
-    if (bridgeTokensStatus.statusType === 'bridgeTokens') {
+    if (bridgeTokensStatus.statusType === 'bridge') {
       if (waitForBridgeStatus.pending || waitForBridgeStatus.success || waitForBridgeStatus.error) {
         return waitForBridgeStatus;
       }
@@ -93,7 +93,7 @@ const TransactionModal = () => {
       resetLeverageStatus();
     } else if (currentStatus.statusType === 'manageSavings') {
       resetManageSavingsStatus();
-    } else if (currentStatus.statusType === 'bridgeTokens') {
+    } else if (currentStatus.statusType === 'bridge') {
       resetBridgeTokensStatus();
     } else if (currentStatus.statusType === 'waitForBridge') {
       resetWaitForBridgeStatus();
