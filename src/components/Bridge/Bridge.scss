@@ -55,10 +55,11 @@
 
         .raft__menu {
           box-shadow: initial;
+          width: 100%;
         }
 
         .raft__bridge__dropdown-container {
-          width: 180px;
+          width: 100%;
           background: var(--surfacePrimary);
           border: 1px solid var(--borderPrimary);
           border-radius: 8px;
@@ -109,8 +110,12 @@
     .raft__bridge__receive-amount__value {
       margin-top: 20px;
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 8px;
+
+      > svg {
+        align-self: center;
+      }
     }
 
     .raft__bridge__receive-amount__metadata {

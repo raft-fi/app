@@ -6,7 +6,7 @@ import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants
 import { getCollateralRatioLevel, getCollateralRatioLabel, formatPercentage, formatCurrency } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
-import { useVaultVersion } from '../../hooks';
+import { useSavingsYield, useVaultVersion } from '../../hooks';
 import TokenAddressTooltip from './TokenAddressTooltip';
 
 import './PositionAfter.scss';
@@ -41,6 +41,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
   previousCollateralizationRatio,
 }) => {
   const vaultVersion = useVaultVersion();
+  const savingYield = useSavingsYield();
 
   const baseTokenAmountFormatted = useMemo(
     () =>
@@ -72,6 +73,8 @@ export const PositionAfter: FC<PositionAfterProps> = ({
     () => formatPercentage(collateralizationRatio) ?? 'N/A',
     [collateralizationRatio],
   );
+
+  const savingYieldFormatted = useMemo(() => formatPercentage(savingYield), [savingYield]);
 
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
   const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
@@ -224,7 +227,26 @@ export const PositionAfter: FC<PositionAfterProps> = ({
             </div>
             <div className="raft__position-after__data__protocol-fee__percent">
               {interestRateFormatted && (
-                <ValueLabel value={interestRateFormatted} valueSize="body" tickerSize="caption" />
+                <>
+                  <ValueLabel value={interestRateFormatted} valueSize="body" tickerSize="caption" />
+                  {savingYieldFormatted && (
+                    <Typography
+                      className="raft__position-after__data__protocol-fee__percent-apr"
+                      variant="body"
+                      color="text-secondary"
+                      weight="medium"
+                    >
+                      (APR:&nbsp;
+                      <ValueLabel
+                        value={savingYieldFormatted}
+                        color="text-secondary"
+                        valueSize="body"
+                        tickerSize="caption"
+                      />
+                      )
+                    </Typography>
+                  )}
+                </>
               )}
             </div>
           </>
