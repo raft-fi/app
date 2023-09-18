@@ -93,9 +93,8 @@ const TransactionModal = () => {
       resetLeverageStatus();
     } else if (currentStatus.statusType === 'manageSavings') {
       resetManageSavingsStatus();
-    } else if (currentStatus.statusType === 'bridge') {
+    } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
       resetBridgeTokensStatus();
-    } else if (currentStatus.statusType === 'waitForBridge') {
       resetWaitForBridgeStatus();
     }
   }, [currentStatus]);
