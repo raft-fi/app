@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, memo, useEffect } from 'react';
 import {
   subscribeENS,
   subscribeProtocolStats,
@@ -12,8 +12,6 @@ import {
   subscribeCollateralBorrowingRates,
   subscribeCollateralConversionRates,
   subscribePosition,
-  subscribeCollateralTokenConfig,
-  subscribeCalculateRedemptionRate,
   subscribeCollateralPositionCaps,
   subscribeCollateralProtocolCaps,
   subscribeManageStatus,
@@ -29,6 +27,15 @@ import {
   subscribeUserVeRaftBalance,
   subscribeUserRaftBptBalance,
   subscribeStakeBptForVeRaftStatus,
+  subscribeManageSavingsStatus,
+  subscribeSavingsMaxDeposit,
+  subscribeCurrentUserSavings,
+  subscribeSavingsTvl,
+  subscribeSavingsYield,
+  subscribeManageTransactions,
+  subscribeSavingsTransactions,
+  subscribeBridgeTokensStatus,
+  subscribeWaitForBridgeStatus,
 } from '../../hooks';
 import { subscribeWithdrawRaftBptStatus } from '../../hooks/useWithdrawRaftBpt';
 
@@ -51,12 +58,12 @@ const HookSubscriber: FC = () => {
     subscribeCollateralBorrowingRates();
     subscribeCollateralConversionRates();
     subscribePosition();
-    subscribeCollateralTokenConfig();
-    subscribeCalculateRedemptionRate();
     subscribeCollateralPositionCaps();
     subscribeCollateralProtocolCaps();
     subscribeCollateralTokenAprs();
     subscribeManageStatus();
+    subscribeManageSavingsStatus();
+    subscribeBridgeTokensStatus();
     subscribeLeverageStatus();
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
@@ -67,9 +74,17 @@ const HookSubscriber: FC = () => {
     subscribeUserRaftBptBalance();
     subscribeStakeBptForVeRaftStatus();
     subscribeWithdrawRaftBptStatus();
+    subscribeSavingsMaxDeposit();
+    subscribeCurrentUserSavings();
+    subscribeSavingsTvl();
+    subscribeSavingsYield();
+    subscribeManageTransactions();
+    subscribeSavingsTransactions();
+    subscribeWaitForBridgeStatus();
   }, []);
 
   return null;
 };
 
-export default HookSubscriber;
+// TODO: remove this HookSubscriber later
+export default memo(HookSubscriber);

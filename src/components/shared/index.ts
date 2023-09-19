@@ -17,6 +17,8 @@ import InfoBox from './InfoBox';
 import SliderInput from './SliderInput';
 import Expandable from './Expandable';
 import DateInput from './DateInput';
+import ExecuteButton from './ExecuteButton';
+import Menu from './Menu';
 
 export {
   BaseInput,
@@ -38,6 +40,8 @@ export {
   SliderInput,
   Expandable,
   DateInput,
+  ExecuteButton,
+  Menu,
 };
 
 export { colors } from './Colors';

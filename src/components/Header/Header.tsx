@@ -8,6 +8,8 @@ import Wallet from '../Wallet';
 
 import './Header.scss';
 
+const SKIP_NETWORK_CHECKING_PAGES = ['bridge'];
+
 const Header = () => {
   const location = useLocation();
 
@@ -21,8 +23,11 @@ const Header = () => {
       case '/leverage':
         setCurrentPage('your-position');
         break;
-      case '/redeem':
-        setCurrentPage('redeem');
+      case '/savings':
+        setCurrentPage('savings');
+        break;
+      case '/bridge':
+        setCurrentPage('bridge');
         break;
       case '/stake':
         setCurrentPage('stake');
@@ -48,13 +53,23 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <div key="navitem-redeem" className="raft__header__nav-item">
-        <Link to="/redeem">
+      <div key="navitem-savings" className="raft__header__nav-item">
+        <Link to="/savings">
           <Typography
             variant="menu-item"
-            className={`${currentPage === 'redeem' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+            className={`${currentPage === 'savings' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
           >
-            Redeem
+            Earn
+          </Typography>
+        </Link>
+      </div>,
+      <div key="navitem-bridge" className="raft__header__nav-item">
+        <Link to="/bridge">
+          <Typography
+            variant="menu-item"
+            className={`${currentPage === 'bridge' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Bridge
           </Typography>
         </Link>
       </div>,
@@ -68,7 +83,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <Wallet key="navitem-wallet" />,
+      <Wallet key="navitem-wallet" skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />,
     ],
     [currentPage],
   );

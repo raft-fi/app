@@ -1,13 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import SafeAppsSDK, { SafeInfo } from '@safe-global/safe-apps-sdk';
+import { PositionTransaction, SavingsTransaction } from '@raft-fi/sdk';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
+import gnosisModule from '@web3-onboard/gnosis';
 import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
+import { Nullable } from '../../interfaces';
 import {
+  HistoryTransaction,
   updateWalletFromEIP1193Provider,
-  useAppLoaded,
+  useWalletLoaded,
+  updateWalletLabel,
   useConfig,
   useENS,
   useNetwork,
@@ -16,11 +22,16 @@ import {
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
-import TransactionHistoryRow from './TransactionHistoryRow';
+import { ManageTransactionRow, SavingsTransactionRow } from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
 
+const isSavingsTransaction = (transaction: HistoryTransaction): transaction is SavingsTransaction => {
+  return transaction.type === 'DEPOSIT' || transaction.type === 'WITHDRAW';
+};
+
+const safeSdk = new SafeAppsSDK();
 const injected = injectedModule();
 const ledger = ledgerModule({
   walletConnectVersion: 2,
@@ -29,9 +40,10 @@ const ledger = ledgerModule({
 const walletConnect = WalletConnectModule({
   projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
 });
+const gnosis = gnosisModule();
 
 init({
-  wallets: [injected, ledger, walletConnect],
+  wallets: [injected, ledger, walletConnect, gnosis],
   chains: [
     {
       id: '0x1',
@@ -66,10 +78,15 @@ init({
 });
 
 const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
+const SAFE_TIMEOUT_IN_MS = 200;
 
-const Wallet = () => {
+interface WalletProps {
+  skipNetworkChecking?: boolean;
+}
+
+const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   const config = useConfig();
-  const appLoaded = useAppLoaded();
+  const walletLoaded = useWalletLoaded();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
@@ -77,7 +94,21 @@ const Wallet = () => {
   const transactionHistory = useTransactionHistory();
 
   const [popupOpen, setPopupOpen] = useState(false);
+  const [safeApp, setSafeApp] = useState<Nullable<SafeInfo>>(null);
   const connectedAddress = wallet?.accounts?.[0]?.address ?? '';
+
+  useEffect(() => {
+    const tryToGetSafeApp = async () => {
+      const safe = await Promise.race([
+        safeSdk.safe.getInfo(),
+        new Promise<null>(resolve => setTimeout(resolve, SAFE_TIMEOUT_IN_MS)),
+      ]);
+
+      setSafeApp(safe);
+    };
+
+    tryToGetSafeApp();
+  }, []);
 
   /**
    * Update wallet hook every time user changes wallet
@@ -85,51 +116,63 @@ const Wallet = () => {
   useEffect(() => {
     if (!wallet) {
       updateWalletFromEIP1193Provider(null);
+      updateWalletLabel(null);
       return;
     }
 
     updateWalletFromEIP1193Provider(wallet.provider);
+    updateWalletLabel(wallet.label);
   }, [wallet]);
 
   /**
-   * Every time list of connected wallets changes, we want to store labels of those wallets in local storage.
+   * If it's not Gnosis Safe app,
+   * every time list of connected wallets changes, we store labels of those wallets in local storage.
    * Next time user opens the app, we will use this data to auto-connect wallet for the user.
    */
   useEffect(() => {
     const connectedWalletLabels = connectedWallets.map(connectedWallet => connectedWallet.label);
 
-    if (connectedWalletLabels.length > 0) {
+    if (connectedWalletLabels.length > 0 && !safeApp) {
       window.localStorage.setItem(LAST_CONNECTED_WALLET_STORAGE_KEY, JSON.stringify(connectedWalletLabels));
     }
-  }, [connectedWallets]);
+  }, [connectedWallets, safeApp]);
 
   /**
    * Check if user already connected any of his wallets in previous sessions, if yes,
    * automatically connect first wallet from list of previously connected wallets.
    */
   useEffect(() => {
-    const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem(LAST_CONNECTED_WALLET_STORAGE_KEY) || '[]',
-    ) as string[];
-    if (previouslyConnectedWallets && previouslyConnectedWallets.length > 0) {
+    if (safeApp && safeApp.chainId === 1) {
       connect({
         autoSelect: {
           disableModals: true,
-          label: previouslyConnectedWallets[0],
+          label: 'Safe',
         },
       });
+    } else {
+      const previouslyConnectedWallets = JSON.parse(
+        window.localStorage.getItem(LAST_CONNECTED_WALLET_STORAGE_KEY) || '[]',
+      ) as string[];
+      if (previouslyConnectedWallets && previouslyConnectedWallets.length > 0) {
+        connect({
+          autoSelect: {
+            disableModals: true,
+            label: previouslyConnectedWallets[0],
+          },
+        });
+      }
     }
-  }, [connect]);
+  }, [connect, safeApp]);
 
   /**
    * If user disconnected all of his wallets - we need to clear last connected wallet info from local
    * storage to prevent app from trying to connect automatically on app load
    */
   useEffect(() => {
-    if (connectedWallets.length === 0) {
+    if (connectedWallets.length === 0 && !safeApp) {
       window.localStorage.removeItem(LAST_CONNECTED_WALLET_STORAGE_KEY);
     }
-  }, [connectedWallets]);
+  }, [connectedWallets, safeApp]);
 
   const onConnect = useCallback(() => {
     connect();
@@ -161,7 +204,10 @@ const Wallet = () => {
   }, [connectedAddress, ens.name, wallet]);
 
   const lastLiquidation = useMemo(
-    () => (transactionHistory?.filter(transaction => transaction.type === 'LIQUIDATION') ?? [])[0],
+    () =>
+      (transactionHistory?.filter((transaction): transaction is PositionTransaction => {
+        return transaction.type === 'LIQUIDATION';
+      }) ?? [])[0],
     [transactionHistory],
   );
 
@@ -189,9 +235,10 @@ const Wallet = () => {
     navigator.clipboard.writeText(connectedAddress);
   }, [connectedAddress, wallet]);
 
-  if (!appLoaded) {
+  if (!walletLoaded) {
     return <div className="raft__wallet raft__wallet-loading" />;
   }
+
   return (
     <div className="raft__wallet">
       {!wallet && (
@@ -200,13 +247,13 @@ const Wallet = () => {
         </div>
       )}
 
-      {wallet && isWrongNetwork && (
+      {wallet && isWrongNetwork && !skipNetworkChecking && (
         <div className="raft__wallet__wrongNetwork">
           <Button variant="error" onClick={switchToSupportedNetwork} text="Unsupported network" />
         </div>
       )}
 
-      {wallet && !isWrongNetwork && (
+      {wallet && !(isWrongNetwork && !skipNetworkChecking) && (
         <div className="raft__wallet__connected">
           <Button variant="secondary" onClick={handlePopupOpen}>
             {ens.avatar ? (
@@ -261,7 +308,10 @@ const Wallet = () => {
             <div className="raft__wallet__popupTransactionsContainer">
               {transactionHistory?.length ? (
                 transactionHistory.map(transaction => {
-                  return <TransactionHistoryRow key={transaction.id} transaction={transaction} />;
+                  if (isSavingsTransaction(transaction)) {
+                    return <SavingsTransactionRow key={transaction.id} transaction={transaction} />;
+                  }
+                  return <ManageTransactionRow key={transaction.id} transaction={transaction} />;
                 })
               ) : (
                 <Typography
@@ -288,7 +338,7 @@ const Wallet = () => {
       </ModalWrapper>
       {wallet && (
         <>
-          <NetworkErrorModal />
+          {!skipNetworkChecking && <NetworkErrorModal />}
           {connectedAddress && lastLiquidation && (
             <LiquidationModal
               key={`liquidation-modal-${lastLiquidation.id}`}
@@ -301,4 +351,4 @@ const Wallet = () => {
     </div>
   );
 };
-export default Wallet;
+export default memo(Wallet);

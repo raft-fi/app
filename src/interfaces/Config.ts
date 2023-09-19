@@ -1,3 +1,5 @@
+import { SupportedCollateralToken } from './types';
+
 export interface ChainConfig {
   publicNetworkUrl: string;
   privateNetworkUrl: string;
@@ -13,6 +15,8 @@ export interface ChainConfig {
   blockExplorerName: 'Etherscan';
   blockExplorerUrl: string;
   rpcUrl: string;
+  managePositionTokensV1: SupportedCollateralToken[];
+  managePositionTokensV2: SupportedCollateralToken[];
 }
 
 export type Config = {

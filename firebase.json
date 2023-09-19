@@ -11,6 +11,18 @@
             {
               "key": "Cache-Control",
               "value": "no-cache, no-store, must-revalidate"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         },
@@ -20,6 +32,60 @@
             {
               "key": "Cache-Control",
               "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
+            }
+          ]
+        },
+        {
+          "source": "/favicon.ico",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
+            }
+          ]
+        },
+        {
+          "source": "/manifest.json",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         },
@@ -29,6 +95,18 @@
             {
               "key": "Cache-Control",
               "value": "max-age=31536000"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         }
@@ -51,6 +129,18 @@
             {
               "key": "Cache-Control",
               "value": "no-cache, no-store, must-revalidate"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         },
@@ -64,11 +154,65 @@
           ]
         },
         {
+          "source": "/favicon.ico",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
+            }
+          ]
+        },
+        {
+          "source": "/manifest.json",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
+            }
+          ]
+        },
+        {
           "source": "/static/**",
           "headers": [
             {
               "key": "Cache-Control",
               "value": "max-age=31536000"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         }
@@ -91,6 +235,18 @@
             {
               "key": "Cache-Control",
               "value": "no-cache, no-store, must-revalidate"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         },
@@ -104,11 +260,65 @@
           ]
         },
         {
+          "source": "/favicon.ico",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
+            }
+          ]
+        },
+        {
+          "source": "/manifest.json",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=604800"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
+            }
+          ]
+        },
+        {
           "source": "/static/**",
           "headers": [
             {
               "key": "Cache-Control",
               "value": "max-age=31536000"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "X-Requested-With, content-type, Authorization"
             }
           ]
         }

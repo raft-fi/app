@@ -52,7 +52,7 @@ const fetchData = async (feed: PriceFeed, token: TokenToFetch): Promise<Nullable
     // stETH price is from subgraph, wstETH price from price feed which is more reliable
     if (token === 'stETH') {
       const wstETHPricePromise = feed.getPrice('wstETH');
-      const wstETHRatePromise = feed.getUnderlyingCollateralRate('wstETH', 'stETH');
+      const wstETHRatePromise = feed.getUnderlyingCollateralRate('wstETH-v1', 'stETH');
       const [wstETHPrice, wstETHRate] = await Promise.all([wstETHPricePromise, wstETHRatePromise]);
       return wstETHPrice.div(wstETHRate);
     }

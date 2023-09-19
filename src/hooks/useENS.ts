@@ -22,21 +22,25 @@ const stream$ = wallet$.pipe(
       return;
     }
 
-    const accounts = await wallet.listAccounts();
+    try {
+      const accounts = await wallet.listAccounts();
 
-    if (!accounts[0]?.address) {
-      ens$.next(DEFAULT_VALUE);
-      return;
+      if (!accounts[0]?.address) {
+        ens$.next(DEFAULT_VALUE);
+        return;
+      }
+
+      const ensName = await wallet.lookupAddress(accounts[0].address);
+      const resolver = await wallet.getResolver(ensName ?? '');
+      const ensAvatar = await resolver?.getAvatar();
+
+      ens$.next({
+        name: ensName ?? null,
+        avatar: ensAvatar ?? null,
+      });
+    } catch (error) {
+      console.warn('ENS is not supported on this network');
     }
-
-    const ensName = await wallet.lookupAddress(accounts[0].address);
-    const resolver = await wallet.getResolver(ensName ?? '');
-    const ensAvatar = await resolver?.getAvatar();
-
-    ens$.next({
-      name: ensName ?? null,
-      avatar: ensAvatar ?? null,
-    });
   }),
 );
 

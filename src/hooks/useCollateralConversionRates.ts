@@ -62,11 +62,11 @@ const periodicStream$: Observable<CollateralConversionRateMap> = intervalBeat$.p
   mergeMap<[number, TokenPriceMap, PriceFeed], Observable<CollateralConversionRateMap>>(
     ([, tokenPrices, priceFeed]) => {
       const collateralConversionRateMaps = SUPPORTED_COLLATERAL_TOKENS.map(token => {
-        // since wstETH price only updated per day, we need to call feed.getUnderlyingCollateralRate() only for wstETH group
-        if (SUPPORTED_COLLATERAL_TOKEN_SETTINGS.wstETH.tokens.includes(token)) {
-          const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS.wstETH
+        // since wstETH <-> stETH price only updated per day, we need to call feed.getUnderlyingCollateralRate() only for wstETH <-> stETH group
+        if (SUPPORTED_COLLATERAL_TOKEN_SETTINGS['wstETH-v1'].tokens.includes(token)) {
+          const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS['wstETH-v1']
             .displayBaseToken as SupportedCollateralToken;
-          const underlyingToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS.wstETH.underlyingToken;
+          const underlyingToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS['wstETH-v1'].underlyingToken;
 
           // if wstETH is the display token, conversion rate = 1
           if (underlyingToken === displayBaseToken) {

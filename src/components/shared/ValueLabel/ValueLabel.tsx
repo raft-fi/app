@@ -22,7 +22,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
           {value.split('$')[1]}
         </Typography>
         {label && (
-          <Typography variant={valueSize} color={color}>
+          <Typography variant={tickerSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -43,7 +43,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
           {value.split('$')[1]}
         </Typography>
         {label && (
-          <Typography variant={valueSize} color={color}>
+          <Typography variant={tickerSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -61,7 +61,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
           R
         </Typography>
         {label && (
-          <Typography variant={valueSize} color={color}>
+          <Typography variant={tickerSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -79,7 +79,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
           %
         </Typography>
         {label && (
-          <Typography variant={valueSize} color={color}>
+          <Typography variant={tickerSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -97,7 +97,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
           &nbsp;{value.split(' ')[1]}
         </Typography>
         {label && (
-          <Typography variant={valueSize} color={color}>
+          <Typography variant={tickerSize} color={color}>
             &nbsp;{label}
           </Typography>
         )}
@@ -111,7 +111,7 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
         {value}
       </Typography>
       {label && (
-        <Typography variant={valueSize} color={color}>
+        <Typography variant={tickerSize} color={color}>
           &nbsp;{label}
         </Typography>
       )}

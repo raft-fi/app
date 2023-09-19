@@ -45,6 +45,11 @@ const fetchData = async (
   oneStepLeverageManagerAddress: string,
   provider: JsonRpcProvider,
 ): Promise<Nullable<Decimal>> => {
+  if (RaftConfig.networkId !== 1) {
+    console.warn('Leverage is only available on mainnet.');
+    return Decimal.ZERO;
+  }
+
   try {
     const allowance = new Allowance(token, walletAddress, oneStepLeverageManagerAddress, provider);
 

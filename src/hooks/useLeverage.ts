@@ -220,12 +220,13 @@ const requestLeveragePositionStep$ = walletSigner$.pipe(
     if (!signer) {
       return;
     }
+    const userPositionMapKey = `${signer.address}-${request.underlyingCollateralToken}`;
 
-    let userPosition = userPositionMap[request.underlyingCollateralToken];
+    let userPosition = userPositionMap[userPositionMapKey];
 
     if (!userPosition) {
       userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
-      userPositionMap[request.underlyingCollateralToken] = userPosition;
+      userPositionMap[userPositionMapKey] = userPosition;
     }
 
     setLeveragePositionStepsRequest(request);
@@ -266,6 +267,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
     collateralConversionRates$,
     collateralBorrowingRates$,
     tokenPrices$,
+    walletSigner$,
   ),
   concatMap(
     ([
@@ -276,9 +278,19 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       collateralConversionRates,
       collateralBorrowingRates,
       tokenPrices,
+      walletSigner,
     ]) => {
       const { underlyingCollateralToken, collateralToken, collateralChange, leverage, slippage, isClosePosition } =
         request;
+
+      if (!walletSigner) {
+        return of({
+          request,
+          result: null,
+          generator: null,
+          error: 'Wallet signer is not defined!',
+        } as LeveragePositionStepsResponse);
+      }
 
       const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
       const collateralTokenAllowance = leverageTokenAllowanceMap[collateralToken] ?? undefined;
@@ -289,10 +301,10 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       const borrowRate = collateralBorrowingRates[collateralToken] ?? undefined;
       const underlyingCollateralPrice = tokenPrices[underlyingCollateralToken] ?? undefined;
 
+      const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
+
       try {
-        const userPosition = userPositionMap[
-          underlyingCollateralToken
-        ] as UserPosition<SupportedUnderlyingCollateralToken>;
+        const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
         const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
         //Setting leverage to 1 will close leverage position
         const actualLeverage = isClosePosition ? Decimal.ONE : leverage;
