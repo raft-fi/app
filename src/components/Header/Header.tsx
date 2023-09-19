@@ -28,9 +28,12 @@ const Header = () => {
         break;
       case '/bridge':
         setCurrentPage('bridge');
+<<<<<<< HEAD
         break;
       case '/stake':
         setCurrentPage('stake');
+=======
+>>>>>>> master
         break;
       default:
         setCurrentPage(null);
