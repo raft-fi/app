@@ -22,14 +22,11 @@ import {
   subscribeEstimateSwapPrice,
   subscribeLeveragePosition,
   subscribeRFlashMintFee,
-<<<<<<< HEAD
   subscribeRaftToken,
   subscribeRaftTokenAnnualGiveAway,
   subscribeUserVeRaftBalance,
   subscribeUserRaftBptBalance,
   subscribeStakeBptForVeRaftStatus,
-=======
->>>>>>> master
   subscribeManageSavingsStatus,
   subscribeSavingsMaxDeposit,
   subscribeCurrentUserSavings,
