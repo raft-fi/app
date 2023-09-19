@@ -35,7 +35,7 @@ import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { tokenAllowances$ } from './useTokenAllowances';
 import { tokenWhitelists$ } from './useTokenWhitelists';
-import { wallet$ } from './useWallet';
+import { wallet$, walletLabel$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { getNullTokenMap, isSignatureValid } from '../utils';
 
@@ -268,8 +268,8 @@ const distinctRequest$ = managePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(tokenWhitelists$, tokenAllowances$, walletSigner$),
-  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap, walletSigner]) => {
+  withLatestFrom(tokenWhitelists$, tokenAllowances$, walletSigner$, walletLabel$),
+  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap, walletSigner, walletLabel]) => {
     const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
 
     if (!walletSigner) {
@@ -316,6 +316,8 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         collateralPermitSignature,
         rPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+        // Allow permit only if user is using MetaMask
+        approvalType: walletLabel === 'MetaMask' ? 'permit' : 'approve',
       });
       const nextStep$ = from(steps.next());
 

@@ -13,6 +13,7 @@ import {
   HistoryTransaction,
   updateWalletFromEIP1193Provider,
   useWalletLoaded,
+  updateWalletLabel,
   useConfig,
   useENS,
   useNetwork,
@@ -115,10 +116,12 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   useEffect(() => {
     if (!wallet) {
       updateWalletFromEIP1193Provider(null);
+      updateWalletLabel(null);
       return;
     }
 
     updateWalletFromEIP1193Provider(wallet.provider);
+    updateWalletLabel(wallet.label);
   }, [wallet]);
 
   /**
