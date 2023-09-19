@@ -75,10 +75,11 @@ const Withdraw: FC<WithdrawProps> = ({ goToPage }) => {
       setActionButtonState('loading');
     } else if (withdrawRaftBptStatus.success) {
       setActionButtonState('success');
+      goToDefault();
     } else {
       setActionButtonState('default');
     }
-  }, [withdrawRaftBptStatus]);
+  }, [goToDefault, withdrawRaftBptStatus]);
 
   return (
     <div className="raft__stake raft__stake__preview">
