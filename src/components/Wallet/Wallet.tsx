@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SafeAppsSDK, { SafeInfo } from '@safe-global/safe-apps-sdk';
 import { PositionTransaction, SavingsTransaction } from '@raft-fi/sdk';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
@@ -12,8 +12,8 @@ import { Nullable } from '../../interfaces';
 import {
   HistoryTransaction,
   updateWalletFromEIP1193Provider,
+  useWalletLoaded,
   updateWalletLabel,
-  useAppLoaded,
   useConfig,
   useENS,
   useNetwork,
@@ -80,9 +80,13 @@ init({
 const LAST_CONNECTED_WALLET_STORAGE_KEY = 'raftConnectedWallets';
 const SAFE_TIMEOUT_IN_MS = 200;
 
-const Wallet = () => {
+interface WalletProps {
+  skipNetworkChecking?: boolean;
+}
+
+const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   const config = useConfig();
-  const appLoaded = useAppLoaded();
+  const walletLoaded = useWalletLoaded();
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
@@ -231,9 +235,10 @@ const Wallet = () => {
     navigator.clipboard.writeText(connectedAddress);
   }, [connectedAddress, wallet]);
 
-  if (!appLoaded) {
+  if (!walletLoaded) {
     return <div className="raft__wallet raft__wallet-loading" />;
   }
+
   return (
     <div className="raft__wallet">
       {!wallet && (
@@ -242,13 +247,13 @@ const Wallet = () => {
         </div>
       )}
 
-      {wallet && isWrongNetwork && (
+      {wallet && isWrongNetwork && !skipNetworkChecking && (
         <div className="raft__wallet__wrongNetwork">
           <Button variant="error" onClick={switchToSupportedNetwork} text="Unsupported network" />
         </div>
       )}
 
-      {wallet && !isWrongNetwork && (
+      {wallet && !(isWrongNetwork && !skipNetworkChecking) && (
         <div className="raft__wallet__connected">
           <Button variant="secondary" onClick={handlePopupOpen}>
             {ens.avatar ? (
@@ -333,7 +338,7 @@ const Wallet = () => {
       </ModalWrapper>
       {wallet && (
         <>
-          <NetworkErrorModal />
+          {!skipNetworkChecking && <NetworkErrorModal />}
           {connectedAddress && lastLiquidation && (
             <LiquidationModal
               key={`liquidation-modal-${lastLiquidation.id}`}
@@ -346,4 +351,4 @@ const Wallet = () => {
     </div>
   );
 };
-export default Wallet;
+export default memo(Wallet);

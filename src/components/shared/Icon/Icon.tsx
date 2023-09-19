@@ -35,6 +35,10 @@ import TriangleUp from './TriangleUp';
 import Stars from './Stars';
 import ArrowLeft from './ArrowLeft';
 import Settings from './Settings';
+import Swap from './Swap';
+import Gas from './Gas';
+import CCIP from './CCIP';
+import ErrorInverted from './ErrorInverted';
 
 type IconVariant =
   | 'discord'
@@ -44,6 +48,7 @@ type IconVariant =
   | 'gitbook'
   | 'favorite'
   | 'error'
+  | 'error-inverted'
   | 'success'
   | 'chevron-left'
   | 'chevron-right'
@@ -71,7 +76,10 @@ type IconVariant =
   | 'info-sign'
   | 'metamask'
   | 'stars'
-  | 'settings';
+  | 'settings'
+  | 'swap'
+  | 'gas'
+  | 'ccip';
 
 const ICON_MAP: IconMap = {
   discord: Discord,
@@ -81,6 +89,7 @@ const ICON_MAP: IconMap = {
   gitbook: Gitbook,
   favorite: Favorite,
   error: Error,
+  'error-inverted': ErrorInverted,
   success: Success,
   'chevron-left': LeftChevron,
   'chevron-right': RightChevron,
@@ -109,6 +118,9 @@ const ICON_MAP: IconMap = {
   metamask: Metamask,
   stars: Stars,
   settings: Settings,
+  swap: Swap,
+  gas: Gas,
+  ccip: CCIP,
 };
 
 const Icon: FC<IconProps & { variant: IconVariant }> = props => <IconBase<IconVariant> {...props} iconMap={ICON_MAP} />;

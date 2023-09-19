@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { R_TOKEN, RaftConfig } from '@raft-fi/sdk';
 import {
-  resetRedeemStatus,
   resetManageStatus,
   useManage,
-  useRedeem,
   useLeverage,
   resetLeverageStatus,
   useCollateralConversionRates,
   usePosition,
   useManageSavings,
   resetManageSavingsStatus,
+  useBridgeTokens,
+  useWaitForBridge,
+  resetBridgeTokensStatus,
+  resetWaitForBridgeStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -21,13 +23,15 @@ import {
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
 } from '../../constants';
 import TransactionCloseModal from './TransactionCloseModal';
+import { BridgeFailedModal, BridgePendingModal, BridgeSuccessModal } from './BridgeModal';
 import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
 
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
-  const { redeemStatus, redeem } = useRedeem();
   const { manageSavingsStatus, manageSavings } = useManageSavings();
+  const { bridgeTokensStatus, bridgeTokens } = useBridgeTokens();
+  const waitForBridgeStatus = useWaitForBridge();
   const collateralConversionRateMap = useCollateralConversionRates();
   const position = usePosition();
 
@@ -44,13 +48,16 @@ const TransactionModal = () => {
     if (manageSavingsStatus.statusType === 'manageSavings') {
       return manageSavingsStatus;
     }
+    if (bridgeTokensStatus.statusType === 'bridge') {
+      if (waitForBridgeStatus.pending || waitForBridgeStatus.success || waitForBridgeStatus.error) {
+        return waitForBridgeStatus;
+      }
 
-    if (redeemStatus) {
-      return redeemStatus;
+      return bridgeTokensStatus;
     }
 
     return null;
-  }, [leveragePositionStatus, managePositionStatus, manageSavingsStatus, redeemStatus]);
+  }, [bridgeTokensStatus, leveragePositionStatus, managePositionStatus, manageSavingsStatus, waitForBridgeStatus]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -86,8 +93,9 @@ const TransactionModal = () => {
       resetLeverageStatus();
     } else if (currentStatus.statusType === 'manageSavings') {
       resetManageSavingsStatus();
-    } else if (currentStatus.statusType === 'redeem') {
-      resetRedeemStatus();
+    } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
+      resetBridgeTokensStatus();
+      resetWaitForBridgeStatus();
     }
   }, [currentStatus]);
 
@@ -104,10 +112,10 @@ const TransactionModal = () => {
       leveragePosition?.();
     } else if (currentStatus.statusType === 'manageSavings') {
       manageSavings?.();
-    } else if (currentStatus.statusType === 'redeem') {
-      redeem(currentStatus.request);
+    } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
+      bridgeTokens?.();
     }
-  }, [currentStatus?.request, currentStatus?.statusType, leveragePosition, managePosition, manageSavings, redeem]);
+  }, [bridgeTokens, currentStatus?.statusType, leveragePosition, managePosition, manageSavings]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -150,16 +158,6 @@ const TransactionModal = () => {
    * Generate success modal title based on borrow request params
    */
   const successModalTitle = useMemo(() => {
-    if (redeemStatus) {
-      const debtValueFormatted = formatCurrency(redeemStatus.request.debtAmount, {
-        currency: R_TOKEN,
-        fractionDigits: R_TOKEN_UI_PRECISION,
-        lessThanFormat: true,
-      });
-
-      return <Typography variant="heading1">{debtValueFormatted} redeemed</Typography>;
-    }
-
     if (leveragePositionStatus.statusType === 'leverage' && leveragePositionStatus.request) {
       const { collateralChange, collateralToken, underlyingCollateralToken, leverage, isClosePosition } =
         leveragePositionStatus.request;
@@ -286,17 +284,12 @@ const TransactionModal = () => {
     manageSavingsStatus.request,
     manageSavingsStatus.statusType,
     position,
-    redeemStatus,
   ]);
 
   /**
    * Generate success modal subtitle based on borrow request params
    */
   const successModalSubtitle = useMemo(() => {
-    if (redeemStatus) {
-      return 'Successful redemption';
-    }
-
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
       return 'Successful transaction';
     }
@@ -323,10 +316,10 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [collateralChange, debtChange, leveragePositionStatus.statusType, manageSavingsStatus.statusType, redeemStatus]);
+  }, [collateralChange, debtChange, leveragePositionStatus.statusType, manageSavingsStatus.statusType]);
 
   const tokenToAdd = useMemo(() => {
-    if (currentStatus?.statusType === 'manage') {
+    if (['manage', 'bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '')) {
       return {
         label: 'Add R to wallet',
         address: RaftConfig.getTokenAddress(R_TOKEN) || '',
@@ -351,21 +344,51 @@ const TransactionModal = () => {
       };
     }
 
-    if (redeemStatus) {
-      const underlyingToken = redeemStatus.request.underlyingCollateralToken;
-      const token = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].redeemToken;
+    return null;
+  }, [currentStatus?.statusType, manageSavingsStatus.request?.amount]);
 
-      return {
-        label: `Add ${token} to wallet`,
-        address: RaftConfig.getTokenAddress(token) || '',
-        symbol: token,
-        decimals: 18,
-        image: '', // TODO - Add wstETH image on raft.fi website
-      };
+  if (['bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '') && bridgeTokensStatus.request) {
+    const { sourceChainName, destinationChainName, amountToBridge } = bridgeTokensStatus.request;
+
+    if (currentStatus?.statusType === 'waitForBridge' && currentStatus.success) {
+      return (
+        <BridgeSuccessModal
+          open
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          amount={amountToBridge}
+          tokenToAdd={tokenToAdd}
+          messageId={currentStatus?.txHash}
+        />
+      );
     }
 
-    return null;
-  }, [currentStatus?.statusType, manageSavingsStatus.request?.amount, redeemStatus]);
+    if (currentStatus?.statusType === 'waitForBridge' && currentStatus.pending) {
+      return (
+        <BridgePendingModal
+          open
+          onClose={onCloseModal}
+          fromNetwork={sourceChainName}
+          toNetwork={destinationChainName}
+          amount={amountToBridge}
+          tokenToAdd={tokenToAdd}
+          messageId={currentStatus?.txHash}
+        />
+      );
+    }
+
+    return failedModalOpened ? (
+      <BridgeFailedModal
+        open
+        error={currentStatus?.error ? currentStatus.error.message : 'Something went wrong!'}
+        onClose={onCloseModal}
+        fromNetwork={sourceChainName}
+        toNetwork={destinationChainName}
+        onTryAgain={onRetryTransaction}
+      />
+    ) : null;
+  }
 
   return (
     <>

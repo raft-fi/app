@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, memo, useEffect } from 'react';
 import {
   subscribeENS,
   subscribeProtocolStats,
@@ -12,8 +12,6 @@ import {
   subscribeCollateralBorrowingRates,
   subscribeCollateralConversionRates,
   subscribePosition,
-  subscribeCollateralTokenConfig,
-  subscribeCalculateRedemptionRate,
   subscribeCollateralPositionCaps,
   subscribeCollateralProtocolCaps,
   subscribeManageStatus,
@@ -31,6 +29,8 @@ import {
   subscribeSavingsYield,
   subscribeManageTransactions,
   subscribeSavingsTransactions,
+  subscribeBridgeTokensStatus,
+  subscribeWaitForBridgeStatus,
 } from '../../hooks';
 
 const HookSubscriber: FC = () => {
@@ -52,13 +52,12 @@ const HookSubscriber: FC = () => {
     subscribeCollateralBorrowingRates();
     subscribeCollateralConversionRates();
     subscribePosition();
-    subscribeCollateralTokenConfig();
-    subscribeCalculateRedemptionRate();
     subscribeCollateralPositionCaps();
     subscribeCollateralProtocolCaps();
     subscribeCollateralTokenAprs();
     subscribeManageStatus();
     subscribeManageSavingsStatus();
+    subscribeBridgeTokensStatus();
     subscribeLeverageStatus();
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
@@ -69,9 +68,11 @@ const HookSubscriber: FC = () => {
     subscribeSavingsYield();
     subscribeManageTransactions();
     subscribeSavingsTransactions();
+    subscribeWaitForBridgeStatus();
   }, []);
 
   return null;
 };
 
-export default HookSubscriber;
+// TODO: remove this HookSubscriber later
+export default memo(HookSubscriber);

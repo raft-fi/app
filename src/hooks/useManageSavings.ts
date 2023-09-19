@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { ERC20PermitSignatureStruct, R_TOKEN, ManageSavingsStep, UserSavings } from '@raft-fi/sdk';
+import { ERC20PermitSignatureStruct, R_TOKEN, SavingsStep, UserSavings } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -39,7 +39,7 @@ const DEFAULT_STEPS = {
   generator: null,
 };
 
-type ManageSavingsStepsGenerator = AsyncGenerator<ManageSavingsStep, void, ERC20PermitSignatureStruct | undefined>;
+type ManageSavingsStepsGenerator = AsyncGenerator<SavingsStep, void, ERC20PermitSignatureStruct | undefined>;
 type ManageSavingsFunc = () => void;
 type RequestManageSavingsStepFunc = (request: ManageSavingsStepsRequest) => void;
 type ManageSavingsStatusType = 'approve' | 'permit' | 'manageSavings';
@@ -65,14 +65,14 @@ interface ManageSavingsStatus {
 interface ManageSavingsStepsStatus {
   pending: boolean;
   request: Nullable<ManageSavingsStepsRequest>;
-  result: Nullable<ManageSavingsStep>;
+  result: Nullable<SavingsStep>;
   generator: Nullable<ManageSavingsStepsGenerator>;
   error?: Error;
 }
 
 interface ManageSavingsStepsResponse {
   request: ManageSavingsStepsRequest;
-  result: Nullable<ManageSavingsStep>;
+  result: Nullable<SavingsStep>;
   generator: Nullable<ManageSavingsStepsGenerator>;
 }
 

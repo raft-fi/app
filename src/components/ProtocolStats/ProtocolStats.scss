@@ -63,6 +63,12 @@
     margin-top: 8px;
   }
 
+  .raft__protocol-stats__collateral__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
   .raft__protocol-stats__ratio__percent {
     display: flex;
     align-items: baseline;

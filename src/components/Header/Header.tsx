@@ -8,6 +8,8 @@ import Wallet from '../Wallet';
 
 import './Header.scss';
 
+const SKIP_NETWORK_CHECKING_PAGES = ['bridge'];
+
 const Header = () => {
   const location = useLocation();
 
@@ -23,8 +25,8 @@ const Header = () => {
       case '/savings':
         setCurrentPage('savings');
         break;
-      case '/redeem':
-        setCurrentPage('redeem');
+      case '/bridge':
+        setCurrentPage('bridge');
         break;
       default:
         setCurrentPage(null);
@@ -57,7 +59,17 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      <Wallet key="navitem-wallet" />,
+      <div key="navitem-bridge" className="raft__header__nav-item">
+        <Link to="/bridge">
+          <Typography
+            variant="menu-item"
+            className={`${currentPage === 'bridge' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Bridge
+          </Typography>
+        </Link>
+      </div>,
+      <Wallet key="navitem-wallet" skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />,
     ],
     [currentPage],
   );

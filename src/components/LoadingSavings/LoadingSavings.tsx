@@ -43,12 +43,12 @@ const LoadingSavings = () => (
       <rect opacity="0.1" x="492" y="242" width="80" height="8" rx="4" fill="#003652" />
       <defs>
         <linearGradient id="paint0_linear_3594_59397" x1="222" y1="0" x2="222" y2="480" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#C0CAD2" stop-opacity="0.12" />
-          <stop offset="1" stop-color="#9FB1C1" stop-opacity="0.17" />
+          <stop stopColor="#C0CAD2" stopOpacity="0.12" />
+          <stop offset="1" stopColor="#9FB1C1" stopOpacity="0.17" />
         </linearGradient>
         <linearGradient id="paint1_linear_3594_59397" x1="631" y1="0" x2="631" y2="202" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#C0CAD2" stop-opacity="0.12" />
-          <stop offset="1" stop-color="#9FB1C1" stop-opacity="0.17" />
+          <stop stopColor="#C0CAD2" stopOpacity="0.12" />
+          <stop offset="1" stopColor="#9FB1C1" stopOpacity="0.17" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_3594_59397"
@@ -58,8 +58,8 @@ const LoadingSavings = () => (
           y2="274"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#C0CAD2" stop-opacity="0.12" />
-          <stop offset="1" stop-color="#9FB1C1" stop-opacity="0.17" />
+          <stop stopColor="#C0CAD2" stopOpacity="0.12" />
+          <stop offset="1" stopColor="#9FB1C1" stopOpacity="0.17" />
         </linearGradient>
       </defs>
     </svg>

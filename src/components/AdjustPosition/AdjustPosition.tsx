@@ -7,11 +7,11 @@ import {
   useCollateralConversionRates,
   useCollateralPositionCaps,
   useCollateralProtocolCaps,
-  useCollateralTokenConfig,
   useManage,
   useProtocolStats,
   useTokenBalances,
   useTokenPrices,
+  useVaultVersion,
   useWallet,
 } from '../../hooks';
 import {
@@ -27,6 +27,7 @@ import {
   INPUT_PREVIEW_DIGITS,
   MINIMUM_UI_AMOUNT_FOR_BORROW_FEE,
   MIN_BORROW_AMOUNT,
+  PRETTIFY_TOKEN_NAME_MAP,
   R_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,
   TOKEN_TO_DISPLAY_BASE_TOKEN_MAP,
@@ -44,6 +45,7 @@ interface AdjustPositionProps {
 
 const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const wallet = useWallet();
+  const vaultVersion = useVaultVersion();
   const tokenBalanceMap = useTokenBalances();
   const tokenPriceMap = useTokenPrices();
   const borrowingRateMap = useCollateralBorrowingRates();
@@ -51,7 +53,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const collateralPositionCapMap = useCollateralPositionCaps();
   const collateralProtocolCapMap = useCollateralProtocolCaps();
   const protocolStats = useProtocolStats();
-  const { collateralTokenConfig, setCollateralTokenForConfig } = useCollateralTokenConfig();
   const { managePositionStatus, managePosition, managePositionStepsStatus, requestManagePositionStep } = useManage();
 
   const { collateralBalance, debtBalance } = position;
@@ -67,16 +68,22 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const [closePositionActive, setClosePositionActive] = useState<boolean>(false);
   const [transactionState, setTransactionState] = useState<string>('default');
 
-  // when selectedCollateralToken changed, change the token config as well
-  useEffect(() => {
-    setCollateralTokenForConfig(selectedCollateralToken);
-  }, [selectedCollateralToken, setCollateralTokenForConfig]);
+  const handleCollateralTokenChange = useCallback(
+    (token: string) => {
+      if (isCollateralToken(token)) {
+        let parsedToken = token;
+        if (vaultVersion === 'v1' && token === 'wstETH') {
+          parsedToken = 'wstETH-v1';
+        }
+        if (vaultVersion === 'v1' && token === 'rETH') {
+          parsedToken = 'rETH-v1';
+        }
 
-  const handleCollateralTokenChange = useCallback((token: string) => {
-    if (isCollateralToken(token)) {
-      setSelectedCollateralToken(token);
-    }
-  }, []);
+        setSelectedCollateralToken(parsedToken);
+      }
+    },
+    [vaultVersion],
+  );
 
   const handleCollateralAmountBlur = useCallback(() => {
     const decimal = Decimal.parse(collateralAmount, 0);
@@ -95,9 +102,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     () =>
       getDecimalFromTokenMap<SupportedUnderlyingCollateralToken>(
         borrowingRateMap,
-        collateralTokenConfig?.underlyingTokenTicker ?? null,
+        TOKEN_TO_UNDERLYING_TOKEN_MAP[selectedCollateralToken] ?? null,
       ),
-    [borrowingRateMap, collateralTokenConfig],
+    [borrowingRateMap, selectedCollateralToken],
   );
 
   const collateralAmountDecimal = useMemo(() => Decimal.parse(collateralAmount, 0), [collateralAmount]);
@@ -292,8 +299,17 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     () => getDecimalFromTokenMap(tokenPriceMap, selectedCollateralToken),
     [selectedCollateralToken, tokenPriceMap],
   );
+
+  const isClosePosition = useMemo(
+    () =>
+      (newDebtTokenWithFeeValues?.amount?.isZero() && newCollateralInDisplayTokenValues?.value?.isZero()) ||
+      closePositionActive,
+    [newCollateralInDisplayTokenValues?.value, newDebtTokenWithFeeValues?.amount, closePositionActive],
+  );
+
   const liquidationPrice = useMemo(() => {
     if (
+      isClosePosition ||
       !selectedCollateralTokenPrice ||
       !newCollateralizationRatio ||
       newCollateralizationRatio.equals(Decimal.MAX_DECIMAL)
@@ -304,7 +320,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return selectedCollateralTokenPrice
       .div(newCollateralizationRatio)
       .mul(MIN_COLLATERAL_RATIO[underlyingCollateralToken]);
-  }, [newCollateralizationRatio, selectedCollateralTokenPrice, underlyingCollateralToken]);
+  }, [newCollateralizationRatio, selectedCollateralTokenPrice, underlyingCollateralToken, isClosePosition]);
+
   const liquidationPriceDropPercent = useMemo(() => {
     if (!liquidationPrice || !selectedCollateralTokenPrice) {
       return null;
@@ -363,10 +380,6 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     [protocolStats?.collateralSupply, underlyingCollateralToken],
   );
 
-  const isClosePosition = useMemo(
-    () => newDebtTokenWithFeeValues?.amount?.isZero() && newCollateralInDisplayTokenValues?.value?.isZero(),
-    [newCollateralInDisplayTokenValues?.value, newDebtTokenWithFeeValues?.amount],
-  );
   const hasEnoughCollateralTokenBalance = useMemo(
     () => selectedCollateralTokenBalance?.gte(collateralAmountDecimal) || !isAddCollateral,
     [collateralAmountDecimal, isAddCollateral, selectedCollateralTokenBalance],
@@ -489,6 +502,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   }, [collateralAmountDecimal, collateralSupply, isAddCollateral, selectedCollateralTokenProtocolCap]);
 
   const isPositionWithinDebtPositionCap = useMemo(() => {
+    // Interest based vaults do not have per position debt cap
+    if (vaultVersion === 'v2') {
+      return true;
+    }
+
     // In case user is repaying his debt, we should ignore max borrow limit
     if (!isAddDebt) {
       return true;
@@ -521,6 +539,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     newDebtTokenWithFeeValues.amount,
     protocolStats?.debtSupply.wstETH,
     selectedCollateralToken,
+    vaultVersion,
   ]);
 
   const errPositionOutOfCollateralPositionCap = useMemo(
@@ -536,8 +555,8 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     [isTotalSupplyWithinCollateralProtocolCap, selectedCollateralTokenProtocolCap],
   );
 
-  // Generating more R is disabled until further notice
-  const generateDisabled = true;
+  // Generating more R is disabled until further notice for v1 vaults
+  const generateDisabled = vaultVersion === 'v1';
 
   const canAdjust = useMemo(
     () =>
@@ -700,6 +719,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     return formatPercentage(selectedCollateralBorrowRate);
   }, [borrowingFeeAmount, selectedCollateralBorrowRate]);
 
+  const interestRateFormatted = useMemo(() => {
+    // TODO - Fetch from contracts
+    return '3.50%';
+  }, []);
+
   const borrowingFeeAmountFormatted = useMemo(() => {
     if (!borrowingFeeAmount || borrowingFeeAmount.isZero()) {
       return null;
@@ -848,7 +872,9 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           label={collateralLabelComponent}
           precision={18}
           selectedToken={selectedCollateralToken}
-          tokens={SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].tokens}
+          tokens={SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].tokens.map(
+            token => PRETTIFY_TOKEN_NAME_MAP[token],
+          )}
           value={collateralAmount}
           previewValue={collateralAmountWithEllipse}
           onTokenUpdate={handleCollateralTokenChange}
@@ -896,6 +922,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
         liquidationPriceChange={liquidationPriceDropPercent}
         borrowingFeePercentageFormatted={borrowingFeePercentageFormatted}
         borrowingFeeAmountFormatted={borrowingFeeAmountFormatted}
+        interestRateFormatted={interestRateFormatted}
       />
       <ExecuteButton
         actionButtonState={transactionState}

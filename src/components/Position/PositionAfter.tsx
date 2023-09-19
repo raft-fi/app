@@ -6,6 +6,7 @@ import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants
 import { getCollateralRatioLevel, getCollateralRatioLabel, formatPercentage, formatCurrency } from '../../utils';
 import { Typography, Icon, TooltipWrapper, Tooltip, ValueLabel } from '../shared';
 import { Nullable } from '../../interfaces';
+import { useSavingsYield, useVaultVersion } from '../../hooks';
 import TokenAddressTooltip from './TokenAddressTooltip';
 
 import './PositionAfter.scss';
@@ -16,6 +17,7 @@ interface PositionAfterProps {
   displayCollateralToken: Token;
   displayCollateralTokenAmount: Nullable<Decimal>;
   borrowingFeePercentageFormatted: Nullable<string>;
+  interestRateFormatted: Nullable<string>;
   borrowingFeeAmountFormatted: Nullable<string>;
   borrowTokenAmountFormatted: Nullable<string>;
   liquidationPrice: Nullable<Decimal>;
@@ -29,6 +31,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
   displayCollateralToken,
   displayCollateralTokenAmount,
   borrowingFeePercentageFormatted,
+  interestRateFormatted,
   borrowingFeeAmountFormatted,
   borrowTokenAmountFormatted,
   liquidationPrice,
@@ -37,6 +40,9 @@ export const PositionAfter: FC<PositionAfterProps> = ({
   collateralizationRatio,
   previousCollateralizationRatio,
 }) => {
+  const vaultVersion = useVaultVersion();
+  const savingYield = useSavingsYield();
+
   const baseTokenAmountFormatted = useMemo(
     () =>
       formatCurrency(displayCollateralTokenAmount ?? Decimal.ZERO, {
@@ -67,6 +73,8 @@ export const PositionAfter: FC<PositionAfterProps> = ({
     () => formatPercentage(collateralizationRatio) ?? 'N/A',
     [collateralizationRatio],
   );
+
+  const savingYieldFormatted = useMemo(() => formatPercentage(savingYield), [savingYield]);
 
   const collateralRatioLevel = useMemo(() => getCollateralRatioLevel(collateralizationRatio), [collateralizationRatio]);
   const collateralRatioLabel = useMemo(() => getCollateralRatioLabel(collateralizationRatio), [collateralizationRatio]);
@@ -153,46 +161,97 @@ export const PositionAfter: FC<PositionAfterProps> = ({
         </ul>
       </div>
       <div className="raft__position-after__data__others">
-        <div className="raft__position-after__data__protocol-fee__title">
-          <Typography variant="overline">PROTOCOL FEES</Typography>
-          <TooltipWrapper
-            tooltipContent={
-              <Tooltip className="raft__position-after__infoTooltip">
-                <Typography variant="body2">
-                  Borrowing fees associated with your transaction. Read the docs for more information.{' '}
-                  <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                    Docs <Icon variant="external-link" size={10} />
-                  </Link>
+        {vaultVersion === 'v1' ? (
+          <>
+            <div className="raft__position-after__data__protocol-fee__title">
+              <Typography variant="overline">PROTOCOL FEES</Typography>
+              <TooltipWrapper
+                tooltipContent={
+                  <Tooltip className="raft__position-after__infoTooltip">
+                    <Typography variant="body2">
+                      Borrowing fees associated with your transaction. Read the docs for more information.{' '}
+                      <Link href="https://docs.raft.fi/how-it-works/borrowing">
+                        Docs <Icon variant="external-link" size={10} />
+                      </Link>
+                    </Typography>
+                  </Tooltip>
+                }
+                placement="top"
+              >
+                <Icon variant="info" size="tiny" />
+              </TooltipWrapper>
+            </div>
+            <div className="raft__position-after__data__protocol-fee__percent">
+              {borrowingFeePercentageFormatted && (
+                <ValueLabel value={borrowingFeePercentageFormatted} valueSize="body" tickerSize="caption" />
+              )}
+              {borrowingFeeAmountFormatted && (
+                <Typography
+                  className="raft__position-after__data__protocol-fee__percent-value"
+                  variant="body"
+                  weight="medium"
+                  color="text-secondary"
+                >
+                  (
+                  <ValueLabel
+                    value={borrowingFeeAmountFormatted}
+                    tickerSize="caption"
+                    valueSize="body"
+                    color="text-secondary"
+                  />
+                  )
                 </Typography>
-              </Tooltip>
-            }
-            placement="top"
-          >
-            <Icon variant="info" size="tiny" />
-          </TooltipWrapper>
-        </div>
-        <div className="raft__position-after__data__protocol-fee__percent">
-          {borrowingFeePercentageFormatted && (
-            <ValueLabel value={borrowingFeePercentageFormatted} valueSize="body" tickerSize="caption" />
-          )}
-          {borrowingFeeAmountFormatted && (
-            <Typography
-              className="raft__position-after__data__protocol-fee__percent-value"
-              variant="body"
-              weight="medium"
-              color="text-secondary"
-            >
-              (
-              <ValueLabel
-                value={borrowingFeeAmountFormatted}
-                tickerSize="caption"
-                valueSize="body"
-                color="text-secondary"
-              />
-              )
-            </Typography>
-          )}
-        </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="raft__position-after__data__protocol-fee__title">
+              <Typography variant="overline">INTEREST RATE</Typography>
+              <TooltipWrapper
+                tooltipContent={
+                  <Tooltip className="raft__position-after__infoTooltip">
+                    <Typography variant="body2">
+                      Annual borrowing fee associated with the total amount of R generated. Read the docs for more
+                      information.{' '}
+                      <Link href="https://docs.raft.fi/raft-protocol/how-is-r-backed/cdp-vaults/active-vaults/interest-rate-vaults-new">
+                        Docs
+                      </Link>
+                    </Typography>
+                  </Tooltip>
+                }
+                placement="top"
+              >
+                <Icon variant="info" size="tiny" />
+              </TooltipWrapper>
+            </div>
+            <div className="raft__position-after__data__protocol-fee__percent">
+              {interestRateFormatted && (
+                <>
+                  <ValueLabel value={interestRateFormatted} valueSize="body" tickerSize="caption" />
+                  {savingYieldFormatted && (
+                    <Typography
+                      className="raft__position-after__data__protocol-fee__percent-apr"
+                      variant="body"
+                      color="text-secondary"
+                      weight="medium"
+                    >
+                      (APR:&nbsp;
+                      <ValueLabel
+                        value={savingYieldFormatted}
+                        color="text-secondary"
+                        valueSize="body"
+                        tickerSize="caption"
+                      />
+                      )
+                    </Typography>
+                  )}
+                </>
+              )}
+            </div>
+          </>
+        )}
+
         <div className="raft__position-after__data__liquidation__title">
           <Typography variant="overline">LIQUIDATION PRICE</Typography>
           <TooltipWrapper
