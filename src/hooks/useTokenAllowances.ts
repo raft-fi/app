@@ -26,6 +26,7 @@ import { walletAddress$ } from './useWalletAddress';
 import { provider$ } from './useProvider';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { getNullTokenMap } from '../utils';
+import { isWrongNetwork$ } from './useNetwork';
 
 export type TokenAllowanceMap = TokenDecimalMap<SupportedToken>;
 
@@ -119,16 +120,21 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
-  scan(
-    (allAllowances, tokenAllowances) => ({
-      ...allAllowances,
-      ...tokenAllowances,
-    }),
-    {} as TokenAllowanceMap,
+const stream$ = isWrongNetwork$.pipe(
+  filter(isWrongNetwork => !isWrongNetwork),
+  map(() =>
+    merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
+      scan(
+        (allAllowances, tokenAllowances) => ({
+          ...allAllowances,
+          ...tokenAllowances,
+        }),
+        {} as TokenAllowanceMap,
+      ),
+      debounce<TokenAllowanceMap>(() => interval(DEBOUNCE_IN_MS)),
+      tap(allAllowances => tokenAllowances$.next(allAllowances)),
+    ),
   ),
-  debounce<TokenAllowanceMap>(() => interval(DEBOUNCE_IN_MS)),
-  tap(allAllowances => tokenAllowances$.next(allAllowances)),
 );
 
 export const [useTokenAllowances] = bind(tokenAllowances$, DEFAULT_VALUE);

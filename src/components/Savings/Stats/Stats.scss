@@ -1,0 +1,79 @@
+.raft__savings__stats {
+  display: flex;
+  justify-self: center;
+  flex-direction: column;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+
+  &.raft__savings__stats-inverse {
+    background-color: var(--raft-blue-900);
+    border: none;
+  }
+
+  .raft__savings__stats__item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 0;
+    margin: auto 16px;
+    border-bottom: 1px solid var(--raft-grey-400);
+
+    .raft__savings__stats__item-title {
+      display: flex;
+      align-items: center;
+
+      > div:first-child {
+        margin-right: 4px;
+      }
+    }
+
+    &:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    > .raft__valueLabel {
+      padding-top: 16px;
+    }
+
+    > div {
+      > .raft__tooltip-wrapper-anchor {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+
+        > div:first-child {
+          padding-bottom: 16px;
+        }
+      }
+    }
+  }
+
+  .raft__icon__info {
+    --infoColor: var(--textAccentInverted);
+  }
+}
+
+.raft__savings__stats__item-token {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-top: 16px;
+
+  > svg {
+    width: 24px;
+    height: 24px;
+    box-shadow: var(--shadowPrimary);
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+}
+
+.raft__savings__tooltip {
+  max-width: 250px;
+}

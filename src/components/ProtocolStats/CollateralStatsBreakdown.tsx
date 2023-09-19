@@ -70,38 +70,92 @@ const CollateralStatsBreakdown = () => {
     [collateralSupplyMap, tokenPriceMap],
   );
 
+  const psmTvlFormatted = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return formatDecimal(protocolStats.psmTvlToken, USD_UI_PRECISION);
+  }, [protocolStats]);
+
+  const psmTvlValueFormatted = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    return formatDecimal(protocolStats.psmTvlFiat, USD_UI_PRECISION);
+  }, [protocolStats]);
+
   return (
     <Tooltip className="raft__protocol-stats__collateral-breakdown">
       <ul>
-        {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => (
-          <li key={`breakdown-${underlyingToken}`}>
-            <TokenLogo
-              type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
-              size="small"
-            />
-            <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">
-              {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}
-            </Typography>
-            <div className="raft__protocol-stats__collateral-breakdown__token-values">
-              <div className="raft__protocol-stats__collateral-breakdown__token-amount">
-                <Typography variant="body" weight="medium">
-                  {collateralSupplyAmountInDisplayTokenFormattedMap[underlyingToken] ?? '---'}&nbsp;
-                </Typography>
-                <Typography variant="body2">
-                  {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}
-                </Typography>
+        {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => {
+          let tokenLabel: string = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken;
+
+          if (underlyingToken.endsWith('v1')) {
+            tokenLabel = `${tokenLabel} (Old)`;
+          }
+
+          return (
+            <li key={`breakdown-${underlyingToken}`}>
+              <TokenLogo
+                type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
+                size="small"
+              />
+              <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">
+                {tokenLabel}
+              </Typography>
+              <div className="raft__protocol-stats__collateral-breakdown__token-values">
+                <div className="raft__protocol-stats__collateral-breakdown__token-amount">
+                  <Typography variant="body" weight="medium">
+                    {collateralSupplyAmountInDisplayTokenFormattedMap[underlyingToken] ?? '---'}&nbsp;
+                  </Typography>
+                  <Typography variant="body2">
+                    {SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}
+                  </Typography>
+                </div>
+                <div className="raft__protocol-stats__collateral-breakdown__token-value">
+                  <Typography variant="caption" color="text-secondary">
+                    $
+                  </Typography>
+                  <Typography variant="body2" weight="medium" color="text-secondary">
+                    {collateralSupplyValueFormattedMap[underlyingToken] ?? '---'}
+                  </Typography>
+                </div>
               </div>
-              <div className="raft__protocol-stats__collateral-breakdown__token-value">
-                <Typography variant="caption" color="text-secondary">
-                  $
-                </Typography>
-                <Typography variant="body2" weight="medium" color="text-secondary">
-                  {collateralSupplyValueFormattedMap[underlyingToken] ?? '---'}
-                </Typography>
-              </div>
+            </li>
+          );
+        })}
+
+        {/* Include PSM in breakdown as well */}
+        <li key={`breakdown-psm-dai`}>
+          <TokenLogo type="token-DAI" size="small" />
+          <Typography className="raft__protocol-stats__collateral-breakdown__token-name" variant="body2">
+            DAI
+            <div className="raft__protocol-stats__collateral-breakdown__labelBadge">
+              <Typography variant="caption" color="text-secondary" weight="semi-bold">
+                PSM
+              </Typography>
             </div>
-          </li>
-        ))}
+          </Typography>
+
+          <div className="raft__protocol-stats__collateral-breakdown__token-values">
+            <div className="raft__protocol-stats__collateral-breakdown__token-amount">
+              <Typography variant="body" weight="medium">
+                {psmTvlFormatted ?? '---'}&nbsp;
+              </Typography>
+              <Typography variant="body2">DAI</Typography>
+            </div>
+            <div className="raft__protocol-stats__collateral-breakdown__token-value">
+              <Typography variant="caption" color="text-secondary">
+                $
+              </Typography>
+              <Typography variant="body2" weight="medium" color="text-secondary">
+                {psmTvlValueFormatted ?? '---'}
+              </Typography>
+            </div>
+          </div>
+        </li>
       </ul>
     </Tooltip>
   );

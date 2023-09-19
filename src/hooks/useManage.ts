@@ -3,7 +3,7 @@ import { ERC20PermitSignatureStruct, R_TOKEN, UserPosition, ManagePositionStep }
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
-import { BrowserProvider, JsonRpcSigner, TransactionResponse } from 'ethers';
+import { BrowserProvider, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,
@@ -35,7 +35,7 @@ import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { tokenAllowances$ } from './useTokenAllowances';
 import { tokenWhitelists$ } from './useTokenWhitelists';
-import { wallet$ } from './useWallet';
+import { wallet$, walletLabel$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { getNullTokenMap, isSignatureValid } from '../utils';
 
@@ -227,16 +227,18 @@ const managePosition$ = managePositionStepsStatus$.pipe(
 );
 
 const requestManagePositionStep$ = walletSigner$.pipe(
-  map<Nullable<JsonRpcSigner>, RequestManagePositionStepFunc>(signer => (request: ManagePositionStepsRequest) => {
+  map(signer => (request: ManagePositionStepsRequest) => {
     if (!signer) {
       return;
     }
 
-    let userPosition = userPositionMap[request.underlyingCollateralToken];
+    const userPositionMapKey = `${signer.address}-${request.underlyingCollateralToken}`;
+
+    let userPosition = userPositionMap[userPositionMapKey];
 
     if (!userPosition) {
       userPosition = new UserPosition<SupportedUnderlyingCollateralToken>(signer, request.underlyingCollateralToken);
-      userPositionMap[request.underlyingCollateralToken] = userPosition;
+      userPositionMap[userPositionMapKey] = userPosition;
     }
 
     setManagePositionStepsRequest(request);
@@ -266,9 +268,18 @@ const distinctRequest$ = managePositionStepsRequest$.pipe(
 );
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
-  withLatestFrom(tokenWhitelists$, tokenAllowances$),
-  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap]) => {
+  withLatestFrom(tokenWhitelists$, tokenAllowances$, walletSigner$, walletLabel$),
+  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap, walletSigner, walletLabel]) => {
     const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
+
+    if (!walletSigner) {
+      return of({
+        request,
+        result: null,
+        generator: null,
+        error: 'Wallet signer is not defined!',
+      } as ManagePositionStepsResponse);
+    }
 
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
@@ -288,10 +299,10 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       } as ManagePositionStepsResponse);
     }
 
+    const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
+
     try {
-      const userPosition = userPositionMap[
-        underlyingCollateralToken
-      ] as UserPosition<SupportedUnderlyingCollateralToken>;
+      const userPosition = userPositionMap[userPositionMapKey] as UserPosition<SupportedUnderlyingCollateralToken>;
       const actualCollateralChange = isClosePosition ? Decimal.ZERO : collateralChange;
       const actualDebtChange = isClosePosition ? Decimal.MAX_DECIMAL.mul(-1) : debtChange;
 
@@ -305,6 +316,8 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         collateralPermitSignature,
         rPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+        // Allow permit only if user is using MetaMask
+        approvalType: walletLabel === 'MetaMask' ? 'permit' : 'approve',
       });
       const nextStep$ = from(steps.next());
 

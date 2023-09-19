@@ -10,8 +10,8 @@ import {
   getProtocolCollateralRatioLevel,
   getTokenValues,
 } from '../../utils';
-import { SUPPORTED_COLLATERAL_TOKEN_SETTINGS, SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
-import { TooltipWrapper, Typography } from '../shared';
+import { SUPPORTED_UNDERLYING_TOKENS, USD_UI_PRECISION } from '../../constants';
+import { Icon, TooltipWrapper, Typography } from '../shared';
 import { SupportedUnderlyingCollateralToken, TokenDecimalMap } from '../../interfaces';
 import CollateralStatsBreakdown from './CollateralStatsBreakdown';
 
@@ -32,15 +32,22 @@ const ProtocolStats = () => {
     [protocolStats?.debtSupply],
   );
 
-  const totalCollateralValue = useMemo(
-    () =>
-      SUPPORTED_UNDERLYING_TOKENS.reduce((sum, underlyingCollateralToken) => {
-        const supply = collateralSupplyMap[underlyingCollateralToken];
-        const tokenValues = getTokenValues(supply, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken);
-        return sum.add(tokenValues.value ?? Decimal.ZERO);
-      }, Decimal.ZERO),
-    [collateralSupplyMap, tokenPriceMap],
-  );
+  const totalCollateralValue = useMemo(() => {
+    if (!protocolStats) {
+      return null;
+    }
+
+    const collateralTvl = SUPPORTED_UNDERLYING_TOKENS.reduce((sum, underlyingCollateralToken) => {
+      const supply = collateralSupplyMap[underlyingCollateralToken];
+      const tokenValues = getTokenValues(supply, tokenPriceMap[underlyingCollateralToken], underlyingCollateralToken);
+      return sum.add(tokenValues.value ?? Decimal.ZERO);
+    }, Decimal.ZERO);
+
+    const psmTvl = protocolStats.psmTvlFiat;
+
+    return collateralTvl.add(psmTvl);
+  }, [collateralSupplyMap, protocolStats, tokenPriceMap]);
+
   const totalDebtTokenValues = useMemo(() => {
     const debtAmount = SUPPORTED_UNDERLYING_TOKENS.reduce((sum, underlyingCollateralToken) => {
       const supply = debtSupplyMap[underlyingCollateralToken];
@@ -71,7 +78,7 @@ const ProtocolStats = () => {
   );
 
   const collateralizationRatio = useMemo(() => {
-    if (!totalDebtTokenValues.value || totalDebtTokenValues.value.isZero()) {
+    if (!totalDebtTokenValues.value || totalDebtTokenValues.value.isZero() || !totalCollateralValue) {
       return null;
     }
 
@@ -93,41 +100,30 @@ const ProtocolStats = () => {
 
   return (
     <div className="raft__protocol-stats">
-      <TooltipWrapper tooltipContent={<CollateralStatsBreakdown />} placement="bottom">
-        <div className="raft__protocol-stats__collateral">
+      <div className="raft__protocol-stats__collateral">
+        <div className="raft__protocol-stats__collateral__title">
           <Typography variant="overline" color="text-accent">
             TOTAL VALUE LOCKED
           </Typography>
-          <div className="raft__protocol-stats__collateral__amount">
-            <div className="raft__protocol-stats__collateral__tokens">
-              {SUPPORTED_UNDERLYING_TOKENS.map((underlyingToken, i) => (
-                <div
-                  key={`token=${underlyingToken}`}
-                  className="raft__protocol-stats__collateral__token-container"
-                  style={{ zIndex: SUPPORTED_UNDERLYING_TOKENS.length - i }}
-                >
-                  <TokenLogo
-                    type={`token-${SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken}`}
-                    size="small"
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="raft__protocol-stats__collateral__amount__number">
-              <Typography variant="heading2">$</Typography>
-              <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
-            </div>
-          </div>
-          <div className="raft__protocol-stats__collateral__value__number">
-            <Typography variant="caption" color="text-secondary">
-              $
-            </Typography>
-            <Typography variant="body" weight="medium" color="text-secondary">
-              {totalCollateralValueDecimalFormatted}
-            </Typography>
+          <TooltipWrapper tooltipContent={<CollateralStatsBreakdown />} placement="bottom">
+            <Icon variant="info" size="tiny" />
+          </TooltipWrapper>
+        </div>
+        <div className="raft__protocol-stats__collateral__amount">
+          <div className="raft__protocol-stats__collateral__amount__number">
+            <Typography variant="heading2">$</Typography>
+            <Typography variant="heading1">{totalCollateralValueMultiplierFormatted}</Typography>
           </div>
         </div>
-      </TooltipWrapper>
+        <div className="raft__protocol-stats__collateral__value__number">
+          <Typography variant="caption" color="text-secondary">
+            $
+          </Typography>
+          <Typography variant="body" weight="medium" color="text-secondary">
+            {totalCollateralValueDecimalFormatted}
+          </Typography>
+        </div>
+      </div>
       <div className="raft__protocol-stats__debt">
         <Typography variant="overline" color="text-accent">
           R MARKET CAP
