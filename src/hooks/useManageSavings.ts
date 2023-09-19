@@ -23,7 +23,7 @@ import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { tokenAllowances$ } from './useTokenAllowances';
-import { wallet$ } from './useWallet';
+import { wallet$, walletLabel$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { isSignatureValid } from '../utils';
 
@@ -229,8 +229,8 @@ const distinctRequest$ = manageSavingsStepsRequest$.pipe(
 
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded),
-  withLatestFrom(tokenAllowances$),
-  concatMap(([[request], tokenAllowanceMap]) => {
+  withLatestFrom(tokenAllowances$, walletLabel$),
+  concatMap(([[request], tokenAllowanceMap, walletLabel]) => {
     const { amount } = request;
 
     const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
@@ -252,6 +252,8 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         rTokenAllowance,
         rPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+        // Allow permit only if user is using MetaMask
+        approvalType: walletLabel === 'MetaMask' ? 'permit' : 'approve',
       });
       const nextStep$ = from(steps.next());
 

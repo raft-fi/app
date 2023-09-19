@@ -9,10 +9,15 @@ import { notification$ } from './useNotification';
 const DEFAULT_VALUE = null;
 
 const wallet$ = new BehaviorSubject<Nullable<BrowserProvider>>(DEFAULT_VALUE);
+const walletLabel$ = new BehaviorSubject<Nullable<string>>(DEFAULT_VALUE);
 const eip1193Provider$ = new BehaviorSubject<Nullable<EIP1193Provider>>(DEFAULT_VALUE);
 
 const updateWalletFromEIP1193Provider = (eip1193Provider: Nullable<EIP1193Provider>) => {
   eip1193Provider$.next(eip1193Provider);
+};
+
+const updateWalletLabel = (label: Nullable<string>) => {
+  walletLabel$.next(label);
 };
 
 const stream$ = eip1193Provider$.pipe(
@@ -30,7 +35,7 @@ const stream$ = eip1193Provider$.pipe(
 export const [useWallet] = bind(wallet$, DEFAULT_VALUE);
 export const [useEIP1193Provider] = bind(eip1193Provider$, DEFAULT_VALUE);
 
-export { wallet$, eip1193Provider$, updateWalletFromEIP1193Provider };
+export { wallet$, eip1193Provider$, walletLabel$, updateWalletFromEIP1193Provider, updateWalletLabel };
 
 let subscription: Subscription;
 
