@@ -1,0 +1,69 @@
+.raft__networkSelector {
+  height: 40px;
+  margin-top: 8px;
+  padding: 0 12px;
+  background: var(--surfacePrimary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 8px;
+  box-sizing: border-box;
+  position: relative;
+
+  .raft__networkSelector__dropdown {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+
+    .raft__networkSelector__dropdownLabel {
+      padding-left: 8px;
+      padding-right: 8px;
+      flex: 1;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  .raft__networkSelector__dropdownContainer {
+    width: 100%;
+    background: var(--surfacePrimary);
+    border: 1px solid var(--borderPrimary);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    .raft__networkSelector__dropdownItem {
+      display: flex;
+      justify-content: flex-start;
+      width: 100%;
+      padding: 12px;
+      border-radius: 4px;
+      box-sizing: border-box;
+
+      .raft__networkSelector__dropdownItemLabel {
+        padding-left: 8px;
+        white-space: nowrap;
+      }
+
+      &.raft__networkSelector__dropdownItemSelected {
+        background-color: var(--surfacePrimaryHover);
+      }
+
+      &:hover {
+        background-color: var(--surfaceSecondaryHover);
+      }
+    }
+  }
+
+  .raft__menu {
+    box-shadow: initial;
+    width: 100%;
+  }
+}

@@ -1,4 +1,4 @@
-import { SupportedBridgeNetwork } from '@raft-fi/sdk';
+import { SupportedBridgeNetwork, SupportedSavingsNetwork } from '@raft-fi/sdk';
 
 export const NETWORK_NAMES: Record<SupportedBridgeNetwork, string> = {
   ethereum: 'Ethereum',
@@ -47,5 +47,8 @@ export const NETWORK_WALLET_CURRENCIES: Record<SupportedBridgeNetwork, { symbol:
   },
 };
 
-export const TESTNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereumSepolia', 'arbitrumGoerli'];
-export const MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereum', 'base'];
+export const BRIDGE_TESTNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereumSepolia', 'arbitrumGoerli'];
+export const BRIDGE_MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereum', 'base'];
+
+export const SAVINGS_TESTNET_NETWORKS: SupportedSavingsNetwork[] = ['ethereum-goerli'];
+export const SAVINGS_MAINNET_NETWORKS: SupportedSavingsNetwork[] = ['ethereum', 'base'];

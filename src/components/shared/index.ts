@@ -19,6 +19,7 @@ import Expandable from './Expandable';
 import DateInput from './DateInput';
 import ExecuteButton from './ExecuteButton';
 import Menu from './Menu';
+import NetworkSelector from './NetworkSelector';
 
 export {
   BaseInput,
@@ -42,6 +43,7 @@ export {
   DateInput,
   ExecuteButton,
   Menu,
+  NetworkSelector,
 };
 
 export { colors } from './Colors';
