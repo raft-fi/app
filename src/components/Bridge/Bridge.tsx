@@ -6,19 +6,20 @@ import {
   BRIDGE_NETWORK_LANES,
   SupportedBridgeNetwork,
   BRIDGE_NETWORKS,
+  isSupportedBridgeNetwork,
 } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency } from '../../utils';
 import {
-  MAINNET_NETWORKS,
+  BRIDGE_MAINNET_NETWORKS,
   NETWORK_IDS,
   NETWORK_LOGO_VARIANTS,
   NETWORK_NAMES,
   NETWORK_WALLET_CURRENCIES,
   NETWORK_WALLET_ENDPOINTS,
-  TESTNET_NETWORKS,
+  BRIDGE_TESTNET_NETWORKS,
 } from '../../networks';
 import {
   useBridgeBalances,
@@ -28,16 +29,15 @@ import {
   useNetwork,
   useWallet,
 } from '../../hooks';
-import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel } from '../shared';
+import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel, NetworkSelector } from '../shared';
 import PoweredBy from './PoweredBy';
-import NetworkSelector from './NetworkSelector';
 
 import './Bridge.scss';
 
 const Bridge = () => {
   let defaultFromNetwork: SupportedBridgeNetwork;
   let defaultToNetwork: SupportedBridgeNetwork;
-  if (import.meta.env.VITE_BRIDGE_ENVIRONMENT === 'mainnet') {
+  if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
     defaultFromNetwork = 'ethereum';
     defaultToNetwork = 'base';
   } else {
@@ -60,10 +60,10 @@ const Bridge = () => {
 
   const availableBridgeNetworks = useMemo(() => {
     return SUPPORTED_BRIDGE_NETWORKS.filter(network => {
-      if (import.meta.env.VITE_BRIDGE_ENVIRONMENT === 'mainnet') {
-        return MAINNET_NETWORKS.includes(network);
+      if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
+        return BRIDGE_MAINNET_NETWORKS.includes(network);
       } else {
-        return TESTNET_NETWORKS.includes(network);
+        return BRIDGE_TESTNET_NETWORKS.includes(network);
       }
     });
   }, []);
@@ -272,6 +272,18 @@ const Bridge = () => {
     }
   }, [bridgeTokens, canExecute]);
 
+  const handleFromNetworkChange = useCallback((value: string) => {
+    if (isSupportedBridgeNetwork(value)) {
+      setFromNetwork(value);
+    }
+  }, []);
+
+  const handleToNetworkChange = useCallback((value: string) => {
+    if (isSupportedBridgeNetwork(value)) {
+      setToNetwork(value);
+    }
+  }, []);
+
   const onExecute = useMemo(() => {
     if (!walletConnected) {
       return onConnectWallet;
@@ -332,7 +344,7 @@ const Bridge = () => {
           <NetworkSelector
             networks={availableBridgeNetworks}
             selectedNetwork={fromNetwork}
-            onNetworkChange={setFromNetwork}
+            onNetworkChange={handleFromNetworkChange}
           />
         </div>
         <ButtonWrapper className="raft__bridge__network-swap" onClick={onSwapNetwork}>
@@ -345,7 +357,7 @@ const Bridge = () => {
           <NetworkSelector
             networks={BRIDGE_NETWORK_LANES[fromNetwork]}
             selectedNetwork={toNetwork}
-            onNetworkChange={setToNetwork}
+            onNetworkChange={handleToNetworkChange}
           />
         </div>
       </div>

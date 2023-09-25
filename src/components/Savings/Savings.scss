@@ -25,6 +25,12 @@
     border: 1px solid var(--borderPrimary);
     border-radius: 8px;
 
+    .raft__savings__networkSelectorContainer {
+      display: flex;
+      flex-direction: column;
+      margin-top: 32px;
+    }
+
     .raft__savings__input {
       display: flex;
       margin-top: 40px;
@@ -49,7 +55,7 @@
         .raft__savings__input-withdraw,
         .raft__savings__input-borrow,
         .raft__savings__input-repay {
-          &[data-selected="false"] {
+          &[data-selected='false'] {
             &:hover {
               div {
                 --textPrimary: var(--textAccent);
@@ -57,13 +63,13 @@
             }
           }
 
-          &[data-selected="true"] {
+          &[data-selected='true'] {
             --textPrimary: var(--textAccent);
 
             position: relative;
 
             &::after {
-              content: " ";
+              content: ' ';
               border-bottom: 2px solid var(--textAccent);
               width: 100%;
               position: absolute;

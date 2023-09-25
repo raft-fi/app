@@ -1,7 +1,7 @@
 import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
-import { R_TOKEN } from '@raft-fi/sdk';
+import { R_TOKEN, SUPPORTED_SAVINGS_NETWORKS, SupportedSavingsNetwork, isSupportedSavingsNetwork } from '@raft-fi/sdk';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import {
   useAppLoaded,
@@ -15,7 +15,17 @@ import {
   useWallet,
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
-import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
+import { SAVINGS_MAINNET_NETWORKS, SAVINGS_TESTNET_NETWORKS } from '../../networks';
+import {
+  CurrencyInput,
+  ExecuteButton,
+  Icon,
+  NetworkSelector,
+  Tooltip,
+  TooltipWrapper,
+  Typography,
+  ValueLabel,
+} from '../shared';
 import LoadingSavings from '../LoadingSavings';
 import FAQ from './FAQ';
 import Stats from './Stats';
@@ -23,6 +33,13 @@ import Stats from './Stats';
 import './Savings.scss';
 
 const Savings = () => {
+  let defaultNetwork: SupportedSavingsNetwork;
+  if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
+    defaultNetwork = 'ethereum';
+  } else {
+    defaultNetwork = 'ethereum-goerli';
+  }
+
   const [, connect] = useConnectWallet();
 
   const appLoaded = useAppLoaded();
@@ -35,6 +52,7 @@ const Savings = () => {
   const savingsYield = useSavingsYield();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
+  const [selectedNetwork, setSelectedNetwork] = useState<SupportedSavingsNetwork>(defaultNetwork);
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
   const [amount, setAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
@@ -278,6 +296,16 @@ const Savings = () => {
     return Decimal.max(currentUserSavings.sub(amountParsed), Decimal.ZERO);
   }, [amountParsed, currentUserSavings, isAddCollateral]);
 
+  const availableSavingsNetworks = useMemo(() => {
+    return SUPPORTED_SAVINGS_NETWORKS.filter(network => {
+      if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
+        return SAVINGS_MAINNET_NETWORKS.includes(network);
+      } else {
+        return SAVINGS_TESTNET_NETWORKS.includes(network);
+      }
+    });
+  }, []);
+
   const savingsAfterFormatted = useMemo(() => {
     if (!savingsAfter) {
       return null;
@@ -303,6 +331,12 @@ const Savings = () => {
   const onAction = useCallback(() => {
     manageSavings?.();
   }, [manageSavings]);
+
+  const handleSelectedNetworkChange = useCallback((value: string) => {
+    if (isSupportedSavingsNetwork(value)) {
+      setSelectedNetwork(value);
+    }
+  }, []);
 
   const onConnectWallet = useCallback(() => {
     connect();
@@ -347,6 +381,17 @@ const Savings = () => {
             <Typography variant="body" weight="regular" color="text-secondary">
               {subHeaderLabel}
             </Typography>
+          </div>
+
+          <div className="raft__savings__networkSelectorContainer">
+            <Typography variant="overline" weight="semi-bold" color="text-secondary">
+              NETWORK
+            </Typography>
+            <NetworkSelector
+              networks={availableSavingsNetworks}
+              selectedNetwork={selectedNetwork}
+              onNetworkChange={handleSelectedNetworkChange}
+            />
           </div>
 
           <div className="raft__savings__input">
