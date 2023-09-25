@@ -39,7 +39,7 @@ export const collateralConversionRates$ = new BehaviorSubject<CollateralConversi
 
 const fetchData = (feed: PriceFeed, collateralToken: SupportedCollateralToken) => {
   try {
-    return from(feed.getUnderlyingCollateralRate(TOKEN_TO_UNDERLYING_TOKEN_MAP[collateralToken], collateralToken)).pipe(
+    return from(feed.getConversionRate(collateralToken)).pipe(
       catchError(error => {
         console.error(`useCollateralConversionRate - failed to fetch conversion rate for ${collateralToken}!`, error);
         return of(null);
