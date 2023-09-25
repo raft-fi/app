@@ -390,7 +390,8 @@ const TransactionModal = () => {
 
       return {
         label: 'Add RR to wallet',
-        address: RaftConfig.networkConfig.rSavingsModule,
+        // TODO - Change this address based on chain user used to withdraw
+        address: RaftConfig.networkConfig.tokens.RR.address,
         symbol: 'RR',
         decimals: 18,
         image: 'https://raft.fi/rrToken.svg',
