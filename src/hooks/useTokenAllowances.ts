@@ -63,29 +63,33 @@ const fetchData = async (
 };
 
 // Fetch new allowance data every time wallet address changes
-const walletChangeStream$: Observable<TokenAllowanceMap> = walletAddress$.pipe(
+const walletChangeStream$: Observable<TokenAllowanceMap> = combineLatest([isWrongNetwork$, walletAddress$]).pipe(
+  filter(isWrongNetwork => !isWrongNetwork),
   withLatestFrom(provider$),
-  mergeMap<[Nullable<string>, JsonRpcProvider], Observable<TokenAllowanceMap>>(([walletAddress, provider]) => {
-    if (!walletAddress) {
-      return of(DEFAULT_VALUE);
-    }
+  mergeMap<[[boolean, Nullable<string>], JsonRpcProvider], Observable<TokenAllowanceMap>>(
+    ([[, walletAddress], provider]) => {
+      if (!walletAddress) {
+        return of(DEFAULT_VALUE);
+      }
 
-    const tokenAllowanceMaps = SUPPORTED_TOKENS.map(token =>
-      from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
-        map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
-      ),
-    );
+      const tokenAllowanceMaps = SUPPORTED_TOKENS.map(token =>
+        from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
+          map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
+        ),
+      );
 
-    return merge(...tokenAllowanceMaps);
-  }),
+      return merge(...tokenAllowanceMaps);
+    },
+  ),
 );
 
-type PeriodicStreamInput = [[number], Nullable<string>, JsonRpcProvider];
+type PeriodicStreamInput = [[number], boolean, Nullable<string>, JsonRpcProvider];
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBeat$]).pipe(
-  withLatestFrom(walletAddress$, provider$),
-  mergeMap<PeriodicStreamInput, Observable<TokenAllowanceMap>>(([, walletAddress, provider]) => {
+  withLatestFrom(isWrongNetwork$, walletAddress$, provider$),
+  filter(([, isWrongNetwork]) => !isWrongNetwork),
+  mergeMap<PeriodicStreamInput, Observable<TokenAllowanceMap>>(([, , walletAddress, provider]) => {
     if (!walletAddress) {
       return of(DEFAULT_VALUE);
     }
@@ -102,13 +106,14 @@ const periodicStream$: Observable<TokenAllowanceMap> = combineLatest([intervalBe
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletAddress$, provider$),
-  filter((value): value is [AppEvent, string, JsonRpcProvider] => {
-    const [, walletAddress] = value;
+  withLatestFrom(isWrongNetwork$, walletAddress$, provider$),
+  filter(([, isWrongNetwork]) => !isWrongNetwork),
+  filter((value): value is [AppEvent, boolean, string, JsonRpcProvider] => {
+    const [, isWrongNetwork, walletAddress] = value;
 
-    return Boolean(walletAddress);
+    return Boolean(walletAddress) && !isWrongNetwork;
   }),
-  mergeMap(([, walletAddress, provider]) => {
+  mergeMap(([, , walletAddress, provider]) => {
     const tokenAllowanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, getPositionManager(token), provider)).pipe(
         map(allowance => ({ [token]: allowance } as TokenAllowanceMap)),
@@ -120,21 +125,16 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = isWrongNetwork$.pipe(
-  filter(isWrongNetwork => !isWrongNetwork),
-  map(() =>
-    merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
-      scan(
-        (allAllowances, tokenAllowances) => ({
-          ...allAllowances,
-          ...tokenAllowances,
-        }),
-        {} as TokenAllowanceMap,
-      ),
-      debounce<TokenAllowanceMap>(() => interval(DEBOUNCE_IN_MS)),
-      tap(allAllowances => tokenAllowances$.next(allAllowances)),
-    ),
+const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
+  scan(
+    (allAllowances, tokenAllowances) => ({
+      ...allAllowances,
+      ...tokenAllowances,
+    }),
+    {} as TokenAllowanceMap,
   ),
+  debounce<TokenAllowanceMap>(() => interval(DEBOUNCE_IN_MS)),
+  tap(allAllowances => tokenAllowances$.next(allAllowances)),
 );
 
 export const [useTokenAllowances] = bind(tokenAllowances$, DEFAULT_VALUE);
