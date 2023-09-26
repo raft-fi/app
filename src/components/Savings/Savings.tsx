@@ -275,7 +275,7 @@ const Savings = () => {
   }, [inputMaxAmount]);
 
   const errorMessage = useMemo(() => {
-    if (!walletConnected) {
+    if (!walletConnected || isWrongNetwork) {
       return;
     }
 
@@ -290,7 +290,14 @@ const Savings = () => {
     if (isAddCollateral && !isPositionWithinDepositCap) {
       return `Not enough capacity for the deposit amount. Please reduce and try again.`;
     }
-  }, [hasEnoughRToDeposit, hasEnoughRToWithdraw, isAddCollateral, isPositionWithinDepositCap, walletConnected]);
+  }, [
+    hasEnoughRToDeposit,
+    hasEnoughRToWithdraw,
+    isAddCollateral,
+    isPositionWithinDepositCap,
+    isWrongNetwork,
+    walletConnected,
+  ]);
 
   const savingsAfter = useMemo(() => {
     if (!currentUserSavings) {
