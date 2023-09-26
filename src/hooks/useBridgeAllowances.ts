@@ -26,7 +26,7 @@ import { walletSigner$ } from './useWalletSigner';
 export type BridgeAllowanceMap = { [network in SupportedBridgeNetwork]: Nullable<Decimal> };
 
 const DEFAULT_VALUE: BridgeAllowanceMap = {
-  ethereum: null,
+  mainnet: null,
   base: null,
   ethereumSepolia: null,
   arbitrumGoerli: null,

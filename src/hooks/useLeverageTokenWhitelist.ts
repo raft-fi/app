@@ -31,6 +31,7 @@ import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 import { position$ } from './usePosition';
 import { getNullTokenMap } from '../utils';
+import { isWrongNetwork$, isWrongSavingsNetwork$ } from './useNetwork';
 
 export type LeverageTokenWhitelistMap = TokenGenericMap<SupportedCollateralToken, Nullable<boolean>>;
 
@@ -72,10 +73,11 @@ const walletChangeStream$: Observable<LeverageTokenWhitelistMap> = combineLatest
   walletAddress$,
   walletSigner$,
   position$,
+  isWrongNetwork$,
 ]).pipe(
-  mergeMap<[Nullable<string>, Nullable<Signer>, Nullable<Position>], Observable<LeverageTokenWhitelistMap>>(
-    ([walletAddress, walletSigner, position]) => {
-      if (!walletAddress || !walletSigner || !position) {
+  mergeMap<[Nullable<string>, Nullable<Signer>, Nullable<Position>, boolean], Observable<LeverageTokenWhitelistMap>>(
+    ([walletAddress, walletSigner, position, isWrongNetwork]) => {
+      if (!walletAddress || !walletSigner || !position || isWrongNetwork) {
         return of(DEFAULT_VALUE);
       }
 
@@ -90,13 +92,13 @@ const walletChangeStream$: Observable<LeverageTokenWhitelistMap> = combineLatest
   ),
 );
 
-type PeriodicStreamInput = [[number], Nullable<Signer>, Nullable<Position>];
+type PeriodicStreamInput = [[number], Nullable<Signer>, Nullable<Position>, boolean];
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<LeverageTokenWhitelistMap> = combineLatest([intervalBeat$]).pipe(
-  withLatestFrom(walletSigner$, position$),
-  mergeMap<PeriodicStreamInput, Observable<LeverageTokenWhitelistMap>>(([, walletSigner, position]) => {
-    if (!walletSigner || !position) {
+  withLatestFrom(walletSigner$, position$, isWrongSavingsNetwork$),
+  mergeMap<PeriodicStreamInput, Observable<LeverageTokenWhitelistMap>>(([, walletSigner, position, isWrongNetwork]) => {
+    if (!walletSigner || !position || isWrongNetwork) {
       return of(DEFAULT_VALUE);
     }
 
@@ -112,9 +114,10 @@ const periodicStream$: Observable<LeverageTokenWhitelistMap> = combineLatest([in
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletAddress$, walletSigner$, position$),
-  filter<[Nullable<AppEvent>, Nullable<string>, Nullable<Signer>, Nullable<Position>]>(
-    ([, walletAddress, walletSigner, position]) => Boolean(walletAddress) && Boolean(walletSigner) && Boolean(position),
+  withLatestFrom(walletAddress$, walletSigner$, position$, isWrongNetwork$),
+  filter<[Nullable<AppEvent>, Nullable<string>, Nullable<Signer>, Nullable<Position>, boolean]>(
+    ([, walletAddress, walletSigner, position, isWrongNetwork]) =>
+      Boolean(walletAddress) && Boolean(walletSigner) && Boolean(position) && !isWrongNetwork,
   ),
   mergeMap(([, , walletSigner, position]) => {
     const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>

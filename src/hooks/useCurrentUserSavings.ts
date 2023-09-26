@@ -12,20 +12,27 @@ import {
   filter,
   concatMap,
 } from 'rxjs';
-import { UserSavings } from '@raft-fi/sdk';
+import { RaftConfig, SupportedSavingsNetwork, UserSavings } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, SAVING_POSITION_BALANCE_THRESHOLD } from '../constants';
 import { Nullable } from '../interfaces';
 import { AppEvent, appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
+import { currentSavingsNetwork$ } from './useCurrentSavingsNetwork';
+import { isWrongSavingsNetwork$ } from './useNetwork';
 
 const DEFAULT_VALUE = null;
 
 export const currentUserSavings$ = new BehaviorSubject<Nullable<Decimal>>(DEFAULT_VALUE);
 
-const fetchData = async (signer: Signer) => {
+const fetchData = async (signer: Signer, network: SupportedSavingsNetwork) => {
   try {
+    // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
+    // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
+    const cachedNetwork = RaftConfig.network;
+    RaftConfig.setNetwork(network);
     const savings = new UserSavings(signer);
+    RaftConfig.setNetwork(cachedNetwork);
 
     const currentSavings = await savings.currentSavings();
 
@@ -40,32 +47,45 @@ const fetchData = async (signer: Signer) => {
   }
 };
 
-// Fetch current user savings data every time wallet changes
-const walletChangeStream$ = walletSigner$.pipe(
-  concatMap(async signer => {
-    if (!signer) {
+// Fetch current user savings data every time user changes network in UI
+const savingsNetworkChangeStream$ = currentSavingsNetwork$.pipe(
+  withLatestFrom(walletSigner$, isWrongSavingsNetwork$),
+  concatMap(async ([currentSavingsNetwork, signer, isWrongSavingsNetwork]) => {
+    if (!signer || isWrongSavingsNetwork) {
       return DEFAULT_VALUE;
     }
 
-    return fetchData(signer);
+    return fetchData(signer, currentSavingsNetwork);
+  }),
+);
+
+// Fetch current user savings data every time wallet changes
+const walletChangeStream$ = walletSigner$.pipe(
+  withLatestFrom(currentSavingsNetwork$, isWrongSavingsNetwork$),
+  concatMap(async ([signer, currentSavingsNetwork, isWrongSavingsNetwork]) => {
+    if (!signer || isWrongSavingsNetwork) {
+      return DEFAULT_VALUE;
+    }
+
+    return fetchData(signer, currentSavingsNetwork);
   }),
 );
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletSigner$),
-  filter((value): value is [AppEvent, JsonRpcSigner] => {
-    const [, signer] = value;
+  withLatestFrom(walletSigner$, currentSavingsNetwork$, isWrongSavingsNetwork$),
+  filter((value): value is [AppEvent, JsonRpcSigner, SupportedSavingsNetwork, boolean] => {
+    const [, signer, , isWrongSavingsNetwork] = value;
 
-    return Boolean(signer);
+    return Boolean(signer) && !isWrongSavingsNetwork;
   }),
-  mergeMap(([, signer]) => {
-    return fetchData(signer);
+  mergeMap(([, signer, currentSavingsNetwork]) => {
+    return fetchData(signer, currentSavingsNetwork);
   }),
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = merge(walletChangeStream$, appEventsStream$).pipe(
+const stream$ = merge(walletChangeStream$, appEventsStream$, savingsNetworkChangeStream$).pipe(
   debounce(() => interval(DEBOUNCE_IN_MS)),
   tap(currentUserSavings => currentUserSavings$.next(currentUserSavings)),
 );
