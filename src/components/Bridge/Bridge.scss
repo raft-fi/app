@@ -1,7 +1,7 @@
 .raft__bridge {
   width: 560px;
   padding: 24px 32px;
-  margin-top: 48px;
+  margin-top: 10px;
   box-sizing: border-box;
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
@@ -38,7 +38,7 @@
     margin-top: 42px;
 
     .raft__bridge__receive-amount__value {
-      margin-top: 20px;
+      margin-top: 8px;
       display: flex;
       align-items: baseline;
       gap: 8px;
