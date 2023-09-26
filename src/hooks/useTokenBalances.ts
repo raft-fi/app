@@ -54,27 +54,31 @@ const fetchData = async (
 };
 
 // Fetch new balance data every time wallet address changes
-const walletChangeStream$: Observable<TokenBalanceMap> = walletAddress$.pipe(
+const walletChangeStream$: Observable<TokenBalanceMap> = combineLatest([isWrongNetwork$, walletAddress$]).pipe(
+  filter(([isWrongNetwork]) => !isWrongNetwork),
   withLatestFrom(provider$),
-  mergeMap<[Nullable<string>, JsonRpcProvider], Observable<TokenBalanceMap>>(([walletAddress, provider]) => {
-    if (!walletAddress) {
-      return of(DEFAULT_VALUE);
-    }
+  mergeMap<[[boolean, Nullable<string>], JsonRpcProvider], Observable<TokenBalanceMap>>(
+    ([[, walletAddress], provider]) => {
+      if (!walletAddress) {
+        return of(DEFAULT_VALUE);
+      }
 
-    const tokenBalanceMaps: Observable<TokenBalanceMap>[] = SUPPORTED_TOKENS.map(token =>
-      from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
-    );
+      const tokenBalanceMaps: Observable<TokenBalanceMap>[] = SUPPORTED_TOKENS.map(token =>
+        from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
+      );
 
-    return merge(...tokenBalanceMaps);
-  }),
+      return merge(...tokenBalanceMaps);
+    },
+  ),
 );
 
-type PeriodicStreamInput = [[number], Nullable<string>, JsonRpcProvider];
+type PeriodicStreamInput = [[number], boolean, Nullable<string>, JsonRpcProvider];
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<TokenBalanceMap> = combineLatest([intervalBeat$]).pipe(
-  withLatestFrom(walletAddress$, provider$),
-  mergeMap<PeriodicStreamInput, Observable<TokenBalanceMap>>(([, walletAddress, provider]) => {
+  withLatestFrom(isWrongNetwork$, walletAddress$, provider$),
+  filter(([, isWrongNetwork]) => !isWrongNetwork),
+  mergeMap<PeriodicStreamInput, Observable<TokenBalanceMap>>(([, , walletAddress, provider]) => {
     if (!walletAddress) {
       return of(DEFAULT_VALUE);
     }
@@ -89,13 +93,13 @@ const periodicStream$: Observable<TokenBalanceMap> = combineLatest([intervalBeat
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletAddress$, provider$),
-  filter((value): value is [AppEvent, string, JsonRpcProvider] => {
-    const [, walletAddress] = value;
+  withLatestFrom(isWrongNetwork$, walletAddress$, provider$),
+  filter((value): value is [AppEvent, boolean, string, JsonRpcProvider] => {
+    const [, isWrongNetwork, walletAddress] = value;
 
-    return Boolean(walletAddress);
+    return Boolean(walletAddress) && !isWrongNetwork;
   }),
-  mergeMap(([, walletAddress, provider]) => {
+  mergeMap(([, , walletAddress, provider]) => {
     const tokenBalanceMaps = SUPPORTED_TOKENS.map(token =>
       from(fetchData(token, walletAddress, provider)).pipe(map(balance => ({ [token]: balance } as TokenBalanceMap))),
     );
@@ -105,21 +109,16 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = isWrongNetwork$.pipe(
-  filter(isWrongNetwork => !isWrongNetwork),
-  map(() =>
-    merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
-      scan(
-        (allBalances, tokenBalances) => ({
-          ...allBalances,
-          ...tokenBalances,
-        }),
-        {} as TokenBalanceMap,
-      ),
-      debounce<TokenBalanceMap>(() => interval(DEBOUNCE_IN_MS)),
-      tap(allBalances => tokenBalances$.next(allBalances)),
-    ),
+const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
+  scan(
+    (allBalances, tokenBalances) => ({
+      ...allBalances,
+      ...tokenBalances,
+    }),
+    {} as TokenBalanceMap,
   ),
+  debounce<TokenBalanceMap>(() => interval(DEBOUNCE_IN_MS)),
+  tap(allBalances => tokenBalances$.next(allBalances)),
 );
 
 export const [useTokenBalances] = bind(tokenBalances$, DEFAULT_VALUE);

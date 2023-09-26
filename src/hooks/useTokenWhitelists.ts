@@ -69,13 +69,14 @@ const fetchData = async (
 
 // Fetch new whitelist data every time wallet address changes
 const walletChangeStream$: Observable<TokenWhitelistMap> = combineLatest([
+  isWrongNetwork$,
   walletAddress$,
   walletSigner$,
   position$,
 ]).pipe(
-  mergeMap<[Nullable<string>, Nullable<Signer>, Nullable<Position>], Observable<TokenWhitelistMap>>(
-    ([walletAddress, walletSigner, position]) => {
-      if (!walletAddress || !walletSigner || !position) {
+  mergeMap<[boolean, Nullable<string>, Nullable<Signer>, Nullable<Position>], Observable<TokenWhitelistMap>>(
+    ([isWrongNetwork, walletAddress, walletSigner, position]) => {
+      if (!walletAddress || !walletSigner || !position || isWrongNetwork) {
         return of(DEFAULT_VALUE);
       }
 
@@ -90,12 +91,13 @@ const walletChangeStream$: Observable<TokenWhitelistMap> = combineLatest([
   ),
 );
 
-type PeriodicStreamInput = [[number], Nullable<Signer>, Nullable<Position>];
+type PeriodicStreamInput = [[number], boolean, Nullable<Signer>, Nullable<Position>];
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<TokenWhitelistMap> = combineLatest([intervalBeat$]).pipe(
-  withLatestFrom(walletSigner$, position$),
-  mergeMap<PeriodicStreamInput, Observable<TokenWhitelistMap>>(([, walletSigner, position]) => {
+  withLatestFrom(isWrongNetwork$, walletSigner$, position$),
+  filter(([, isWrongNetwork]) => !isWrongNetwork),
+  mergeMap<PeriodicStreamInput, Observable<TokenWhitelistMap>>(([, , walletSigner, position]) => {
     if (!walletSigner || !position) {
       return of(DEFAULT_VALUE);
     }
@@ -112,11 +114,12 @@ const periodicStream$: Observable<TokenWhitelistMap> = combineLatest([intervalBe
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletAddress$, walletSigner$, position$),
-  filter<[Nullable<AppEvent>, Nullable<string>, Nullable<Signer>, Nullable<Position>]>(
-    ([, walletAddress, walletSigner, position]) => Boolean(walletAddress) && Boolean(walletSigner) && Boolean(position),
+  withLatestFrom(isWrongNetwork$, walletAddress$, walletSigner$, position$),
+  filter<[Nullable<AppEvent>, boolean, Nullable<string>, Nullable<Signer>, Nullable<Position>]>(
+    ([, isWrongNetwork, walletAddress, walletSigner, position]) =>
+      Boolean(walletAddress) && Boolean(walletSigner) && Boolean(position) && !isWrongNetwork,
   ),
-  mergeMap(([, , walletSigner, position]) => {
+  mergeMap(([, , , walletSigner, position]) => {
     const tokenWhitelistMaps = SUPPORTED_COLLATERAL_TOKENS.map(token =>
       from(fetchData(token, walletSigner as Signer, position as Position)).pipe(
         map(isWhitelisted => ({ [token]: isWhitelisted } as TokenWhitelistMap)),
@@ -128,21 +131,16 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = isWrongNetwork$.pipe(
-  filter(isWrongNetwork => !isWrongNetwork),
-  map(() =>
-    merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
-      scan(
-        (allWhitelists, tokenWhitelists) => ({
-          ...allWhitelists,
-          ...tokenWhitelists,
-        }),
-        {} as TokenWhitelistMap,
-      ),
-      debounce<TokenWhitelistMap>(() => interval(DEBOUNCE_IN_MS)),
-      tap(allWhitelists => tokenWhitelists$.next(allWhitelists)),
-    ),
+const stream$ = merge(periodicStream$, walletChangeStream$, appEventsStream$).pipe(
+  scan(
+    (allWhitelists, tokenWhitelists) => ({
+      ...allWhitelists,
+      ...tokenWhitelists,
+    }),
+    {} as TokenWhitelistMap,
   ),
+  debounce<TokenWhitelistMap>(() => interval(DEBOUNCE_IN_MS)),
+  tap(allWhitelists => tokenWhitelists$.next(allWhitelists)),
 );
 
 export const [useTokenWhitelists] = bind(tokenWhitelists$, DEFAULT_VALUE);
