@@ -47,3 +47,4 @@ export * from './useWaitForBridge';
 export * from './useBridgeAllowances';
 export * from './useEthPrice';
 export * from './useWalletLoaded';
+export * from './useCurrentSavingsNetwork';

@@ -8,7 +8,7 @@ import Wallet from '../Wallet';
 
 import './Header.scss';
 
-const SKIP_NETWORK_CHECKING_PAGES = ['bridge'];
+const SKIP_NETWORK_CHECKING_PAGES = ['bridge', 'savings'];
 
 const Header = () => {
   const location = useLocation();

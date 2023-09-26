@@ -5,6 +5,7 @@ import { tap, Observable, interval, Subscription, BehaviorSubject, combineLatest
 import { POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { raftToken$ } from './useRaftToken';
+import { isWrongNetwork$ } from './useNetwork';
 
 const DEFAULT_VALUE: Nullable<Decimal> = null;
 
@@ -25,8 +26,14 @@ const fetchData = async (raftToken: Nullable<RaftToken>) => {
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
-const stream$: Observable<Nullable<Decimal>> = combineLatest([intervalBeat$, raftToken$]).pipe(
-  mergeMap<[number, Nullable<RaftToken>], Promise<Nullable<Decimal>>>(([, raftToken]) => fetchData(raftToken)),
+const stream$: Observable<Nullable<Decimal>> = combineLatest([intervalBeat$, raftToken$, isWrongNetwork$]).pipe(
+  mergeMap<[number, Nullable<RaftToken>, boolean], Promise<Nullable<Decimal>>>(([, raftToken, isWrongNetwork]) => {
+    if (isWrongNetwork) {
+      return Promise.resolve(DEFAULT_VALUE);
+    }
+
+    return fetchData(raftToken);
+  }),
   tap(userRaftBptBalance => userRaftBptBalance$.next(userRaftBptBalance)),
 );
 

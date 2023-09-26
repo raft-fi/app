@@ -38,7 +38,7 @@ const Bridge = () => {
   let defaultFromNetwork: SupportedBridgeNetwork;
   let defaultToNetwork: SupportedBridgeNetwork;
   if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
-    defaultFromNetwork = 'ethereum';
+    defaultFromNetwork = 'mainnet';
     defaultToNetwork = 'base';
   } else {
     defaultFromNetwork = 'ethereumSepolia';

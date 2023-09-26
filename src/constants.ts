@@ -1,4 +1,10 @@
-import { CollateralToken, SupportedBridgeNetwork, Token, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import {
+  CollateralToken,
+  SupportedBridgeNetwork,
+  SupportedSavingsNetwork,
+  Token,
+  UnderlyingCollateralToken,
+} from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import {
   SupportedCollateralToken,
@@ -170,11 +176,12 @@ export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduc
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
 }, {} as TokenGenericMap<SupportedCollateralToken, SupportedCollateralToken>);
 
-export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
-  ethereum: import.meta.env.VITE_MAINNET_RPC_URL,
+export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: import.meta.env.VITE_MAINNET_RPC_URL,
   base: import.meta.env.VITE_BASE_MAINNET_RPC_URL,
   ethereumSepolia: import.meta.env.VITE_ETHEREUM_SEPOLIA_RPC_URL,
   arbitrumGoerli: import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL,
+  goerli: import.meta.env.VITE_GOERLI_RPC_URL,
 };
 
 export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: string } = {
