@@ -48,3 +48,5 @@ export * from './useBridgeAllowances';
 export * from './useEthPrice';
 export * from './useWalletLoaded';
 export * from './useCurrentSavingsNetwork';
+export * from './useSavingsTokenBalance';
+export * from './useSavingsTokenAllowance';

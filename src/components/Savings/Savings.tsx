@@ -12,9 +12,9 @@ import {
   useManageSavings,
   useNetwork,
   useSavingsMaxDeposit,
+  useSavingsTokenBalance,
   useSavingsTvl,
   useSavingsYield,
-  useTokenBalances,
   useWallet,
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
@@ -49,7 +49,7 @@ const Savings = () => {
   const { network } = useNetwork();
   const eip1193Provider = useEIP1193Provider();
   const wallet = useWallet();
-  const tokenBalanceMap = useTokenBalances();
+  const savingsTokenBalance = useSavingsTokenBalance();
   const savingsMaxDeposit = useSavingsMaxDeposit();
   const currentUserSavings = useCurrentUserSavings();
   const savingsTvl = useSavingsTvl();
@@ -70,7 +70,7 @@ const Savings = () => {
     requestManageSavingsStep?.({
       amount: isAddCollateral ? amountParsed : amountParsed.mul(-1),
     });
-  }, [amountParsed, isAddCollateral, wallet, requestManageSavingsStep]);
+  }, [amountParsed, isAddCollateral, wallet, selectedNetwork, requestManageSavingsStep]);
 
   const handleSwitchCollateralAction = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const addCollateral = event.currentTarget.getAttribute('data-id') === 'addCollateral';
@@ -83,7 +83,7 @@ const Savings = () => {
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
-  const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
+  const rTokenBalance = useMemo(() => savingsTokenBalance, [savingsTokenBalance]);
 
   const rInputLabelComponent = useMemo(
     () => (
@@ -279,10 +279,6 @@ const Savings = () => {
       return;
     }
 
-    if (isWrongNetwork) {
-      return 'Network selected in wallet does not match the network selected in the UI';
-    }
-
     if (isAddCollateral && !hasEnoughRToDeposit) {
       return 'Insufficient funds';
     }
@@ -294,14 +290,7 @@ const Savings = () => {
     if (isAddCollateral && !isPositionWithinDepositCap) {
       return `Not enough capacity for the deposit amount. Please reduce and try again.`;
     }
-  }, [
-    hasEnoughRToDeposit,
-    hasEnoughRToWithdraw,
-    isAddCollateral,
-    isPositionWithinDepositCap,
-    isWrongNetwork,
-    walletConnected,
-  ]);
+  }, [hasEnoughRToDeposit, hasEnoughRToWithdraw, isAddCollateral, isPositionWithinDepositCap, walletConnected]);
 
   const savingsAfter = useMemo(() => {
     if (!currentUserSavings) {

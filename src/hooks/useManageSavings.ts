@@ -1,5 +1,11 @@
 import { v4 as uuid } from 'uuid';
-import { ERC20PermitSignatureStruct, R_TOKEN, SavingsStep, UserSavings } from '@raft-fi/sdk';
+import {
+  ERC20PermitSignatureStruct,
+  RaftConfig,
+  SavingsStep,
+  SupportedSavingsNetwork,
+  UserSavings,
+} from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -22,10 +28,11 @@ import { GAS_LIMIT_MULTIPLIER, NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constan
 import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
-import { tokenAllowances$ } from './useTokenAllowances';
 import { wallet$, walletLabel$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { isSignatureValid } from '../utils';
+import { currentSavingsNetwork$ } from './useCurrentSavingsNetwork';
+import { savingsTokenAllowance$ } from './useSavingsTokenAllowance';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -200,24 +207,30 @@ const manageSavings$ = manageSavingsStepsStatus$.pipe(
   ),
 );
 
-const requestManageSavingsStep$ = walletSigner$.pipe(
-  map<Nullable<JsonRpcSigner>, RequestManageSavingsStepFunc>(signer => (request: ManageSavingsStepsRequest) => {
-    if (!signer) {
-      return;
-    }
+const requestManageSavingsStep$ = combineLatest([walletSigner$, currentSavingsNetwork$]).pipe(
+  map<[Nullable<JsonRpcSigner>, SupportedSavingsNetwork], RequestManageSavingsStepFunc>(
+    ([signer, currentSavingsNetwork]) =>
+      (request: ManageSavingsStepsRequest) => {
+        if (!signer) {
+          return;
+        }
 
-    userSavings = new UserSavings(signer);
+        // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
+        // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
+        const cachedNetwork = RaftConfig.network;
+        RaftConfig.setNetwork(currentSavingsNetwork);
+        userSavings = new UserSavings(signer);
+        RaftConfig.setNetwork(cachedNetwork);
 
-    setManageSavingsStepsRequest(request);
-  }),
+        setManageSavingsStepsRequest(request);
+      },
+  ),
 );
 
 // Stream that waits for token allowances to be loaded before we can send request to SDK to get manage savings steps
-const tokenMapsLoaded$ = combineLatest([tokenAllowances$]).pipe(
-  map(([tokenAllowanceMap]) => {
-    const rTokenAllowance = tokenAllowanceMap[R_TOKEN];
-
-    return Boolean(rTokenAllowance);
+const tokenAllowanceLoaded$ = combineLatest([savingsTokenAllowance$]).pipe(
+  map(([savingsTokenAllowance]) => {
+    return Boolean(savingsTokenAllowance);
   }),
   distinctUntilChanged(),
 );
@@ -227,13 +240,13 @@ const distinctRequest$ = manageSavingsStepsRequest$.pipe(
   distinctUntilChanged((prev, current) => prev.amount.equals(current.amount)),
 );
 
-const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
+const stream$ = combineLatest([distinctRequest$, tokenAllowanceLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded),
-  withLatestFrom(tokenAllowances$, walletLabel$),
-  concatMap(([[request], tokenAllowanceMap, walletLabel]) => {
+  withLatestFrom(savingsTokenAllowance$, walletLabel$),
+  concatMap(([[request], savingsTokenAllowance]) => {
     const { amount } = request;
 
-    const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
+    const rTokenAllowance = savingsTokenAllowance ?? undefined;
 
     const rPermitSignature = isSignatureValid(rSignature || null) ? rSignature : undefined;
 
@@ -252,8 +265,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         rTokenAllowance,
         rPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
-        // Allow permit only if user is using MetaMask
-        approvalType: walletLabel === 'MetaMask' ? 'permit' : 'approve',
+        approvalType: 'approve',
       });
       const nextStep$ = from(steps.next());
 
