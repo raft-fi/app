@@ -5,6 +5,7 @@ import { DecimalFormat, Decimal } from '@tempusfinance/decimal';
 import { R_TOKEN_UI_PRECISION } from '../../../constants';
 import { Nullable } from '../../../interfaces';
 import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../../shared';
+import SavingsTvlBreakdownTooltip from './SavingsTvlBreakdownTooltip';
 
 import './Stats.scss';
 
@@ -108,9 +109,14 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl }) => {
           )}
         </div>
         <div className="raft__savings__stats__item">
-          <Typography variant="overline" weight="semi-bold" color="text-accent">
-            TOTAL VALUE LOCKED
-          </Typography>
+          <div className="raft__savings__stats__item-title ">
+            <Typography variant="overline" weight="semi-bold" color="text-accent">
+              TOTAL VALUE LOCKED
+            </Typography>
+            <TooltipWrapper tooltipContent={<SavingsTvlBreakdownTooltip />} placement="bottom">
+              <Icon variant="info" size="tiny" />
+            </TooltipWrapper>
+          </div>
           <div className="raft__savings__stats__item-token">
             <TokenLogo type="token-R" size="small" />
             {currentTvlMultiplier ? (

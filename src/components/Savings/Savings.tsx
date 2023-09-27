@@ -334,6 +334,17 @@ const Savings = () => {
     });
   }, [savingsAfter]);
 
+  const totalSavingsTvl = useMemo(() => {
+    let total = Decimal.ZERO;
+    Object.entries(savingsTvl).forEach(([, tvl]) => {
+      if (!tvl) {
+        return;
+      }
+      total = total.add(tvl);
+    });
+    return total;
+  }, [savingsTvl]);
+
   const onMaxAmountClick = useCallback(() => {
     if (!inputMaxAmount) {
       return null;
@@ -513,7 +524,7 @@ const Savings = () => {
         </div>
       </div>
       <div className="raft__savings__right">
-        <Stats currentSavings={currentUserSavings} currentYield={savingsYield} tvl={savingsTvl} />
+        <Stats currentSavings={currentUserSavings} currentYield={savingsYield} tvl={totalSavingsTvl} />
         <FAQ />
       </div>
     </div>

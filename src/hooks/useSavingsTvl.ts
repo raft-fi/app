@@ -1,69 +1,109 @@
 import { JsonRpcProvider } from 'ethers';
 import { bind } from '@react-rxjs/core';
-import { Savings } from '@raft-fi/sdk';
-import { Decimal } from '@tempusfinance/decimal';
 import {
-  from,
-  of,
-  merge,
-  tap,
-  filter,
-  Observable,
-  catchError,
-  debounce,
   interval,
-  Subscription,
-  concatMap,
   BehaviorSubject,
+  Observable,
+  mergeMap,
   map,
-  withLatestFrom,
+  from,
+  merge,
+  scan,
+  debounce,
+  tap,
+  Subscription,
+  startWith,
 } from 'rxjs';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { RaftConfig, Savings, SupportedSavingsNetwork } from '@raft-fi/sdk';
+import { Decimal } from '@tempusfinance/decimal';
+import { DEBOUNCE_IN_MS, NETWORK_RPC_URLS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
-import { provider$ } from './useProvider';
+import { SAVINGS_MAINNET_NETWORKS, SAVINGS_TESTNET_NETWORKS } from '../networks';
+import { appEvent$ } from './useAppEvent';
 
-export const savingsTvl$ = new BehaviorSubject<Nullable<Decimal>>(null);
+export type SavingsTvlMap = { [network in SupportedSavingsNetwork]: Decimal | null };
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS);
+const DEFAULT_VALUE: SavingsTvlMap = {
+  mainnet: null,
+  base: null,
+  goerli: null,
+};
 
-const fetchData = (provider: JsonRpcProvider) => {
+const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
+
+export const savingsTvl$ = new BehaviorSubject<SavingsTvlMap>(DEFAULT_VALUE);
+
+const fetchData = async (network: SupportedSavingsNetwork): Promise<Nullable<Decimal>> => {
   try {
-    const savings = new Savings(provider);
+    const networkRpc = NETWORK_RPC_URLS[network];
 
-    return from(savings.getTvl()).pipe(
-      map(tvl => tvl),
-      catchError(error => {
-        console.error('useSavingsTvl (catchError) - failed to fetch savings tvl value!', error);
-        return of(null);
-      }),
-    );
+    const provider = new JsonRpcProvider(networkRpc, 'any');
+    // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
+    // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
+    const cachedNetwork = RaftConfig.network;
+    RaftConfig.setNetwork(network);
+    const savings = new Savings(provider);
+    RaftConfig.setNetwork(cachedNetwork);
+
+    const result = await savings.getTvl();
+
+    return result;
   } catch (error) {
-    console.error('useSavingsMaxDeposit (catch) - failed to fetch savings tvl value!', error);
-    return of(null);
+    console.error(`useSavingsTvl - Failed to get savings tvl for ${network}`, error);
+    return null;
   }
 };
 
-// Stream that fetches protocol stats periodically
+// Fetch data periodically
 const intervalStream$ = intervalBeat$.pipe(
-  withLatestFrom(provider$),
-  concatMap<[number, JsonRpcProvider], Observable<Nullable<Decimal>>>(([, provider]) => fetchData(provider)),
-);
+  mergeMap(() => {
+    let networks: SupportedSavingsNetwork[] = [];
+    if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
+      networks = SAVINGS_MAINNET_NETWORKS;
+    } else {
+      networks = SAVINGS_TESTNET_NETWORKS;
+    }
 
-// Stream that fetches savings max deposit every time provider changes
-const providerStream$ = provider$.pipe(
-  concatMap<JsonRpcProvider, Observable<Nullable<Decimal>>>(provider => fetchData(provider)),
-);
+    const savingsTvlMaps = networks.map(network => {
+      return from(fetchData(network)).pipe(map(balance => ({ [network]: balance } as SavingsTvlMap)));
+    });
 
-// merge all stream$ into one if there are multiple
-const stream$ = merge(providerStream$, intervalStream$).pipe(
-  filter((savingsTvl): savingsTvl is Decimal => Boolean(savingsTvl)),
-  debounce<Decimal>(() => interval(DEBOUNCE_IN_MS)),
-  tap(savingsTvl => {
-    savingsTvl$.next(savingsTvl);
+    return merge(...savingsTvlMaps);
   }),
 );
 
-export const [useSavingsTvl] = bind(savingsTvl$, null);
+// fetch when app event fire
+const appEventsStream$ = appEvent$.pipe(
+  mergeMap(() => {
+    let networks: SupportedSavingsNetwork[] = [];
+    if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
+      networks = SAVINGS_MAINNET_NETWORKS;
+    } else {
+      networks = SAVINGS_TESTNET_NETWORKS;
+    }
+
+    const savingsTvlMaps = networks.map(network => {
+      return from(fetchData(network)).pipe(map(balance => ({ [network]: balance } as SavingsTvlMap)));
+    });
+
+    return merge(...savingsTvlMaps);
+  }),
+);
+
+// merge all streams into one
+const stream$ = merge(intervalStream$, appEventsStream$).pipe(
+  scan(
+    (allSavingsTvls, savingsTvls) => ({
+      ...allSavingsTvls,
+      ...savingsTvls,
+    }),
+    {} as SavingsTvlMap,
+  ),
+  debounce<SavingsTvlMap>(() => interval(DEBOUNCE_IN_MS)),
+  tap(allSavingsTvls => savingsTvl$.next(allSavingsTvls)),
+);
+
+export const [useSavingsTvl] = bind(savingsTvl$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 
@@ -72,6 +112,6 @@ export const subscribeSavingsTvl = (): void => {
   subscription = stream$.subscribe();
 };
 export const unsubscribeSavingsTvl = (): void => subscription?.unsubscribe();
-export const resetSavingsTvl = (): void => {
-  savingsTvl$.next(null);
-};
+export const resetSavingsTvl = (): void => savingsTvl$.next(DEFAULT_VALUE);
+
+subscribeSavingsTvl();
