@@ -423,6 +423,21 @@ const TransactionModal = () => {
     }
   }, [currentStatus]);
 
+  const explorerLabel = useMemo(() => {
+    if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
+      return NETWORK_TO_BLOCK_EXPLORER[currentStatus.request.network];
+    }
+    return 'Etherscan';
+  }, [currentStatus]);
+
+  const explorerUrl = useMemo(() => {
+    if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
+      const explorerBaseUrl = NETWORK_TO_BLOCK_EXPLORER_URL[currentStatus.request.network];
+
+      return `${explorerBaseUrl}/tx/${currentStatus.txHash}`;
+    }
+  }, [currentStatus]);
+
   if (['bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '') && bridgeTokensStatus.request) {
     const { sourceChainName, destinationChainName, amountToBridge } = bridgeTokensStatus.request;
 
