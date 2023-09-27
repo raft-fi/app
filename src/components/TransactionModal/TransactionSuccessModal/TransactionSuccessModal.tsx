@@ -11,6 +11,8 @@ interface TransactionSuccessModalProps {
   title: ReactNode | string;
   subtitle: string;
   txHash?: string;
+  blockExplorerLabel: string;
+  blockExplorerUrl?: string;
   tokenToAdd: Nullable<{
     label: string;
     address: string;
@@ -27,6 +29,8 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
   subtitle,
   tokenToAdd,
   txHash = '',
+  blockExplorerLabel,
+  blockExplorerUrl,
   onClose,
 }) => {
   const eip1193Provider = useEIP1193Provider();
@@ -64,9 +68,9 @@ const TransactionSuccessModal: FC<TransactionSuccessModalProps> = ({
         </div>
         <div className="raft__transactionSuccessModal__explorerLink">
           <Typography variant="body">View transaction on&nbsp;</Typography>
-          <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
+          <Link href={blockExplorerUrl ? blockExplorerUrl : `${config.blockExplorerUrl}/tx/${txHash}`}>
             <Typography variant="body" color="text-accent" weight="medium">
-              Etherscan
+              {blockExplorerLabel}
             </Typography>
           </Link>
           <Typography variant="body">.</Typography>

@@ -29,6 +29,7 @@ import {
 import TransactionCloseModal from './TransactionCloseModal';
 import { BridgeFailedModal, BridgePendingModal, BridgeSuccessModal } from './BridgeModal';
 import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
+import { NETWORK_TO_BLOCK_EXPLORER, NETWORK_TO_BLOCK_EXPLORER_URL } from '../../networks';
 
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
@@ -401,6 +402,21 @@ const TransactionModal = () => {
     return null;
   }, [currentStatus?.statusType, manageSavingsStatus.request?.amount]);
 
+  const explorerLabel = useMemo(() => {
+    if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
+      return NETWORK_TO_BLOCK_EXPLORER[currentStatus.request.network];
+    }
+    return 'Etherscan';
+  }, [currentStatus]);
+
+  const explorerUrl = useMemo(() => {
+    if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
+      const explorerBaseUrl = NETWORK_TO_BLOCK_EXPLORER_URL[currentStatus.request.network];
+
+      return `${explorerBaseUrl}/tx/${currentStatus.txHash}`;
+    }
+  }, [currentStatus]);
+
   if (['bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '') && bridgeTokensStatus.request) {
     const { sourceChainName, destinationChainName, amountToBridge } = bridgeTokensStatus.request;
 
@@ -452,6 +468,8 @@ const TransactionModal = () => {
           title={successModalTitle}
           txHash={currentStatus?.txHash}
           onClose={onCloseModal}
+          blockExplorerLabel={explorerLabel}
+          blockExplorerUrl={explorerUrl}
         />
       )}
       {successModalOpened && !isClosePosition && (
@@ -462,6 +480,8 @@ const TransactionModal = () => {
           open={successModalOpened}
           tokenToAdd={tokenToAdd}
           txHash={currentStatus?.txHash}
+          blockExplorerLabel={explorerLabel}
+          blockExplorerUrl={explorerUrl}
         />
       )}
       {failedModalOpened && (

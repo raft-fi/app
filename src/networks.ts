@@ -63,3 +63,19 @@ export const BRIDGE_MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['mainnet', 'ba
 
 export const SAVINGS_TESTNET_NETWORKS: SupportedSavingsNetwork[] = ['goerli'];
 export const SAVINGS_MAINNET_NETWORKS: SupportedSavingsNetwork[] = ['mainnet', 'base'];
+
+export const NETWORK_TO_BLOCK_EXPLORER: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'Etherscan',
+  base: 'BaseScan',
+  arbitrumGoerli: 'Arbiscan',
+  ethereumSepolia: 'Etherscan',
+  goerli: 'Etherscan',
+};
+
+export const NETWORK_TO_BLOCK_EXPLORER_URL: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'https://etherscan.io',
+  base: 'https://basescan.org',
+  arbitrumGoerli: 'https://arbiscan.io',
+  ethereumSepolia: 'https://sepolia.etherscan.io',
+  goerli: 'https://goerli.etherscan.io',
+};

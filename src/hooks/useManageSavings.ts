@@ -56,6 +56,7 @@ let userSavings: Nullable<UserSavings> = null;
 
 interface ManageSavingsStepsRequest {
   amount: Decimal;
+  network: SupportedSavingsNetwork;
 }
 
 interface ManageSavingsStatus {
@@ -237,7 +238,7 @@ const tokenAllowanceLoaded$ = combineLatest([savingsTokenAllowance$]).pipe(
 
 // Stream that checks if request is distinct from previous one
 const distinctRequest$ = manageSavingsStepsRequest$.pipe(
-  distinctUntilChanged((prev, current) => prev.amount.equals(current.amount)),
+  distinctUntilChanged((prev, current) => prev.amount.equals(current.amount) && prev.network === current.network),
 );
 
 const stream$ = combineLatest([distinctRequest$, tokenAllowanceLoaded$]).pipe(
