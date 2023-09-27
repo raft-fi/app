@@ -69,6 +69,7 @@ const Savings = () => {
     // In case user is withdrawing we need to set negative amount value.
     requestManageSavingsStep?.({
       amount: isAddCollateral ? amountParsed : amountParsed.mul(-1),
+      network: selectedNetwork,
     });
   }, [amountParsed, isAddCollateral, wallet, selectedNetwork, requestManageSavingsStep]);
 

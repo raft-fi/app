@@ -10,10 +10,19 @@ interface TransactionCloseModalProps {
   open: boolean;
   title: ReactNode | string;
   txHash?: string;
+  blockExplorerLabel: string;
+  blockExplorerUrl?: string;
   onClose: () => void;
 }
 
-const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, txHash = ZERO_ADDRESS, onClose }) => {
+const TransactionCloseModal: FC<TransactionCloseModalProps> = ({
+  open,
+  title,
+  txHash = ZERO_ADDRESS,
+  blockExplorerLabel,
+  blockExplorerUrl,
+  onClose,
+}) => {
   const config = useConfig();
 
   return (
@@ -30,9 +39,9 @@ const TransactionCloseModal: FC<TransactionCloseModalProps> = ({ open, title, tx
         </div>
         <div className="raft__transactionCloseModal__explorerLink">
           <Typography variant="caption">View transaction on&nbsp;</Typography>
-          <Link href={`${config.blockExplorerUrl}/tx/${txHash}`}>
+          <Link href={blockExplorerUrl ? blockExplorerUrl : `${config.blockExplorerUrl}/tx/${txHash}`}>
             <Typography variant="caption" color="text-accent">
-              Etherscan
+              {blockExplorerLabel}
             </Typography>
           </Link>
         </div>
