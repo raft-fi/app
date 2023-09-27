@@ -383,16 +383,22 @@ const TransactionModal = () => {
       };
     }
 
-    if (currentStatus?.statusType === 'manageSavings') {
+    if (currentStatus?.statusType === 'manageSavings' && manageSavingsStatus.request) {
       const isDeposit = manageSavingsStatus.request?.amount.gt(0);
       if (!isDeposit) {
         return null;
       }
 
+      // TODO - Only way to get data from specific network config - we will remove `setNetwork()` and use per feature network settings
+      const cachedNetwork = RaftConfig.network;
+      RaftConfig.setNetwork(manageSavingsStatus.request.network);
+      const rrAddress = RaftConfig.networkConfig.tokens.RR.address;
+      RaftConfig.setNetwork(cachedNetwork);
+
       return {
         label: 'Add RR to wallet',
         // TODO - Change this address based on chain user used to withdraw
-        address: RaftConfig.networkConfig.tokens.RR.address,
+        address: rrAddress,
         symbol: 'RR',
         decimals: 18,
         image: 'https://raft.fi/rrToken.svg',
@@ -400,7 +406,7 @@ const TransactionModal = () => {
     }
 
     return null;
-  }, [currentStatus?.statusType, manageSavingsStatus.request?.amount]);
+  }, [currentStatus?.statusType, manageSavingsStatus]);
 
   const explorerLabel = useMemo(() => {
     if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
