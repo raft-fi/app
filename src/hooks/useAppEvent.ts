@@ -10,7 +10,11 @@ export type AppEventType =
   | 'manage'
   | 'leverage'
   | 'manageSavings'
-  | 'bridge';
+  | 'bridge'
+  | 'stake-new'
+  | 'stake-increase'
+  | 'stake-extend'
+  | 'stake-withdraw';
 
 export interface AppEventMetadata {
   collateralToken?: SupportedCollateralToken;

@@ -1,21 +1,41 @@
 import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
-import { R_TOKEN } from '@raft-fi/sdk';
+import { R_TOKEN, SUPPORTED_SAVINGS_NETWORKS, isSupportedSavingsNetwork } from '@raft-fi/sdk';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import {
+  setCurrentSavingsNetwork,
   useAppLoaded,
+  useCurrentSavingsNetwork,
   useCurrentUserSavings,
+  useEIP1193Provider,
   useManageSavings,
   useNetwork,
   useSavingsMaxDeposit,
+  useSavingsTokenBalance,
   useSavingsTvl,
   useSavingsYield,
-  useTokenBalances,
   useWallet,
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
-import { CurrencyInput, ExecuteButton, Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../shared';
+import {
+  NETWORK_IDS,
+  NETWORK_NAMES,
+  NETWORK_WALLET_CURRENCIES,
+  NETWORK_WALLET_ENDPOINTS,
+  SAVINGS_MAINNET_NETWORKS,
+  SAVINGS_TESTNET_NETWORKS,
+} from '../../networks';
+import {
+  CurrencyInput,
+  ExecuteButton,
+  Icon,
+  NetworkSelector,
+  Tooltip,
+  TooltipWrapper,
+  Typography,
+  ValueLabel,
+} from '../shared';
 import LoadingSavings from '../LoadingSavings';
 import FAQ from './FAQ';
 import Stats from './Stats';
@@ -26,13 +46,15 @@ const Savings = () => {
   const [, connect] = useConnectWallet();
 
   const appLoaded = useAppLoaded();
-  const { isWrongNetwork } = useNetwork();
+  const { network } = useNetwork();
+  const eip1193Provider = useEIP1193Provider();
   const wallet = useWallet();
-  const tokenBalanceMap = useTokenBalances();
+  const savingsTokenBalance = useSavingsTokenBalance();
   const savingsMaxDeposit = useSavingsMaxDeposit();
   const currentUserSavings = useCurrentUserSavings();
   const savingsTvl = useSavingsTvl();
   const savingsYield = useSavingsYield();
+  const selectedNetwork = useCurrentSavingsNetwork();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
@@ -47,8 +69,9 @@ const Savings = () => {
     // In case user is withdrawing we need to set negative amount value.
     requestManageSavingsStep?.({
       amount: isAddCollateral ? amountParsed : amountParsed.mul(-1),
+      network: selectedNetwork,
     });
-  }, [amountParsed, isAddCollateral, wallet, requestManageSavingsStep]);
+  }, [amountParsed, isAddCollateral, wallet, selectedNetwork, requestManageSavingsStep]);
 
   const handleSwitchCollateralAction = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const addCollateral = event.currentTarget.getAttribute('data-id') === 'addCollateral';
@@ -61,7 +84,7 @@ const Savings = () => {
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
-  const rTokenBalance = useMemo(() => tokenBalanceMap[R_TOKEN], [tokenBalanceMap]);
+  const rTokenBalance = useMemo(() => savingsTokenBalance, [savingsTokenBalance]);
 
   const rInputLabelComponent = useMemo(
     () => (
@@ -133,6 +156,14 @@ const Savings = () => {
     return amountParsed.lte(savingsMaxDeposit);
   }, [amountParsed, savingsMaxDeposit]);
 
+  const isWrongNetwork = useMemo(() => {
+    if (!network) {
+      return false;
+    }
+
+    return network.chainId.toString() !== String(NETWORK_IDS[selectedNetwork]);
+  }, [network, selectedNetwork]);
+
   // TODO - Handle withdraw error messages inside this hook
   const buttonLabel = useMemo(() => {
     if (!walletConnected) {
@@ -140,7 +171,7 @@ const Savings = () => {
     }
 
     if (isWrongNetwork) {
-      return 'Unsupported network';
+      return `Switch to ${NETWORK_NAMES[selectedNetwork]}`;
     }
 
     if (isAddCollateral && !hasEnoughRToDeposit) {
@@ -189,6 +220,7 @@ const Savings = () => {
     hasNonEmptyInput,
     manageSavingsStatus.pending,
     currentExecutionSteps,
+    selectedNetwork,
   ]);
 
   const subHeaderLabel = useMemo(() => {
@@ -211,11 +243,16 @@ const Savings = () => {
   }, [hasEnoughRToWithdraw, hasInputFilled, isWrongNetwork]);
 
   const canExecute = useMemo(() => {
+    // Enable execute button in case network is wrong (in this case button asks user to switch network)
+    if (isWrongNetwork) {
+      return true;
+    }
+
     if (isAddCollateral) {
       return canExecuteDeposit;
     }
     return canExecuteWithdraw;
-  }, [canExecuteDeposit, canExecuteWithdraw, isAddCollateral]);
+  }, [canExecuteDeposit, canExecuteWithdraw, isAddCollateral, isWrongNetwork]);
 
   const inputMaxAmount = useMemo(() => {
     if (isAddCollateral) {
@@ -239,7 +276,7 @@ const Savings = () => {
   }, [inputMaxAmount]);
 
   const errorMessage = useMemo(() => {
-    if (!walletConnected) {
+    if (!walletConnected || isWrongNetwork) {
       return;
     }
 
@@ -249,10 +286,6 @@ const Savings = () => {
 
     if (!isAddCollateral && !hasEnoughRToWithdraw) {
       return 'Insufficient balance';
-    }
-
-    if (isWrongNetwork) {
-      return 'You are connected to unsupported network. Please switch to Ethereum Mainnet.';
     }
 
     if (isAddCollateral && !isPositionWithinDepositCap) {
@@ -278,6 +311,16 @@ const Savings = () => {
     return Decimal.max(currentUserSavings.sub(amountParsed), Decimal.ZERO);
   }, [amountParsed, currentUserSavings, isAddCollateral]);
 
+  const availableSavingsNetworks = useMemo(() => {
+    return SUPPORTED_SAVINGS_NETWORKS.filter(network => {
+      if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
+        return SAVINGS_MAINNET_NETWORKS.includes(network);
+      } else {
+        return SAVINGS_TESTNET_NETWORKS.includes(network);
+      }
+    });
+  }, []);
+
   const savingsAfterFormatted = useMemo(() => {
     if (!savingsAfter) {
       return null;
@@ -292,6 +335,17 @@ const Savings = () => {
     });
   }, [savingsAfter]);
 
+  const totalSavingsTvl = useMemo(() => {
+    let total = Decimal.ZERO;
+    Object.entries(savingsTvl).forEach(([, tvl]) => {
+      if (!tvl) {
+        return;
+      }
+      total = total.add(tvl);
+    });
+    return total;
+  }, [savingsTvl]);
+
   const onMaxAmountClick = useCallback(() => {
     if (!inputMaxAmount) {
       return null;
@@ -300,9 +354,49 @@ const Savings = () => {
     setAmount(inputMaxAmount.toString());
   }, [inputMaxAmount]);
 
+  const onSwitchNetwork = useCallback(async () => {
+    if (eip1193Provider) {
+      try {
+        // https://eips.ethereum.org/EIPS/eip-3326
+        await eip1193Provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: `0x${NETWORK_IDS[selectedNetwork].toString(16)}` }],
+        });
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((error as any).code === 4902) {
+          // https://eips.ethereum.org/EIPS/eip-3085
+          await eip1193Provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${NETWORK_IDS[selectedNetwork].toString(16)}`,
+                chainName: NETWORK_NAMES[selectedNetwork],
+                rpcUrls: [NETWORK_WALLET_ENDPOINTS[selectedNetwork]],
+                nativeCurrency: NETWORK_WALLET_CURRENCIES[selectedNetwork],
+              },
+            ],
+          });
+        } else {
+          console.error(`Failed to switch network to ${selectedNetwork}`);
+        }
+      }
+    }
+  }, [eip1193Provider, selectedNetwork]);
+
   const onAction = useCallback(() => {
-    manageSavings?.();
-  }, [manageSavings]);
+    if (isWrongNetwork) {
+      onSwitchNetwork();
+    } else {
+      manageSavings?.();
+    }
+  }, [manageSavings, onSwitchNetwork, isWrongNetwork]);
+
+  const handleSelectedNetworkChange = useCallback((value: string) => {
+    if (isSupportedSavingsNetwork(value)) {
+      setCurrentSavingsNetwork(value);
+    }
+  }, []);
 
   const onConnectWallet = useCallback(() => {
     connect();
@@ -347,6 +441,17 @@ const Savings = () => {
             <Typography variant="body" weight="regular" color="text-secondary">
               {subHeaderLabel}
             </Typography>
+          </div>
+
+          <div className="raft__savings__networkSelectorContainer">
+            <Typography variant="overline" weight="semi-bold" color="text-secondary">
+              NETWORK
+            </Typography>
+            <NetworkSelector
+              networks={availableSavingsNetworks}
+              selectedNetwork={selectedNetwork}
+              onNetworkChange={handleSelectedNetworkChange}
+            />
           </div>
 
           <div className="raft__savings__input">
@@ -420,7 +525,7 @@ const Savings = () => {
         </div>
       </div>
       <div className="raft__savings__right">
-        <Stats currentSavings={currentUserSavings} currentYield={savingsYield} tvl={savingsTvl} />
+        <Stats currentSavings={currentUserSavings} currentYield={savingsYield} tvl={totalSavingsTvl} />
         <FAQ />
       </div>
     </div>

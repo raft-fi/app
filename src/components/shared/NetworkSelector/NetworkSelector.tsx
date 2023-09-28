@@ -1,13 +1,15 @@
 import { MouseEvent, FC, useCallback, useState, memo } from 'react';
-import { SupportedBridgeNetwork } from '@raft-fi/sdk';
+import { SupportedBridgeNetwork, SupportedSavingsNetwork } from '@raft-fi/sdk';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
-import { Icon, Menu, Typography } from '../shared';
-import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../networks';
+import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../../networks';
+import { Icon, Menu, Typography } from '../';
+
+import './NetworkSelector.scss';
 
 type NetworkSelectorProps = {
-  networks: SupportedBridgeNetwork[];
+  networks: (SupportedBridgeNetwork | SupportedSavingsNetwork)[];
   selectedNetwork: string;
-  onNetworkChange: (network: SupportedBridgeNetwork) => void;
+  onNetworkChange: (network: string) => void;
 };
 
 const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, onNetworkChange }) => {
@@ -19,33 +21,33 @@ const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, 
   const handleNetworkUpdate = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       onCloseDropdown();
-      onNetworkChange(event.currentTarget.getAttribute('data-network') as SupportedBridgeNetwork);
+      onNetworkChange(event.currentTarget.getAttribute('data-network') as string);
     },
     [onCloseDropdown, onNetworkChange],
   );
 
   return (
-    <div className="raft__bridge__network-selector">
-      <ButtonWrapper className="raft__bridge__network-selector-dropdown" onClick={onOpenDropdown}>
+    <div className="raft__networkSelector">
+      <ButtonWrapper className="raft__networkSelector__dropdown" onClick={onOpenDropdown}>
         <TokenLogo type={NETWORK_LOGO_VARIANTS[selectedNetwork]} size={20} />
-        <Typography className="raft__bridge__token-label" variant="button-label">
+        <Typography className="raft__networkSelector__dropdownLabel" variant="button-label">
           {NETWORK_NAMES[selectedNetwork]}
         </Typography>
         <Icon variant={dropdownOpen ? 'chevron-up' : 'chevron-down'} size={16} />
       </ButtonWrapper>
       <Menu open={dropdownOpen} onClose={onCloseDropdown}>
-        <div className="raft__bridge__dropdown-container">
+        <div className="raft__networkSelector__dropdownContainer">
           {networks.map(network => (
             <ButtonWrapper
               key={network}
               data-network={network}
-              className={`raft__bridge__dropdown-item ${
-                network === selectedNetwork ? 'raft__bridge__dropdown-item-selected' : ''
+              className={`raft__networkSelector__dropdownItem ${
+                network === selectedNetwork ? 'raft__networkSelector__dropdownItemSelected' : ''
               }`}
               onClick={handleNetworkUpdate}
             >
               <TokenLogo type={NETWORK_LOGO_VARIANTS[network]} size={20} />
-              <Typography className="raft__bridge__dropdown-item-label" variant="caption">
+              <Typography className="raft__networkSelector__dropdownItemLabel" variant="caption">
                 {NETWORK_NAMES[network]}
               </Typography>
             </ButtonWrapper>

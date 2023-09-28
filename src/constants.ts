@@ -1,4 +1,10 @@
-import { CollateralToken, SupportedBridgeNetwork, Token, UnderlyingCollateralToken } from '@raft-fi/sdk';
+import {
+  CollateralToken,
+  SupportedBridgeNetwork,
+  SupportedSavingsNetwork,
+  Token,
+  UnderlyingCollateralToken,
+} from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import {
   SupportedCollateralToken,
@@ -29,6 +35,10 @@ export const INPUT_PREVIEW_DIGITS = 4;
 export const MINIMUM_UI_AMOUNT_FOR_BORROW_FEE = 0.01;
 export const DEFAULT_SLIPPAGE = 0.005;
 export const GAS_LIMIT_MULTIPLIER = new Decimal(1.3);
+export const DAY_IN_MS = 24 * 60 * 60 * 1000;
+export const WEEK_IN_MS = 7 * DAY_IN_MS;
+export const YEAR_IN_MS = 365 * DAY_IN_MS;
+export const NUMBER_OF_WEEK_IN_YEAR = 52;
 export const SAVING_POSITION_BALANCE_THRESHOLD = 0.001;
 
 // app to control what is supported
@@ -166,11 +176,12 @@ export const TOKEN_TO_DISPLAY_BASE_TOKEN_MAP = SUPPORTED_COLLATERAL_TOKENS.reduc
   return setting ? { ...map, [token]: setting.displayBaseToken } : map;
 }, {} as TokenGenericMap<SupportedCollateralToken, SupportedCollateralToken>);
 
-export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork, string> = {
-  ethereum: import.meta.env.VITE_MAINNET_RPC_URL,
+export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: import.meta.env.VITE_MAINNET_RPC_URL,
   base: import.meta.env.VITE_BASE_MAINNET_RPC_URL,
   ethereumSepolia: import.meta.env.VITE_ETHEREUM_SEPOLIA_RPC_URL,
   arbitrumGoerli: import.meta.env.VITE_ARBITRUM_GOERLI_RPC_URL,
+  goerli: import.meta.env.VITE_GOERLI_RPC_URL,
 };
 
 export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: string } = {

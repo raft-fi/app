@@ -51,24 +51,6 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
     );
   }
 
-  if (value.endsWith('R')) {
-    return (
-      <div className="raft__valueLabel">
-        <Typography variant={valueSize} color={color} weight="medium">
-          {value.split(' ')[0]}&nbsp;
-        </Typography>
-        <Typography variant={tickerSize} color={color}>
-          R
-        </Typography>
-        {label && (
-          <Typography variant={tickerSize} color={color}>
-            &nbsp;{label}
-          </Typography>
-        )}
-      </div>
-    );
-  }
-
   if (value.endsWith('%')) {
     return (
       <div className="raft__valueLabel">
@@ -95,6 +77,24 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
         </Typography>
         <Typography variant={tickerSize} color={color}>
           &nbsp;{value.split(' ')[1]}
+        </Typography>
+        {label && (
+          <Typography variant={tickerSize} color={color}>
+            &nbsp;{label}
+          </Typography>
+        )}
+      </div>
+    );
+  }
+
+  if (value.endsWith('R')) {
+    return (
+      <div className="raft__valueLabel">
+        <Typography variant={valueSize} color={color} weight="medium">
+          {value.split(' ')[0]}&nbsp;
+        </Typography>
+        <Typography variant={tickerSize} color={color}>
+          R
         </Typography>
         {label && (
           <Typography variant={tickerSize} color={color}>

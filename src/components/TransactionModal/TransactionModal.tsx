@@ -7,6 +7,10 @@ import {
   resetLeverageStatus,
   useCollateralConversionRates,
   usePosition,
+  useStakeBptForVeRaft,
+  resetStakeBptForVeRaftStatus,
+  useWithdrawRaftBpt,
+  resetWithdrawRaftBptStatus,
   useManageSavings,
   resetManageSavingsStatus,
   useBridgeTokens,
@@ -25,10 +29,13 @@ import {
 import TransactionCloseModal from './TransactionCloseModal';
 import { BridgeFailedModal, BridgePendingModal, BridgeSuccessModal } from './BridgeModal';
 import { formatCurrency, getDecimalFromTokenMap } from '../../utils';
+import { NETWORK_TO_BLOCK_EXPLORER, NETWORK_TO_BLOCK_EXPLORER_URL } from '../../networks';
 
 const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
+  const { stakeBptForVeRaftStatus, stakeBptForVeRaft } = useStakeBptForVeRaft();
+  const { withdrawRaftBptStatus } = useWithdrawRaftBpt();
   const { manageSavingsStatus, manageSavings } = useManageSavings();
   const { bridgeTokensStatus, bridgeTokens } = useBridgeTokens();
   const waitForBridgeStatus = useWaitForBridge();
@@ -55,9 +62,23 @@ const TransactionModal = () => {
 
       return bridgeTokensStatus;
     }
+    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+      return stakeBptForVeRaftStatus;
+    }
+    if (withdrawRaftBptStatus) {
+      return withdrawRaftBptStatus;
+    }
 
     return null;
-  }, [bridgeTokensStatus, leveragePositionStatus, managePositionStatus, manageSavingsStatus, waitForBridgeStatus]);
+  }, [
+    bridgeTokensStatus,
+    leveragePositionStatus,
+    managePositionStatus,
+    manageSavingsStatus,
+    stakeBptForVeRaftStatus,
+    waitForBridgeStatus,
+    withdrawRaftBptStatus,
+  ]);
 
   /**
    * Display success/failed modals based on borrow status - if you want to close the modal, use resetBorrowStatus()
@@ -91,13 +112,17 @@ const TransactionModal = () => {
       resetManageStatus();
     } else if (currentStatus.statusType === 'leverage') {
       resetLeverageStatus();
+    } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
+      resetStakeBptForVeRaftStatus();
+    } else if (currentStatus.statusType === 'stake-withdraw') {
+      resetWithdrawRaftBptStatus();
     } else if (currentStatus.statusType === 'manageSavings') {
       resetManageSavingsStatus();
     } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
       resetBridgeTokensStatus();
       resetWaitForBridgeStatus();
     }
-  }, [currentStatus]);
+  }, [currentStatus?.statusType]);
 
   const onRetryTransaction = useCallback(() => {
     if (!currentStatus?.statusType) {
@@ -114,8 +139,13 @@ const TransactionModal = () => {
       manageSavings?.();
     } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
       bridgeTokens?.();
+    } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
+      stakeBptForVeRaft?.();
+    } else if (currentStatus.statusType === 'stake-withdraw') {
+      // TODO: rework this hook
+      // withdrawRaftBpt(currentStatus.request);
     }
-  }, [bridgeTokens, currentStatus?.statusType, leveragePosition, managePosition, manageSavings]);
+  }, [bridgeTokens, currentStatus?.statusType, leveragePosition, managePosition, manageSavings, stakeBptForVeRaft]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -209,6 +239,14 @@ const TransactionModal = () => {
       );
     }
 
+    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+      return <Typography variant="heading1">RAFT BPT staked</Typography>;
+    }
+
+    if (withdrawRaftBptStatus) {
+      return <Typography variant="heading1">All RAFT BPT withdrawn</Typography>;
+    }
+
     if (manageSavingsStatus.statusType === 'manageSavings' && manageSavingsStatus.request) {
       const { amount } = manageSavingsStatus.request;
 
@@ -284,6 +322,8 @@ const TransactionModal = () => {
     manageSavingsStatus.request,
     manageSavingsStatus.statusType,
     position,
+    stakeBptForVeRaftStatus.statusType,
+    withdrawRaftBptStatus,
   ]);
 
   /**
@@ -293,8 +333,15 @@ const TransactionModal = () => {
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
       return 'Successful transaction';
     }
+    if (withdrawRaftBptStatus) {
+      return 'Successful withdrawal';
+    }
 
     if (manageSavingsStatus.statusType === 'manageSavings') {
+      return 'Successful transaction';
+    }
+
+    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
       return 'Successful transaction';
     }
 
@@ -316,7 +363,14 @@ const TransactionModal = () => {
     }
 
     return 'Successful transaction';
-  }, [collateralChange, debtChange, leveragePositionStatus.statusType, manageSavingsStatus.statusType]);
+  }, [
+    collateralChange,
+    debtChange,
+    leveragePositionStatus.statusType,
+    manageSavingsStatus.statusType,
+    stakeBptForVeRaftStatus.statusType,
+    withdrawRaftBptStatus,
+  ]);
 
   const tokenToAdd = useMemo(() => {
     if (['manage', 'bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '')) {
@@ -329,15 +383,22 @@ const TransactionModal = () => {
       };
     }
 
-    if (currentStatus?.statusType === 'manageSavings') {
+    if (currentStatus?.statusType === 'manageSavings' && manageSavingsStatus.request) {
       const isDeposit = manageSavingsStatus.request?.amount.gt(0);
       if (!isDeposit) {
         return null;
       }
 
+      // TODO - Only way to get data from specific network config - we will remove `setNetwork()` and use per feature network settings
+      const cachedNetwork = RaftConfig.network;
+      RaftConfig.setNetwork(manageSavingsStatus.request.network);
+      const rrAddress = RaftConfig.networkConfig.tokens.RR.address;
+      RaftConfig.setNetwork(cachedNetwork);
+
       return {
         label: 'Add RR to wallet',
-        address: RaftConfig.networkConfig.rSavingsModule,
+        // TODO - Change this address based on chain user used to withdraw
+        address: rrAddress,
         symbol: 'RR',
         decimals: 18,
         image: 'https://raft.fi/rrToken.svg',
@@ -345,7 +406,22 @@ const TransactionModal = () => {
     }
 
     return null;
-  }, [currentStatus?.statusType, manageSavingsStatus.request?.amount]);
+  }, [currentStatus?.statusType, manageSavingsStatus]);
+
+  const explorerLabel = useMemo(() => {
+    if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
+      return NETWORK_TO_BLOCK_EXPLORER[currentStatus.request.network];
+    }
+    return 'Etherscan';
+  }, [currentStatus]);
+
+  const explorerUrl = useMemo(() => {
+    if (currentStatus?.statusType === 'manageSavings' && currentStatus.request) {
+      const explorerBaseUrl = NETWORK_TO_BLOCK_EXPLORER_URL[currentStatus.request.network];
+
+      return `${explorerBaseUrl}/tx/${currentStatus.txHash}`;
+    }
+  }, [currentStatus]);
 
   if (['bridgeTokens', 'waitForBridge'].includes(currentStatus?.statusType ?? '') && bridgeTokensStatus.request) {
     const { sourceChainName, destinationChainName, amountToBridge } = bridgeTokensStatus.request;
@@ -398,6 +474,8 @@ const TransactionModal = () => {
           title={successModalTitle}
           txHash={currentStatus?.txHash}
           onClose={onCloseModal}
+          blockExplorerLabel={explorerLabel}
+          blockExplorerUrl={explorerUrl}
         />
       )}
       {successModalOpened && !isClosePosition && (
@@ -408,6 +486,8 @@ const TransactionModal = () => {
           open={successModalOpened}
           tokenToAdd={tokenToAdd}
           txHash={currentStatus?.txHash}
+          blockExplorerLabel={explorerLabel}
+          blockExplorerUrl={explorerUrl}
         />
       )}
       {failedModalOpened && (

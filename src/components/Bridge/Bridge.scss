@@ -1,7 +1,7 @@
 .raft__bridge {
   width: 560px;
   padding: 24px 32px;
-  margin-top: 48px;
+  margin-top: 10px;
   box-sizing: border-box;
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
@@ -21,76 +21,6 @@
 
     .raft__bridge__network-selector-container {
       width: calc(50% - 24px);
-
-      .raft__bridge__network-selector {
-        height: 40px;
-        margin-top: 8px;
-        padding: 0 12px;
-        background: var(--surfacePrimary);
-        border: 1px solid var(--borderPrimary);
-        border-radius: 8px;
-        box-sizing: border-box;
-        position: relative;
-
-        .raft__bridge__network-selector-dropdown {
-          display: flex;
-          justify-content: flex-start;
-          align-items: center;
-          width: 100%;
-          height: 100%;
-          cursor: pointer;
-
-          .raft__bridge__token-label {
-            padding-left: 8px;
-            padding-right: 8px;
-            flex: 1;
-            text-align: left;
-            white-space: nowrap;
-          }
-
-          svg {
-            flex-shrink: 0;
-          }
-        }
-
-        .raft__menu {
-          box-shadow: initial;
-          width: 100%;
-        }
-
-        .raft__bridge__dropdown-container {
-          width: 100%;
-          background: var(--surfacePrimary);
-          border: 1px solid var(--borderPrimary);
-          border-radius: 8px;
-          padding: 12px;
-          display: flex;
-          flex-direction: column;
-          box-sizing: border-box;
-
-          .raft__bridge__dropdown-item {
-            display: flex;
-            justify-content: flex-start;
-            width: 100%;
-            padding: 12px;
-            border-radius: 4px;
-            box-sizing: border-box;
-
-            .raft__bridge__dropdown-item-label {
-              padding-left: 8px;
-              white-space: nowrap;
-            }
-
-            &.raft__bridge__dropdown-item-selected {
-              background-color: var(--surfacePrimaryHover);
-            }
-
-            &:hover {
-              background-color: var(--surfaceSecondaryHover);
-            }
-          }
-        }
-      }
     }
 
     .raft__bridge__network-swap {
@@ -108,7 +38,7 @@
     margin-top: 42px;
 
     .raft__bridge__receive-amount__value {
-      margin-top: 20px;
+      margin-top: 8px;
       display: flex;
       align-items: baseline;
       gap: 8px;

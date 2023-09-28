@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from 'ethers';
 import { bind } from '@react-rxjs/core';
-import { Savings } from '@raft-fi/sdk';
+import { RaftConfig, Savings, SupportedSavingsNetwork } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import {
   from,
@@ -15,23 +15,29 @@ import {
   Subscription,
   concatMap,
   BehaviorSubject,
-  map,
   withLatestFrom,
 } from 'rxjs';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, NETWORK_RPC_URLS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
-import { provider$ } from './useProvider';
+import { currentSavingsNetwork$ } from './useCurrentSavingsNetwork';
 
 export const savingsYield$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS);
 
-const fetchData = (provider: JsonRpcProvider) => {
+const fetchData = (network: SupportedSavingsNetwork) => {
   try {
+    const networkRpc = NETWORK_RPC_URLS[network];
+
+    const provider = new JsonRpcProvider(networkRpc, 'any');
+    // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
+    // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
+    const cachedNetwork = RaftConfig.network;
+    RaftConfig.setNetwork(network);
     const savings = new Savings(provider);
+    RaftConfig.setNetwork(cachedNetwork);
 
     return from(savings.getCurrentYield()).pipe(
-      map(currentYield => currentYield),
       catchError(error => {
         console.error('useSavingsYield (catchError) - failed to fetch savings yield value!', error);
         return of(null);
@@ -43,20 +49,24 @@ const fetchData = (provider: JsonRpcProvider) => {
   }
 };
 
-// Stream that fetches protocol stats periodically
-const intervalStream$ = intervalBeat$.pipe(
-  withLatestFrom(provider$),
-  concatMap<[number, JsonRpcProvider], Observable<Nullable<Decimal>>>(([, provider]) => fetchData(provider)),
+// Fetch data every time user changes network in UI
+const savingsNetworkChangeStream$ = currentSavingsNetwork$.pipe(
+  concatMap(currentSavingsNetwork => {
+    return fetchData(currentSavingsNetwork);
+  }),
 );
 
-// Stream that fetches savings max deposit every time provider changes
-const providerStream$ = provider$.pipe(
-  concatMap<JsonRpcProvider, Observable<Nullable<Decimal>>>(provider => fetchData(provider)),
+// Fetch data periodically
+const intervalStream$ = intervalBeat$.pipe(
+  withLatestFrom(currentSavingsNetwork$),
+  concatMap<[number, SupportedSavingsNetwork], Observable<Nullable<Decimal>>>(([, currentSavingsNetwork]) =>
+    fetchData(currentSavingsNetwork),
+  ),
 );
 
 // merge all stream$ into one if there are multiple
-const stream$ = merge(providerStream$, intervalStream$).pipe(
-  filter((savingsTvl): savingsTvl is Decimal => Boolean(savingsTvl)),
+const stream$ = merge(savingsNetworkChangeStream$, intervalStream$).pipe(
+  filter((savingsYield): savingsYield is Decimal => Boolean(savingsYield)),
   debounce<Decimal>(() => interval(DEBOUNCE_IN_MS)),
   tap(savingsYield => {
     savingsYield$.next(savingsYield);

@@ -1,35 +1,42 @@
-import { SupportedBridgeNetwork } from '@raft-fi/sdk';
+import { SupportedBridgeNetwork, SupportedSavingsNetwork } from '@raft-fi/sdk';
 
-export const NETWORK_NAMES: Record<SupportedBridgeNetwork, string> = {
-  ethereum: 'Ethereum',
+export const NETWORK_NAMES: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'Ethereum',
   base: 'Base',
   ethereumSepolia: 'Ethereum Sepolia',
   arbitrumGoerli: 'Arbitrum Goerli',
+  goerli: 'Ethereum Goerli',
 };
 
-export const NETWORK_LOGO_VARIANTS: Record<SupportedBridgeNetwork, string> = {
-  ethereum: 'network-ethereum',
+export const NETWORK_LOGO_VARIANTS: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'network-ethereum',
   base: 'network-base',
   ethereumSepolia: 'network-ethereum',
   arbitrumGoerli: 'network-arbitrum',
+  goerli: 'network-ethereum',
 };
 
-export const NETWORK_IDS: Record<SupportedBridgeNetwork, number> = {
-  ethereum: 1,
+export const NETWORK_IDS: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, number> = {
+  mainnet: 1,
   base: 8453,
   ethereumSepolia: 11155111,
   arbitrumGoerli: 421613,
+  goerli: 5,
 };
 
-export const NETWORK_WALLET_ENDPOINTS: Record<SupportedBridgeNetwork, string> = {
-  ethereum: 'https://mainnet.infura.io/v3/',
+export const NETWORK_WALLET_ENDPOINTS: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'https://mainnet.infura.io/v3/',
   base: 'https://mainnet.base.org',
   ethereumSepolia: 'https://sepolia.infura.io/v3/',
   arbitrumGoerli: 'https://goerli-rollup.arbitrum.io/rpc',
+  goerli: 'https://goerli.infura.io/v3/',
 };
 
-export const NETWORK_WALLET_CURRENCIES: Record<SupportedBridgeNetwork, { symbol: string; decimals: number }> = {
-  ethereum: {
+export const NETWORK_WALLET_CURRENCIES: Record<
+  SupportedBridgeNetwork | SupportedSavingsNetwork,
+  { symbol: string; decimals: number }
+> = {
+  mainnet: {
     symbol: 'ETH',
     decimals: 18,
   },
@@ -45,7 +52,30 @@ export const NETWORK_WALLET_CURRENCIES: Record<SupportedBridgeNetwork, { symbol:
     symbol: 'AGOR',
     decimals: 18,
   },
+  goerli: {
+    symbol: 'GoerliETH',
+    decimals: 18,
+  },
 };
 
-export const TESTNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereumSepolia', 'arbitrumGoerli'];
-export const MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereum', 'base'];
+export const BRIDGE_TESTNET_NETWORKS: SupportedBridgeNetwork[] = ['ethereumSepolia', 'arbitrumGoerli'];
+export const BRIDGE_MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['mainnet', 'base'];
+
+export const SAVINGS_TESTNET_NETWORKS: SupportedSavingsNetwork[] = ['goerli'];
+export const SAVINGS_MAINNET_NETWORKS: SupportedSavingsNetwork[] = ['mainnet', 'base'];
+
+export const NETWORK_TO_BLOCK_EXPLORER: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'Etherscan',
+  base: 'BaseScan',
+  arbitrumGoerli: 'Arbiscan',
+  ethereumSepolia: 'Etherscan',
+  goerli: 'Etherscan',
+};
+
+export const NETWORK_TO_BLOCK_EXPLORER_URL: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: 'https://etherscan.io',
+  base: 'https://basescan.org',
+  arbitrumGoerli: 'https://arbiscan.io',
+  ethereumSepolia: 'https://sepolia.etherscan.io',
+  goerli: 'https://goerli.etherscan.io',
+};

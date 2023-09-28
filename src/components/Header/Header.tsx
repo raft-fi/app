@@ -8,7 +8,7 @@ import Wallet from '../Wallet';
 
 import './Header.scss';
 
-const SKIP_NETWORK_CHECKING_PAGES = ['bridge'];
+const SKIP_NETWORK_CHECKING_PAGES = ['bridge', 'savings'];
 
 const Header = () => {
   const location = useLocation();
@@ -19,7 +19,8 @@ const Header = () => {
   useEffect(() => {
     const sanitizedPath = location.pathname.replace(/\/$/, '');
     switch (sanitizedPath) {
-      case '':
+      case '/generate':
+      case '/leverage':
         setCurrentPage('your-position');
         break;
       case '/savings':
@@ -28,6 +29,9 @@ const Header = () => {
       case '/bridge':
         setCurrentPage('bridge');
         break;
+      /* case '/stake':
+        setCurrentPage('stake');
+        break; */
       default:
         setCurrentPage(null);
     }
@@ -69,6 +73,16 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
+      /* <div key="navitem-stake" className="raft__header__nav-item">
+        <Link to="/stake">
+          <Typography
+            variant="menu-item"
+            className={`${currentPage === 'stake' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
+          >
+            Stake
+          </Typography>
+        </Link>
+      </div>, */
       <Wallet key="navitem-wallet" skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />,
     ],
     [currentPage],

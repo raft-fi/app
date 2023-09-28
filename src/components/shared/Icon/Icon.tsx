@@ -35,6 +35,7 @@ import TriangleUp from './TriangleUp';
 import Stars from './Stars';
 import ArrowLeft from './ArrowLeft';
 import Settings from './Settings';
+import Calendar from './Calendar';
 import Swap from './Swap';
 import Gas from './Gas';
 import CCIP from './CCIP';
@@ -77,6 +78,7 @@ type IconVariant =
   | 'metamask'
   | 'stars'
   | 'settings'
+  | 'calendar'
   | 'swap'
   | 'gas'
   | 'ccip';
@@ -118,6 +120,7 @@ const ICON_MAP: IconMap = {
   metamask: Metamask,
   stars: Stars,
   settings: Settings,
+  calendar: Calendar,
   swap: Swap,
   gas: Gas,
   ccip: CCIP,

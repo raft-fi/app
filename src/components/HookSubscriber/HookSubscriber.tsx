@@ -22,6 +22,11 @@ import {
   subscribeEstimateSwapPrice,
   subscribeLeveragePosition,
   subscribeRFlashMintFee,
+  subscribeRaftToken,
+  subscribeRaftTokenAnnualGiveAway,
+  subscribeUserVeRaftBalance,
+  subscribeUserRaftBptBalance,
+  subscribeStakeBptForVeRaftStatus,
   subscribeManageSavingsStatus,
   subscribeSavingsMaxDeposit,
   subscribeCurrentUserSavings,
@@ -32,6 +37,7 @@ import {
   subscribeBridgeTokensStatus,
   subscribeWaitForBridgeStatus,
 } from '../../hooks';
+import { subscribeWithdrawRaftBptStatus } from '../../hooks/useWithdrawRaftBpt';
 
 const HookSubscriber: FC = () => {
   // to keep at least one subscriber of the stream insides the state hooks
@@ -62,6 +68,12 @@ const HookSubscriber: FC = () => {
     subscribeEstimateSwapPrice();
     subscribeLeveragePosition();
     subscribeRFlashMintFee();
+    subscribeRaftToken();
+    subscribeRaftTokenAnnualGiveAway();
+    subscribeUserVeRaftBalance();
+    subscribeUserRaftBptBalance();
+    subscribeStakeBptForVeRaftStatus();
+    subscribeWithdrawRaftBptStatus();
     subscribeSavingsMaxDeposit();
     subscribeCurrentUserSavings();
     subscribeSavingsTvl();

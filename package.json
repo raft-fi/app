@@ -23,12 +23,12 @@
   "dependencies": {
     "@emotion/styled": "^11.10.6",
     "@mui/material": "^5.11.1",
-    "@raft-fi/sdk": "^0.5.5",
+    "@raft-fi/sdk": "^0.6.1",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
     "@safe-global/safe-apps-provider": "^0.18.0",
     "@safe-global/safe-apps-sdk": "^8.1.0",
-    "@tempusfinance/decimal": "^0.0.12",
+    "@tempusfinance/decimal": "^0.1.0",
     "@web3-onboard/common": "^2.3.3",
     "@web3-onboard/gnosis": "^2.1.10",
     "@web3-onboard/injected-wallets": "^2.10.3",
@@ -48,7 +48,7 @@
     "react-router-dom": "^6.10.0",
     "react-toastify": "^9.1.3",
     "sass": "^1.62.0",
-    "tempus-ui": "github:tempusfinance/tempus-ui#f01e896b9c69311d22e91653b18d59b4ee79ad18",
+    "tempus-ui": "github:tempusfinance/tempus-ui#b8911077c61a371ca3f01d743e4a5d9d06bbf7e6",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

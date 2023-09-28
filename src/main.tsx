@@ -20,6 +20,7 @@ import Savings from './components/Savings';
 import Bridge from './components/Bridge';
 
 import './index.scss';
+import Stake from './components/Stake';
 
 const mobile = isMobile();
 
@@ -55,6 +56,7 @@ if (mobile) {
               }
             />
             <Route path="/leverage" element={<LeverageDashboard />} />
+            {/* <Route path="/stake" element={<Stake />} /> */}
             <Route path="/" element={<PositionPicker />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
