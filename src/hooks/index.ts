@@ -50,3 +50,4 @@ export * from './useWalletLoaded';
 export * from './useCurrentSavingsNetwork';
 export * from './useSavingsTokenBalance';
 export * from './useSavingsTokenAllowance';
+export * from './useClaimableRaftFromStakedBpt';

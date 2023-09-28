@@ -1,5 +1,10 @@
+import { RAFT_TOKEN } from '@raft-fi/sdk';
 import { FC, memo, useCallback, useMemo } from 'react';
-import { Button, Typography } from '../shared';
+import { TokenLogo } from 'tempus-ui';
+import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
+import { useClaimableRaftFromStakedBpt } from '../../hooks';
+import { formatDecimal } from '../../utils';
+import { Button, Typography, ValueLabel } from '../shared';
 import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
@@ -10,6 +15,13 @@ interface ClaimProps {
 }
 
 const Claim: FC<ClaimProps> = ({ goToPage }) => {
+  const claimableRaft = useClaimableRaftFromStakedBpt();
+
+  const claimableRaftFormatted = useMemo(
+    () => formatDecimal(claimableRaft, COLLATERAL_TOKEN_UI_PRECISION),
+    [claimableRaft],
+  );
+
   const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
   const goToWithdraw = useCallback(() => goToPage('withdraw'), [goToPage]);
   const onClaim = useCallback(() => false, []);
@@ -44,7 +56,14 @@ const Claim: FC<ClaimProps> = ({ goToPage }) => {
             TOTAL AMOUNT TO BE CLAIMED
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {'N/A'}
+            {claimableRaftFormatted ? (
+              <>
+                <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
+                <ValueLabel value={`${claimableRaftFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+              </>
+            ) : (
+              'N/A'
+            )}
           </Typography>
           <div className="raft__stake__btn-container">
             <Button variant="primary" size="large" onClick={onClaim}>
