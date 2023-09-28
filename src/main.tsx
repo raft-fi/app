@@ -56,7 +56,7 @@ if (mobile) {
               }
             />
             <Route path="/leverage" element={<LeverageDashboard />} />
-            <Route path="/stake" element={<Stake />} />
+            {/* <Route path="/stake" element={<Stake />} /> */}
             <Route path="/" element={<PositionPicker />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
