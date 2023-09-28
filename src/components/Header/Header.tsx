@@ -29,9 +29,9 @@ const Header = () => {
       case '/bridge':
         setCurrentPage('bridge');
         break;
-      /* case '/stake':
+      case '/stake':
         setCurrentPage('stake');
-        break; */
+        break;
       default:
         setCurrentPage(null);
     }
@@ -73,7 +73,7 @@ const Header = () => {
           </Typography>
         </Link>
       </div>,
-      /* <div key="navitem-stake" className="raft__header__nav-item">
+      <div key="navitem-stake" className="raft__header__nav-item">
         <Link to="/stake">
           <Typography
             variant="menu-item"
@@ -82,7 +82,7 @@ const Header = () => {
             Stake
           </Typography>
         </Link>
-      </div>, */
+      </div>,
       <Wallet key="navitem-wallet" skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />,
     ],
     [currentPage],

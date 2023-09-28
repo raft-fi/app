@@ -51,3 +51,4 @@ export * from './useCurrentSavingsNetwork';
 export * from './useSavingsTokenBalance';
 export * from './useSavingsTokenAllowance';
 export * from './useClaimableRaftFromStakedBpt';
+export * from './useEstimateStakingApr';

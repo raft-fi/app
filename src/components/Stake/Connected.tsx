@@ -1,10 +1,15 @@
 import { RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
-import { Decimal } from '@tempusfinance/decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { isValid, startOfDay } from 'date-fns';
-import { FC, memo, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
-import { useRaftTokenAnnualGiveAway, useUserRaftBptBalance, useUserVeRaftBalance } from '../../hooks';
+import {
+  useEstimateStakingApr,
+  useRaftTokenAnnualGiveAway,
+  useUserRaftBptBalance,
+  useUserVeRaftBalance,
+} from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
@@ -36,6 +41,7 @@ const Connected: FC<ConnectedProps> = ({
   const userVeRaftBalance = useUserVeRaftBalance();
   const userRaftBptBalance = useUserRaftBptBalance();
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
+  const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const unlockTime = useMemo(
@@ -79,6 +85,18 @@ const Connected: FC<ConnectedProps> = ({
     () => formatDecimal(weeklyGiveaway, COLLATERAL_TOKEN_UI_PRECISION),
     [weeklyGiveaway],
   );
+  const stakingAprFormatted = useMemo(() => {
+    const apr = estimateStakingAprStatus.result;
+
+    if (!apr) {
+      return null;
+    }
+
+    return DecimalFormat.format(apr, {
+      style: 'percentage',
+      fractionDigits: 2,
+    });
+  }, [estimateStakingAprStatus.result]);
 
   const onBalanceClick = useCallback(() => {
     if (userRaftBptBalance) {
@@ -105,6 +123,12 @@ const Connected: FC<ConnectedProps> = ({
     ],
     [goToClaim, goToWithdraw, hasPosition],
   );
+
+  useEffect(() => {
+    if (bptAmount && unlockTime) {
+      estimateStakingApr({ bptAmount, unlockTime });
+    }
+  }, [estimateStakingApr, bptAmount, unlockTime]);
 
   return (
     <div className="raft__stake raft__stake__connected">
@@ -165,7 +189,11 @@ const Connected: FC<ConnectedProps> = ({
             ESTIMATED APR
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {'N/A'}
+            {stakingAprFormatted ? (
+              <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
+            ) : (
+              'N/A'
+            )}
           </Typography>
           <div className="raft__stake__btn-container">
             <Button variant="primary" size="large" onClick={goToPreview}>
