@@ -48,6 +48,7 @@
       }
     }
 
+    .raft__stake__current-position,
     .raft__stake__claim {
       width: 342px;
       background: var(--surfacePrimary);
@@ -63,13 +64,18 @@
         /* TODO: hardcode color as suggested */
         --textPrimary: var(--raft-grey-800);
       }
+
+      &:not(:first-child) {
+        margin-top: 16px;
+      }
     }
   }
 
   &.raft__stake__not-connected,
   &.raft__stake__has-position,
   &.raft__stake__no-positions,
-  &.raft__stake__preview {
+  &.raft__stake__preview,
+  &.raft__stake__adjust {
     .raft__stake__subtitle {
       margin-top: 16px;
     }
@@ -173,5 +179,17 @@
     .raft__loading__container {
       margin-right: 8px;
     }
+  }
+}
+
+.raft__stake__infoTooltip {
+  max-width: 230px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    --externalLinkColor: var(--textAccent);
   }
 }

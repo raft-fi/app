@@ -2,6 +2,7 @@ import { addMilliseconds, startOfDay } from 'date-fns';
 import { memo, useCallback, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
 import { useUserVeRaftBalance, useWallet } from '../../hooks';
+import Adjust from './Adjust';
 import HasPosition from './HasPosition';
 import NoPositions from './NoPositions';
 import NotConnected from './NotConnected';
@@ -48,6 +49,18 @@ const Stake = () => {
         <HasPosition goToPage={setStep} />
       ) : (
         <NoPositions
+          amountToLock={amountToLock}
+          deadline={deadline}
+          periodInYear={periodInYear}
+          onAmountChange={setAmountToLock}
+          onDeadlineChange={onDeadlineChange}
+          onPeriodChange={onPeriodChange}
+          goToPage={setStep}
+        />
+      );
+    case 'adjust':
+      return (
+        <Adjust
           amountToLock={amountToLock}
           deadline={deadline}
           periodInYear={periodInYear}

@@ -1,11 +1,11 @@
 import { RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
-import { Decimal } from '@tempusfinance/decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
-import { isValid, startOfDay } from 'date-fns';
-import { FC, memo, useCallback, useMemo } from 'react';
+import { isValid } from 'date-fns';
+import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
-import { useRaftTokenAnnualGiveAway } from '../../hooks';
+import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
+import { useCalculateVeRaftAmount, useEstimateStakingApr, useRaftTokenAnnualGiveAway } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
@@ -32,20 +32,14 @@ const NotConnected: FC<NotConnectedProps> = ({
 }) => {
   const [, connect] = useConnectWallet();
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
+  const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
+  const { calculateVeRaftAmountStatus, calculateVeRaftAmount } = useCalculateVeRaftAmount();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
-  const veRaftAmount = useMemo(() => {
-    if (!deadline || !isValid(deadline)) {
-      return Decimal.ZERO;
-    }
-
-    const today = startOfDay(new Date());
-    // period is floored by week (VotingEscrow.vy#L77)
-    const periodInMs = Math.floor((deadline.getTime() - today.getTime()) / WEEK_IN_MS) * WEEK_IN_MS;
-    const period = new Decimal(periodInMs).div(YEAR_IN_MS);
-
-    return bptAmount.mul(period);
-  }, [bptAmount, deadline]);
+  const veRaftAmount = useMemo(
+    () => calculateVeRaftAmountStatus.result ?? Decimal.ZERO,
+    [calculateVeRaftAmountStatus.result],
+  );
   const weeklyGiveaway = useMemo(
     () => raftTokenAnnualGiveAway?.div(NUMBER_OF_WEEK_IN_YEAR) ?? null,
     [raftTokenAnnualGiveAway],
@@ -59,10 +53,29 @@ const NotConnected: FC<NotConnectedProps> = ({
     () => formatDecimal(weeklyGiveaway, COLLATERAL_TOKEN_UI_PRECISION),
     [weeklyGiveaway],
   );
+  const stakingAprFormatted = useMemo(() => {
+    const apr = estimateStakingAprStatus.result;
+
+    if (!apr) {
+      return null;
+    }
+
+    return DecimalFormat.format(apr, {
+      style: 'percentage',
+      fractionDigits: 2,
+    });
+  }, [estimateStakingAprStatus.result]);
 
   const onConnectWallet = useCallback(() => {
     connect();
   }, [connect]);
+
+  useEffect(() => {
+    if (bptAmount && deadline && isValid(deadline)) {
+      estimateStakingApr({ bptAmount, unlockTime: deadline });
+      calculateVeRaftAmount({ bptAmount, unlockTime: deadline });
+    }
+  }, [bptAmount, deadline, calculateVeRaftAmount, estimateStakingApr]);
 
   return (
     <div className="raft__stake raft__stake__not-connected">
@@ -113,7 +126,11 @@ const NotConnected: FC<NotConnectedProps> = ({
             ESTIMATED APR
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {'N/A'}
+            {stakingAprFormatted ? (
+              <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
+            ) : (
+              'N/A'
+            )}
           </Typography>
           <div className="raft__stake__btn-container">
             <Button variant="primary" size="large" onClick={onConnectWallet}>
