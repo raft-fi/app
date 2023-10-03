@@ -4,18 +4,25 @@ import { ButtonWrapper } from 'tempus-ui';
 import { DAY_IN_MS, YEAR_IN_MS } from '../../constants';
 import { DateInput, Typography } from '../shared';
 
-const PERIOD_OPTIONS = [0.25, 0.5, 1];
+const PERIOD_IN_YEAR_OPTIONS = [0.5, 1, 2];
 
 interface PeriodPickerProps {
   deadline?: Date;
-  period?: number;
+  periodInYear?: number;
   min?: Date;
   max?: Date;
   onDeadlineChange: (value: Date) => void;
   onPeriodChange: (value: number) => void;
 }
 
-const PeriodPicker: FC<PeriodPickerProps> = ({ deadline, period, min, max, onDeadlineChange, onPeriodChange }) => {
+const PeriodPicker: FC<PeriodPickerProps> = ({
+  deadline,
+  periodInYear,
+  min,
+  max,
+  onDeadlineChange,
+  onPeriodChange,
+}) => {
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const minDeadline = useMemo(() => min ?? addMilliseconds(startOfDay(new Date()), DAY_IN_MS), [min]);
@@ -45,10 +52,10 @@ const PeriodPicker: FC<PeriodPickerProps> = ({ deadline, period, min, max, onDea
         <Typography variant="body" color="text-secondary">
           Lock periods
         </Typography>
-        {PERIOD_OPTIONS.map(p => (
+        {PERIOD_IN_YEAR_OPTIONS.map(p => (
           <ButtonWrapper
             key={`period-${p}`}
-            className={`raft__stake__period-picker ${period === p ? 'raft__stake__period-picker__selected' : ''}`}
+            className={`raft__stake__period-picker ${periodInYear === p ? 'raft__stake__period-picker__selected' : ''}`}
             onClick={() => onPeriodChange(p)}
           >
             <Typography variant="body2">{p * 12} months</Typography>

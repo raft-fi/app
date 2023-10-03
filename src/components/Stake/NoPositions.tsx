@@ -4,78 +4,59 @@ import { isValid, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
-import {
-  useEstimateStakingApr,
-  useRaftTokenAnnualGiveAway,
-  useUserRaftBptBalance,
-  useUserVeRaftBalance,
-} from '../../hooks';
+import { useEstimateStakingApr, useRaftTokenAnnualGiveAway, useUserRaftBptBalance } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Typography, ValueLabel } from '../shared';
 import AmountInput from './AmountInput';
-import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import PeriodPicker from './PeriodPicker';
 import { StakePage } from './Stake';
 
-interface ConnectedProps {
+interface NoPositionsProps {
   amountToLock: string;
   deadline?: Date;
-  period?: number;
+  periodInYear?: number;
   onAmountChange: (value: string) => void;
   onDeadlineChange: (value: Date) => void;
   onPeriodChange: (value: number) => void;
   goToPage: (page: StakePage) => void;
 }
 
-const Connected: FC<ConnectedProps> = ({
+const NoPositions: FC<NoPositionsProps> = ({
   amountToLock,
   deadline,
-  period,
+  periodInYear,
   onAmountChange,
   onDeadlineChange,
   onPeriodChange,
   goToPage,
 }) => {
-  const userVeRaftBalance = useUserVeRaftBalance();
   const userRaftBptBalance = useUserRaftBptBalance();
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
   const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
-  const unlockTime = useMemo(
-    () => deadline ?? userVeRaftBalance?.unlockTime,
-    [deadline, userVeRaftBalance?.unlockTime],
-  );
   const veRaftAmount = useMemo(() => {
-    if (!unlockTime || !isValid(unlockTime)) {
+    if (!deadline || !isValid(deadline)) {
       return Decimal.ZERO;
     }
 
     const today = startOfDay(new Date());
     // period is floored by week (VotingEscrow.vy#L77)
-    const periodInMs = Math.floor((unlockTime.getTime() - today.getTime()) / WEEK_IN_MS) * WEEK_IN_MS;
+    const periodInMs = Math.floor((deadline.getTime() - today.getTime()) / WEEK_IN_MS) * WEEK_IN_MS;
     const period = new Decimal(periodInMs).div(YEAR_IN_MS);
 
     return bptAmount.mul(period);
-  }, [bptAmount, unlockTime]);
-  const totalVeRaftAmount = useMemo(
-    () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
-    [userVeRaftBalance?.veRaftBalance, veRaftAmount],
-  );
+  }, [bptAmount, deadline]);
   const weeklyGiveaway = useMemo(
     () => raftTokenAnnualGiveAway?.div(NUMBER_OF_WEEK_IN_YEAR) ?? null,
     [raftTokenAnnualGiveAway],
   );
-  const hasPosition = useMemo(
-    () => Boolean(userVeRaftBalance?.bptLockedBalance.gt(0)),
-    [userVeRaftBalance?.bptLockedBalance],
-  );
 
-  const totalVeRaftAmountFormatted = useMemo(
-    () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
-    [totalVeRaftAmount],
+  const veRaftAmountFormatted = useMemo(
+    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    [veRaftAmount],
   );
   const userRaftBptBalanceFormatted = useMemo(
     () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
@@ -105,41 +86,24 @@ const Connected: FC<ConnectedProps> = ({
   }, [onAmountChange, userRaftBptBalance]);
 
   const goToPreview = useCallback(() => goToPage('preview'), [goToPage]);
-  const goToWithdraw = useCallback(() => goToPage('withdraw'), [goToPage]);
-  const goToClaim = useCallback(() => goToPage('claim'), [goToPage]);
-
-  const positionButtons = useMemo(
-    () => [
-      <Button key="btn-withdraw" variant="secondary" size="large" onClick={goToWithdraw} disabled={!hasPosition}>
-        <Typography variant="button-label" weight="medium" color="text-secondary">
-          Withdraw
-        </Typography>
-      </Button>,
-      <Button key="btn-claim" variant="secondary" size="large" onClick={goToClaim} disabled={!hasPosition}>
-        <Typography variant="button-label" weight="medium" color="text-secondary">
-          Claim
-        </Typography>
-      </Button>,
-    ],
-    [goToClaim, goToWithdraw, hasPosition],
-  );
 
   useEffect(() => {
-    if (bptAmount && unlockTime) {
-      estimateStakingApr({ bptAmount, unlockTime });
+    if (bptAmount && deadline) {
+      estimateStakingApr({ bptAmount, unlockTime: deadline });
     }
-  }, [estimateStakingApr, bptAmount, unlockTime]);
+  }, [estimateStakingApr, bptAmount, deadline]);
 
   return (
-    <div className="raft__stake raft__stake__connected">
+    <div className="raft__stake raft__stake__no-positions">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
             Stake RAFT BPT to get veRAFT
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            veRAFT is at the centre of governance and growth of the Raft protocol. By staking your Raft Balancer LP
-            tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
+            veRAFT aligns the interests of the Raft protocol and RAFT tokenholders. In return for staking your RAFT BPT
+            and receiving veRAFT, you will gain the right to vote on Raft governance proposals and earn more RAFT in
+            rewards.
           </Typography>
           <AmountInput
             value={amountToLock}
@@ -149,9 +113,9 @@ const Connected: FC<ConnectedProps> = ({
             onBalanceClick={onBalanceClick}
           />
           <PeriodPicker
-            deadline={unlockTime ?? undefined}
-            period={period}
-            min={unlockTime ?? undefined}
+            deadline={deadline ?? undefined}
+            periodInYear={periodInYear}
+            min={deadline ?? undefined}
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
           />
@@ -159,14 +123,10 @@ const Connected: FC<ConnectedProps> = ({
             TOTAL VOTING ESCROW
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {totalVeRaftAmountFormatted ? (
+            {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel
-                  value={`${totalVeRaftAmountFormatted} ${VERAFT_TOKEN}`}
-                  valueSize="body"
-                  tickerSize="body2"
-                />
+                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -205,7 +165,6 @@ const Connected: FC<ConnectedProps> = ({
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <CurrentPosition buttons={positionButtons} />
         <FAQ defaultOpen={false} />
         <HowToLock defaultOpen={false} />
       </div>
@@ -213,4 +172,4 @@ const Connected: FC<ConnectedProps> = ({
   );
 };
 
-export default memo(Connected);
+export default memo(NoPositions);

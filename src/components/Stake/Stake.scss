@@ -67,7 +67,8 @@
   }
 
   &.raft__stake__not-connected,
-  &.raft__stake__connected,
+  &.raft__stake__has-position,
+  &.raft__stake__no-positions,
   &.raft__stake__preview {
     .raft__stake__subtitle {
       margin-top: 16px;

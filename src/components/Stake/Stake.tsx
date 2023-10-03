@@ -1,31 +1,34 @@
 import { addMilliseconds, startOfDay } from 'date-fns';
 import { memo, useCallback, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
-import { useWallet } from '../../hooks';
+import { useUserVeRaftBalance, useWallet } from '../../hooks';
 import Claim from './Claim';
-import Connected from './Connected';
+import HasPosition from './HasPosition';
+import NoPositions from './NoPositions';
 import NotConnected from './NotConnected';
 import Preview from './Preview';
 
 import './Stake.scss';
 import Withdraw from './Withdraw';
 
-export type StakePage = 'default' | 'preview' | 'withdraw' | 'claim';
+export type StakePage = 'default' | 'preview' | 'adjust' | 'withdraw' | 'claim';
 
 const Stake = () => {
   const wallet = useWallet();
+  const userVeRaftBalance = useUserVeRaftBalance();
+
   const [step, setStep] = useState<StakePage>('default');
   const [amountToLock, setAmountToLock] = useState<string>('');
   const [deadline, setDeadline] = useState<Date>();
-  const [period, setPeriod] = useState<number>();
+  const [periodInYear, setPeriodInYear] = useState<number>();
 
   const onDeadlineChange = useCallback((value: Date) => {
     setDeadline(value);
-    setPeriod(undefined);
+    setPeriodInYear(undefined);
   }, []);
   const onPeriodChange = useCallback((year: number) => {
     setDeadline(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS));
-    setPeriod(year);
+    setPeriodInYear(year);
   }, []);
 
   if (!wallet) {
@@ -33,7 +36,7 @@ const Stake = () => {
       <NotConnected
         amountToLock={amountToLock}
         deadline={deadline}
-        period={period}
+        periodInYear={periodInYear}
         onAmountChange={setAmountToLock}
         onDeadlineChange={onDeadlineChange}
         onPeriodChange={onPeriodChange}
@@ -43,11 +46,13 @@ const Stake = () => {
 
   switch (step) {
     case 'default':
-      return (
-        <Connected
+      return userVeRaftBalance?.bptLockedBalance.gt(0) ? (
+        <HasPosition goToPage={setStep} />
+      ) : (
+        <NoPositions
           amountToLock={amountToLock}
           deadline={deadline}
-          period={period}
+          periodInYear={periodInYear}
           onAmountChange={setAmountToLock}
           onDeadlineChange={onDeadlineChange}
           onPeriodChange={onPeriodChange}
