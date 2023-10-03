@@ -16,7 +16,7 @@ import PeriodPicker from './PeriodPicker';
 interface NotConnectedProps {
   amountToLock: string;
   deadline?: Date;
-  period?: number;
+  periodInYear?: number;
   onAmountChange: (value: string) => void;
   onDeadlineChange: (value: Date) => void;
   onPeriodChange: (value: number) => void;
@@ -25,7 +25,7 @@ interface NotConnectedProps {
 const NotConnected: FC<NotConnectedProps> = ({
   amountToLock,
   deadline,
-  period,
+  periodInYear,
   onAmountChange,
   onDeadlineChange,
   onPeriodChange,
@@ -73,13 +73,13 @@ const NotConnected: FC<NotConnectedProps> = ({
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
             veRAFT aligns the interests of the Raft protocol and RAFT tokenholders. In return for staking your RAFT BPT
-            and receiving veRAFT, you will obtain the right to vote on Raft governance proposals and earn more RAFT in
+            and receiving veRAFT, you will gain the right to vote on Raft governance proposals and earn more RAFT in
             rewards.
           </Typography>
           <AmountInput value={amountToLock} onChange={onAmountChange} token={RAFT_BPT_TOKEN} />
           <PeriodPicker
             deadline={deadline}
-            period={period}
+            periodInYear={periodInYear}
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
           />

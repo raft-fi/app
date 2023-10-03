@@ -1,0 +1,147 @@
+import { v4 as uuid } from 'uuid';
+import { RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
+import { format } from 'date-fns';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { TokenLogo } from 'tempus-ui';
+import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
+import { useUserVeRaftBalance, useWithdrawRaftBpt } from '../../hooks';
+import { formatDecimal } from '../../utils';
+import { Button, Loading, Typography, ValueLabel } from '../shared';
+import Claim from './Claim';
+import FAQ from './FAQ';
+import HowToLock from './HowToLock';
+import { StakePage } from './Stake';
+
+interface HasPositionProps {
+  goToPage: (page: StakePage) => void;
+}
+
+const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
+  const userVeRaftBalance = useUserVeRaftBalance();
+  const { withdrawRaftBptStatus, withdrawRaftBpt } = useWithdrawRaftBpt();
+
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
+
+  const bptLockedBalance = useMemo(
+    () => userVeRaftBalance?.bptLockedBalance ?? null,
+    [userVeRaftBalance?.bptLockedBalance],
+  );
+  const veRaftBalance = useMemo(() => userVeRaftBalance?.veRaftBalance ?? null, [userVeRaftBalance?.veRaftBalance]);
+  const unlockTime = useMemo(() => userVeRaftBalance?.unlockTime ?? null, [userVeRaftBalance?.unlockTime]);
+
+  const bptLockedBalanceFormatted = useMemo(
+    () => formatDecimal(bptLockedBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    [bptLockedBalance],
+  );
+  const veRaftBalanceFormatted = useMemo(
+    () => formatDecimal(veRaftBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    [veRaftBalance],
+  );
+  const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
+
+  const canWithdraw = useMemo(
+    () =>
+      Boolean(
+        bptLockedBalance?.gt(0) && userVeRaftBalance?.unlockTime && userVeRaftBalance.unlockTime.getTime() < Date.now(),
+      ),
+    [bptLockedBalance, userVeRaftBalance?.unlockTime],
+  );
+
+  const goToAdjust = useCallback(() => goToPage('adjust'), [goToPage]);
+  const onWithdraw = useCallback(() => {
+    if (canWithdraw) {
+      const txnId = uuid();
+      withdrawRaftBpt({ txnId });
+    }
+  }, [canWithdraw, withdrawRaftBpt]);
+
+  /**
+   * Update action button state based on current redeem request status
+   */
+  useEffect(() => {
+    if (!withdrawRaftBptStatus) {
+      return;
+    }
+
+    if (withdrawRaftBptStatus.pending) {
+      setActionButtonState('loading');
+    } else if (withdrawRaftBptStatus.success) {
+      setActionButtonState('success');
+    } else {
+      setActionButtonState('default');
+    }
+  }, [withdrawRaftBptStatus]);
+
+  return (
+    <div className="raft__stake raft__stake__has-position">
+      <div className="raft__stake__main">
+        <div className="raft__stake__main__container">
+          <Typography className="raft__stake__title" variant="heading1" weight="medium">
+            Your stake
+          </Typography>
+          <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
+            Below is a summary of your current voting power for Raft governance.
+          </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            STAKED
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+            {bptLockedBalanceFormatted ? (
+              <>
+                <TokenLogo type={`token-${RAFT_BPT_TOKEN}`} size={20} />
+                <ValueLabel
+                  value={`${bptLockedBalanceFormatted} ${RAFT_BPT_TOKEN}`}
+                  valueSize="body"
+                  tickerSize="body2"
+                />
+              </>
+            ) : (
+              'N/A'
+            )}
+          </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            TOTAL VOTING POWER
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+            {veRaftBalanceFormatted ? (
+              <>
+                <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
+                <ValueLabel value={`${veRaftBalanceFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+              </>
+            ) : (
+              'N/A'
+            )}
+          </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            STAKED UNTIL
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium">
+            {unlockTimeFormatted ?? '---'}
+          </Typography>
+          <div className="raft__stake__btn-container">
+            <Button variant="secondary" size="large" onClick={goToAdjust}>
+              <Typography variant="button-label" color="text-secondary">
+                Adjust stake
+              </Typography>
+            </Button>
+            {canWithdraw && (
+              <Button variant="primary" size="large" onClick={onWithdraw} disabled={actionButtonState === 'loading'}>
+                {actionButtonState === 'loading' && <Loading />}
+                <Typography variant="button-label" color="text-primary-inverted">
+                  Withdraw
+                </Typography>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="raft__stake__sidebar">
+        <Claim />
+        <FAQ defaultOpen={false} />
+        <HowToLock defaultOpen={false} />
+      </div>
+    </div>
+  );
+};
+
+export default memo(HasPosition);

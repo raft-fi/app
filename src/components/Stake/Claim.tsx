@@ -1,83 +1,70 @@
+import { v4 as uuid } from 'uuid';
 import { RAFT_TOKEN } from '@raft-fi/sdk';
-import { FC, memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
-import { useClaimableRaftFromStakedBpt } from '../../hooks';
+import { useClaimableRaftFromStakedBpt, useClaimRaftFromStakedBpt } from '../../hooks';
 import { formatDecimal } from '../../utils';
-import { Button, Typography, ValueLabel } from '../shared';
-import CurrentPosition from './CurrentPosition';
-import FAQ from './FAQ';
-import HowToLock from './HowToLock';
-import { StakePage } from './Stake';
+import { Button, Loading, Typography, ValueLabel } from '../shared';
 
-interface ClaimProps {
-  goToPage: (page: StakePage) => void;
-}
-
-const Claim: FC<ClaimProps> = ({ goToPage }) => {
+const Claim = () => {
   const claimableRaft = useClaimableRaftFromStakedBpt();
+  const { claimRaftFromStakedBptStatus, claimRaftFromStakedBpt } = useClaimRaftFromStakedBpt();
+
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
+
+  const canClaim = useMemo(() => Boolean(claimableRaft?.gt(0)), [claimableRaft]);
 
   const claimableRaftFormatted = useMemo(
     () => formatDecimal(claimableRaft, COLLATERAL_TOKEN_UI_PRECISION),
     [claimableRaft],
   );
 
-  const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
-  const goToWithdraw = useCallback(() => goToPage('withdraw'), [goToPage]);
-  const onClaim = useCallback(() => false, []);
+  const onClaim = useCallback(() => {
+    if (canClaim) {
+      const txnId = uuid();
+      claimRaftFromStakedBpt({ txnId });
+    }
+  }, [canClaim, claimRaftFromStakedBpt]);
 
-  const positionButtons = useMemo(
-    () => [
-      <Button key="btn-stake" variant="secondary" size="large" onClick={goToDefault}>
-        <Typography variant="button-label" weight="medium" color="text-secondary">
-          Increase stake
-        </Typography>
-      </Button>,
-      <Button key="btn-withdraw" variant="secondary" size="large" onClick={goToWithdraw}>
-        <Typography variant="button-label" weight="medium" color="text-secondary">
-          Withdraw
-        </Typography>
-      </Button>,
-    ],
-    [goToDefault, goToWithdraw],
-  );
+  /**
+   * Update action button state based on current redeem request status
+   */
+  useEffect(() => {
+    if (!claimRaftFromStakedBptStatus) {
+      return;
+    }
+
+    if (claimRaftFromStakedBptStatus.pending) {
+      setActionButtonState('loading');
+    } else if (claimRaftFromStakedBptStatus.success) {
+      setActionButtonState('success');
+    } else {
+      setActionButtonState('default');
+    }
+  }, [claimRaftFromStakedBptStatus]);
 
   return (
-    <div className="raft__stake raft__stake__preview">
-      <div className="raft__stake__main">
-        <div className="raft__stake__main__container">
-          <Typography className="raft__stake__title" variant="heading1" weight="medium">
+    <div className="raft__stake__claim">
+      <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+        CLAIMABLE REWARDS
+      </Typography>
+      <Typography className="raft__stake__value" variant="body" weight="medium">
+        <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
+        <ValueLabel value={`${claimableRaftFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+      </Typography>
+      <div className="raft__stake__btn-container">
+        <Button
+          variant="primary"
+          size="large"
+          onClick={onClaim}
+          disabled={!canClaim || actionButtonState === 'loading'}
+        >
+          {actionButtonState === 'loading' && <Loading />}
+          <Typography variant="button-label" color="text-primary-inverted">
             Claim rewards
           </Typography>
-          <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            Lorem ipsum dolor sit amet.
-          </Typography>
-          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            TOTAL AMOUNT TO BE CLAIMED
-          </Typography>
-          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {claimableRaftFormatted ? (
-              <>
-                <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${claimableRaftFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
-              </>
-            ) : (
-              'N/A'
-            )}
-          </Typography>
-          <div className="raft__stake__btn-container">
-            <Button variant="primary" size="large" onClick={onClaim}>
-              <Typography variant="button-label" color="text-primary-inverted">
-                Claim
-              </Typography>
-            </Button>
-          </div>
-        </div>
-      </div>
-      <div className="raft__stake__sidebar">
-        <CurrentPosition buttons={positionButtons} />
-        <FAQ defaultOpen={false} />
-        <HowToLock defaultOpen={false} />
+        </Button>
       </div>
     </div>
   );

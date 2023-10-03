@@ -48,7 +48,7 @@
       }
     }
 
-    .raft__stake__current-position {
+    .raft__stake__claim {
       width: 342px;
       background: var(--surfacePrimary);
       border: 1px solid var(--borderPrimary);
@@ -67,7 +67,8 @@
   }
 
   &.raft__stake__not-connected,
-  &.raft__stake__connected,
+  &.raft__stake__has-position,
+  &.raft__stake__no-positions,
   &.raft__stake__preview {
     .raft__stake__subtitle {
       margin-top: 16px;
