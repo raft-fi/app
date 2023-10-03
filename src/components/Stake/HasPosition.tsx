@@ -1,11 +1,13 @@
+import { v4 as uuid } from 'uuid';
 import { RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { format } from 'date-fns';
-import { FC, memo, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
-import { useUserVeRaftBalance } from '../../hooks';
+import { useUserVeRaftBalance, useWithdrawRaftBpt } from '../../hooks';
 import { formatDecimal } from '../../utils';
-import { Button, Typography, ValueLabel } from '../shared';
+import { Button, Loading, Typography, ValueLabel } from '../shared';
+import Claim from './Claim';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import { StakePage } from './Stake';
@@ -16,6 +18,9 @@ interface HasPositionProps {
 
 const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
   const userVeRaftBalance = useUserVeRaftBalance();
+  const { withdrawRaftBptStatus, withdrawRaftBpt } = useWithdrawRaftBpt();
+
+  const [actionButtonState, setActionButtonState] = useState<string>('default');
 
   const bptLockedBalance = useMemo(
     () => userVeRaftBalance?.bptLockedBalance ?? null,
@@ -34,7 +39,38 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
   );
   const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
 
+  const canWithdraw = useMemo(
+    () =>
+      Boolean(
+        bptLockedBalance?.gt(0) && userVeRaftBalance?.unlockTime && userVeRaftBalance.unlockTime.getTime() < Date.now(),
+      ),
+    [bptLockedBalance, userVeRaftBalance?.unlockTime],
+  );
+
   const goToAdjust = useCallback(() => goToPage('adjust'), [goToPage]);
+  const onWithdraw = useCallback(() => {
+    if (canWithdraw) {
+      const txnId = uuid();
+      withdrawRaftBpt({ txnId });
+    }
+  }, [canWithdraw, withdrawRaftBpt]);
+
+  /**
+   * Update action button state based on current redeem request status
+   */
+  useEffect(() => {
+    if (!withdrawRaftBptStatus) {
+      return;
+    }
+
+    if (withdrawRaftBptStatus.pending) {
+      setActionButtonState('loading');
+    } else if (withdrawRaftBptStatus.success) {
+      setActionButtonState('success');
+    } else {
+      setActionButtonState('default');
+    }
+  }, [withdrawRaftBptStatus]);
 
   return (
     <div className="raft__stake raft__stake__has-position">
@@ -88,10 +124,19 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
                 Adjust stake
               </Typography>
             </Button>
+            {canWithdraw && (
+              <Button variant="primary" size="large" onClick={onWithdraw} disabled={actionButtonState === 'loading'}>
+                {actionButtonState === 'loading' && <Loading />}
+                <Typography variant="button-label" color="text-primary-inverted">
+                  Withdraw
+                </Typography>
+              </Button>
+            )}
           </div>
         </div>
       </div>
       <div className="raft__stake__sidebar">
+        <Claim />
         <FAQ defaultOpen={false} />
         <HowToLock defaultOpen={false} />
       </div>

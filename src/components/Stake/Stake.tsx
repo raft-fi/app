@@ -2,14 +2,12 @@ import { addMilliseconds, startOfDay } from 'date-fns';
 import { memo, useCallback, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
 import { useUserVeRaftBalance, useWallet } from '../../hooks';
-import Claim from './Claim';
 import HasPosition from './HasPosition';
 import NoPositions from './NoPositions';
 import NotConnected from './NotConnected';
 import Preview from './Preview';
 
 import './Stake.scss';
-import Withdraw from './Withdraw';
 
 export type StakePage = 'default' | 'preview' | 'adjust' | 'withdraw' | 'claim';
 
@@ -61,10 +59,6 @@ const Stake = () => {
       );
     case 'preview':
       return <Preview amountToLock={amountToLock} deadline={deadline} goToPage={setStep} />;
-    case 'withdraw':
-      return <Withdraw goToPage={setStep} />;
-    case 'claim':
-      return <Claim goToPage={setStep} />;
   }
 
   return null;
