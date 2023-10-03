@@ -22,13 +22,22 @@ import {
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
-import { ManageTransactionRow, SavingsTransactionRow } from './TransactionHistoryRow';
+import { BridgeRequestTransactionRow, ManageTransactionRow, SavingsTransactionRow } from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
 
 const isSavingsTransaction = (transaction: HistoryTransaction): transaction is SavingsTransaction => {
   return transaction.type === 'DEPOSIT' || transaction.type === 'WITHDRAW';
+};
+
+const isManageTransaction = (transaction: HistoryTransaction): transaction is PositionTransaction => {
+  return (
+    transaction.type === 'ADJUST' ||
+    transaction.type === 'CLOSE' ||
+    transaction.type === 'OPEN' ||
+    transaction.type === 'LIQUIDATION'
+  );
 };
 
 const safeSdk = new SafeAppsSDK();
@@ -311,7 +320,10 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
                   if (isSavingsTransaction(transaction)) {
                     return <SavingsTransactionRow key={transaction.id} transaction={transaction} />;
                   }
-                  return <ManageTransactionRow key={transaction.id} transaction={transaction} />;
+                  if (isManageTransaction(transaction)) {
+                    return <ManageTransactionRow key={transaction.id} transaction={transaction} />;
+                  }
+                  return <BridgeRequestTransactionRow key={transaction.id} transaction={transaction} />;
                 })
               ) : (
                 <Typography
