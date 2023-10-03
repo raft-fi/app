@@ -4,10 +4,9 @@ import { format, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, WEEK_IN_MS, YEAR_IN_MS } from '../../constants';
-import { useStakeBptForVeRaft, useUserVeRaftBalance } from '../../hooks';
+import { useStakeBptForVeRaft } from '../../hooks';
 import { formatDecimal } from '../../utils';
 import { Button, Loading, Typography, ValueLabel } from '../shared';
-import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import { StakePage } from './Stake';
@@ -19,130 +18,55 @@ interface PreviewProps {
 }
 
 const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
-  const userVeRaftBalance = useUserVeRaftBalance();
   const { stakeBptForVeRaftStatus, stakeBptForVeRaft, stakeBptForVeRaftStepsStatus, requestStakeBptForVeRaftStep } =
     useStakeBptForVeRaft();
 
   const [actionButtonState, setActionButtonState] = useState<string>('default');
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
-  const unlockTime = useMemo(
-    () => deadline ?? userVeRaftBalance?.unlockTime,
-    [deadline, userVeRaftBalance?.unlockTime],
-  );
   const veRaftAmount = useMemo(() => {
-    if (!unlockTime) {
+    if (!deadline) {
       return Decimal.ZERO;
     }
 
     const today = startOfDay(new Date());
     // period is floored by week (VotingEscrow.vy#L77)
-    const periodInMs = Math.floor((unlockTime.getTime() - today.getTime()) / WEEK_IN_MS) * WEEK_IN_MS;
+    const periodInMs = Math.floor((deadline.getTime() - today.getTime()) / WEEK_IN_MS) * WEEK_IN_MS;
     const period = new Decimal(periodInMs).div(YEAR_IN_MS);
 
     return bptAmount.mul(period);
-  }, [bptAmount, unlockTime]);
-  const totalVeRaftAmount = useMemo(
-    () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
-    [userVeRaftBalance?.veRaftBalance, veRaftAmount],
-  );
-  const hasPosition = useMemo(
-    () => Boolean(userVeRaftBalance?.bptLockedBalance.gt(0)),
-    [userVeRaftBalance?.bptLockedBalance],
-  );
+  }, [bptAmount, deadline]);
 
-  const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
+  const unlockTimeFormatted = useMemo(() => (deadline ? format(deadline, 'dd MMMM yyyy') : null), [deadline]);
   const bptAmountFormatted = useMemo(() => formatDecimal(bptAmount, COLLATERAL_TOKEN_UI_PRECISION), [bptAmount]);
-  const totalVeRaftAmountFormatted = useMemo(
-    () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
-    [totalVeRaftAmount],
+  const veRaftAmountFormatted = useMemo(
+    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    [veRaftAmount],
   );
 
   const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
-  const goToWithdraw = useCallback(() => goToPage('withdraw'), [goToPage]);
-  const goToClaim = useCallback(() => goToPage('claim'), [goToPage]);
   const onStake = useCallback(() => {
     stakeBptForVeRaft?.();
   }, [stakeBptForVeRaft]);
-
-  const previewTitle = useMemo(() => {
-    switch (stakeBptForVeRaftStepsStatus.result?.type) {
-      case 'approve':
-      case 'stake-new':
-        return 'Start staking now';
-      case 'stake-increase':
-        return 'Increase RAFT rewards';
-      case 'stake-extend':
-        return 'Extend your staking period';
-    }
-
-    return '';
-  }, [stakeBptForVeRaftStepsStatus.result?.type]);
-
-  const previewDesc = useMemo(() => {
-    switch (stakeBptForVeRaftStepsStatus.result?.type) {
-      case 'approve':
-      case 'stake-new':
-      case 'stake-increase':
-        return 'Review the summary below and proceed with increasing your staking amount.';
-      case 'stake-extend':
-        return 'Review the summary below and proceed with increasing your staking period.';
-    }
-
-    return '';
-  }, [stakeBptForVeRaftStepsStatus.result?.type]);
 
   const buttonLabel = useMemo(() => {
     switch (stakeBptForVeRaftStepsStatus.result?.type) {
       case 'approve':
         return stakeBptForVeRaftStatus.pending ? `Approving ${RAFT_BPT_TOKEN}` : `Approve ${RAFT_BPT_TOKEN}`;
       case 'stake-new':
+      default:
         return stakeBptForVeRaftStatus.pending ? 'Staking' : 'Stake';
-      case 'stake-increase':
-        return stakeBptForVeRaftStatus.pending ? 'Increasing stake' : 'Increase stake';
-      case 'stake-extend':
-        return stakeBptForVeRaftStatus.pending ? 'Extending lock period' : 'Extend lock period';
     }
-
-    return '';
   }, [stakeBptForVeRaftStatus.pending, stakeBptForVeRaftStepsStatus.result?.type]);
 
-  const positionButtons = useMemo(
-    () => [
-      <Button
-        key="btn-withdraw"
-        variant="secondary"
-        size="large"
-        onClick={goToWithdraw}
-        disabled={!hasPosition || actionButtonState === 'loading'}
-      >
-        <Typography variant="button-label" weight="medium" color="text-secondary">
-          Withdraw
-        </Typography>
-      </Button>,
-      <Button
-        key="btn-claim"
-        variant="secondary"
-        size="large"
-        onClick={goToClaim}
-        disabled={!hasPosition || actionButtonState === 'loading'}
-      >
-        <Typography variant="button-label" weight="medium" color="text-secondary">
-          Claim
-        </Typography>
-      </Button>,
-    ],
-    [actionButtonState, goToClaim, goToWithdraw, hasPosition],
-  );
-
   useEffect(() => {
-    if (requestStakeBptForVeRaftStep && unlockTime) {
+    if (requestStakeBptForVeRaftStep && deadline) {
       requestStakeBptForVeRaftStep({
         bptAmount,
-        unlockTime,
+        unlockTime: deadline,
       });
     }
-  }, [bptAmount, requestStakeBptForVeRaftStep, unlockTime]);
+  }, [bptAmount, requestStakeBptForVeRaftStep, deadline]);
 
   useEffect(() => {
     if (stakeBptForVeRaftStatus.pending || stakeBptForVeRaftStepsStatus.pending) {
@@ -165,10 +89,11 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
-            {previewTitle}
+            Start staking now
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            {previewDesc}
+            Review the summary below and proceed with staking your RAFT BPT to gain governance rights and earn RAFT
+            rewards.
           </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             TOTAL AMOUNT TO BE STAKED
@@ -184,7 +109,7 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
             )}
           </Typography>
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            LOCKED UNTIL
+            STAKED UNTIL
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium">
             {unlockTimeFormatted ?? '---'}
@@ -193,14 +118,10 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
             TOTAL VOTING ESCROW
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {totalVeRaftAmountFormatted ? (
+            {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel
-                  value={`${totalVeRaftAmountFormatted} ${VERAFT_TOKEN}`}
-                  valueSize="body"
-                  tickerSize="body2"
-                />
+                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -212,7 +133,12 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
                 Back
               </Typography>
             </Button>
-            <Button variant="primary" size="large" onClick={onStake} disabled={actionButtonState === 'loading'}>
+            <Button
+              variant="primary"
+              size="large"
+              onClick={onStake}
+              disabled={actionButtonState === 'loading' || !stakeBptForVeRaftStepsStatus.result?.type}
+            >
               {actionButtonState === 'loading' && <Loading />}
               <Typography variant="button-label" color="text-primary-inverted">
                 {buttonLabel}
@@ -222,7 +148,6 @@ const Preview: FC<PreviewProps> = ({ amountToLock, deadline, goToPage }) => {
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <CurrentPosition buttons={positionButtons} />
         <FAQ defaultOpen={false} />
         <HowToLock defaultOpen={false} />
       </div>

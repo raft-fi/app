@@ -53,3 +53,4 @@ export * from './useSavingsTokenAllowance';
 export * from './useClaimableRaftFromStakedBpt';
 export * from './useClaimRaftFromStakedBpt';
 export * from './useEstimateStakingApr';
+export * from './useCalculateVeRaftAmount';
