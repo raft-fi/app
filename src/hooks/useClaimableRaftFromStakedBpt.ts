@@ -42,6 +42,9 @@ const intervalStream$ = intervalBeat$.pipe(
   concatMap(([, raftToken]) => fetchData(raftToken)),
 );
 
+// fetch when raft token changed
+const raftTokenStream$ = raftToken$.pipe(concatMap(raftToken => fetchData(raftToken)));
+
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
   withLatestFrom(raftToken$),
@@ -49,7 +52,7 @@ const appEventsStream$ = appEvent$.pipe(
 );
 
 // merge all stream$ into one if there are multiple
-const stream$ = merge(intervalStream$, appEventsStream$).pipe(
+const stream$ = merge(intervalStream$, raftTokenStream$, appEventsStream$).pipe(
   filter(claimableRaft => Boolean(claimableRaft)),
   debounce<Nullable<Decimal>>(() => interval(DEBOUNCE_IN_MS)),
   tap(claimableRaft => {
