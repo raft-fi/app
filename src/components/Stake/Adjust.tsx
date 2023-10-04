@@ -3,16 +3,15 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS } from '../../constants';
 import {
   useCalculateVeRaftAmount,
   useEstimateStakingApr,
   useUserRaftBptBalance,
   useUserVeRaftBalance,
 } from '../../hooks';
-import { formatDecimal } from '../../utils';
-import { Button, Typography, ValueLabel } from '../shared';
-import AmountInput from './AmountInput';
+import { formatCurrency } from '../../utils';
+import { Button, CurrencyInput, Typography, ValueLabel } from '../shared';
 import Claim from './Claim';
 import CurrentPosition from './CurrentPosition';
 import FAQ from './FAQ';
@@ -59,11 +58,19 @@ const Adjust: FC<AdjustProps> = ({
   );
 
   const totalVeRaftAmountFormatted = useMemo(
-    () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(totalVeRaftAmount, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [totalVeRaftAmount],
   );
   const userRaftBptBalanceFormatted = useMemo(
-    () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(userRaftBptBalance, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [userRaftBptBalance],
   );
   const stakingAprFormatted = useMemo(() => {
@@ -78,6 +85,12 @@ const Adjust: FC<AdjustProps> = ({
       fractionDigits: 2,
     });
   }, [estimateStakingAprStatus.result]);
+  const bptAmountWithEllipse = useMemo(() => {
+    const original = bptAmount.toString();
+    const truncated = bptAmount.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [bptAmount]);
 
   const onBalanceClick = useCallback(() => {
     if (userRaftBptBalance) {
@@ -105,12 +118,17 @@ const Adjust: FC<AdjustProps> = ({
             veRAFT is at the centre of governance and growth of the Raft protocol. By staking your Raft Balancer LP
             tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
           </Typography>
-          <AmountInput
+          <CurrencyInput
+            label="ADDITIONAL STAKE"
+            precision={18}
+            selectedToken="RAFT-BPT"
+            tokens={['RAFT-BPT']}
             value={amountToLock}
-            balance={userRaftBptBalanceFormatted ?? undefined}
-            token={RAFT_BPT_TOKEN}
-            onChange={onAmountChange}
-            onBalanceClick={onBalanceClick}
+            previewValue={bptAmountWithEllipse}
+            maxAmount={bptAmount}
+            maxAmountFormatted={userRaftBptBalanceFormatted ?? undefined}
+            onValueUpdate={onAmountChange}
+            onMaxAmountClick={onBalanceClick}
           />
           <PeriodPicker
             deadline={unlockTime ?? undefined}
@@ -126,11 +144,7 @@ const Adjust: FC<AdjustProps> = ({
             {totalVeRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel
-                  value={`${totalVeRaftAmountFormatted} ${VERAFT_TOKEN}`}
-                  valueSize="body"
-                  tickerSize="body2"
-                />
+                <ValueLabel value={totalVeRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'

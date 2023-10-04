@@ -1,14 +1,13 @@
-import { RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
+import { RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
 import { useCalculateVeRaftAmount, useEstimateStakingApr, useRaftTokenAnnualGiveAway } from '../../hooks';
-import { formatDecimal } from '../../utils';
-import { Button, Typography, ValueLabel } from '../shared';
-import AmountInput from './AmountInput';
+import { formatCurrency } from '../../utils';
+import { Button, CurrencyInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import PeriodPicker from './PeriodPicker';
@@ -46,11 +45,19 @@ const NotConnected: FC<NotConnectedProps> = ({
   );
 
   const veRaftAmountFormatted = useMemo(
-    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(veRaftAmount, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [veRaftAmount],
   );
   const weeklyGiveawayFormatted = useMemo(
-    () => formatDecimal(weeklyGiveaway, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(weeklyGiveaway, {
+        currency: RAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [weeklyGiveaway],
   );
   const stakingAprFormatted = useMemo(() => {
@@ -65,6 +72,12 @@ const NotConnected: FC<NotConnectedProps> = ({
       fractionDigits: 2,
     });
   }, [estimateStakingAprStatus.result]);
+  const bptAmountWithEllipse = useMemo(() => {
+    const original = bptAmount.toString();
+    const truncated = bptAmount.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [bptAmount]);
 
   const onConnectWallet = useCallback(() => {
     connect();
@@ -89,7 +102,15 @@ const NotConnected: FC<NotConnectedProps> = ({
             and receiving veRAFT, you will gain the right to vote on Raft governance proposals and earn more RAFT in
             rewards.
           </Typography>
-          <AmountInput value={amountToLock} onChange={onAmountChange} token={RAFT_BPT_TOKEN} />
+          <CurrencyInput
+            label="YOU STAKE"
+            precision={18}
+            selectedToken="RAFT-BPT"
+            tokens={['RAFT-BPT']}
+            value={amountToLock}
+            previewValue={bptAmountWithEllipse}
+            onValueUpdate={onAmountChange}
+          />
           <PeriodPicker
             deadline={deadline}
             periodInYear={periodInYear}
@@ -103,7 +124,7 @@ const NotConnected: FC<NotConnectedProps> = ({
             {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={veRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -116,7 +137,7 @@ const NotConnected: FC<NotConnectedProps> = ({
             {weeklyGiveawayFormatted ? (
               <>
                 <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${weeklyGiveawayFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={weeklyGiveawayFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'

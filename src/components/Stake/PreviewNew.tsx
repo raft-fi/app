@@ -5,7 +5,7 @@ import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useCalculateVeRaftAmount, useStakeBptForVeRaft } from '../../hooks';
-import { formatDecimal } from '../../utils';
+import { formatCurrency } from '../../utils';
 import { Button, Loading, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
@@ -31,9 +31,20 @@ const PreviewNew: FC<PreviewNewProps> = ({ amountToLock, deadline, goToPage }) =
   );
 
   const unlockTimeFormatted = useMemo(() => (deadline ? format(deadline, 'dd MMMM yyyy') : null), [deadline]);
-  const bptAmountFormatted = useMemo(() => formatDecimal(bptAmount, COLLATERAL_TOKEN_UI_PRECISION), [bptAmount]);
+  const bptAmountFormatted = useMemo(
+    () =>
+      formatCurrency(bptAmount, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
+    [bptAmount],
+  );
   const veRaftAmountFormatted = useMemo(
-    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(veRaftAmount, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [veRaftAmount],
   );
 
@@ -101,7 +112,7 @@ const PreviewNew: FC<PreviewNewProps> = ({ amountToLock, deadline, goToPage }) =
             {bptAmountFormatted ? (
               <>
                 <TokenLogo type="token-RAFT-BPT" size={20} />
-                <ValueLabel value={`${bptAmountFormatted} ${RAFT_BPT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={bptAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -120,7 +131,7 @@ const PreviewNew: FC<PreviewNewProps> = ({ amountToLock, deadline, goToPage }) =
             {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={veRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'

@@ -3,16 +3,15 @@ import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
 import {
   useCalculateVeRaftAmount,
   useEstimateStakingApr,
   useRaftTokenAnnualGiveAway,
   useUserRaftBptBalance,
 } from '../../hooks';
-import { formatDecimal } from '../../utils';
-import { Button, Typography, ValueLabel } from '../shared';
-import AmountInput from './AmountInput';
+import { formatCurrency } from '../../utils';
+import { Button, CurrencyInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import PeriodPicker from './PeriodPicker';
@@ -53,15 +52,27 @@ const NoPositions: FC<NoPositionsProps> = ({
   );
 
   const veRaftAmountFormatted = useMemo(
-    () => formatDecimal(veRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(veRaftAmount, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [veRaftAmount],
   );
   const userRaftBptBalanceFormatted = useMemo(
-    () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(userRaftBptBalance, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [userRaftBptBalance],
   );
   const weeklyGiveawayFormatted = useMemo(
-    () => formatDecimal(weeklyGiveaway, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(weeklyGiveaway, {
+        currency: RAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [weeklyGiveaway],
   );
   const stakingAprFormatted = useMemo(() => {
@@ -76,6 +87,12 @@ const NoPositions: FC<NoPositionsProps> = ({
       fractionDigits: 2,
     });
   }, [estimateStakingAprStatus.result]);
+  const bptAmountWithEllipse = useMemo(() => {
+    const original = bptAmount.toString();
+    const truncated = bptAmount.toTruncated(INPUT_PREVIEW_DIGITS);
+
+    return original === truncated ? original : `${truncated}...`;
+  }, [bptAmount]);
 
   const onBalanceClick = useCallback(() => {
     if (userRaftBptBalance) {
@@ -104,12 +121,17 @@ const NoPositions: FC<NoPositionsProps> = ({
             and receiving veRAFT, you will gain the right to vote on Raft governance proposals and earn more RAFT in
             rewards.
           </Typography>
-          <AmountInput
+          <CurrencyInput
+            label="YOU STAKE"
+            precision={18}
+            selectedToken="RAFT-BPT"
+            tokens={['RAFT-BPT']}
             value={amountToLock}
-            balance={userRaftBptBalanceFormatted ?? undefined}
-            token={RAFT_BPT_TOKEN}
-            onChange={onAmountChange}
-            onBalanceClick={onBalanceClick}
+            previewValue={bptAmountWithEllipse}
+            maxAmount={bptAmount}
+            maxAmountFormatted={userRaftBptBalanceFormatted ?? undefined}
+            onValueUpdate={onAmountChange}
+            onMaxAmountClick={onBalanceClick}
           />
           <PeriodPicker
             deadline={deadline ?? undefined}
@@ -125,7 +147,7 @@ const NoPositions: FC<NoPositionsProps> = ({
             {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${veRaftAmountFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={veRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -138,7 +160,7 @@ const NoPositions: FC<NoPositionsProps> = ({
             {weeklyGiveawayFormatted ? (
               <>
                 <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${weeklyGiveawayFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={weeklyGiveawayFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'

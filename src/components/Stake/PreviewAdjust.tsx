@@ -5,7 +5,7 @@ import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useCalculateVeRaftAmount, useStakeBptForVeRaft, useUserVeRaftBalance } from '../../hooks';
-import { formatDecimal } from '../../utils';
+import { formatCurrency } from '../../utils';
 import { Button, Loading, Typography, ValueLabel } from '../shared';
 import Claim from './Claim';
 import CurrentPosition from './CurrentPosition';
@@ -42,9 +42,20 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
   );
 
   const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
-  const bptAmountFormatted = useMemo(() => formatDecimal(bptAmount, COLLATERAL_TOKEN_UI_PRECISION), [bptAmount]);
+  const bptAmountFormatted = useMemo(
+    () =>
+      formatCurrency(bptAmount, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
+    [bptAmount],
+  );
   const totalVeRaftAmountFormatted = useMemo(
-    () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(totalVeRaftAmount, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [totalVeRaftAmount],
   );
 
@@ -143,7 +154,7 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
             {bptAmountFormatted ? (
               <>
                 <TokenLogo type="token-RAFT-BPT" size={20} />
-                <ValueLabel value={`${bptAmountFormatted} ${RAFT_BPT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={bptAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -162,11 +173,7 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
             {totalVeRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel
-                  value={`${totalVeRaftAmountFormatted} ${VERAFT_TOKEN}`}
-                  valueSize="body"
-                  tickerSize="body2"
-                />
+                <ValueLabel value={totalVeRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
