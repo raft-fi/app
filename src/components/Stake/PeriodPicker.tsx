@@ -33,7 +33,7 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
   return (
     <div className="raft__stake__period-picker-container">
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-        LOCK UNTIL
+        STAKE UNTIL
       </Typography>
       <div className="raft__stake__input-container">
         <div className="raft__stake__input" onClick={focusDateInput}>
@@ -50,7 +50,7 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
       </div>
       <div className="raft__stake__period-container">
         <Typography variant="body" color="text-secondary">
-          Lock periods
+          Stake duration:
         </Typography>
         {PERIOD_IN_YEAR_OPTIONS.map(p => (
           <ButtonWrapper
