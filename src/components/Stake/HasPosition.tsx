@@ -88,7 +88,7 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {bptLockedBalanceFormatted ? (
               <>
-                <TokenLogo type={`token-${RAFT_BPT_TOKEN}`} size={20} />
+                <TokenLogo type="token-RAFT-BPT" size={20} />
                 <ValueLabel
                   value={`${bptLockedBalanceFormatted} ${RAFT_BPT_TOKEN}`}
                   valueSize="body"

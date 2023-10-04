@@ -1,13 +1,12 @@
-import { RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
+import { RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
-import { COLLATERAL_TOKEN_UI_PRECISION, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
+import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import {
   useCalculateVeRaftAmount,
   useEstimateStakingApr,
-  useRaftTokenAnnualGiveAway,
   useUserRaftBptBalance,
   useUserVeRaftBalance,
 } from '../../hooks';
@@ -42,7 +41,6 @@ const Adjust: FC<AdjustProps> = ({
 }) => {
   const userVeRaftBalance = useUserVeRaftBalance();
   const userRaftBptBalance = useUserRaftBptBalance();
-  const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
   const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
   const { calculateVeRaftAmountStatus, calculateVeRaftAmount } = useCalculateVeRaftAmount();
 
@@ -59,10 +57,6 @@ const Adjust: FC<AdjustProps> = ({
     () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
     [userVeRaftBalance?.veRaftBalance, veRaftAmount],
   );
-  const weeklyGiveaway = useMemo(
-    () => raftTokenAnnualGiveAway?.div(NUMBER_OF_WEEK_IN_YEAR) ?? null,
-    [raftTokenAnnualGiveAway],
-  );
 
   const totalVeRaftAmountFormatted = useMemo(
     () => formatDecimal(totalVeRaftAmount, COLLATERAL_TOKEN_UI_PRECISION),
@@ -71,10 +65,6 @@ const Adjust: FC<AdjustProps> = ({
   const userRaftBptBalanceFormatted = useMemo(
     () => formatDecimal(userRaftBptBalance, COLLATERAL_TOKEN_UI_PRECISION),
     [userRaftBptBalance],
-  );
-  const weeklyGiveawayFormatted = useMemo(
-    () => formatDecimal(weeklyGiveaway, COLLATERAL_TOKEN_UI_PRECISION),
-    [weeklyGiveaway],
   );
   const stakingAprFormatted = useMemo(() => {
     const apr = estimateStakingAprStatus.result;
@@ -130,7 +120,7 @@ const Adjust: FC<AdjustProps> = ({
             onPeriodChange={onPeriodChange}
           />
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            TOTAL VOTING ESCROW
+            RESULTING VOTING POWER
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {totalVeRaftAmountFormatted ? (
@@ -141,19 +131,6 @@ const Adjust: FC<AdjustProps> = ({
                   valueSize="body"
                   tickerSize="body2"
                 />
-              </>
-            ) : (
-              'N/A'
-            )}
-          </Typography>
-          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            WEEKLY RAFT REWARDS
-          </Typography>
-          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {weeklyGiveawayFormatted ? (
-              <>
-                <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${weeklyGiveawayFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'

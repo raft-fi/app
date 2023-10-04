@@ -119,7 +119,7 @@ const NoPositions: FC<NoPositionsProps> = ({
             onPeriodChange={onPeriodChange}
           />
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-            TOTAL VOTING ESCROW
+            TOTAL VOTING POWER
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
             {veRaftAmountFormatted ? (
