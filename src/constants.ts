@@ -184,6 +184,14 @@ export const NETWORK_RPC_URLS: Record<SupportedBridgeNetwork | SupportedSavingsN
   goerli: import.meta.env.VITE_GOERLI_RPC_URL,
 };
 
+export const NETWORK_SUBGRAPH_URLS: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
+  mainnet: import.meta.env.VITE_SUBGRAPH_ETHEREUM_MAINNET_URL,
+  base: import.meta.env.VITE_BASE_MAINNET_SUBGRAPH_URL,
+  ethereumSepolia: '',
+  arbitrumGoerli: '',
+  goerli: '',
+};
+
 export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: string } = {
   stETH: 'stETH',
   'wstETH-v1': 'wstETH',

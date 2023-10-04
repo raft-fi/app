@@ -90,6 +90,11 @@ const CollateralStatsBreakdown = () => {
     <Tooltip className="raft__protocol-stats__collateral-breakdown">
       <ul>
         {SUPPORTED_UNDERLYING_TOKENS.map(underlyingToken => {
+          // Hide WBTC from breakdown until we fully add support for it
+          if (underlyingToken === 'WBTC') {
+            return;
+          }
+
           let tokenLabel: string = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingToken].displayBaseToken;
 
           if (underlyingToken.endsWith('v1')) {
