@@ -1,7 +1,7 @@
 import { addMilliseconds, startOfDay } from 'date-fns';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
-import { useUserVeRaftBalance, useWallet } from '../../hooks';
+import { useUserVeRaftBalance, useWallet, useWalletAddress } from '../../hooks';
 import Adjust from './Adjust';
 import HasPosition from './HasPosition';
 import NoPositions from './NoPositions';
@@ -15,6 +15,7 @@ export type StakePage = 'default' | 'adjust' | 'preview';
 
 const Stake = () => {
   const wallet = useWallet();
+  const address = useWalletAddress();
   const userVeRaftBalance = useUserVeRaftBalance();
 
   const [step, setStep] = useState<StakePage>('default');
@@ -32,6 +33,10 @@ const Stake = () => {
     setDeadline(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS));
     setPeriodInYear(year);
   }, []);
+
+  useEffect(() => {
+    setStep('default');
+  }, [address]);
 
   if (!wallet) {
     return (

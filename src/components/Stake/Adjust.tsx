@@ -112,11 +112,10 @@ const Adjust: FC<AdjustProps> = ({
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
-            Stake RAFT BPT to get veRAFT
+            Adjust stake
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            veRAFT is at the centre of governance and growth of the Raft protocol. By staking your Raft Balancer LP
-            tokens, veRAFT tokenholders will be able to vote on Raft governance proposals while earning more RAFT.
+            Increase your voting power by staking more RAFT BPT and increasing your staking period.
           </Typography>
           <CurrencyInput
             label="ADDITIONAL STAKE"
