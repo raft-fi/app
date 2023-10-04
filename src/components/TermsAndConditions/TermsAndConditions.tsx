@@ -6,7 +6,7 @@ import './TermsAndConditions.scss';
 const TermsAndConditions = () => {
   return (
     <div className="raft__legal__page">
-      <LegalPageHeader title="Terms & Conditions" subtitle="Last updated: 19 May 2023" />
+      <LegalPageHeader title="Terms & Conditions" subtitle="Last updated: 4 October 2023" />
       <div className="raft__legal__contentContainer">
         <div className="raft__legal__content">
           <h3 className="raft__legal__title">1. Introduction</h3>
@@ -98,7 +98,35 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">5. All rights reserved</h3>
+          <h3 className="raft__legal__title">5. Prohibited Jurisdictions</h3>
+          <div className="raft__legal__text">
+            <p>
+              Notwithstanding any other provision in these Terms, the Frontend is not available to residents or
+              nationals of certain jurisdictions due to significant regulatory complexities and/or risks. Specifically,
+              persons who are residents, nationals, or agents of the United States of America, North Korea, Iran, Syria,
+              Cuba, and any other country subject to sanctions or embargoes by the United Nations or other international
+              bodies ("Prohibited Jurisdictions") are expressly prohibited from using the Frontend.
+            </p>
+            <p>
+              If you are located in, incorporated or otherwise established in, or a resident of, a Prohibited
+              Jurisdiction, you represent and warrant that you will not access or use the Frontend, or any of its
+              services, for any purpose. Furthermore, you are not allowed to utilize any services on the Frontend if you
+              are a person, or are owned or controlled by persons, subject to financial sanctions imposed by any global
+              authority, including the United Nations, the European Union, or any other international organization.
+            </p>
+            <p>
+              If we determine, in our sole discretion, that you are using the Frontend from a Prohibited Jurisdiction or
+              have made any false representation in connection therewith, we reserve the right to close any of your
+              accounts immediately and take appropriate legal action.
+            </p>
+            <p>
+              It is your responsibility to ensure that you comply with this clause and that you do not access or use the
+              Frontend if you are from a Prohibited Jurisdiction. If you are unsure as to whether you are from a
+              Prohibited Jurisdiction, you should obtain local legal advice.
+            </p>
+          </div>
+
+          <h3 className="raft__legal__title">6. All rights reserved</h3>
           <div className="raft__legal__text">
             <p>
               We reserve the right to limit the availability of the Frontend to any person (including imposing age
@@ -126,7 +154,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">6. Risks of using the Frontend</h3>
+          <h3 className="raft__legal__title">7. Risks of using the Frontend</h3>
           <div className="raft__legal__text">
             <p>
               You understand and agree that the Frontend and your use of the Frontend involves certain risks, involving
@@ -195,7 +223,7 @@ const TermsAndConditions = () => {
             </ul>
           </div>
 
-          <h3 className="raft__legal__title">7. Eligibility of use of the Frontend</h3>
+          <h3 className="raft__legal__title">8. Eligibility of use of the Frontend</h3>
           <div className="raft__legal__text">
             <p>In order to access or use the Frontend, you are required to meet the following requirements:</p>
             <ul>
@@ -237,7 +265,7 @@ const TermsAndConditions = () => {
             </ul>
           </div>
 
-          <h3 className="raft__legal__title">8. Conditions of use of the Frontend</h3>
+          <h3 className="raft__legal__title">9. Conditions of use of the Frontend</h3>
           <div className="raft__legal__text">
             <p>In order to access or use the Frontend, you are required to meet the following conditions:</p>
             <ul>
@@ -255,7 +283,7 @@ const TermsAndConditions = () => {
             </ul>
           </div>
 
-          <h3 className="raft__legal__title">9. Prohibitions on use of the Frontend</h3>
+          <h3 className="raft__legal__title">10. Prohibitions on use of the Frontend</h3>
           <div className="raft__legal__text">
             <p>
               In order to access or use the Frontend, you also agree not to engage in, attempt to engage in, any of the
@@ -336,7 +364,7 @@ const TermsAndConditions = () => {
             </ul>
           </div>
 
-          <h3 className="raft__legal__title">10. Privacy</h3>
+          <h3 className="raft__legal__title">11. Privacy</h3>
           <div className="raft__legal__text">
             <p>
               When you use the Frontend, the only information we collect from you is your blockchain wallet address,
@@ -356,7 +384,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">11. Government agencies and co-operation</h3>
+          <h3 className="raft__legal__title">12. Government agencies and co-operation</h3>
           <div className="raft__legal__text">
             <p>
               You understand and agree that we are not registered with any government agencies in any capacity. No
@@ -371,7 +399,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">12. Non-solicitation</h3>
+          <h3 className="raft__legal__title">13. Non-solicitation</h3>
           <div className="raft__legal__text">
             <p>
               You understand and agree that all transactions you submit through the Frontend are considered unsolicited.
@@ -380,7 +408,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">13. No advice</h3>
+          <h3 className="raft__legal__title">14. No advice</h3>
           <div className="raft__legal__text">
             <p>
               You understand and agree that all information provided on the Frontend is provided for informational
@@ -395,7 +423,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">14. Non-custodial and no fiduciary duty</h3>
+          <h3 className="raft__legal__title">15. Non-custodial and no fiduciary duty</h3>
           <div className="raft__legal__text">
             <p>
               The Frontend (including the applications) is purely non-custodial, meaning you are solely responsible for
@@ -408,7 +436,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">15. Financial and technical sophistication</h3>
+          <h3 className="raft__legal__title">16. Financial and technical sophistication</h3>
           <div className="raft__legal__text">
             <p>
               Any use or interaction with the Frontend requires a certain level of financial and technical
@@ -436,7 +464,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">16. Third party links</h3>
+          <h3 className="raft__legal__title">17. Third party links</h3>
           <div className="raft__legal__text">
             <p>
               The Frontend may contain references or links to third party websites or resources, including (but not
@@ -453,7 +481,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">17. Indemnity</h3>
+          <h3 className="raft__legal__title">18. Indemnity</h3>
           <div className="raft__legal__text">
             <p>
               You agree to hold harmless, release, defend, and indemnify us and our officers, employees, contractors,
@@ -465,7 +493,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">18. Limitation of liability</h3>
+          <h3 className="raft__legal__title">19. Limitation of liability</h3>
           <div className="raft__legal__text">
             <p>
               Under no circumstances shall we or any of our officers, employees, contractors, agents, or affiliates be
@@ -499,7 +527,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">19. Dispute resolution</h3>
+          <h3 className="raft__legal__title">20. Dispute resolution</h3>
           <div className="raft__legal__text">
             <p>
               We will both use our best efforts to resolve any potential disputes between us through informal, good
@@ -510,7 +538,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">20. Class action and jury trial waiver</h3>
+          <h3 className="raft__legal__title">21. Class action and jury trial waiver</h3>
           <div className="raft__legal__text">
             <p>
               With respect to all persons and entities, regardless of whether they have used the Frontend for personal,
@@ -523,7 +551,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">21. Jurisdiction and arbitration</h3>
+          <h3 className="raft__legal__title">22. Jurisdiction and arbitration</h3>
           <div className="raft__legal__text">
             <p>
               You agree that any dispute, controversy, or claim arising out of or in relation to these Terms, including
@@ -541,7 +569,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">22. Governing law</h3>
+          <h3 className="raft__legal__title">23. Governing law</h3>
           <div className="raft__legal__text">
             <p>
               The governing law of these Terms and the Frontend shall be the law of the Cayman Islands, without regard
@@ -549,7 +577,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">23. Entire agreement</h3>
+          <h3 className="raft__legal__title">24. Entire agreement</h3>
           <div className="raft__legal__text">
             <p>
               These Terms (including the Referral Terms & Conditions which are incorporated by reference) constitute the
@@ -560,7 +588,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">24. Miscellaneous</h3>
+          <h3 className="raft__legal__title">25. Miscellaneous</h3>
           <div className="raft__legal__text">
             <p>
               We may perform any of our obligations, and exercise any of the rights granted to us under these Terms,
@@ -598,7 +626,7 @@ const TermsAndConditions = () => {
             </p>
           </div>
 
-          <h3 className="raft__legal__title">25. Contact Us</h3>
+          <h3 className="raft__legal__title">26. Contact Us</h3>
           <div className="raft__legal__text">
             <p>
               If you have any questions about these Terms or wish to contact us, please email us at{' '}
