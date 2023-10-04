@@ -5,7 +5,7 @@ import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useUserVeRaftBalance, useWithdrawRaftBpt } from '../../hooks';
-import { formatDecimal } from '../../utils';
+import { formatCurrency } from '../../utils';
 import { Button, Loading, Typography, ValueLabel } from '../shared';
 import Claim from './Claim';
 import FAQ from './FAQ';
@@ -30,11 +30,19 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
   const unlockTime = useMemo(() => userVeRaftBalance?.unlockTime ?? null, [userVeRaftBalance?.unlockTime]);
 
   const bptLockedBalanceFormatted = useMemo(
-    () => formatDecimal(bptLockedBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(bptLockedBalance, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [bptLockedBalance],
   );
   const veRaftBalanceFormatted = useMemo(
-    () => formatDecimal(veRaftBalance, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(veRaftBalance, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [veRaftBalance],
   );
   const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
@@ -89,11 +97,7 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
             {bptLockedBalanceFormatted ? (
               <>
                 <TokenLogo type="token-RAFT-BPT" size={20} />
-                <ValueLabel
-                  value={`${bptLockedBalanceFormatted} ${RAFT_BPT_TOKEN}`}
-                  valueSize="body"
-                  tickerSize="body2"
-                />
+                <ValueLabel value={bptLockedBalanceFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
@@ -106,7 +110,7 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
             {veRaftBalanceFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={`${veRaftBalanceFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={veRaftBalanceFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'

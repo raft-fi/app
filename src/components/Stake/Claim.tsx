@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useClaimableRaftFromStakedBpt, useClaimRaftFromStakedBpt } from '../../hooks';
-import { formatDecimal } from '../../utils';
+import { formatCurrency } from '../../utils';
 import { Button, Loading, Typography, ValueLabel } from '../shared';
 
 const Claim = () => {
@@ -16,7 +16,11 @@ const Claim = () => {
   const canClaim = useMemo(() => Boolean(claimableRaft?.gt(0)), [claimableRaft]);
 
   const claimableRaftFormatted = useMemo(
-    () => formatDecimal(claimableRaft, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(claimableRaft, {
+        currency: RAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [claimableRaft],
   );
 
@@ -50,8 +54,14 @@ const Claim = () => {
         CLAIMABLE REWARDS
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
-        <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
-        <ValueLabel value={`${claimableRaftFormatted} ${RAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+        {claimableRaftFormatted ? (
+          <>
+            <TokenLogo type={`token-${RAFT_TOKEN}`} size={20} />
+            <ValueLabel value={claimableRaftFormatted} valueSize="body" tickerSize="body2" />
+          </>
+        ) : (
+          'N/A'
+        )}
       </Typography>
       <div className="raft__stake__btn-container">
         <Button

@@ -5,7 +5,7 @@ import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useUserVeRaftBalance } from '../../hooks';
-import { formatDecimal } from '../../utils';
+import { formatCurrency } from '../../utils';
 import { Typography, ValueLabel } from '../shared';
 
 const CurrentPosition = () => {
@@ -14,7 +14,11 @@ const CurrentPosition = () => {
   const veRaftBalance = useMemo(() => userVeRaftBalance?.veRaftBalance ?? null, [userVeRaftBalance?.veRaftBalance]);
 
   const veRaftBalanceFormatted = useMemo(
-    () => formatDecimal(veRaftBalance ?? Decimal.ZERO, COLLATERAL_TOKEN_UI_PRECISION),
+    () =>
+      formatCurrency(veRaftBalance ?? Decimal.ZERO, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
     [veRaftBalance],
   );
   const unlockDateFormatted = useMemo(
@@ -28,8 +32,14 @@ const CurrentPosition = () => {
         CURRENT VOTING POWER
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
-        <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-        <ValueLabel value={`${veRaftBalanceFormatted} ${VERAFT_TOKEN}`} valueSize="body" tickerSize="body2" />
+        {veRaftBalanceFormatted ? (
+          <>
+            <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
+            <ValueLabel value={veRaftBalanceFormatted} valueSize="body" tickerSize="body2" />
+          </>
+        ) : (
+          'N/A'
+        )}
       </Typography>
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
         CURRENT STAKING PERIOD
