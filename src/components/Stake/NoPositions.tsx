@@ -94,6 +94,8 @@ const NoPositions: FC<NoPositionsProps> = ({
     return original === truncated ? original : `${truncated}...`;
   }, [bptAmount]);
 
+  const canPreview = useMemo(() => bptAmount.gt(0) && deadline && isValid(deadline), [bptAmount, deadline]);
+
   const onBalanceClick = useCallback(() => {
     if (userRaftBptBalance) {
       onAmountChange(userRaftBptBalance.toString());
@@ -177,7 +179,7 @@ const NoPositions: FC<NoPositionsProps> = ({
             )}
           </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="primary" size="large" onClick={goToPreview}>
+            <Button variant="primary" size="large" onClick={goToPreview} disabled={!canPreview}>
               <Typography variant="button-label" color="text-primary-inverted">
                 Preview
               </Typography>
