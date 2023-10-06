@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { R_TOKEN, RaftConfig } from '@raft-fi/sdk';
+import { R_TOKEN, RaftConfig, RAFT_TOKEN, RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import {
   resetManageStatus,
   useManage,
@@ -17,6 +17,8 @@ import {
   useWaitForBridge,
   resetBridgeTokensStatus,
   resetWaitForBridgeStatus,
+  useClaimRaftFromStakedBpt,
+  resetClaimRaftFromStakedBptStatus,
 } from '../../hooks';
 import TransactionSuccessModal from './TransactionSuccessModal';
 import TransactionFailedModal from './TransactionFailedModal';
@@ -35,7 +37,8 @@ const TransactionModal = () => {
   const { managePositionStatus, managePosition } = useManage();
   const { leveragePositionStatus, leveragePosition } = useLeverage();
   const { stakeBptForVeRaftStatus, stakeBptForVeRaft } = useStakeBptForVeRaft();
-  const { withdrawRaftBptStatus } = useWithdrawRaftBpt();
+  const { withdrawRaftBptStatus, withdrawRaftBpt } = useWithdrawRaftBpt();
+  const { claimRaftFromStakedBptStatus, claimRaftFromStakedBpt } = useClaimRaftFromStakedBpt();
   const { manageSavingsStatus, manageSavings } = useManageSavings();
   const { bridgeTokensStatus, bridgeTokens } = useBridgeTokens();
   const waitForBridgeStatus = useWaitForBridge();
@@ -69,9 +72,14 @@ const TransactionModal = () => {
       return withdrawRaftBptStatus;
     }
 
+    if (claimRaftFromStakedBptStatus) {
+      return claimRaftFromStakedBptStatus;
+    }
+
     return null;
   }, [
     bridgeTokensStatus,
+    claimRaftFromStakedBptStatus,
     leveragePositionStatus,
     managePositionStatus,
     manageSavingsStatus,
@@ -116,6 +124,8 @@ const TransactionModal = () => {
       resetStakeBptForVeRaftStatus();
     } else if (currentStatus.statusType === 'stake-withdraw') {
       resetWithdrawRaftBptStatus();
+    } else if (currentStatus.statusType === 'stake-claim') {
+      resetClaimRaftFromStakedBptStatus();
     } else if (currentStatus.statusType === 'manageSavings') {
       resetManageSavingsStatus();
     } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
@@ -142,10 +152,21 @@ const TransactionModal = () => {
     } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
       stakeBptForVeRaft?.();
     } else if (currentStatus.statusType === 'stake-withdraw') {
-      // TODO: rework this hook
-      // withdrawRaftBpt(currentStatus.request);
+      withdrawRaftBpt(currentStatus.request);
+    } else if (currentStatus.statusType === 'stake-claim') {
+      claimRaftFromStakedBpt(currentStatus.request);
     }
-  }, [bridgeTokens, currentStatus?.statusType, leveragePosition, managePosition, manageSavings, stakeBptForVeRaft]);
+  }, [
+    bridgeTokens,
+    claimRaftFromStakedBpt,
+    currentStatus?.request,
+    currentStatus?.statusType,
+    leveragePosition,
+    managePosition,
+    manageSavings,
+    stakeBptForVeRaft,
+    withdrawRaftBpt,
+  ]);
 
   const collateralChange = useMemo(() => {
     if (managePositionStatus.statusType === 'manage') {
@@ -239,12 +260,38 @@ const TransactionModal = () => {
       );
     }
 
-    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
-      return <Typography variant="heading1">RAFT BPT staked</Typography>;
+    if (['stake-new', 'stake-increase'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+      const bptAmountFormatted = formatCurrency(stakeBptForVeRaftStatus.request?.bptAmount ?? 0, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+
+      return <Typography variant="heading1">{bptAmountFormatted} staked</Typography>;
+    }
+
+    if (stakeBptForVeRaftStatus.statusType === 'stake-extend') {
+      return <Typography variant="heading1">Staking period adjusted</Typography>;
     }
 
     if (withdrawRaftBptStatus) {
-      return <Typography variant="heading1">All RAFT BPT withdrawn</Typography>;
+      const withdrawAmountFormatted = formatCurrency(withdrawRaftBptStatus.request.withdrawAmount, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+
+      return <Typography variant="heading1">{withdrawAmountFormatted} withdrawn</Typography>;
+    }
+
+    if (claimRaftFromStakedBptStatus) {
+      const claimAmountFormatted = formatCurrency(claimRaftFromStakedBptStatus.request.claimAmount, {
+        currency: RAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+      });
+
+      return <Typography variant="heading1">{claimAmountFormatted} claimed</Typography>;
     }
 
     if (manageSavingsStatus.statusType === 'manageSavings' && manageSavingsStatus.request) {
@@ -313,6 +360,7 @@ const TransactionModal = () => {
       </>
     );
   }, [
+    claimRaftFromStakedBptStatus,
     collateralChange,
     collateralConversionRateMap,
     debtChange,
@@ -322,6 +370,7 @@ const TransactionModal = () => {
     manageSavingsStatus.request,
     manageSavingsStatus.statusType,
     position,
+    stakeBptForVeRaftStatus.request?.bptAmount,
     stakeBptForVeRaftStatus.statusType,
     withdrawRaftBptStatus,
   ]);
@@ -333,8 +382,13 @@ const TransactionModal = () => {
     if (leveragePositionStatus.statusType === 'leverage' && collateralChange) {
       return 'Successful transaction';
     }
+
     if (withdrawRaftBptStatus) {
       return 'Successful withdrawal';
+    }
+
+    if (claimRaftFromStakedBptStatus) {
+      return 'Successful transaction';
     }
 
     if (manageSavingsStatus.statusType === 'manageSavings') {
@@ -364,6 +418,7 @@ const TransactionModal = () => {
 
     return 'Successful transaction';
   }, [
+    claimRaftFromStakedBptStatus,
     collateralChange,
     debtChange,
     leveragePositionStatus.statusType,

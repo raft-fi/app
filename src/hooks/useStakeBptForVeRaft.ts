@@ -14,13 +14,13 @@ import {
   combineLatest,
   distinctUntilChanged,
 } from 'rxjs';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
 import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { raftToken$ } from './useRaftToken';
+import { waitForTransactionReceipt } from '../utils';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -102,10 +102,7 @@ const stakeBptForVeRaft$ = stakeBptForVeRaftStepsStatus$.pipe(
               throw userRejectError;
             }
 
-            const transactionReceipt = await walletProvider.waitForTransaction(
-              response.hash,
-              NUMBER_OF_CONFIRMATIONS_FOR_TX,
-            );
+            const transactionReceipt = await waitForTransactionReceipt(response.hash, walletProvider);
 
             if (!transactionReceipt) {
               const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');

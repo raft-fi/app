@@ -57,11 +57,11 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
 
   const goToAdjust = useCallback(() => goToPage('adjust'), [goToPage]);
   const onWithdraw = useCallback(() => {
-    if (canWithdraw) {
+    if (canWithdraw && bptLockedBalance) {
       const txnId = uuid();
-      withdrawRaftBpt({ txnId });
+      withdrawRaftBpt({ withdrawAmount: bptLockedBalance, txnId });
     }
-  }, [canWithdraw, withdrawRaftBpt]);
+  }, [bptLockedBalance, canWithdraw, withdrawRaftBpt]);
 
   /**
    * Update action button state based on current redeem request status

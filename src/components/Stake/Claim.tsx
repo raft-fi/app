@@ -25,11 +25,11 @@ const Claim = () => {
   );
 
   const onClaim = useCallback(() => {
-    if (canClaim) {
+    if (canClaim && claimableRaft) {
       const txnId = uuid();
-      claimRaftFromStakedBpt({ txnId });
+      claimRaftFromStakedBpt({ claimAmount: claimableRaft, txnId });
     }
-  }, [canClaim, claimRaftFromStakedBpt]);
+  }, [canClaim, claimRaftFromStakedBpt, claimableRaft]);
 
   /**
    * Update action button state based on current redeem request status
