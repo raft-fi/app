@@ -4,13 +4,15 @@ import { createSignal } from '@react-rxjs/utils';
 import { RaftToken } from '@raft-fi/sdk';
 import { concatMap, map, tap, BehaviorSubject, Subscription, withLatestFrom } from 'rxjs';
 import { Nullable } from '../interfaces';
-import { NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { emitAppEvent } from './useAppEvent';
 import { raftToken$ } from './useRaftToken';
+import { Decimal } from '@tempusfinance/decimal';
+import { waitForTransactionReceipt } from '../utils';
 
 interface WithdrawRaftBptRequest {
+  withdrawAmount: Decimal;
   txnId: string;
 }
 
@@ -56,7 +58,7 @@ const stream$ = withdrawRaftBpt$.pipe(
       const txnResponse = await raftToken.withdrawVeRaft(walletSigner);
 
       if (txnResponse?.hash) {
-        await walletProvider.waitForTransaction(txnResponse.hash, NUMBER_OF_CONFIRMATIONS_FOR_TX);
+        await waitForTransactionReceipt(txnResponse.hash, walletProvider);
       }
 
       return {
