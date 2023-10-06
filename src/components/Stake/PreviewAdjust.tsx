@@ -36,10 +36,6 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
     () => calculateVeRaftAmountStatus.result ?? Decimal.ZERO,
     [calculateVeRaftAmountStatus.result],
   );
-  const totalVeRaftAmount = useMemo(
-    () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
-    [userVeRaftBalance?.veRaftBalance, veRaftAmount],
-  );
 
   const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
   const bptAmountFormatted = useMemo(
@@ -50,16 +46,16 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
       }),
     [bptAmount],
   );
-  const totalVeRaftAmountFormatted = useMemo(
+  const veRaftAmountFormatted = useMemo(
     () =>
-      formatCurrency(totalVeRaftAmount, {
+      formatCurrency(veRaftAmount, {
         currency: VERAFT_TOKEN,
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       }),
-    [totalVeRaftAmount],
+    [veRaftAmount],
   );
 
-  const goToDefault = useCallback(() => goToPage('default'), [goToPage]);
+  const goToAdjust = useCallback(() => goToPage('adjust'), [goToPage]);
   const onStake = useCallback(() => {
     stakeBptForVeRaft?.();
   }, [stakeBptForVeRaft]);
@@ -116,10 +112,10 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
   }, [bptAmount, requestStakeBptForVeRaftStep, unlockTime]);
 
   useEffect(() => {
-    if (bptAmount && unlockTime && isValid(unlockTime)) {
-      calculateVeRaftAmount({ bptAmount, unlockTime });
+    if (bptAmount && userVeRaftBalance?.bptLockedBalance && unlockTime && isValid(unlockTime)) {
+      calculateVeRaftAmount({ bptAmount: bptAmount.add(userVeRaftBalance.bptLockedBalance), unlockTime });
     }
-  }, [bptAmount, unlockTime, calculateVeRaftAmount]);
+  }, [bptAmount, unlockTime, calculateVeRaftAmount, userVeRaftBalance?.bptLockedBalance]);
 
   useEffect(() => {
     if (stakeBptForVeRaftStatus.pending || stakeBptForVeRaftStepsStatus.pending) {
@@ -170,17 +166,17 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
             TOTAL VOTING POWER
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {totalVeRaftAmountFormatted ? (
+            {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={totalVeRaftAmountFormatted} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={veRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
             )}
           </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="secondary" size="large" onClick={goToDefault} disabled={actionButtonState === 'loading'}>
+            <Button variant="secondary" size="large" onClick={goToAdjust} disabled={actionButtonState === 'loading'}>
               <Typography variant="button-label" color="text-secondary">
                 Back
               </Typography>

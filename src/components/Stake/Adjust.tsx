@@ -52,18 +52,16 @@ const Adjust: FC<AdjustProps> = ({
     () => calculateVeRaftAmountStatus.result ?? Decimal.ZERO,
     [calculateVeRaftAmountStatus.result],
   );
-  const totalVeRaftAmount = useMemo(
-    () => (userVeRaftBalance?.veRaftBalance ?? Decimal.ZERO).add(veRaftAmount),
-    [userVeRaftBalance?.veRaftBalance, veRaftAmount],
-  );
 
-  const totalVeRaftAmountFormatted = useMemo(
+  const veRaftAmountFormatted = useMemo(
     () =>
-      formatCurrency(totalVeRaftAmount, {
-        currency: VERAFT_TOKEN,
-        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
-      }),
-    [totalVeRaftAmount],
+      veRaftAmount.gte(0)
+        ? formatCurrency(veRaftAmount, {
+            currency: VERAFT_TOKEN,
+            fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+          })
+        : null,
+    [veRaftAmount],
   );
   const userRaftBptBalanceFormatted = useMemo(
     () =>
@@ -92,7 +90,15 @@ const Adjust: FC<AdjustProps> = ({
     return original === truncated ? original : `${truncated}...`;
   }, [bptAmount]);
 
-  const canPreview = useMemo(() => bptAmount.gt(0) || (deadline && isValid(deadline)), [bptAmount, deadline]);
+  const canPreview = useMemo(() => {
+    // if staking period is not adjusted, check whether input amount > 0
+    if (!deadline) {
+      return bptAmount.gt(0);
+    }
+
+    // check whether staking period is prior than the current one
+    return isValid(deadline) && userVeRaftBalance?.unlockTime && deadline > userVeRaftBalance.unlockTime;
+  }, [bptAmount, deadline, userVeRaftBalance?.unlockTime]);
 
   const onBalanceClick = useCallback(() => {
     if (userRaftBptBalance) {
@@ -103,11 +109,11 @@ const Adjust: FC<AdjustProps> = ({
   const goToPreview = useCallback(() => goToPage('preview'), [goToPage]);
 
   useEffect(() => {
-    if (bptAmount && unlockTime && isValid(unlockTime)) {
+    if (bptAmount && userVeRaftBalance?.bptLockedBalance && unlockTime && isValid(unlockTime)) {
       estimateStakingApr({ bptAmount, unlockTime });
-      calculateVeRaftAmount({ bptAmount, unlockTime });
+      calculateVeRaftAmount({ bptAmount: bptAmount.add(userVeRaftBalance.bptLockedBalance), unlockTime });
     }
-  }, [estimateStakingApr, bptAmount, unlockTime, calculateVeRaftAmount]);
+  }, [estimateStakingApr, bptAmount, unlockTime, calculateVeRaftAmount, userVeRaftBalance?.bptLockedBalance]);
 
   return (
     <div className="raft__stake raft__stake__adjust">
@@ -117,7 +123,7 @@ const Adjust: FC<AdjustProps> = ({
             Adjust stake
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">
-            Increase your voting power by staking more RAFT BPT and increasing your staking period.
+            Increase your voting power by staking more RAFT BPT and extending your staking period.
           </Typography>
           <CurrencyInput
             label="ADDITIONAL STAKE"
@@ -134,7 +140,7 @@ const Adjust: FC<AdjustProps> = ({
           <PeriodPicker
             deadline={unlockTime ?? undefined}
             periodInYear={periodInYear}
-            min={unlockTime ?? undefined}
+            min={userVeRaftBalance?.unlockTime ?? undefined}
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
           />
@@ -142,10 +148,10 @@ const Adjust: FC<AdjustProps> = ({
             RESULTING VOTING POWER
           </Typography>
           <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
-            {totalVeRaftAmountFormatted ? (
+            {veRaftAmountFormatted ? (
               <>
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
-                <ValueLabel value={totalVeRaftAmountFormatted} valueSize="body" tickerSize="body2" />
+                <ValueLabel value={veRaftAmountFormatted} valueSize="body" tickerSize="body2" />
               </>
             ) : (
               'N/A'
