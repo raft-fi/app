@@ -139,6 +139,10 @@
           }
         }
       }
+
+      &.raft__stake__input-container__error {
+        border-bottom: 1px solid var(--borderError);
+      }
     }
 
     .raft__stake__period-container {

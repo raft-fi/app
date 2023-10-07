@@ -26,16 +26,18 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const minDeadline = useMemo(() => min ?? addMilliseconds(startOfDay(new Date()), DAY_IN_MS), [min]);
-  const maxDeadline = useMemo(() => max ?? addMilliseconds(startOfDay(new Date()), YEAR_IN_MS), [max]);
+  const maxDeadline = useMemo(() => max ?? addMilliseconds(startOfDay(new Date()), 2 * YEAR_IN_MS), [max]);
 
   const focusDateInput = useCallback(() => dateInputRef.current?.focus(), [dateInputRef]);
+
+  const hasError = useMemo(() => deadline && deadline < minDeadline, [deadline, minDeadline]);
 
   return (
     <div className="raft__stake__period-picker-container">
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
         STAKE UNTIL
       </Typography>
-      <div className="raft__stake__input-container">
+      <div className={`raft__stake__input-container ${hasError ? 'raft__stake__input-container__error' : ''}`}>
         <div className="raft__stake__input" onClick={focusDateInput}>
           <Typography className="raft__stake__input-amount" variant="input-value" color="text-primary">
             <DateInput
@@ -48,6 +50,11 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
           </Typography>
         </div>
       </div>
+      {hasError && (
+        <Typography variant="caption" color="text-error">
+          Staking duration cannot be less than current staking period.
+        </Typography>
+      )}
       <div className="raft__stake__period-container">
         <Typography variant="body" color="text-secondary">
           Stake duration:
