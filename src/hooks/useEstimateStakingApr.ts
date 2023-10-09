@@ -4,6 +4,7 @@ import { Decimal } from '@tempusfinance/decimal';
 import { BehaviorSubject, concatMap, tap, combineLatest } from 'rxjs';
 import { Nullable } from '../interfaces';
 import { raftToken$ } from './useRaftToken';
+import { totalVeRaftAnnualShare$ } from './useTotalVeRaftAnnualShare';
 import { userVeRaftBalance$ } from './useUserVeRaftBalance';
 
 const DEFAULT_VALUE = {
@@ -32,10 +33,14 @@ interface EstimateStakingAprResponse {
 const [estimateStakingAprRequest$, setEstimateStakingAprRequest] = createSignal<EstimateStakingAprRequest>();
 const estimateStakingApr$ = new BehaviorSubject<EstimateStakingAprStatus>(DEFAULT_VALUE);
 
-const stream$ = combineLatest([estimateStakingAprRequest$, raftToken$, userVeRaftBalance$]).pipe(
-  concatMap(async ([request, raftToken, userVeRaftBalance]) => {
+const stream$ = combineLatest([
+  estimateStakingAprRequest$,
+  raftToken$,
+  userVeRaftBalance$,
+  totalVeRaftAnnualShare$,
+]).pipe(
+  concatMap(async ([request, raftToken, userVeRaftBalance, totalVeRaftAnnualShare]) => {
     const { bptAmount, unlockTime } = request;
-    const { bptLockedBalance, veRaftBalance } = userVeRaftBalance ?? {};
 
     if (!raftToken) {
       return {
@@ -47,7 +52,10 @@ const stream$ = combineLatest([estimateStakingAprRequest$, raftToken$, userVeRaf
     try {
       estimateStakingApr$.next({ pending: true, request, result: null });
 
-      const apr = await raftToken.estimateStakingApr(bptAmount, unlockTime, { bptLockedBalance, veRaftBalance });
+      const apr = await raftToken.estimateStakingApr(bptAmount, unlockTime, {
+        totalAnnualShare: totalVeRaftAnnualShare ?? undefined,
+        userVeRaftBalance: userVeRaftBalance ?? undefined,
+      });
 
       return {
         request,

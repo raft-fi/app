@@ -55,3 +55,4 @@ export * from './useClaimRaftFromStakedBpt';
 export * from './useEstimateStakingApr';
 export * from './useCalculateVeRaftAmount';
 export * from './useWalletAddress';
+export * from './useTotalVeRaftAnnualShare';
