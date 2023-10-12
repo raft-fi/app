@@ -1,4 +1,4 @@
-import { RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
+import { RaftToken, RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
@@ -94,7 +94,10 @@ const NoPositions: FC<NoPositionsProps> = ({
     return original === truncated ? original : `${truncated}...`;
   }, [bptAmount]);
 
-  const canPreview = useMemo(() => bptAmount.gt(0) && deadline && isValid(deadline), [bptAmount, deadline]);
+  const canPreview = useMemo(
+    () => bptAmount.gt(0) && deadline && isValid(deadline) && RaftToken.isExtendingStakeBpt(new Date(), deadline),
+    [bptAmount, deadline],
+  );
 
   const onBalanceClick = useCallback(() => {
     if (userRaftBptBalance) {
@@ -139,6 +142,7 @@ const NoPositions: FC<NoPositionsProps> = ({
             deadline={deadline ?? undefined}
             periodInYear={periodInYear}
             min={deadline ?? undefined}
+            warnSameWeek
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
           />

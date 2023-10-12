@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { R_TOKEN, RaftConfig, RAFT_TOKEN, RAFT_BPT_TOKEN } from '@raft-fi/sdk';
+import { R_TOKEN, RaftConfig, RAFT_TOKEN, RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import {
   resetManageStatus,
   useManage,
@@ -65,7 +65,11 @@ const TransactionModal = () => {
 
       return bridgeTokensStatus;
     }
-    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+    if (
+      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(
+        stakeBptForVeRaftStatus.statusType as string,
+      )
+    ) {
       return stakeBptForVeRaftStatus;
     }
     if (withdrawRaftBptStatus) {
@@ -120,7 +124,9 @@ const TransactionModal = () => {
       resetManageStatus();
     } else if (currentStatus.statusType === 'leverage') {
       resetLeverageStatus();
-    } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
+    } else if (
+      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(currentStatus.statusType)
+    ) {
       resetStakeBptForVeRaftStatus();
     } else if (currentStatus.statusType === 'stake-withdraw') {
       resetWithdrawRaftBptStatus();
@@ -149,7 +155,9 @@ const TransactionModal = () => {
       manageSavings?.();
     } else if (['bridgeTokens', 'waitForBridge'].includes(currentStatus.statusType)) {
       bridgeTokens?.();
-    } else if (['stake-new', 'stake-increase', 'stake-extend'].includes(currentStatus.statusType)) {
+    } else if (
+      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(currentStatus.statusType)
+    ) {
       stakeBptForVeRaft?.();
     } else if (currentStatus.statusType === 'stake-withdraw') {
       withdrawRaftBpt(currentStatus.request);
@@ -274,6 +282,10 @@ const TransactionModal = () => {
       return <Typography variant="heading1">Staking period adjusted</Typography>;
     }
 
+    if (stakeBptForVeRaftStatus.statusType === 'stake-increase-extend') {
+      return <Typography variant="heading1">Stake adjusted</Typography>;
+    }
+
     if (withdrawRaftBptStatus) {
       const withdrawAmountFormatted = formatCurrency(withdrawRaftBptStatus.request.withdrawAmount, {
         currency: RAFT_BPT_TOKEN,
@@ -395,7 +407,11 @@ const TransactionModal = () => {
       return 'Successful transaction';
     }
 
-    if (['stake-new', 'stake-increase', 'stake-extend'].includes(stakeBptForVeRaftStatus.statusType as string)) {
+    if (
+      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(
+        stakeBptForVeRaftStatus.statusType as string,
+      )
+    ) {
       return 'Successful transaction';
     }
 
@@ -457,6 +473,20 @@ const TransactionModal = () => {
         symbol: 'RR',
         decimals: 18,
         image: 'https://raft.fi/rrToken.svg',
+      };
+    }
+
+    if (
+      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(
+        currentStatus?.statusType as string,
+      )
+    ) {
+      return {
+        label: 'Add veRAFT to wallet',
+        address: RaftConfig.getTokenAddress(VERAFT_TOKEN) || '',
+        symbol: VERAFT_TOKEN,
+        decimals: 18,
+        image: 'https://raft.fi/veRaft.svg',
       };
     }
 

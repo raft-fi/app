@@ -21,6 +21,7 @@ import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
 import { raftToken$ } from './useRaftToken';
 import { waitForTransactionReceipt } from '../utils';
+import { GAS_LIMIT_MULTIPLIER } from '../constants';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -198,7 +199,10 @@ const stream$ = combineLatest([distinctRequest$, raftToken$, walletSigner$]).pip
 
       const bptAllowance = await raftToken.getUserBptAllowance();
 
-      const steps = raftToken.getStakeBptSteps(bptAmount, unlockTime, walletSigner, { bptAllowance });
+      const steps = raftToken.getStakeBptSteps(bptAmount, unlockTime, walletSigner, {
+        bptAllowance,
+        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+      });
       const nextStep = await steps.next();
 
       if (nextStep.value) {

@@ -69,9 +69,10 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
         return 'Increase RAFT rewards';
       case 'stake-extend':
         return 'Extend your staking period';
+      case 'stake-increase-extend':
+      default:
+        return 'Adjust your stake';
     }
-
-    return '';
   }, [stakeBptForVeRaftStepsStatus.result?.type]);
 
   const previewDesc = useMemo(() => {
@@ -82,25 +83,35 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
         return 'Review the summary below and proceed with increasing your staking amount.';
       case 'stake-extend':
         return 'Review the summary below and proceed with increasing your staking period.';
+      case 'stake-increase-extend':
+      default:
+        return 'Review the summary below and proceed with adjusting your staking amount.';
     }
-
-    return '';
   }, [stakeBptForVeRaftStepsStatus.result?.type]);
 
   const buttonLabel = useMemo(() => {
+    if (stakeBptForVeRaftStepsStatus.error) {
+      return 'Something has gone wrong, please try again';
+    }
+
     switch (stakeBptForVeRaftStepsStatus.result?.type) {
       case 'approve':
         return stakeBptForVeRaftStatus.pending ? `Approving ${RAFT_BPT_TOKEN}` : `Approve ${RAFT_BPT_TOKEN}`;
       case 'stake-new':
         return stakeBptForVeRaftStatus.pending ? 'Staking' : 'Stake';
       case 'stake-increase':
+      case 'stake-increase-extend':
+      default:
         return stakeBptForVeRaftStatus.pending ? 'Increasing stake' : 'Increase stake';
       case 'stake-extend':
         return stakeBptForVeRaftStatus.pending ? 'Extending lock period' : 'Extend lock period';
     }
+  }, [stakeBptForVeRaftStatus.pending, stakeBptForVeRaftStepsStatus.error, stakeBptForVeRaftStepsStatus.result?.type]);
 
-    return '';
-  }, [stakeBptForVeRaftStatus.pending, stakeBptForVeRaftStepsStatus.result?.type]);
+  const canAction = useMemo(
+    () => actionButtonState !== 'loading' && !stakeBptForVeRaftStepsStatus.error,
+    [actionButtonState, stakeBptForVeRaftStepsStatus.error],
+  );
 
   useEffect(() => {
     if (requestStakeBptForVeRaftStep && unlockTime) {
@@ -181,12 +192,14 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
                 Back
               </Typography>
             </Button>
-            <Button variant="primary" size="large" onClick={onStake} disabled={actionButtonState === 'loading'}>
-              {actionButtonState === 'loading' && <Loading />}
-              <Typography variant="button-label" color="text-primary-inverted">
-                {buttonLabel}
-              </Typography>
-            </Button>
+            {stakeBptForVeRaftStepsStatus.result && (
+              <Button variant="primary" size="large" onClick={onStake} disabled={!canAction}>
+                {actionButtonState === 'loading' && <Loading />}
+                <Typography variant="button-label" color="text-primary-inverted">
+                  {buttonLabel}
+                </Typography>
+              </Button>
+            )}
           </div>
         </div>
       </div>

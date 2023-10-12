@@ -1,4 +1,4 @@
-import { RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
+import { RaftToken, RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
@@ -97,7 +97,12 @@ const Adjust: FC<AdjustProps> = ({
     }
 
     // check whether staking period is prior than the current one
-    return isValid(deadline) && userVeRaftBalance?.unlockTime && deadline > userVeRaftBalance.unlockTime;
+    if (bptAmount.gt(0)) {
+      return isValid(deadline) && userVeRaftBalance?.unlockTime && deadline >= userVeRaftBalance?.unlockTime;
+    }
+
+    // check whether staking period is extending
+    return userVeRaftBalance?.unlockTime && RaftToken.isExtendingStakeBpt(userVeRaftBalance.unlockTime, deadline);
   }, [bptAmount, deadline, userVeRaftBalance?.unlockTime]);
 
   const onBalanceClick = useCallback(() => {
