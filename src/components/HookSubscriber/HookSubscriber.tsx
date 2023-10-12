@@ -1,7 +1,6 @@
 import { FC, memo, useEffect } from 'react';
 import {
   subscribeENS,
-  subscribeProtocolStats,
   subscribeTokenBalances,
   subscribeTokenPrices,
   subscribeEIP1193Provider,
@@ -48,7 +47,6 @@ const HookSubscriber: FC = () => {
     subscribeENS();
     subscribeTokenPrices();
     subscribeTokenBalances();
-    subscribeProtocolStats();
     subscribeEIP1193Provider();
     subscribeTransactionHistory();
     subscribeTokenAllowances();
