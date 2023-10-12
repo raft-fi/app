@@ -1,3 +1,4 @@
+import { RaftToken } from '@raft-fi/sdk';
 import { addMilliseconds, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo, useRef } from 'react';
 import { ButtonWrapper } from 'tempus-ui';
@@ -11,6 +12,7 @@ interface PeriodPickerProps {
   periodInYear?: number;
   min?: Date;
   max?: Date;
+  warnSameWeek?: boolean;
   onDeadlineChange: (value: Date) => void;
   onPeriodChange: (value: number) => void;
 }
@@ -20,6 +22,7 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
   periodInYear,
   min,
   max,
+  warnSameWeek,
   onDeadlineChange,
   onPeriodChange,
 }) => {
@@ -30,7 +33,25 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
 
   const focusDateInput = useCallback(() => dateInputRef.current?.focus(), [dateInputRef]);
 
-  const hasError = useMemo(() => deadline && deadline < minDeadline, [deadline, minDeadline]);
+  const hasError = useMemo(
+    () =>
+      deadline && (deadline < minDeadline || (warnSameWeek && !RaftToken.isExtendingStakeBpt(minDeadline, deadline))),
+    [deadline, minDeadline, warnSameWeek],
+  );
+
+  const errorMsg = useMemo(() => {
+    if (hasError && deadline) {
+      if (deadline < minDeadline) {
+        return 'Staking duration cannot be less than current staking period.';
+      }
+
+      if (warnSameWeek && !RaftToken.isExtendingStakeBpt(minDeadline, deadline)) {
+        return 'Staking duration has to be at least one week.';
+      }
+    }
+
+    return null;
+  }, [deadline, hasError, minDeadline, warnSameWeek]);
 
   return (
     <div className="raft__stake__period-picker-container">
@@ -50,9 +71,9 @@ const PeriodPicker: FC<PeriodPickerProps> = ({
           </Typography>
         </div>
       </div>
-      {hasError && (
+      {errorMsg && (
         <Typography variant="caption" color="text-error">
-          Staking duration cannot be less than current staking period.
+          {errorMsg}
         </Typography>
       )}
       <div className="raft__stake__period-container">

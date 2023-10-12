@@ -14,6 +14,7 @@ export type AppEventType =
   | 'stake-new'
   | 'stake-increase'
   | 'stake-extend'
+  | 'stake-increase-extend'
   | 'stake-withdraw'
   | 'stake-claim';
 
