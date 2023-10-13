@@ -9,12 +9,12 @@ import { walletSigner$ } from './useWalletSigner';
 export const raftToken$ = new BehaviorSubject<Nullable<RaftToken>>(null);
 
 const fetchData = async (signer: Nullable<JsonRpcSigner>, provider: Nullable<JsonRpcProvider>) => {
-  if (!signer || !signer.address || !provider) {
+  if (!provider) {
     return null;
   }
 
   try {
-    return new RaftToken(signer.address, provider);
+    return new RaftToken(signer?.address ?? null, provider);
   } catch (error) {
     console.error('useRaftToken - failed to create RaftToken instance', error);
     return null;
