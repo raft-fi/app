@@ -103,12 +103,7 @@ const stakeBptForVeRaft$ = stakeBptForVeRaftStepsStatus$.pipe(
               throw userRejectError;
             }
 
-            const transactionReceipt = await waitForTransactionReceipt(response.hash, walletProvider);
-
-            if (!transactionReceipt) {
-              const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
-              throw receiptFetchFailed;
-            }
+            await waitForTransactionReceipt(response.hash, walletProvider);
 
             if (statusType === 'approve') {
               notification$.next({

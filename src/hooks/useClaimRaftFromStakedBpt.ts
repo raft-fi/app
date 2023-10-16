@@ -10,6 +10,7 @@ import { emitAppEvent } from './useAppEvent';
 import { raftToken$ } from './useRaftToken';
 import { Decimal } from '@tempusfinance/decimal';
 import { waitForTransactionReceipt } from '../utils';
+import { GAS_LIMIT_MULTIPLIER } from '../constants';
 
 interface ClaimRaftFromStakedBptRequest {
   txnId: string;
@@ -56,7 +57,7 @@ const stream$ = claimRaftFromStakedBpt$.pipe(
       claimRaftFromStakedBptStatus$.next({ pending: true, txnId, request, statusType: 'stake-claim' });
 
       const txnResponse = await raftToken.claimRaftFromStakedBpt(walletSigner, {
-        gasLimitMultiplier: new Decimal(1.2),
+        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
 
       if (txnResponse?.hash) {

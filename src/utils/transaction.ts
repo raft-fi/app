@@ -4,10 +4,21 @@ import { Nullable } from '../interfaces';
 
 const POLL_INTERVAL = 12000;
 
-export async function waitForTransactionReceipt(
-  txHash: string,
-  provider: Provider,
-): Promise<Nullable<TransactionReceipt>> {
+export async function waitForTransactionReceipt(txHash: string, provider: Provider): Promise<TransactionReceipt> {
+  const transactionReceipt = await waitForTransaction(txHash, provider);
+
+  if (!transactionReceipt) {
+    throw new Error('Failed to fetch transaction receipt!');
+  }
+
+  if (!transactionReceipt.status) {
+    throw new Error('Transaction reverted!');
+  }
+
+  return transactionReceipt;
+}
+
+async function waitForTransaction(txHash: string, provider: Provider): Promise<Nullable<TransactionReceipt>> {
   if (!import.meta.env.VITE_IS_FORK_NETWORK) {
     return provider.waitForTransaction(txHash, NUMBER_OF_CONFIRMATIONS_FOR_TX);
   }
@@ -27,7 +38,7 @@ export async function waitForTransactionReceipt(
 
   await wait(POLL_INTERVAL);
 
-  return waitForTransactionReceipt(txHash, provider);
+  return waitForTransaction(txHash, provider);
 }
 
 async function wait(ms: number) {

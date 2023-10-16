@@ -24,13 +24,13 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import { GAS_LIMIT_MULTIPLIER, NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { GAS_LIMIT_MULTIPLIER } from '../constants';
 import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { wallet$, walletLabel$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
-import { isSignatureValid } from '../utils';
+import { isSignatureValid, waitForTransactionReceipt } from '../utils';
 import { currentSavingsNetwork$ } from './useCurrentSavingsNetwork';
 import { savingsTokenAllowance$ } from './useSavingsTokenAllowance';
 
@@ -122,15 +122,7 @@ const manageSavings$ = manageSavingsStepsStatus$.pipe(
             }
 
             if (isTransactionResponse) {
-              const transactionReceipt = await walletProvider.waitForTransaction(
-                txnResponse.hash,
-                NUMBER_OF_CONFIRMATIONS_FOR_TX,
-              );
-
-              if (!transactionReceipt) {
-                const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
-                throw receiptFetchFailed;
-              }
+              await waitForTransactionReceipt(txnResponse.hash, walletProvider);
 
               manageSavingsStatus$.next({
                 pending: false,
