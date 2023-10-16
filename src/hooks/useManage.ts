@@ -18,12 +18,7 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import {
-  GAS_LIMIT_MULTIPLIER,
-  NUMBER_OF_CONFIRMATIONS_FOR_TX,
-  SUPPORTED_TOKENS,
-  SUPPORTED_UNDERLYING_TOKENS,
-} from '../constants';
+import { GAS_LIMIT_MULTIPLIER, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import {
   Nullable,
   SupportedCollateralToken,
@@ -37,7 +32,7 @@ import { tokenAllowances$ } from './useTokenAllowances';
 import { tokenWhitelists$ } from './useTokenWhitelists';
 import { wallet$, walletLabel$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
-import { getNullTokenMap, isSignatureValid } from '../utils';
+import { getNullTokenMap, isSignatureValid, waitForTransactionReceipt } from '../utils';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -136,15 +131,7 @@ const managePosition$ = managePositionStepsStatus$.pipe(
             }
 
             if (isTransactionResponse) {
-              const transactionReceipt = await walletProvider.waitForTransaction(
-                txnResponse.hash,
-                NUMBER_OF_CONFIRMATIONS_FOR_TX,
-              );
-
-              if (!transactionReceipt) {
-                const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
-                throw receiptFetchFailed;
-              }
+              await waitForTransactionReceipt(txnResponse.hash, walletProvider);
 
               managePositionStatus$.next({
                 pending: false,
