@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { DecimalFormat } from '@tempusfinance/decimal';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { format } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -95,11 +95,11 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
   }, [withdrawRaftBptStatus]);
 
   useEffect(() => {
-    console.log('aaaa', bptLockedBalance?.toString(), unlockTime);
-    if (bptLockedBalance && unlockTime) {
-      estimateStakingApr({ bptAmount: bptLockedBalance, unlockTime });
+    if (unlockTime) {
+      // passing zero new BPT amount to calculate current APR
+      estimateStakingApr({ bptAmount: Decimal.ZERO, unlockTime });
     }
-  }, [estimateStakingApr, unlockTime, bptLockedBalance]);
+  }, [estimateStakingApr, unlockTime]);
 
   return (
     <div className="raft__stake raft__stake__has-position">
