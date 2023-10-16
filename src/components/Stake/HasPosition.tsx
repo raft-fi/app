@@ -1,10 +1,11 @@
 import { v4 as uuid } from 'uuid';
+import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { RAFT_BPT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { format } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
-import { useUserVeRaftBalance, useWithdrawRaftBpt } from '../../hooks';
+import { useEstimateStakingApr, useUserVeRaftBalance, useWithdrawRaftBpt } from '../../hooks';
 import { formatCurrency } from '../../utils';
 import { Button, Loading, Typography, ValueLabel } from '../shared';
 import Claim from './Claim';
@@ -18,6 +19,7 @@ interface HasPositionProps {
 
 const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
   const userVeRaftBalance = useUserVeRaftBalance();
+  const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
   const { withdrawRaftBptStatus, withdrawRaftBpt } = useWithdrawRaftBpt();
 
   const [actionButtonState, setActionButtonState] = useState<string>('default');
@@ -46,6 +48,18 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
     [veRaftBalance],
   );
   const unlockTimeFormatted = useMemo(() => (unlockTime ? format(unlockTime, 'dd MMMM yyyy') : null), [unlockTime]);
+  const stakingAprFormatted = useMemo(() => {
+    const apr = estimateStakingAprStatus.result;
+
+    if (!apr) {
+      return null;
+    }
+
+    return DecimalFormat.format(apr, {
+      style: 'percentage',
+      fractionDigits: 2,
+    });
+  }, [estimateStakingAprStatus.result]);
 
   const canWithdraw = useMemo(
     () =>
@@ -80,6 +94,13 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
     }
   }, [withdrawRaftBptStatus]);
 
+  useEffect(() => {
+    if (unlockTime) {
+      // passing zero new BPT amount to calculate current APR
+      estimateStakingApr({ bptAmount: Decimal.ZERO, unlockTime });
+    }
+  }, [estimateStakingApr, unlockTime]);
+
   return (
     <div className="raft__stake raft__stake__has-position">
       <div className="raft__stake__main">
@@ -112,6 +133,16 @@ const HasPosition: FC<HasPositionProps> = ({ goToPage }) => {
                 <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
                 <ValueLabel value={veRaftBalanceFormatted} valueSize="body" tickerSize="body2" />
               </>
+            ) : (
+              'N/A'
+            )}
+          </Typography>
+          <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
+            ESTIMATED APR
+          </Typography>
+          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+            {stakingAprFormatted ? (
+              <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
             ) : (
               'N/A'
             )}
