@@ -48,7 +48,8 @@
       }
     }
 
-    .raft__stake__current-position {
+    .raft__stake__current-position,
+    .raft__stake__claim {
       width: 342px;
       background: var(--surfacePrimary);
       border: 1px solid var(--borderPrimary);
@@ -63,12 +64,18 @@
         /* TODO: hardcode color as suggested */
         --textPrimary: var(--raft-grey-800);
       }
+
+      &:not(:first-child) {
+        margin-top: 16px;
+      }
     }
   }
 
   &.raft__stake__not-connected,
-  &.raft__stake__connected,
-  &.raft__stake__preview {
+  &.raft__stake__has-position,
+  &.raft__stake__no-positions,
+  &.raft__stake__preview,
+  &.raft__stake__adjust {
     .raft__stake__subtitle {
       margin-top: 16px;
     }
@@ -89,10 +96,8 @@
       gap: 8px;
     }
 
-    .raft__stake__amount-input__balance {
-      .common-ui__btn > svg {
-        margin-right: 8px;
-      }
+    .raft__currencyInput {
+      margin-top: 32px;
     }
 
     .raft__stake__input-container {
@@ -134,6 +139,10 @@
           }
         }
       }
+
+      &.raft__stake__input-container__error {
+        border-bottom: 1px solid var(--borderError);
+      }
     }
 
     .raft__stake__period-container {
@@ -172,5 +181,17 @@
     .raft__loading__container {
       margin-right: 8px;
     }
+  }
+}
+
+.raft__stake__infoTooltip {
+  max-width: 230px;
+
+  a {
+    color: var(--textAccent);
+  }
+
+  .raft__icon__externalLink {
+    --externalLinkColor: var(--textAccent);
   }
 }

@@ -1,4 +1,4 @@
-import { RAFT_BPT_TOKEN } from '@raft-fi/sdk';
+import { RaftConfig, RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import { FC, memo, useCallback, useState } from 'react';
 import { Link } from 'tempus-ui';
 import { Expandable, Typography } from '../shared';
@@ -18,24 +18,18 @@ const HowToLock: FC<HowToLockProps> = ({ defaultOpen }) => {
         <li>
           <Typography variant="body">
             Add liquidity to the{' '}
-            <Link href="https://app.balancer.fi/#/ethereum/pool/0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014">
+            <Link href={`https://app.balancer.fi/#/ethereum/pool/${RaftConfig.networkConfig.balancerWeightedPoolId}`}>
               {RAFT_BPT_TOKEN} pool on Balancer
             </Link>
             .
           </Typography>
         </li>
         <li>
-          <Typography variant="body">Lock-up the Balancer LP token ({RAFT_BPT_TOKEN}) on Raft.</Typography>
+          <Typography variant="body">Stake your RAFT BPT token on Raft.</Typography>
         </li>
         <li>
           <Typography variant="body">
-            The longer the Balancer LP token is locked, the more voting power is received and boosted RAFT rewards.
-          </Typography>
-        </li>
-        <li>
-          <Typography variant="body">
-            Use this voting power to choose which pool gauges get allocated liquidity mining incentives. Vote on the
-            pools where you have added liquidity to earn more yield.
+            The longer the RAFT BPT is staked, the greater the voting power and RAFT rewards.
           </Typography>
         </li>
       </ol>

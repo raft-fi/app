@@ -53,7 +53,7 @@ const appEventsStream$ = appEvent$.pipe(
     return (
       Boolean(raftToken) &&
       Boolean(appEvent?.eventType) &&
-      ['stake-new', 'stake-increase', 'stake-extend'].includes(appEvent?.eventType as string)
+      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(appEvent?.eventType as string)
     );
   }),
   mergeMap(([, raftToken]) => fetchData(raftToken)),

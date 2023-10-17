@@ -10,37 +10,38 @@ import { emitAppEvent } from './useAppEvent';
 import { raftToken$ } from './useRaftToken';
 import { Decimal } from '@tempusfinance/decimal';
 import { waitForTransactionReceipt } from '../utils';
+import { GAS_LIMIT_MULTIPLIER } from '../constants';
 
-interface WithdrawRaftBptRequest {
-  withdrawAmount: Decimal;
+interface ClaimRaftFromStakedBptRequest {
   txnId: string;
+  claimAmount: Decimal;
 }
 
-interface WithdrawRaftBptStatus {
+interface ClaimRaftFromStakedBptStatus {
   pending: boolean;
-  request: WithdrawRaftBptRequest;
+  request: ClaimRaftFromStakedBptRequest;
   success?: boolean;
   error?: Error;
   txnId: string;
-  statusType: 'stake-withdraw';
+  statusType: 'stake-claim';
   txHash?: string;
 }
 
-interface WithdrawRaftBptResponse {
-  request: WithdrawRaftBptRequest;
+interface ClaimRaftFromStakedBptResponse {
+  request: ClaimRaftFromStakedBptRequest;
   txnResponse?: TransactionResponse;
   error?: Error;
   txnId: string;
 }
 
-const [withdrawRaftBpt$, withdrawRaftBpt] = createSignal<WithdrawRaftBptRequest>();
-const withdrawRaftBptStatus$ = new BehaviorSubject<Nullable<WithdrawRaftBptStatus>>(null);
+const [claimRaftFromStakedBpt$, claimRaftFromStakedBpt] = createSignal<ClaimRaftFromStakedBptRequest>();
+const claimRaftFromStakedBptStatus$ = new BehaviorSubject<Nullable<ClaimRaftFromStakedBptStatus>>(null);
 
-const stream$ = withdrawRaftBpt$.pipe(
+const stream$ = claimRaftFromStakedBpt$.pipe(
   withLatestFrom(raftToken$, wallet$, walletSigner$),
   concatMap<
-    [WithdrawRaftBptRequest, Nullable<RaftToken>, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>],
-    Promise<WithdrawRaftBptResponse>
+    [ClaimRaftFromStakedBptRequest, Nullable<RaftToken>, Nullable<BrowserProvider>, Nullable<JsonRpcSigner>],
+    Promise<ClaimRaftFromStakedBptResponse>
   >(async ([request, raftToken, walletProvider, walletSigner]) => {
     const { txnId } = request;
 
@@ -53,9 +54,11 @@ const stream$ = withdrawRaftBpt$.pipe(
         };
       }
 
-      withdrawRaftBptStatus$.next({ pending: true, txnId, request, statusType: 'stake-withdraw' });
+      claimRaftFromStakedBptStatus$.next({ pending: true, txnId, request, statusType: 'stake-claim' });
 
-      const txnResponse = await raftToken.withdrawVeRaft(walletSigner);
+      const txnResponse = await raftToken.claimRaftFromStakedBpt(walletSigner, {
+        gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
+      });
 
       if (txnResponse?.hash) {
         await waitForTransactionReceipt(txnResponse.hash, walletProvider);
@@ -67,15 +70,15 @@ const stream$ = withdrawRaftBpt$.pipe(
         txnId,
       };
     } catch (error) {
-      console.error('useWithdrawRaftBpt - Failed to execute withdrawRaftBpt!', error);
+      console.error('useClaimRaftFromStakedBpt - Failed to execute claimRaftFromStakedBpt!', error);
       return {
         request,
         error,
         txnId,
-      } as WithdrawRaftBptResponse;
+      } as ClaimRaftFromStakedBptResponse;
     }
   }),
-  map<WithdrawRaftBptResponse, WithdrawRaftBptStatus>(response => {
+  map<ClaimRaftFromStakedBptResponse, ClaimRaftFromStakedBptStatus>(response => {
     const { txnResponse, request, error, txnId } = response;
 
     if (!txnResponse) {
@@ -86,8 +89,8 @@ const stream$ = withdrawRaftBpt$.pipe(
         error: error ?? userRejectError,
         request,
         txnId,
-        statusType: 'stake-withdraw',
-      } as WithdrawRaftBptStatus;
+        statusType: 'stake-claim',
+      } as ClaimRaftFromStakedBptStatus;
     }
 
     if (error) {
@@ -97,9 +100,9 @@ const stream$ = withdrawRaftBpt$.pipe(
         error,
         request,
         txnId,
-        statusType: 'stake-withdraw',
+        statusType: 'stake-claim',
         txHash: txnResponse?.hash,
-      } as WithdrawRaftBptStatus;
+      } as ClaimRaftFromStakedBptStatus;
     }
 
     return {
@@ -108,39 +111,44 @@ const stream$ = withdrawRaftBpt$.pipe(
       request,
       txnResponse,
       txnId,
-      statusType: 'stake-withdraw',
+      statusType: 'stake-claim',
       txHash: txnResponse?.hash,
     };
   }),
   tap(status => {
     emitAppEvent({
-      eventType: 'stake-withdraw',
+      eventType: 'stake-claim',
       timestamp: Date.now(),
       txnHash: status.txHash,
     });
 
-    withdrawRaftBptStatus$.next(status);
+    claimRaftFromStakedBptStatus$.next(status);
   }),
 );
 
-const [withdrawRaftBptStatus] = bind<Nullable<WithdrawRaftBptStatus>>(withdrawRaftBptStatus$, null);
+const [claimRaftFromStakedBptStatus] = bind<Nullable<ClaimRaftFromStakedBptStatus>>(
+  claimRaftFromStakedBptStatus$,
+  null,
+);
 
-export const useWithdrawRaftBpt = (): {
-  withdrawRaftBptStatus: Nullable<WithdrawRaftBptStatus>;
-  withdrawRaftBpt: (payload: WithdrawRaftBptRequest) => void;
+export const useClaimRaftFromStakedBpt = (): {
+  claimRaftFromStakedBptStatus: Nullable<ClaimRaftFromStakedBptStatus>;
+  claimRaftFromStakedBpt: (payload: ClaimRaftFromStakedBptRequest) => void;
 } => ({
-  withdrawRaftBptStatus: withdrawRaftBptStatus(),
-  withdrawRaftBpt,
+  claimRaftFromStakedBptStatus: claimRaftFromStakedBptStatus(),
+  claimRaftFromStakedBpt,
 });
 
 let subscriptions: Subscription[];
 
-export const subscribeWithdrawRaftBptStatus = (): void => {
-  unsubscribeWithdrawRaftBptStatus();
+export const subscribeClaimRaftFromStakedBptStatus = (): void => {
+  unsubscribeClaimRaftFromStakedBptStatus();
   subscriptions = [stream$.subscribe()];
 };
-export const unsubscribeWithdrawRaftBptStatus = (): void =>
+export const unsubscribeClaimRaftFromStakedBptStatus = (): void =>
   subscriptions?.forEach(subscription => subscription.unsubscribe());
-export const resetWithdrawRaftBptStatus = (): void => {
-  withdrawRaftBptStatus$.next(null);
+export const resetClaimRaftFromStakedBptStatus = (): void => {
+  claimRaftFromStakedBptStatus$.next(null);
 };
+
+subscribeClaimRaftFromStakedBptStatus();

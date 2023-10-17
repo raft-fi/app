@@ -6,6 +6,7 @@ export const NETWORK: SupportedNetwork = import.meta.env.VITE_NETWORK ?? FALLBAC
 
 RaftConfig.setNetwork(NETWORK);
 RaftConfig.setSubgraphEndpoint(import.meta.env.VITE_SUBGRAPH_URL);
+RaftConfig.setBalancerSubgraphEndpoint(import.meta.env.VITE_BALANCER_SUBGRAPH_URL);
 
 const config: Config = {
   mainnet: {
@@ -24,7 +25,7 @@ const config: Config = {
     blockExplorerUrl: 'https://etherscan.io',
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
     managePositionTokensV1: ['stETH', 'wstETH-v1', 'rETH'],
-    managePositionTokensV2: ['wstETH', 'WETH', 'rETH', 'cbETH', 'swETH'],
+    managePositionTokensV2: ['wstETH', 'WETH', 'rETH', 'cbETH', 'swETH', 'WBTC'],
   },
   goerli: {
     publicNetworkUrl: '',

@@ -22,7 +22,7 @@ import {
 import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable, ProtocolStats } from '../interfaces';
 import { provider$ } from './useProvider';
-import { appEvent$ } from './useAppEvent';
+import { AppEvent, appEvent$ } from './useAppEvent';
 
 export const protocolStats$ = new BehaviorSubject<Nullable<ProtocolStats>>(null);
 
@@ -82,7 +82,14 @@ const intervalStream$ = intervalBeat$.pipe(
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
   withLatestFrom(provider$),
-  concatMap(([, provider]) => fetchData(provider)),
+  filter((value): value is [AppEvent, JsonRpcProvider] => {
+    const [event] = value;
+
+    return Boolean(event);
+  }),
+  concatMap(([, provider]) => {
+    return fetchData(provider);
+  }),
 );
 
 // merge all stream$ into one if there are multiple
@@ -106,3 +113,5 @@ export const unsubscribeProtocolStats = (): void => subscription?.unsubscribe();
 export const resetProtocolStats = (): void => {
   protocolStats$.next(null);
 };
+
+subscribeProtocolStats();

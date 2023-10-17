@@ -27,10 +27,6 @@ const ProtocolStats = () => {
     () => protocolStats?.collateralSupply ?? ({} as TokenDecimalMap<SupportedUnderlyingCollateralToken>),
     [protocolStats?.collateralSupply],
   );
-  const debtSupplyMap = useMemo(
-    () => protocolStats?.debtSupply ?? ({} as TokenDecimalMap<SupportedUnderlyingCollateralToken>),
-    [protocolStats?.debtSupply],
-  );
 
   const totalCollateralValue = useMemo(() => {
     if (!protocolStats) {
@@ -48,14 +44,9 @@ const ProtocolStats = () => {
     return collateralTvl.add(psmTvl);
   }, [collateralSupplyMap, protocolStats, tokenPriceMap]);
 
-  const totalDebtTokenValues = useMemo(() => {
-    const debtAmount = SUPPORTED_UNDERLYING_TOKENS.reduce((sum, underlyingCollateralToken) => {
-      const supply = debtSupplyMap[underlyingCollateralToken];
-      return sum.add(supply ?? Decimal.ZERO);
-    }, Decimal.ZERO);
-
-    return getTokenValues(debtAmount, tokenPriceMap.R, R_TOKEN);
-  }, [debtSupplyMap, tokenPriceMap.R]);
+  const rTotalSupplyValues = useMemo(() => {
+    return getTokenValues(protocolStats?.totalRSupply || Decimal.ZERO, tokenPriceMap.R, R_TOKEN);
+  }, [protocolStats, tokenPriceMap.R]);
 
   const totalCollateralValueMultiplierFormatted = useMemo(
     () => formatMultiplier(totalCollateralValue),
@@ -65,25 +56,25 @@ const ProtocolStats = () => {
     () => formatDecimal(totalCollateralValue, USD_UI_PRECISION),
     [totalCollateralValue],
   );
-  const totalDebtAmountFormatted = useMemo(
+  const rTotalSupplyAmountFormatted = useMemo(
     () =>
-      totalDebtTokenValues.amount?.gt(R_MARKET_CAP_THRESHOLD)
-        ? formatMultiplier(totalDebtTokenValues.amount)
-        : formatDecimal(totalDebtTokenValues.amount, 0),
-    [totalDebtTokenValues.amount],
+      rTotalSupplyValues.amount?.gt(R_MARKET_CAP_THRESHOLD)
+        ? formatMultiplier(rTotalSupplyValues.amount)
+        : formatDecimal(rTotalSupplyValues.amount, 0),
+    [rTotalSupplyValues.amount],
   );
-  const totalDebtValueDecimalFormatted = useMemo(
-    () => formatDecimal(totalDebtTokenValues.value, USD_UI_PRECISION),
-    [totalDebtTokenValues.value],
+  const rTotalSupplyValueFormatted = useMemo(
+    () => formatDecimal(rTotalSupplyValues.value, USD_UI_PRECISION),
+    [rTotalSupplyValues.value],
   );
 
   const collateralizationRatio = useMemo(() => {
-    if (!totalDebtTokenValues.value || totalDebtTokenValues.value.isZero() || !totalCollateralValue) {
+    if (!rTotalSupplyValues.value || rTotalSupplyValues.value.isZero() || !totalCollateralValue) {
       return null;
     }
 
-    return totalCollateralValue.div(totalDebtTokenValues.value);
-  }, [totalDebtTokenValues.value, totalCollateralValue]);
+    return totalCollateralValue.div(rTotalSupplyValues.value);
+  }, [rTotalSupplyValues.value, totalCollateralValue]);
 
   const collateralizationRatioFormatted = useMemo(
     () => formatDecimal(collateralizationRatio?.mul(100) ?? null, 2),
@@ -131,7 +122,7 @@ const ProtocolStats = () => {
         <div className="raft__protocol-stats__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
           <div className="raft__protocol-stats__debt__amount__number">
-            <Typography variant="heading1">{totalDebtAmountFormatted ?? '---'}</Typography>
+            <Typography variant="heading1">{rTotalSupplyAmountFormatted ?? '---'}</Typography>
             <Typography variant="heading2">{R_TOKEN}</Typography>
           </div>
         </div>
@@ -140,7 +131,7 @@ const ProtocolStats = () => {
             $
           </Typography>
           <Typography variant="body" weight="medium" color="text-secondary">
-            {totalDebtValueDecimalFormatted ?? '---'}
+            {rTotalSupplyValueFormatted ?? '---'}
           </Typography>
         </div>
       </div>

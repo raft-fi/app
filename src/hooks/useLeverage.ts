@@ -18,13 +18,13 @@ import {
   filter,
   catchError,
 } from 'rxjs';
-import { GAS_LIMIT_MULTIPLIER, NUMBER_OF_CONFIRMATIONS_FOR_TX, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { GAS_LIMIT_MULTIPLIER, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { wallet$ } from './useWallet';
 import { walletSigner$ } from './useWalletSigner';
-import { getNullTokenMap } from '../utils';
+import { getNullTokenMap, waitForTransactionReceipt } from '../utils';
 import { leverageTokenAllowances$ } from './useLeverageTokenAllowances';
 import { leverageTokenWhitelists$ } from './useLeverageTokenWhitelist';
 import { position$ } from './usePosition';
@@ -132,15 +132,7 @@ const leveragePosition$ = leveragePositionStepsStatus$.pipe(
             }
 
             if (isTransactionResponse) {
-              const transactionReceipt = await walletProvider.waitForTransaction(
-                txnResponse.hash,
-                NUMBER_OF_CONFIRMATIONS_FOR_TX,
-              );
-
-              if (!transactionReceipt) {
-                const receiptFetchFailed = new Error('Failed to fetch borrow transaction receipt!');
-                throw receiptFetchFailed;
-              }
+              await waitForTransactionReceipt(txnResponse.hash, walletProvider);
 
               leveragePositionStatus$.next({
                 pending: false,

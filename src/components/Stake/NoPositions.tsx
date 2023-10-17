@@ -1,35 +1,42 @@
-import { RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
+import { RaftToken, RAFT_BPT_TOKEN, RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
-import { useConnectWallet } from '@web3-onboard/react';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
-import { useCalculateVeRaftAmount, useEstimateStakingApr, useRaftTokenAnnualGiveAway } from '../../hooks';
+import {
+  useCalculateVeRaftAmount,
+  useEstimateStakingApr,
+  useRaftTokenAnnualGiveAway,
+  useUserRaftBptBalance,
+} from '../../hooks';
 import { formatCurrency } from '../../utils';
 import { Button, CurrencyInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import PeriodPicker from './PeriodPicker';
+import { StakePage } from './Stake';
 
-interface NotConnectedProps {
+interface NoPositionsProps {
   amountToLock: string;
   deadline?: Date;
   periodInYear?: number;
   onAmountChange: (value: string) => void;
   onDeadlineChange: (value: Date) => void;
   onPeriodChange: (value: number) => void;
+  goToPage: (page: StakePage) => void;
 }
 
-const NotConnected: FC<NotConnectedProps> = ({
+const NoPositions: FC<NoPositionsProps> = ({
   amountToLock,
   deadline,
   periodInYear,
   onAmountChange,
   onDeadlineChange,
   onPeriodChange,
+  goToPage,
 }) => {
-  const [, connect] = useConnectWallet();
+  const userRaftBptBalance = useUserRaftBptBalance();
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
   const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
   const { calculateVeRaftAmountStatus, calculateVeRaftAmount } = useCalculateVeRaftAmount();
@@ -51,6 +58,14 @@ const NotConnected: FC<NotConnectedProps> = ({
         fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       }),
     [veRaftAmount],
+  );
+  const userRaftBptBalanceFormatted = useMemo(
+    () =>
+      formatCurrency(userRaftBptBalance, {
+        currency: RAFT_BPT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
+    [userRaftBptBalance],
   );
   const weeklyGiveawayFormatted = useMemo(
     () =>
@@ -79,19 +94,28 @@ const NotConnected: FC<NotConnectedProps> = ({
     return original === truncated ? original : `${truncated}...`;
   }, [bptAmount]);
 
-  const onConnectWallet = useCallback(() => {
-    connect();
-  }, [connect]);
+  const canPreview = useMemo(
+    () => bptAmount.gt(0) && deadline && isValid(deadline) && RaftToken.isExtendingStakeBpt(new Date(), deadline),
+    [bptAmount, deadline],
+  );
+
+  const onBalanceClick = useCallback(() => {
+    if (userRaftBptBalance) {
+      onAmountChange(userRaftBptBalance.toString());
+    }
+  }, [onAmountChange, userRaftBptBalance]);
+
+  const goToPreview = useCallback(() => goToPage('preview'), [goToPage]);
 
   useEffect(() => {
     if (bptAmount && deadline && isValid(deadline)) {
       estimateStakingApr({ bptAmount, unlockTime: deadline });
       calculateVeRaftAmount({ bptAmount, unlockTime: deadline });
     }
-  }, [bptAmount, deadline, calculateVeRaftAmount, estimateStakingApr]);
+  }, [estimateStakingApr, bptAmount, deadline, calculateVeRaftAmount]);
 
   return (
-    <div className="raft__stake raft__stake__not-connected">
+    <div className="raft__stake raft__stake__no-positions">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
           <Typography className="raft__stake__title" variant="heading1" weight="medium">
@@ -109,11 +133,16 @@ const NotConnected: FC<NotConnectedProps> = ({
             tokens={['RAFT-BPT']}
             value={amountToLock}
             previewValue={bptAmountWithEllipse}
+            maxAmount={bptAmount}
+            maxAmountFormatted={userRaftBptBalanceFormatted ?? undefined}
             onValueUpdate={onAmountChange}
+            onMaxAmountClick={onBalanceClick}
           />
           <PeriodPicker
-            deadline={deadline}
+            deadline={deadline ?? undefined}
             periodInYear={periodInYear}
+            min={deadline ?? undefined}
+            warnSameWeek
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}
           />
@@ -154,20 +183,20 @@ const NotConnected: FC<NotConnectedProps> = ({
             )}
           </Typography>
           <div className="raft__stake__btn-container">
-            <Button variant="primary" size="large" onClick={onConnectWallet}>
+            <Button variant="primary" size="large" onClick={goToPreview} disabled={!canPreview}>
               <Typography variant="button-label" color="text-primary-inverted">
-                Connect wallet
+                Preview
               </Typography>
             </Button>
           </div>
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <FAQ defaultOpen />
-        <HowToLock defaultOpen />
+        <FAQ defaultOpen={false} />
+        <HowToLock defaultOpen={false} />
       </div>
     </div>
   );
 };
 
-export default memo(NotConnected);
+export default memo(NoPositions);

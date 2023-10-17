@@ -5,10 +5,16 @@ import { getConfigManager } from '../config';
 
 const config = getConfigManager().getConfig();
 
-// Required for Tenderly fork
-const options: JsonRpcApiProviderOptions = {
+const NETWORK_OPTIONS = {
+  batchStallTime: 50,
+};
+const FORK_NETWORK_OPTIONS = {
   batchMaxCount: 1,
 };
+
+const options: JsonRpcApiProviderOptions = import.meta.env.VITE_IS_FORK_NETWORK
+  ? FORK_NETWORK_OPTIONS
+  : NETWORK_OPTIONS;
 
 const DEFAULT_VALUE = new JsonRpcProvider(config.rpcUrl, 'any', options);
 

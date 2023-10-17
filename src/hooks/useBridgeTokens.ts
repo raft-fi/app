@@ -16,12 +16,13 @@ import {
   distinctUntilChanged,
   catchError,
 } from 'rxjs';
-import { GAS_LIMIT_MULTIPLIER, NUMBER_OF_CONFIRMATIONS_FOR_TX } from '../constants';
+import { GAS_LIMIT_MULTIPLIER } from '../constants';
 import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
 import { notification$ } from './useNotification';
 import { wallet$ } from './useWallet';
 import { bridgeAllowances$ } from './useBridgeAllowances';
+import { waitForTransactionReceipt } from '../utils';
 
 const DEFAULT_VALUE = {
   pending: false,
@@ -113,15 +114,7 @@ const bridgeTokens$ = bridgeTokensStepsStatus$.pipe(
           }
 
           if (isTransactionResponse) {
-            const txnReceipt = await walletProvider.waitForTransaction(
-              txnResponse.hash,
-              NUMBER_OF_CONFIRMATIONS_FOR_TX,
-            );
-
-            if (!txnReceipt) {
-              const receiptFetchFailed = new Error('Failed to fetch bridge tokens step transaction receipt!');
-              throw receiptFetchFailed;
-            }
+            const txnReceipt = await waitForTransactionReceipt(txnResponse.hash, walletProvider);
 
             bridgeTokensStatus$.next({
               pending: false,

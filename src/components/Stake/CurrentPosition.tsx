@@ -1,39 +1,25 @@
-import { RAFT_BPT_TOKEN } from '@raft-fi/sdk';
+import { VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { format } from 'date-fns';
-import { FC, memo, ReactNode, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useUserVeRaftBalance } from '../../hooks';
-import { formatDecimal, formatPercentage } from '../../utils';
+import { formatCurrency } from '../../utils';
 import { Typography, ValueLabel } from '../shared';
 
-interface CurrentPositionProps {
-  buttons: ReactNode[];
-}
-
-const CurrentPosition: FC<CurrentPositionProps> = ({ buttons }) => {
+const CurrentPosition = () => {
   const userVeRaftBalance = useUserVeRaftBalance();
 
-  const bptLockedBalance = useMemo(
-    () => userVeRaftBalance?.bptLockedBalance ?? null,
-    [userVeRaftBalance?.bptLockedBalance],
-  );
-  const stakePoolShare = useMemo(
-    () =>
-      userVeRaftBalance?.veRaftBalance && userVeRaftBalance?.supply
-        ? userVeRaftBalance.veRaftBalance.div(userVeRaftBalance?.supply)
-        : null,
-    [userVeRaftBalance?.veRaftBalance, userVeRaftBalance?.supply],
-  );
+  const veRaftBalance = useMemo(() => userVeRaftBalance?.veRaftBalance ?? null, [userVeRaftBalance?.veRaftBalance]);
 
-  const bptLockedBalanceFormatted = useMemo(
-    () => formatDecimal(bptLockedBalance ?? Decimal.ZERO, COLLATERAL_TOKEN_UI_PRECISION),
-    [bptLockedBalance],
-  );
-  const stakePoolShareFormatted = useMemo(
-    () => formatPercentage(stakePoolShare, { lessThanFormat: true }),
-    [stakePoolShare],
+  const veRaftBalanceFormatted = useMemo(
+    () =>
+      formatCurrency(veRaftBalance ?? Decimal.ZERO, {
+        currency: VERAFT_TOKEN,
+        fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
+      }),
+    [veRaftBalance],
   );
   const unlockDateFormatted = useMemo(
     () => (userVeRaftBalance?.unlockTime ? format(userVeRaftBalance.unlockTime, 'dd MMMM yyyy') : null),
@@ -43,25 +29,24 @@ const CurrentPosition: FC<CurrentPositionProps> = ({ buttons }) => {
   return (
     <div className="raft__stake__current-position">
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-        STAKED
+        CURRENT VOTING POWER
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
-        <TokenLogo type={`token-${RAFT_BPT_TOKEN}`} size={20} />
-        <ValueLabel value={`${bptLockedBalanceFormatted} ${RAFT_BPT_TOKEN}`} valueSize="body" tickerSize="body2" />
+        {veRaftBalanceFormatted ? (
+          <>
+            <TokenLogo type={`token-${VERAFT_TOKEN}`} size={20} />
+            <ValueLabel value={veRaftBalanceFormatted} valueSize="body" tickerSize="body2" />
+          </>
+        ) : (
+          'N/A'
+        )}
       </Typography>
       <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-        YOUR SHARE
-      </Typography>
-      <Typography className="raft__stake__value" variant="body" weight="medium">
-        {stakePoolShareFormatted ?? 'N/A'}
-      </Typography>
-      <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
-        LOCKED UNTIL
+        CURRENT STAKING PERIOD
       </Typography>
       <Typography className="raft__stake__value" variant="body" weight="medium">
         {unlockDateFormatted ?? 'N/A'}
       </Typography>
-      <div className="raft__stake__btn-container">{buttons}</div>
     </div>
   );
 };

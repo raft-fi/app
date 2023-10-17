@@ -1,39 +1,49 @@
 import { addMilliseconds, startOfDay } from 'date-fns';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
-import { useWallet } from '../../hooks';
-import Claim from './Claim';
-import Connected from './Connected';
+import { useUserVeRaftBalance, useWallet, useWalletAddress } from '../../hooks';
+import Adjust from './Adjust';
+import HasPosition from './HasPosition';
+import NoPositions from './NoPositions';
 import NotConnected from './NotConnected';
-import Preview from './Preview';
+import PreviewAdjust from './PreviewAdjust';
+import PreviewNew from './PreviewNew';
 
 import './Stake.scss';
-import Withdraw from './Withdraw';
 
-export type StakePage = 'default' | 'preview' | 'withdraw' | 'claim';
+export type StakePage = 'default' | 'adjust' | 'preview';
 
 const Stake = () => {
   const wallet = useWallet();
+  const address = useWalletAddress();
+  const userVeRaftBalance = useUserVeRaftBalance();
+
   const [step, setStep] = useState<StakePage>('default');
   const [amountToLock, setAmountToLock] = useState<string>('');
   const [deadline, setDeadline] = useState<Date>();
-  const [period, setPeriod] = useState<number>();
+  const [periodInYear, setPeriodInYear] = useState<number>();
+
+  const hasPosition = useMemo(() => userVeRaftBalance?.bptLockedBalance.gt(0), [userVeRaftBalance?.bptLockedBalance]);
 
   const onDeadlineChange = useCallback((value: Date) => {
     setDeadline(value);
-    setPeriod(undefined);
+    setPeriodInYear(undefined);
   }, []);
   const onPeriodChange = useCallback((year: number) => {
     setDeadline(addMilliseconds(startOfDay(new Date()), year * YEAR_IN_MS));
-    setPeriod(year);
+    setPeriodInYear(year);
   }, []);
+
+  useEffect(() => {
+    setStep('default');
+  }, [address]);
 
   if (!wallet) {
     return (
       <NotConnected
         amountToLock={amountToLock}
         deadline={deadline}
-        period={period}
+        periodInYear={periodInYear}
         onAmountChange={setAmountToLock}
         onDeadlineChange={onDeadlineChange}
         onPeriodChange={onPeriodChange}
@@ -43,11 +53,25 @@ const Stake = () => {
 
   switch (step) {
     case 'default':
-      return (
-        <Connected
+      return hasPosition ? (
+        <HasPosition goToPage={setStep} />
+      ) : (
+        <NoPositions
           amountToLock={amountToLock}
           deadline={deadline}
-          period={period}
+          periodInYear={periodInYear}
+          onAmountChange={setAmountToLock}
+          onDeadlineChange={onDeadlineChange}
+          onPeriodChange={onPeriodChange}
+          goToPage={setStep}
+        />
+      );
+    case 'adjust':
+      return (
+        <Adjust
+          amountToLock={amountToLock}
+          deadline={deadline}
+          periodInYear={periodInYear}
           onAmountChange={setAmountToLock}
           onDeadlineChange={onDeadlineChange}
           onPeriodChange={onPeriodChange}
@@ -55,11 +79,11 @@ const Stake = () => {
         />
       );
     case 'preview':
-      return <Preview amountToLock={amountToLock} deadline={deadline} goToPage={setStep} />;
-    case 'withdraw':
-      return <Withdraw goToPage={setStep} />;
-    case 'claim':
-      return <Claim goToPage={setStep} />;
+      return hasPosition ? (
+        <PreviewAdjust amountToLock={amountToLock} deadline={deadline} goToPage={setStep} />
+      ) : (
+        <PreviewNew amountToLock={amountToLock} deadline={deadline} goToPage={setStep} />
+      );
   }
 
   return null;
