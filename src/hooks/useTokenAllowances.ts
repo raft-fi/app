@@ -64,7 +64,7 @@ const fetchData = async (
 
 // Fetch new allowance data every time wallet address changes
 const walletChangeStream$: Observable<TokenAllowanceMap> = combineLatest([isWrongNetwork$, walletAddress$]).pipe(
-  filter(isWrongNetwork => !isWrongNetwork),
+  filter(([isWrongNetwork]) => !isWrongNetwork),
   withLatestFrom(provider$),
   mergeMap<[[boolean, Nullable<string>], JsonRpcProvider], Observable<TokenAllowanceMap>>(
     ([[, walletAddress], provider]) => {
