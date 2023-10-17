@@ -25,7 +25,7 @@ const config: Config = {
     blockExplorerUrl: 'https://etherscan.io',
     rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
     managePositionTokensV1: ['stETH', 'wstETH-v1', 'rETH'],
-    managePositionTokensV2: ['wstETH', 'WETH', 'rETH', 'cbETH', 'swETH'],
+    managePositionTokensV2: ['wstETH', 'WETH', 'rETH', 'cbETH', 'swETH', 'WBTC'],
   },
   goerli: {
     publicNetworkUrl: '',
