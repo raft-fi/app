@@ -1,6 +1,6 @@
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SafeAppsSDK, { SafeInfo } from '@safe-global/safe-apps-sdk';
-import { PositionTransaction, SavingsTransaction } from '@raft-fi/sdk';
+import { PositionTransaction, SavingsTransaction, StakingTransaction } from '@raft-fi/sdk';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
@@ -22,13 +22,24 @@ import {
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
-import { BridgeRequestTransactionRow, ManageTransactionRow, SavingsTransactionRow } from './TransactionHistoryRow';
+import {
+  BridgeRequestTransactionRow,
+  ManageTransactionRow,
+  SavingsTransactionRow,
+  StakingTransactionRow,
+} from './TransactionHistoryRow';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
 
 const isSavingsTransaction = (transaction: HistoryTransaction): transaction is SavingsTransaction => {
   return transaction.type === 'DEPOSIT' || transaction.type === 'WITHDRAW';
+};
+
+const isStakingTransaction = (transaction: HistoryTransaction): transaction is StakingTransaction => {
+  return ['DEPOSIT_FOR', 'CREATE_LOCK', 'INCREASE_LOCK_AMOUNT', 'INCREASE_UNLOCK_TIME', 'WITHDRAW'].includes(
+    transaction.type,
+  );
 };
 
 const isManageTransaction = (transaction: HistoryTransaction): transaction is PositionTransaction => {
@@ -319,6 +330,9 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
                 transactionHistory.map(transaction => {
                   if (isSavingsTransaction(transaction)) {
                     return <SavingsTransactionRow key={transaction.id} transaction={transaction} />;
+                  }
+                  if (isStakingTransaction(transaction)) {
+                    return <StakingTransactionRow key={transaction.id} transaction={transaction} />;
                   }
                   if (isManageTransaction(transaction)) {
                     return <ManageTransactionRow key={transaction.id} transaction={transaction} />;
