@@ -37,7 +37,7 @@ const isSavingsTransaction = (transaction: HistoryTransaction): transaction is S
 };
 
 const isStakingTransaction = (transaction: HistoryTransaction): transaction is StakingTransaction => {
-  return ['DEPOSIT_FOR', 'CREATE_LOCK', 'INCREASE_LOCK_AMOUNT', 'INCREASE_UNLOCK_TIME', 'WITHDRAW'].includes(
+  return ['DEPOSIT_FOR', 'CREATE_LOCK', 'INCREASE_LOCK_AMOUNT', 'INCREASE_UNLOCK_TIME', 'WITHDRAW', 'CLAIM'].includes(
     transaction.type,
   );
 };

@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react';
 import { Link } from 'tempus-ui';
-import { RAFT_BPT_TOKEN, StakingTransaction } from '@raft-fi/sdk';
+import { RAFT_BPT_TOKEN, RAFT_TOKEN, StakingTransaction } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../../constants';
 import { useConfig } from '../../../hooks';
@@ -14,15 +14,23 @@ interface StakingTransactionRowProp {
 const StakingTransactionRow: FC<StakingTransactionRowProp> = ({ transaction }) => {
   const config = useConfig();
 
+  const token = useMemo(() => {
+    if (transaction.token) {
+      return transaction.token;
+    }
+
+    return transaction.type === 'CLAIM' ? RAFT_TOKEN : RAFT_BPT_TOKEN;
+  }, [transaction.token, transaction.type]);
+
   const amountFormatted = useMemo(() => {
     return DecimalFormat.format(transaction.amount, {
       style: 'currency',
-      currency: RAFT_BPT_TOKEN,
+      currency: token,
       fractionDigits: COLLATERAL_TOKEN_UI_PRECISION,
       lessThanFormat: true,
       pad: true,
     });
-  }, [transaction.amount]);
+  }, [token, transaction.amount]);
   const unlockTimeFormatted = useMemo(
     () => (transaction.unlockTime ? format(transaction.unlockTime, 'dd MMMM yyyy') : null),
     [transaction.unlockTime],
@@ -43,6 +51,7 @@ const StakingTransactionRow: FC<StakingTransactionRowProp> = ({ transaction }) =
             </Typography>
           </>
         );
+      case 'DEPOSIT_FOR':
       case 'INCREASE_LOCK_AMOUNT':
         return (
           <>
@@ -70,13 +79,17 @@ const StakingTransactionRow: FC<StakingTransactionRowProp> = ({ transaction }) =
             </Typography>
           </>
         );
+      case 'CLAIM':
+        return (
+          <>
+            <Typography variant="body2">Claimed staking reward with&nbsp;</Typography>
+            <Typography variant="body2" weight="semi-bold">
+              {amountFormatted}
+            </Typography>
+          </>
+        );
     }
   }, [transaction.type, amountFormatted, unlockTimeFormatted]);
-
-  if (transaction.type === 'DEPOSIT_FOR') {
-    // we are not handling this case
-    return null;
-  }
 
   return (
     <Link href={`${config.blockExplorerUrl}/tx/${transaction.id}`} className="raft__wallet__popupTransaction">
