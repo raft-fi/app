@@ -550,8 +550,8 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
       return 'Leveraging disabled';
     }
 
-    if (leveragePositionStepsStatus.error?.message) {
-      return leveragePositionStepsStatus.error.message;
+    if (errTxn) {
+      return errTxn.message ?? 'Something has gone wrong, please try again';
     }
 
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
@@ -592,12 +592,12 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
+    walletConnected,
     increaseLeverageDisabled,
     isLeverageIncrease,
-    walletConnected,
-    leveragePositionStatus.pending,
-    leveragePositionStepsStatus.error?.message,
+    errTxn,
     isTotalSupplyWithinCollateralProtocolCap,
+    leveragePositionStatus.pending,
     executionSteps,
     executionType,
     hasNonEmptyInput,
@@ -668,7 +668,7 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
         !collateralAmountDecimal.isZero() &&
         !executionType &&
         !leveragePositionStatus.error &&
-        !leveragePositionStepsStatus.error)
+        !errTxn)
     ) {
       setActionButtonState('loading');
     } else if (leveragePositionStatus.success) {
@@ -678,11 +678,11 @@ const AdjustLeveragePosition: FC<AdjustPositionProps> = ({
     }
   }, [
     collateralAmountDecimal,
+    errTxn,
     executionType,
     leveragePositionStatus,
     leveragePositionStatus.pending,
     leveragePositionStatus.success,
-    leveragePositionStepsStatus.error,
     leveragePositionStepsStatus.pending,
     walletConnected,
   ]);

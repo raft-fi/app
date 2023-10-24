@@ -7,8 +7,6 @@ import { BrowserProvider, JsonRpcSigner, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,
-  from,
-  of,
   map,
   concatMap,
   Subscription,
@@ -16,7 +14,6 @@ import {
   combineLatest,
   distinctUntilChanged,
   filter,
-  catchError,
 } from 'rxjs';
 import { GAS_LIMIT_MULTIPLIER, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { Nullable, SupportedCollateralToken, SupportedUnderlyingCollateralToken, TokenGenericMap } from '../interfaces';
@@ -262,7 +259,7 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
     walletSigner$,
   ),
   concatMap(
-    ([
+    async ([
       [request],
       leverageTokenWhitelistMap,
       leverageTokenAllowanceMap,
@@ -276,12 +273,12 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         request;
 
       if (!walletSigner) {
-        return of({
+        return {
           request,
           result: null,
           generator: null,
           error: 'Wallet signer is not defined!',
-        } as LeveragePositionStepsResponse);
+        } as LeveragePositionStepsResponse;
       }
 
       const isDelegateWhitelisted = leverageTokenWhitelistMap[collateralToken] ?? undefined;
@@ -320,48 +317,33 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
             gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
           },
         );
-        const nextStep$ = from(steps.next());
 
-        return nextStep$.pipe(
-          map(nextStep => {
-            if (nextStep.value) {
-              return {
-                request,
-                result: nextStep.value,
-                generator: steps,
-              } as unknown as LeveragePositionStepsResponse;
-            }
+        const nextStep = await steps.next();
 
-            return {
-              request,
-              result: null,
-              generator: steps,
-            } as unknown as LeveragePositionStepsResponse;
-          }),
-          catchError(error => {
-            console.error(
-              `useLeveragePositionSteps (catchError) - failed to get leverage position steps for ${underlyingCollateralToken}!`,
-              error,
-            );
-            return of({
-              request,
-              result: null,
-              generator: null,
-              error,
-            } as LeveragePositionStepsResponse);
-          }),
-        );
+        if (nextStep.value) {
+          return {
+            request,
+            result: nextStep.value,
+            generator: steps,
+          } as LeveragePositionStepsResponse;
+        }
+
+        return {
+          request,
+          result: null,
+          generator: steps,
+        } as LeveragePositionStepsResponse;
       } catch (error) {
         console.error(
           `useLeveragePositionSteps (catch) - failed to get leverage position steps for ${underlyingCollateralToken}!`,
           error,
         );
-        return of({
+        return {
           request,
           result: null,
           generator: null,
           error,
-        } as LeveragePositionStepsResponse);
+        } as LeveragePositionStepsResponse;
       }
     },
   ),

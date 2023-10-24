@@ -570,12 +570,13 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
           isPositionWithinCollateralPositionCap &&
           isPositionWithinCollateralProtocolCap &&
           isTotalSupplyWithinCollateralProtocolCap &&
-          isPositionWithinDebtPositionCap,
+          isPositionWithinDebtPositionCap &&
+          !managePositionStepsStatus.error,
       ),
     [
-      borrowAmount,
       generateDisabled,
       isAddDebt,
+      borrowAmount,
       isInputNonEmpty,
       hasEnoughCollateralTokenBalance,
       hasEnoughDebtTokenBalance,
@@ -585,6 +586,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       isPositionWithinCollateralProtocolCap,
       isTotalSupplyWithinCollateralProtocolCap,
       isPositionWithinDebtPositionCap,
+      managePositionStepsStatus.error,
     ],
   );
 
@@ -660,6 +662,10 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
       return `You need ${formattedMissingBorrowAmount} more R to close your Position`;
     }
 
+    if (managePositionStepsStatus.error) {
+      return 'Something has gone wrong, please try again';
+    }
+
     if (executionSteps === 1) {
       return managePositionStatus.pending ? 'Executing' : 'Execute';
     }
@@ -690,13 +696,14 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
-    borrowAmount,
     generateDisabled,
     isAddDebt,
+    borrowAmount,
     isTotalSupplyWithinCollateralProtocolCap,
     managePositionStatus.pending,
     hasEnoughDebtTokenBalance,
     hasNonNegativeDebt,
+    managePositionStepsStatus.error,
     executionSteps,
     executionType,
     hasNonEmptyInput,
@@ -789,7 +796,11 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
    * Update action button state based on current borrow request status
    */
   useEffect(() => {
-    if (managePositionStatus.pending || managePositionStepsStatus.pending || (hasNonEmptyInput && !executionType)) {
+    if (
+      managePositionStatus.pending ||
+      managePositionStepsStatus.pending ||
+      (hasNonEmptyInput && !executionType && !managePositionStepsStatus.error)
+    ) {
       setTransactionState('loading');
     } else if (managePositionStatus.success) {
       setTransactionState('success');
@@ -801,6 +812,7 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
     hasNonEmptyInput,
     managePositionStatus.pending,
     managePositionStatus.success,
+    managePositionStepsStatus.error,
     managePositionStepsStatus.pending,
   ]);
 

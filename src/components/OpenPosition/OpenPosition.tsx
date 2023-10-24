@@ -420,7 +420,8 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
           isPositionWithinCollateralProtocolCap &&
           isTotalSupplyWithinCollateralProtocolCap &&
           isPositionWithinDebtPositionCap &&
-          !isWrongNetwork,
+          !isWrongNetwork &&
+          !managePositionStepsStatus.error,
       ),
     [
       openPositionDisabled,
@@ -433,6 +434,7 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
       isTotalSupplyWithinCollateralProtocolCap,
       isPositionWithinDebtPositionCap,
       isWrongNetwork,
+      managePositionStepsStatus.error,
     ],
   );
 
@@ -495,6 +497,10 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
       return `Protocol collateral cap of ${collateralProtocolCapFormatted} reached. Please check again later.`;
     }
 
+    if (managePositionStepsStatus.error) {
+      return 'Something has gone wrong, please try again';
+    }
+
     if (executionSteps === 1) {
       return managePositionStatus.pending ? 'Executing' : 'Execute';
     }
@@ -525,10 +531,11 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
-    openPositionDisabled,
     walletConnected,
+    openPositionDisabled,
     isTotalSupplyWithinCollateralProtocolCap,
     managePositionStatus.pending,
+    managePositionStepsStatus.error,
     executionSteps,
     executionType,
     hasNonEmptyInput,
@@ -607,7 +614,7 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
     if (
       managePositionStatus.pending ||
       managePositionStepsStatus.pending ||
-      (walletConnected && hasNonEmptyInput && !executionType)
+      (walletConnected && hasNonEmptyInput && !executionType && !managePositionStepsStatus.error)
     ) {
       setActionButtonState('loading');
     } else if (managePositionStatus.success) {
@@ -621,6 +628,7 @@ const OpenPosition: FC<OpenPositionProps> = ({ initialCollateralToken }) => {
     hasNonEmptyInput,
     managePositionStatus.pending,
     managePositionStatus.success,
+    managePositionStepsStatus.error,
     managePositionStepsStatus.pending,
     walletConnected,
   ]);
