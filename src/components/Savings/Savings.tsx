@@ -186,6 +186,10 @@ const Savings = () => {
       return 'Deposit capacity reached, please try again later';
     }
 
+    if (manageSavingsStepsStatus.error) {
+      return 'Something has gone wrong, please try again';
+    }
+
     if (executionSteps === 1) {
       return manageSavingsStatus.pending ? 'Executing' : 'Execute';
     }
@@ -211,16 +215,17 @@ const Savings = () => {
   }, [
     walletConnected,
     isWrongNetwork,
+    isAddCollateral,
     hasEnoughRToDeposit,
     hasEnoughRToWithdraw,
-    isAddCollateral,
     isPositionWithinDepositCap,
+    manageSavingsStepsStatus.error,
     executionSteps,
     executionType,
     hasNonEmptyInput,
+    selectedNetwork,
     manageSavingsStatus.pending,
     currentExecutionSteps,
-    selectedNetwork,
   ]);
 
   const subHeaderLabel = useMemo(() => {
@@ -234,13 +239,20 @@ const Savings = () => {
   const hasInputFilled = useMemo(() => !amountParsed.isZero(), [amountParsed]);
 
   const canExecuteDeposit = useMemo(
-    () => Boolean(hasInputFilled && hasEnoughRToDeposit && !isWrongNetwork && isPositionWithinDepositCap),
-    [hasEnoughRToDeposit, hasInputFilled, isPositionWithinDepositCap, isWrongNetwork],
+    () =>
+      Boolean(
+        hasInputFilled &&
+          hasEnoughRToDeposit &&
+          !isWrongNetwork &&
+          isPositionWithinDepositCap &&
+          !manageSavingsStepsStatus.error,
+      ),
+    [hasEnoughRToDeposit, hasInputFilled, isPositionWithinDepositCap, isWrongNetwork, manageSavingsStepsStatus.error],
   );
 
   const canExecuteWithdraw = useMemo(() => {
-    return Boolean(hasInputFilled && hasEnoughRToWithdraw && !isWrongNetwork);
-  }, [hasEnoughRToWithdraw, hasInputFilled, isWrongNetwork]);
+    return Boolean(hasInputFilled && hasEnoughRToWithdraw && !isWrongNetwork && !manageSavingsStepsStatus.error);
+  }, [hasEnoughRToWithdraw, hasInputFilled, isWrongNetwork, manageSavingsStepsStatus.error]);
 
   const canExecute = useMemo(() => {
     // Enable execute button in case network is wrong (in this case button asks user to switch network)
