@@ -5,8 +5,12 @@ const FALLBACK_NETWORK: SupportedNetwork = 'goerli';
 export const NETWORK: SupportedNetwork = import.meta.env.VITE_NETWORK ?? FALLBACK_NETWORK;
 
 RaftConfig.setNetwork(NETWORK);
-RaftConfig.setSubgraphEndpoint(import.meta.env.VITE_SUBGRAPH_URL);
-RaftConfig.setBalancerSubgraphEndpoint(import.meta.env.VITE_BALANCER_SUBGRAPH_URL);
+RaftConfig.setEndpointOptions({
+  subgraphEndpoint: import.meta.env.VITE_SUBGRAPH_URL,
+  balancerSubgraphEndpoint: import.meta.env.VITE_BALANCER_SUBGRAPH_URL,
+  oneInchEndpoint: import.meta.env.VITE_1INCH_API_URL,
+  oneInchApiKey: import.meta.env.VITE_1INCH_API_KEY,
+});
 
 const config: Config = {
   mainnet: {
