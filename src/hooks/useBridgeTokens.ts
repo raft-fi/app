@@ -4,18 +4,7 @@ import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
 import { BrowserProvider, TransactionReceipt, TransactionResponse } from 'ethers';
-import {
-  BehaviorSubject,
-  withLatestFrom,
-  from,
-  of,
-  map,
-  concatMap,
-  Subscription,
-  tap,
-  distinctUntilChanged,
-  catchError,
-} from 'rxjs';
+import { BehaviorSubject, withLatestFrom, map, concatMap, Subscription, tap, distinctUntilChanged } from 'rxjs';
 import { GAS_LIMIT_MULTIPLIER } from '../constants';
 import { Nullable } from '../interfaces';
 import { emitAppEvent } from './useAppEvent';
@@ -212,17 +201,17 @@ const distinctRequest$ = bridgeTokensStepsRequest$.pipe(
 
 const stream$ = distinctRequest$.pipe(
   withLatestFrom(bridgeAllowances$),
-  concatMap(([request, bridgeAllowances]) => {
+  concatMap(async ([request, bridgeAllowances]) => {
     const { sourceChainName, destinationChainName, amountToBridge } = request;
 
     const rTokenAllowance = bridgeAllowances[sourceChainName] ?? undefined;
 
     if (amountToBridge.isZero() || !bridge) {
-      return of({
+      return {
         request,
         result: null,
         generator: null,
-      } as BridgeTokensStepsResponse);
+      } as BridgeTokensStepsResponse;
     }
 
     try {
@@ -232,42 +221,29 @@ const stream$ = distinctRequest$.pipe(
         rTokenAllowance,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
       });
-      const nextStep$ = from(steps.next());
+      const nextStep = await steps.next();
 
-      return nextStep$.pipe(
-        map(nextStep => {
-          if (nextStep.value) {
-            return {
-              request,
-              result: nextStep.value,
-              generator: steps,
-            } as BridgeTokensStepsResponse;
-          }
+      if (nextStep.value) {
+        return {
+          request,
+          result: nextStep.value,
+          generator: steps,
+        } as BridgeTokensStepsResponse;
+      }
 
-          return {
-            request,
-            result: null,
-            generator: steps,
-          } as BridgeTokensStepsResponse;
-        }),
-        catchError(error => {
-          console.error(`useBridgeTokens (catchError) - failed to get bridge tokens steps!`, error);
-          return of({
-            request,
-            result: null,
-            generator: null,
-            error,
-          } as BridgeTokensStepsResponse);
-        }),
-      );
+      return {
+        request,
+        result: null,
+        generator: steps,
+      } as BridgeTokensStepsResponse;
     } catch (error) {
       console.error(`useBridgeTokens (catch) - failed to get bridge tokens steps!`, error);
-      return of({
+      return {
         request,
         result: null,
         generator: null,
         error,
-      } as BridgeTokensStepsResponse);
+      } as BridgeTokensStepsResponse;
     }
   }),
   tap<BridgeTokensStepsResponse>(response => {
