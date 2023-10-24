@@ -53,7 +53,16 @@ const PreviewNew: FC<PreviewNewProps> = ({ amountToLock, deadline, goToPage }) =
     stakeBptForVeRaft?.();
   }, [stakeBptForVeRaft]);
 
+  const canAction = useMemo(
+    () => actionButtonState !== 'loading' && !stakeBptForVeRaftStepsStatus.error,
+    [actionButtonState, stakeBptForVeRaftStepsStatus.error],
+  );
+
   const buttonLabel = useMemo(() => {
+    if (stakeBptForVeRaftStepsStatus.error) {
+      return 'Something has gone wrong, please try again';
+    }
+
     switch (stakeBptForVeRaftStepsStatus.result?.type) {
       case 'approve':
         return stakeBptForVeRaftStatus.pending ? `Approving ${RAFT_BPT_TOKEN}` : `Approve ${RAFT_BPT_TOKEN}`;
@@ -61,7 +70,7 @@ const PreviewNew: FC<PreviewNewProps> = ({ amountToLock, deadline, goToPage }) =
       default:
         return stakeBptForVeRaftStatus.pending ? 'Staking' : 'Stake';
     }
-  }, [stakeBptForVeRaftStatus.pending, stakeBptForVeRaftStepsStatus.result?.type]);
+  }, [stakeBptForVeRaftStatus.pending, stakeBptForVeRaftStepsStatus.error, stakeBptForVeRaftStepsStatus.result?.type]);
 
   useEffect(() => {
     if (requestStakeBptForVeRaftStep && deadline) {
@@ -143,12 +152,7 @@ const PreviewNew: FC<PreviewNewProps> = ({ amountToLock, deadline, goToPage }) =
                 Back
               </Typography>
             </Button>
-            <Button
-              variant="primary"
-              size="large"
-              onClick={onStake}
-              disabled={actionButtonState === 'loading' || !stakeBptForVeRaftStepsStatus.result?.type}
-            >
+            <Button variant="primary" size="large" onClick={onStake} disabled={!canAction}>
               {actionButtonState === 'loading' && <Loading />}
               <Typography variant="button-label" color="text-primary-inverted">
                 {buttonLabel}

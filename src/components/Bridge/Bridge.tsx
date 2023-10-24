@@ -167,6 +167,10 @@ const Bridge = () => {
       return `Switch to ${NETWORK_NAMES[fromNetwork]}`;
     }
 
+    if (bridgeTokensStepsStatus.error) {
+      return 'Something has gone wrong, please try again';
+    }
+
     if (executionSteps === 1) {
       return bridgeTokensStatus.pending ? 'Executing' : 'Execute';
     }
@@ -192,6 +196,7 @@ const Bridge = () => {
   }, [
     walletConnected,
     isWrongNetwork,
+    bridgeTokensStepsStatus.error,
     executionSteps,
     executionType,
     hasInput,
@@ -215,9 +220,15 @@ const Bridge = () => {
     () => !amountDecimal.isZero() && fromBridgeBalance?.gte(amountDecimal),
     [amountDecimal, fromBridgeBalance],
   );
-  const canExecute = useMemo(() => isInputValid && !isWrongNetwork, [isInputValid, isWrongNetwork]);
+  const canExecute = useMemo(
+    () => isInputValid && !isWrongNetwork && !bridgeTokensStepsStatus.error,
+    [bridgeTokensStepsStatus.error, isInputValid, isWrongNetwork],
+  );
   // enable button if input is non-zero, or user need to switch network
-  const isButtonEnabled = useMemo(() => isInputValid || isWrongNetwork, [isInputValid, isWrongNetwork]);
+  const isButtonEnabled = useMemo(
+    () => (isInputValid || isWrongNetwork) && !bridgeTokensStepsStatus.error,
+    [bridgeTokensStepsStatus.error, isInputValid, isWrongNetwork],
+  );
 
   const onSwapNetwork = useCallback(() => {
     setFromNetwork(toNetwork);
