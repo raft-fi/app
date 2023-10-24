@@ -587,7 +587,7 @@ const OpenLeveragePosition = () => {
 
       {openLeveragePositionDisabled ? (
         <InfoBox
-          text="New leverage positions are temporarily disabled as we prepare to launch interest-based vaults soon. You can close or reduce your position if you have one open."
+          text="New leverage positions are temporarily disabled. You can close or reduce your position if you have one open."
           variant="error"
         />
       ) : (
