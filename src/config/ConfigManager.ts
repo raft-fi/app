@@ -8,7 +8,12 @@ class ConfigManager {
 
   constructor() {
     RaftConfig.setNetwork(NETWORK);
-    RaftConfig.setSubgraphEndpoint(import.meta.env.VITE_SUBGRAPH_URL);
+    RaftConfig.setEndpointOptions({
+      subgraphEndpoint: import.meta.env.VITE_SUBGRAPH_URL,
+      balancerSubgraphEndpoint: import.meta.env.VITE_BALANCER_SUBGRAPH_URL,
+      oneInchEndpoint: import.meta.env.VITE_1INCH_API_URL,
+      oneInchApiKey: import.meta.env.VITE_1INCH_API_KEY,
+    });
   }
 
   getConfig(): ChainConfig {
