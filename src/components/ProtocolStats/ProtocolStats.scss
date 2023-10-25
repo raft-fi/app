@@ -2,11 +2,12 @@
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
-  width: 856px;
+  width: var(--app-width);
   padding: 16px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 
   > div {
     padding: 16px 32px;
@@ -73,38 +74,42 @@
     display: flex;
     align-items: baseline;
     margin-top: 16px;
+
+    .raft__protocol-stats__ratio__status__color {
+      display: none;
+    }
   }
 
   .raft__protocol-stats__ratio__status {
     display: flex;
     align-items: center;
     margin-top: 8px;
+  }
 
-    .raft__protocol-stats__ratio__status__color {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
+  .raft__protocol-stats__ratio__status__color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
 
-      &.status-risk-low {
-        background-color: var(--statusLowProtocolRisk);
-      }
+    &.status-risk-low {
+      background-color: var(--statusLowProtocolRisk);
+    }
 
-      &.status-risk-moderate {
-        background-color: var(--statusModerateProtocolRisk);
-      }
+    &.status-risk-moderate {
+      background-color: var(--statusModerateProtocolRisk);
+    }
 
-      &.status-risk-medium {
-        background-color: var(--statusMediumProtocolRisk);
-      }
+    &.status-risk-medium {
+      background-color: var(--statusMediumProtocolRisk);
+    }
 
-      &.status-risk-high {
-        background-color: var(--statusHighProtocolRisk);
-      }
+    &.status-risk-high {
+      background-color: var(--statusHighProtocolRisk);
+    }
 
-      &.status-risk-critical {
-        background-color: var(--statusCriticalProtocolRisk);
-      }
+    &.status-risk-critical {
+      background-color: var(--statusCriticalProtocolRisk);
     }
   }
 }
@@ -167,6 +172,151 @@
 
       &::marker {
         content: '';
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__protocol-stats {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 12px;
+
+    > div {
+      padding: 0;
+    }
+
+    .raft__protocol-stats__collateral,
+    .raft__protocol-stats__debt,
+    .raft__protocol-stats__ratio {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      &:not(:first-child) {
+        border: none;
+      }
+    }
+
+    .raft__protocol-stats__collateral {
+      align-items: baseline;
+    }
+
+    .raft__protocol-stats__debt,
+    .raft__protocol-stats__ratio {
+      align-items: center;
+    }
+
+    .raft__protocol-stats__collateral__title,
+    .raft__protocol-stats__debt__title,
+    .raft__protocol-stats__ratio__title {
+      flex: 1 100%;
+    }
+
+    .raft__protocol-stats__collateral__amount,
+    .raft__protocol-stats__debt__amount {
+      margin-top: 0;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .raft__protocol-stats__collateral__amount__number {
+      :first-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
+      }
+
+      :last-child {
+        font-size: 16px !important;
+        line-height: 24px !important;
+      }
+    }
+
+    .raft__protocol-stats__debt__amount__number {
+      :first-child {
+        font-size: 16px !important;
+        line-height: 24px !important;
+      }
+
+      :last-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
+      }
+    }
+
+    .raft__protocol-stats__collateral__value__number,
+    .raft__protocol-stats__debt__value__number {
+      margin-top: 0;
+
+      &::before,
+      &::after {
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--textSecondary);
+        font-weight: 500;
+        font-family: Work Sans, sans-serif;
+      }
+
+      &::before {
+        content: '(';
+      }
+
+      &::after {
+        content: ')';
+      }
+    }
+
+    .raft__protocol-stats__ratio__percent {
+      margin-top: 0;
+
+      .raft__protocol-stats__ratio__status__color {
+        display: block;
+        align-self: center;
+        margin-left: 6px;
+        margin-right: 14px;
+      }
+
+      :nth-child(2) {
+        font-size: 16px !important;
+        line-height: 24px !important;
+      }
+
+      :last-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
+      }
+    }
+
+    .raft__protocol-stats__ratio__status {
+      margin-top: 0;
+
+      .raft__protocol-stats__ratio__status__color {
+        display: none;
+      }
+
+      &::before,
+      &::after {
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--textSecondary);
+        font-weight: 500;
+        font-family: Work Sans, sans-serif;
+      }
+
+      &::before {
+        content: '(';
+      }
+
+      &::after {
+        content: ')';
       }
     }
   }

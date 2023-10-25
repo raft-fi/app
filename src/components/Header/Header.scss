@@ -1,7 +1,7 @@
 .raft__header {
   position: relative;
   width: 100%;
-  padding: var(--app-padding);
+  padding: var(--header-padding);
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -17,7 +17,7 @@
   }
 
   .raft__header__container {
-    width: var(--app-width);
+    width: var(--header-width);
 
     .common-ui__header {
       --headerLogoWidthMobile: initial;
