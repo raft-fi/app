@@ -177,7 +177,7 @@
   }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   .raft__protocol-stats {
     justify-content: flex-start;
     align-items: flex-start;
@@ -189,6 +189,26 @@
       padding: 0;
     }
 
+    .raft__protocol-stats__collateral,
+    .raft__protocol-stats__debt,
+    .raft__protocol-stats__ratio {
+      width: 100%;
+
+      &:not(:first-child) {
+        border-left: none;
+        border-top: 1px solid var(--borderPrimary);
+      }
+    }
+
+    .raft__protocol-stats__debt__title,
+    .raft__protocol-stats__ratio__title {
+      margin-top: 12px;
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__protocol-stats {
     .raft__protocol-stats__collateral,
     .raft__protocol-stats__debt,
     .raft__protocol-stats__ratio {
@@ -214,6 +234,7 @@
     .raft__protocol-stats__debt__title,
     .raft__protocol-stats__ratio__title {
       flex: 1 100%;
+      margin-top: 0;
     }
 
     .raft__protocol-stats__collateral__amount,
