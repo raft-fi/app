@@ -195,3 +195,42 @@
     --externalLinkColor: var(--textAccent);
   }
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__stake {
+    flex-direction: column;
+    width: var(--app-width);
+    box-sizing: border-box;
+
+    .raft__stake__main {
+      display: flex;
+
+      .raft__stake__main__container {
+        width: 100%;
+
+        .raft__stake__period-container {
+          flex-wrap: wrap;
+
+          :not(.raft__stake__period-picker) {
+            flex: 1 100%;
+          }
+
+          .raft__stake__period-picker {
+            flex: 1;
+          }
+        }
+      }
+    }
+
+    .raft__stake__sidebar {
+      display: flex;
+      flex-wrap: wrap;
+
+      .raft__expandable,
+      .raft__stake__current-position,
+      .raft__stake__claim {
+        width: 100%;
+      }
+    }
+  }
+}
