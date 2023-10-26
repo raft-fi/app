@@ -149,7 +149,7 @@
   --onboard-warning-700: var(--raft-grey-800);
 
   @media screen and (max-width: 1024px) {
-    --app-width: calc(100% - 24px);
+    --app-width: calc(100vw - 24px);
     --header-width: calc(100% - 32px);
     --header-padding: 0 16px;
   }
