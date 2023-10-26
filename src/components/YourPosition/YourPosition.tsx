@@ -78,7 +78,9 @@ const YourPosition: FC<YourPositionProps> = ({ position }) => {
   return (
     <div className="raft__your-position">
       <div className="raft__your-position__collateral">
-        <Typography variant="overline">YOUR COLLATERAL</Typography>
+        <Typography className="raft__your-position__collateral__title" variant="overline">
+          YOUR COLLATERAL
+        </Typography>
         <div className="raft__your-position__collateral__amount">
           <TokenLogo type={`token-${displayBaseToken}`} size="small" />
           {displayCollateralTokenValues?.amountFormatted ? (
@@ -106,7 +108,9 @@ const YourPosition: FC<YourPositionProps> = ({ position }) => {
         </div>
       </div>
       <div className="raft__your-position__debt">
-        <Typography variant="overline">YOUR DEBT</Typography>
+        <Typography className="raft__your-position__debt__title" variant="overline">
+          YOUR DEBT
+        </Typography>
         <div className="raft__your-position__debt__amount">
           <TokenLogo type={`token-${R_TOKEN}`} size="small" />
           <div className="raft__your-position__debt__amount__number">
@@ -122,8 +126,11 @@ const YourPosition: FC<YourPositionProps> = ({ position }) => {
         </div>
       </div>
       <div className="raft__your-position__ratio">
-        <Typography variant="overline">COLLATERALIZATION</Typography>
+        <Typography className="raft__your-position__ratio__title" variant="overline">
+          COLLATERALIZATION
+        </Typography>
         <div className="raft__your-position__ratio__percent">
+          <div className={`raft__your-position__ratio__status__color status-risk-${collateralRatioLevel}`} />
           <Typography variant="heading1">{collateralizationRatioFormatted ?? '---'}</Typography>
           <Typography variant="heading2">%</Typography>
         </div>
