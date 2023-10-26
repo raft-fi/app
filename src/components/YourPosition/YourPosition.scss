@@ -2,7 +2,7 @@
   /* TODO: hardcode color as suggested */
   background: var(--raft-blue-900);
   border-radius: 8px;
-  width: 856px;
+  width: var(--app-width);
   padding: 16px 0;
   display: flex;
   justify-content: space-between;

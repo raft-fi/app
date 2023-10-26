@@ -116,7 +116,7 @@ const ProtocolStats = () => {
         </div>
       </div>
       <div className="raft__protocol-stats__debt">
-        <Typography variant="overline" color="text-accent">
+        <Typography className="raft__protocol-stats__debt__title" variant="overline" color="text-accent">
           R MARKET CAP
         </Typography>
         <div className="raft__protocol-stats__debt__amount">
@@ -136,10 +136,11 @@ const ProtocolStats = () => {
         </div>
       </div>
       <div className="raft__protocol-stats__ratio">
-        <Typography variant="overline" color="text-accent">
+        <Typography className="raft__protocol-stats__ratio__title" variant="overline" color="text-accent">
           COLLATERALIZATION
         </Typography>
         <div className="raft__protocol-stats__ratio__percent">
+          <div className={`raft__protocol-stats__ratio__status__color status-risk-${collateralRatioLevel}`} />
           <Typography variant="heading1">{collateralizationRatioFormatted ?? '---'}</Typography>
           <Typography variant="heading2">%</Typography>
         </div>

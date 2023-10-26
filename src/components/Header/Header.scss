@@ -1,7 +1,7 @@
 .raft__header {
   position: relative;
   width: 100%;
-  padding: var(--app-padding);
+  padding: var(--header-padding);
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -17,7 +17,7 @@
   }
 
   .raft__header__container {
-    width: var(--app-width);
+    width: var(--header-width);
 
     .common-ui__header {
       --headerLogoWidthMobile: initial;
@@ -162,12 +162,19 @@
   }
 }
 
-.common-ui__header__menu {
-  /* TODO: no mobile menu for now */
-  display: none !important;
-}
+.common-ui__header {
+  .common-ui__header__nav-items {
+    --headerNavItemRightMargin: 32px;
 
-.common-ui__header .common-ui__header__nav-items {
-  /* TODO: always show wallet button for now */
-  display: flex !important;
+    @media screen and (max-width: 1200px) {
+      display: none !important;
+    }
+  }
+
+  .common-ui__header__menu {
+    @media screen and (max-width: 1200px) {
+      display: block !important;
+      z-index: 9999;
+    }
+  }
 }
