@@ -40,6 +40,7 @@
 
   .raft__openLeveragePositionInputs {
     display: flex;
+    gap: 32px;
 
     .raft__currencyInput__errorContainer {
       height: initial;
@@ -47,8 +48,6 @@
     }
 
     .raft__sliderInput {
-      margin-left: 32px;
-
       .raft__sliderInputValue {
         > div:first-child {
           min-width: 44px;

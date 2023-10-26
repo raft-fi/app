@@ -7,6 +7,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 
   .raft__your-position__collateral,
   .raft__your-position__debt,
@@ -78,6 +79,10 @@
     display: flex;
     align-items: baseline;
     margin-top: 16px;
+
+    .raft__your-position__ratio__status__color {
+      display: none;
+    }
   }
 
   .raft__your-position__ratio__status {
@@ -87,23 +92,186 @@
     display: flex;
     align-items: center;
     margin-top: 8px;
+  }
 
-    .raft__your-position__ratio__status__color {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
+  .raft__your-position__ratio__status__color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
 
-      &.status-risk-low {
-        background-color: var(--statusLowRisk);
+    &.status-risk-low {
+      background-color: var(--statusLowRisk);
+    }
+
+    &.status-risk-medium {
+      background-color: var(--statusMediumRisk);
+    }
+
+    &.status-risk-high {
+      background-color: var(--statusHighRisk);
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__your-position {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 12px;
+
+    > div {
+      padding: 0;
+    }
+
+    .raft__your-position__collateral,
+    .raft__your-position__debt,
+    .raft__your-position__ratio {
+      width: 100%;
+
+      &:not(:first-child) {
+        border-left: none;
+        border-top: 1px solid var(--borderPrimary);
+      }
+    }
+
+    .raft__your-position__debt__title,
+    .raft__your-position__ratio__title {
+      margin-top: 12px;
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__your-position {
+    .raft__your-position__collateral,
+    .raft__your-position__debt,
+    .raft__your-position__ratio {
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0;
+
+      &:not(:first-child) {
+        border: none;
+      }
+    }
+
+    .raft__your-position__collateral__title,
+    .raft__your-position__debt__title,
+    .raft__your-position__ratio__title {
+      flex: 1 100%;
+      margin-top: 0;
+    }
+
+    .raft__your-position__collateral__amount,
+    .raft__your-position__debt__amount {
+      margin-top: 0;
+
+      svg {
+        width: 20px;
+        height: 20px;
       }
 
-      &.status-risk-medium {
-        background-color: var(--statusMediumRisk);
+      .raft__valueLabel {
+        :first-child {
+          font-size: 16px !important;
+          line-height: 24px !important;
+        }
+
+        :last-child {
+          font-size: 12px !important;
+          line-height: 16px !important;
+        }
+      }
+    }
+
+    .raft__your-position__collateral__value__number {
+      display: flex;
+    }
+
+    .raft__your-position__debt__amount__number {
+      :first-child {
+        font-size: 16px !important;
+        line-height: 24px !important;
       }
 
-      &.status-risk-high {
-        background-color: var(--statusHighRisk);
+      :last-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
+      }
+    }
+
+    .raft__your-position__collateral__value__number,
+    .raft__your-position__debt__value__number {
+      margin-top: 0;
+
+      &::before,
+      &::after {
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--raft-grey-500);
+        font-weight: 500;
+        font-family: Work Sans, sans-serif;
+      }
+
+      &::before {
+        content: '(';
+      }
+
+      &::after {
+        content: ')';
+      }
+    }
+
+    .raft__your-position__ratio__percent {
+      margin-top: 0;
+
+      .raft__your-position__ratio__status__color {
+        display: block;
+        align-self: center;
+        margin-left: 6px;
+        margin-right: 14px;
+      }
+
+      :nth-child(2) {
+        font-size: 16px !important;
+        line-height: 24px !important;
+      }
+
+      :last-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
+      }
+    }
+
+    .raft__your-position__ratio__status {
+      margin-top: 0;
+
+      .raft__your-position__ratio__status__color {
+        display: none;
+      }
+
+      &::before,
+      &::after {
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--raft-grey-500);
+        font-weight: 500;
+        font-family: Work Sans, sans-serif;
+      }
+
+      &::before {
+        content: '(';
+      }
+
+      &::after {
+        content: ')';
       }
     }
   }
