@@ -106,7 +106,9 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
     <div className="raft__your-leverage-position">
       <TooltipWrapper tooltipContent={<LeverageCollateralBreakdown />} placement="bottom">
         <div className="raft__your-leverage-position__collateral">
-          <Typography variant="overline">NET BALANCE</Typography>
+          <Typography className="raft__your-leverage-position__collateral__title" variant="overline">
+            NET BALANCE
+          </Typography>
           <div className="raft__your-leverage-position__collateral__amount">
             <TokenLogo type={`token-${displayBaseToken}`} size="small" />
             {displayNetCollateralTokenValues?.amountFormatted ? (
@@ -135,7 +137,9 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
         </div>
       </TooltipWrapper>
       <div className="raft__your-leverage-position__leverage">
-        <Typography variant="overline">LEVERAGE</Typography>
+        <Typography className="raft__your-leverage-position__leverage__title" variant="overline">
+          LEVERAGE
+        </Typography>
         <div className="raft__your-leverage-position__leverage__amount">
           <div className="raft__your-leverage-position__leverage__amount__number">
             <Typography variant="heading1">{position.effectiveLeverage.toRounded(1)}x</Typography>
@@ -148,7 +152,9 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
         </div>
       </div>
       <div className="raft__your-leverage-position__liquidation">
-        <Typography variant="overline">LIQUIDATION PRICE</Typography>
+        <Typography className="raft__your-leverage-position__liquidation__title" variant="overline">
+          LIQUIDATION PRICE
+        </Typography>
         <div className="raft__your-leverage-position__liquidation__price">
           <Typography variant="heading2">$</Typography>
           <Typography variant="heading1" weight="medium">

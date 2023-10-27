@@ -7,6 +7,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 
   .raft__your-leverage-position__collateral,
   .raft__your-leverage-position__leverage,
@@ -87,23 +88,157 @@
     display: flex;
     align-items: center;
     margin-top: 8px;
+  }
+}
 
-    .raft__your-leverage-position__liquidation__desc__color {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
+@media screen and (max-width: 1024px) {
+  .raft__your-leverage-position {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 12px;
 
-      &.status-risk-low {
-        background-color: var(--statusLowRisk);
+    > div {
+      padding: 0;
+    }
+
+    .raft__your-leverage-position__collateral,
+    .raft__your-leverage-position__leverage,
+    .raft__your-leverage-position__liquidation {
+      width: 100%;
+      height: initial;
+
+      &:not(:first-child) {
+        border-left: none;
+        border-top: 1px solid var(--borderPrimary);
+      }
+    }
+
+    .raft__your-leverage-position__leverage__title,
+    .raft__your-leverage-position__liquidation__title {
+      margin-top: 12px;
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__your-leverage-position {
+    .raft__your-leverage-position__collateral,
+    .raft__your-leverage-position__leverage,
+    .raft__your-leverage-position__liquidation {
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0;
+
+      &:not(:first-child) {
+        border: none;
+      }
+    }
+
+    .raft__your-leverage-position__collateral__title,
+    .raft__your-leverage-position__leverage__title,
+    .raft__your-leverage-position__liquidation__title {
+      flex: 1 100%;
+      margin-top: 0;
+    }
+
+    .raft__your-leverage-position__collateral__amount,
+    .raft__your-leverage-position__leverage__amount {
+      margin-top: 0;
+
+      svg {
+        width: 20px;
+        height: 20px;
       }
 
-      &.status-risk-medium {
-        background-color: var(--statusMediumRisk);
+      .raft__valueLabel {
+        :first-child {
+          font-size: 16px !important;
+          line-height: 24px !important;
+        }
+
+        :last-child {
+          font-size: 12px !important;
+          line-height: 16px !important;
+        }
+      }
+    }
+
+    .raft__your-leverage-position__collateral__value__number {
+      display: flex;
+    }
+
+    .raft__your-leverage-position__leverage__amount__number {
+      :first-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
       }
 
-      &.status-risk-high {
-        background-color: var(--statusHighRisk);
+      :last-child {
+        font-size: 16px !important;
+        line-height: 24px !important;
+      }
+    }
+
+    .raft__your-leverage-position__collateral__value__number,
+    .raft__your-leverage-position__leverage__value__number {
+      margin-top: 0;
+
+      &::before,
+      &::after {
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--raft-grey-500);
+        font-weight: 500;
+        font-family: Work Sans, sans-serif;
+      }
+
+      &::before {
+        content: '(';
+      }
+
+      &::after {
+        content: ')';
+      }
+    }
+
+    .raft__your-leverage-position__liquidation__price {
+      margin-top: 0;
+
+      :first-child {
+        font-size: 12px !important;
+        line-height: 16px !important;
+      }
+
+      :last-child {
+        font-size: 16px !important;
+        line-height: 24px !important;
+      }
+    }
+
+    .raft__your-leverage-position__liquidation__desc {
+      margin-top: 0;
+
+      &::before,
+      &::after {
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--raft-grey-500);
+        font-weight: 500;
+        font-family: Work Sans, sans-serif;
+      }
+
+      &::before {
+        content: '(';
+      }
+
+      &::after {
+        content: ')';
       }
     }
   }
