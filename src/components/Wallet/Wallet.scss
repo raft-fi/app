@@ -152,6 +152,7 @@
           }
 
           .raft__icon__externalLink {
+            min-width: 16px;
             margin-right: 8px;
           }
 
@@ -183,6 +184,7 @@
     }
 
     .raft__modalWrapper {
+      width: 100%;
       align-self: flex-end;
     }
   }
