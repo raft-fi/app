@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Header as HeaderBase, Link } from 'tempus-ui';
+import { Header as HeaderBase, Link, TokenLogo } from 'tempus-ui';
 import { Nullable } from '../../interfaces';
 import { Icon, Typography } from '../shared';
 import RaftLogo from '../Logo/RaftLogo';
@@ -37,7 +37,15 @@ const Header = () => {
     }
   }, [location]);
 
-  const logo = useMemo(() => <RaftLogo />, []);
+  const logo = useMemo(
+    () => (
+      <>
+        <RaftLogo />
+        <TokenLogo type="token-RAFT" size={42} />
+      </>
+    ),
+    [],
+  );
 
   const navItems = useMemo(
     () => [
@@ -120,7 +128,7 @@ const Header = () => {
 
   return (
     <div className="raft__header">
-      <div className="raft__header__container">
+      <div className={`raft__header__container ${menuOpened ? 'raft__header__menu-opened' : ''}`}>
         <HeaderBase
           logo={logo}
           navItems={navItems}
