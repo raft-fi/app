@@ -17,6 +17,7 @@
   }
 
   .raft__header__container {
+    position: relative;
     width: var(--header-width);
 
     .common-ui__header {
@@ -159,20 +160,38 @@
         }
       }
     }
+
+    > .raft__wallet {
+      display: none;
+    }
   }
 }
 
 .common-ui__header {
   .common-ui__header__nav-items {
     --headerNavItemRightMargin: 32px;
+  }
+}
 
-    @media screen and (max-width: 1200px) {
-      display: none !important;
+@media screen and (max-width: 1024px) {
+  .raft__header {
+    .raft__header__container {
+      > .raft__wallet {
+        display: block;
+        position: absolute;
+        top: calc(50% - 20px);
+        right: 48px;
+        z-index: 4;
+      }
     }
   }
 
-  .common-ui__header__menu {
-    @media screen and (max-width: 1200px) {
+  .common-ui__header {
+    .common-ui__header__nav-items {
+      display: none !important;
+    }
+
+    .common-ui__header__menu {
       display: block !important;
       z-index: 9999;
     }

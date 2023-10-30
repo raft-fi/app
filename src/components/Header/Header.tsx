@@ -128,6 +128,7 @@ const Header = () => {
           menuOpened={menuOpened}
           setMenuOpened={setMenuOpened}
         />
+        <Wallet skipNetworkChecking={SKIP_NETWORK_CHECKING_PAGES.includes(currentPage ?? '')} />
       </div>
     </div>
   );
