@@ -4,8 +4,138 @@
   flex-direction: column;
   align-items: center;
   padding: 10px 0px 0px 0px;
+  gap: 16px;
 
-  .raft__loading-position {
-    margin-top: 16px;
+  .raft__loading-stat-mobile {
+    display: none;
+    width: var(--app-width);
+    gap: 16px;
+    padding: 16px 12px;
+    flex-direction: column;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(0, 54, 82, 0.08) 0%, rgba(0, 54, 82, 0.18) 100%);
+
+    .raft__loading-stat-mobile__row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
+
+  .raft__loading-position-mobile {
+    display: none;
+    width: var(--app-width);
+    gap: 16px;
+    padding: 16px 12px;
+    gap: 32px;
+    flex-direction: column;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+
+    .raft__loading-position-mobile__input {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .raft__loading-position-mobile__input-field {
+        height: 48px;
+        border-radius: 8px;
+        opacity: 0.07;
+        background: var(--raft-blue-900);
+      }
+    }
+
+    .raft__loading-position-mobile__position-after,
+    .raft__loading-position-mobile__gas-fee {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+  .raft__loading-mobile__title {
+    width: 80px;
+    height: 10px;
+    border-radius: 5px;
+    opacity: 0.15;
+    background: var(--raft-blue-900);
+  }
+
+  .raft__loading-mobile__value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 32px;
+  }
+
+  .raft__loading-mobile__value-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--raft-blue-900);
+    opacity: 0.15;
+  }
+
+  .raft__loading-mobile__value-number {
+    width: 100px;
+    height: 14px;
+    border-radius: 8px;
+    opacity: 0.15;
+    background: var(--raft-blue-900);
+  }
+
+  .raft__loading-position-mobile__btn {
+    height: 48px;
+    border-radius: 8px;
+    opacity: 0.15;
+    background: var(--raft-blue-900);
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__loading-dashboard {
+    .raft__loading-stat {
+      display: none;
+    }
+
+    .raft__loading-position {
+      display: none;
+    }
+
+    .raft__loading-stat-mobile {
+      display: flex;
+
+      .raft__loading-mobile__value-icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      .raft__loading-mobile__value-number {
+        width: 100px;
+        height: 16px;
+      }
+    }
+
+    .raft__loading-position-mobile {
+      display: flex;
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__loading-dashboard {
+    .raft__loading-stat-mobile {
+      .raft__loading-mobile__value-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .raft__loading-mobile__value-number {
+        width: 100px;
+        height: 14px;
+      }
+    }
   }
 }
