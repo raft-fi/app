@@ -1,9 +1,10 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Header as HeaderBase, Link, TokenLogo } from 'tempus-ui';
+import { Header as HeaderBase, Link } from 'tempus-ui';
 import { Nullable } from '../../interfaces';
 import { Icon, Typography } from '../shared';
 import RaftLogo from '../Logo/RaftLogo';
+import RaftLogoMobile from '../Logo/RaftLogoMobile';
 import Wallet from '../Wallet';
 
 import './Header.scss';
@@ -41,7 +42,7 @@ const Header = () => {
     () => (
       <>
         <RaftLogo />
-        <TokenLogo type="token-RAFT" size={42} />
+        <RaftLogoMobile />
       </>
     ),
     [],
