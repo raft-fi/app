@@ -63,6 +63,10 @@
       .raft__stake__value {
         /* TODO: hardcode color as suggested */
         --textPrimary: var(--raft-grey-800);
+
+        &.raft__stake__inline {
+          gap: initial;
+        }
       }
 
       &:not(:first-child) {
