@@ -43,9 +43,8 @@ const fetchData = async (network: SupportedSavingsNetwork): Promise<Nullable<Dec
     const cachedNetwork = RaftConfig.network;
     RaftConfig.setNetwork(network);
     const savings = new Savings(provider);
-    RaftConfig.setNetwork(cachedNetwork);
-
     const result = await savings.getTvl();
+    RaftConfig.setNetwork(cachedNetwork);
 
     return result;
   } catch (error) {
