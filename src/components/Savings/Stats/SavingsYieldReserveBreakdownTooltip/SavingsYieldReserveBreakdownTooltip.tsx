@@ -2,15 +2,15 @@ import { memo, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { R_TOKEN, SupportedSavingsNetwork } from '@raft-fi/sdk';
 import { formatCurrency } from '../../../../utils';
-import { useSavingsTvl } from '../../../../hooks';
+import { useSavingsYieldReserves } from '../../../../hooks';
 import { NETWORK_NAMES, SAVINGS_MAINNET_NETWORKS, SAVINGS_TESTNET_NETWORKS } from '../../../../networks';
 import { R_TOKEN_UI_PRECISION } from '../../../../constants';
 import { Tooltip, Typography, ValueLabel } from '../../../shared';
 
-import './SavingsTvlBreakdownTooltip.scss';
+import './SavingsYieldReserveBreakdownTooltip.scss';
 
-const SavingsTvlBreakdownTooltip = () => {
-  const savingsTvl = useSavingsTvl();
+const SavingsYieldReserveBreakdownTooltip = () => {
+  const savingsYieldReserves = useSavingsYieldReserves();
 
   const networksToShow = useMemo(() => {
     let networks: SupportedSavingsNetwork[] = [];
@@ -22,36 +22,36 @@ const SavingsTvlBreakdownTooltip = () => {
     return networks;
   }, []);
 
-  const savingsTvlMapFormatted = useMemo(
+  const savingsYieldReserveMapFormatted = useMemo(
     () =>
       networksToShow.reduce(
         (map, network) => ({
           ...map,
           [network]:
-            formatCurrency(savingsTvl[network], {
+            formatCurrency(savingsYieldReserves[network], {
               fractionDigits: R_TOKEN_UI_PRECISION,
               currency: R_TOKEN,
             }) ?? '---',
         }),
         {} as { [key in SupportedSavingsNetwork]: string },
       ),
-    [networksToShow, savingsTvl],
+    [networksToShow, savingsYieldReserves],
   );
 
   return (
-    <Tooltip className="raft__savingsTvlBreakdownTooltip">
+    <Tooltip className="raft__savingsYieldReserveBreakdownTooltip">
       <ul>
         {networksToShow.map(network => {
           const networkName = NETWORK_NAMES[network];
 
           return (
-            <li key={`savings-tvl-breakdown-${networkName}`}>
+            <li key={`savings-yieldReserve-breakdown-${networkName}`}>
               <TokenLogo type={`network-${network}`} size="small" />
-              <Typography className="raft__savingsTvlBreakdownTooltip__networkName" variant="body2">
+              <Typography className="raft__savingsYieldReserveBreakdownTooltip__networkName" variant="body2">
                 {networkName}
               </Typography>
-              <div className="raft__savingsTvlBreakdownTooltip__networkTvlValue">
-                <ValueLabel value={savingsTvlMapFormatted[network]} />
+              <div className="raft__savingsYieldReserveBreakdownTooltip__networkYieldReserveValue">
+                <ValueLabel value={savingsYieldReserveMapFormatted[network]} />
               </div>
             </li>
           );
@@ -61,4 +61,4 @@ const SavingsTvlBreakdownTooltip = () => {
   );
 };
 
-export default memo(SavingsTvlBreakdownTooltip);
+export default memo(SavingsYieldReserveBreakdownTooltip);

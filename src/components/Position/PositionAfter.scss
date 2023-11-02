@@ -1,10 +1,10 @@
 .raft__position-after__data {
   display: flex;
   margin-top: 20px;
+  gap: 32px;
 
   .raft__position-after__data__position {
     flex: 1 50%;
-    margin-right: 16px;
 
     .raft__position-after__data__position__title {
       /* TODO: hardcode color as suggested */
@@ -107,7 +107,6 @@
 
   .raft__position-after__data__others {
     flex: 1 50%;
-    margin-left: 16px;
 
     .raft__position-after__data__protocol-fee__title {
       /* TODO: hardcode color as suggested */
@@ -215,5 +214,11 @@
         height: 16px;
       }
     }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__position-after__data {
+    flex-direction: column;
   }
 }

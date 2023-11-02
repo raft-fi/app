@@ -7,8 +7,6 @@ import { BrowserProvider, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,
-  from,
-  of,
   map,
   concatMap,
   Subscription,
@@ -16,7 +14,6 @@ import {
   combineLatest,
   distinctUntilChanged,
   filter,
-  catchError,
 } from 'rxjs';
 import { GAS_LIMIT_MULTIPLIER, SUPPORTED_TOKENS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import {
@@ -256,16 +253,16 @@ const distinctRequest$ = managePositionStepsRequest$.pipe(
 const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded), // only to process steps when all maps are loaded
   withLatestFrom(tokenWhitelists$, tokenAllowances$, walletSigner$, walletLabel$),
-  concatMap(([[request], tokenWhitelistMap, tokenAllowanceMap, walletSigner, walletLabel]) => {
+  concatMap(async ([[request], tokenWhitelistMap, tokenAllowanceMap, walletSigner, walletLabel]) => {
     const { underlyingCollateralToken, collateralToken, collateralChange, debtChange, isClosePosition } = request;
 
     if (!walletSigner) {
-      return of({
+      return {
         request,
         result: null,
         generator: null,
         error: 'Wallet signer is not defined!',
-      } as ManagePositionStepsResponse);
+      } as ManagePositionStepsResponse;
     }
 
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
@@ -279,11 +276,11 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
       : undefined;
 
     if (collateralChange.isZero() && debtChange.isZero()) {
-      return of({
+      return {
         request,
         result: null,
         generator: null,
-      } as ManagePositionStepsResponse);
+      } as ManagePositionStepsResponse;
     }
 
     const userPositionMapKey = `${walletSigner.address}-${request.underlyingCollateralToken}`;
@@ -306,48 +303,33 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         // Allow permit only if user is using MetaMask
         approvalType: walletLabel === 'MetaMask' ? 'permit' : 'approve',
       });
-      const nextStep$ = from(steps.next());
 
-      return nextStep$.pipe(
-        map(nextStep => {
-          if (nextStep.value) {
-            return {
-              request,
-              result: nextStep.value,
-              generator: steps,
-            } as ManagePositionStepsResponse;
-          }
+      const nextStep = await steps.next();
 
-          return {
-            request,
-            result: null,
-            generator: steps,
-          } as ManagePositionStepsResponse;
-        }),
-        catchError(error => {
-          console.error(
-            `useManagePositionSteps (catchError) - failed to get manage position steps for ${underlyingCollateralToken}!`,
-            error,
-          );
-          return of({
-            request,
-            result: null,
-            generator: null,
-            error,
-          } as ManagePositionStepsResponse);
-        }),
-      );
+      if (nextStep.value) {
+        return {
+          request,
+          result: nextStep.value,
+          generator: steps,
+        } as ManagePositionStepsResponse;
+      }
+
+      return {
+        request,
+        result: null,
+        generator: steps,
+      } as ManagePositionStepsResponse;
     } catch (error) {
       console.error(
         `useManagePositionSteps (catch) - failed to get manage position steps for ${underlyingCollateralToken}!`,
         error,
       );
-      return of({
+      return {
         request,
         result: null,
         generator: null,
         error,
-      } as ManagePositionStepsResponse);
+      } as ManagePositionStepsResponse;
     }
   }),
   tap<ManagePositionStepsResponse>(response => {

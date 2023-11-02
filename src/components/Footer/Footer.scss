@@ -9,14 +9,20 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 32px;
 
-  > :not(.common-ui__link):not(:first-child) {
-    margin-left: 32px;
+  .raft__footer__page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
   }
 
-  > .common-ui__link:not(:last-child) {
-    margin-left: 0;
-    margin-right: 24px;
+  .raft__footer__links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
   }
 
   :hover {
@@ -39,6 +45,24 @@
     border-radius: 50%;
     /* TODO: hardcode color as suggested */
     background-color: var(--raft-grey-500);
-    margin-right: 32px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__footer {
+    flex-direction: column;
+    gap: 12px;
+
+    .raft__footer__page {
+      gap: 24px;
+    }
+
+    .raft__footer__links {
+      gap: 20px;
+    }
+
+    .raft__footer__separator {
+      display: none;
+    }
   }
 }

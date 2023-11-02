@@ -1,15 +1,12 @@
 import { JsonRpcProvider } from 'ethers';
 import { bind } from '@react-rxjs/core';
-import { RaftConfig, Savings, SupportedSavingsNetwork } from '@raft-fi/sdk';
+import { Savings, SupportedSavingsNetwork } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import {
-  from,
-  of,
   merge,
   tap,
   filter,
   Observable,
-  catchError,
   debounce,
   interval,
   Subscription,
@@ -25,27 +22,17 @@ export const savingsYield$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS);
 
-const fetchData = (network: SupportedSavingsNetwork) => {
+const fetchData = async (network: SupportedSavingsNetwork) => {
   try {
     const networkRpc = NETWORK_RPC_URLS[network];
 
     const provider = new JsonRpcProvider(networkRpc, 'any');
-    // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
-    // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
-    const cachedNetwork = RaftConfig.network;
-    RaftConfig.setNetwork(network);
-    const savings = new Savings(provider);
-    RaftConfig.setNetwork(cachedNetwork);
+    const savings = new Savings(provider, network);
 
-    return from(savings.getCurrentYield()).pipe(
-      catchError(error => {
-        console.error('useSavingsYield (catchError) - failed to fetch savings yield value!', error);
-        return of(null);
-      }),
-    );
+    return await savings.getCurrentYield();
   } catch (error) {
     console.error('useSavingsYield (catch) - failed to fetch savings yield value!', error);
-    return of(null);
+    return null;
   }
 };
 
@@ -59,7 +46,7 @@ const savingsNetworkChangeStream$ = currentSavingsNetwork$.pipe(
 // Fetch data periodically
 const intervalStream$ = intervalBeat$.pipe(
   withLatestFrom(currentSavingsNetwork$),
-  concatMap<[number, SupportedSavingsNetwork], Observable<Nullable<Decimal>>>(([, currentSavingsNetwork]) =>
+  concatMap<[number, SupportedSavingsNetwork], Promise<Nullable<Decimal>>>(([, currentSavingsNetwork]) =>
     fetchData(currentSavingsNetwork),
   ),
 );

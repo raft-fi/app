@@ -460,11 +460,7 @@ const TransactionModal = () => {
         return null;
       }
 
-      // TODO - Only way to get data from specific network config - we will remove `setNetwork()` and use per feature network settings
-      const cachedNetwork = RaftConfig.network;
-      RaftConfig.setNetwork(manageSavingsStatus.request.network);
-      const rrAddress = RaftConfig.networkConfig.tokens.RR.address;
-      RaftConfig.setNetwork(cachedNetwork);
+      const rrAddress = RaftConfig.getNetworkConfig(manageSavingsStatus.request.network).tokens.RR.address;
 
       return {
         label: 'Add RR to wallet',

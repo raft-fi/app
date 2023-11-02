@@ -1,11 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import {
-  ERC20PermitSignatureStruct,
-  RaftConfig,
-  SavingsStep,
-  SupportedSavingsNetwork,
-  UserSavings,
-} from '@raft-fi/sdk';
+import { ERC20PermitSignatureStruct, SavingsStep, SupportedSavingsNetwork, UserSavings } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -13,8 +7,6 @@ import { BrowserProvider, JsonRpcSigner, TransactionResponse } from 'ethers';
 import {
   BehaviorSubject,
   withLatestFrom,
-  from,
-  of,
   map,
   concatMap,
   Subscription,
@@ -22,7 +14,6 @@ import {
   combineLatest,
   distinctUntilChanged,
   filter,
-  catchError,
 } from 'rxjs';
 import { GAS_LIMIT_MULTIPLIER } from '../constants';
 import { Nullable } from '../interfaces';
@@ -208,12 +199,7 @@ const requestManageSavingsStep$ = combineLatest([walletSigner$, currentSavingsNe
           return;
         }
 
-        // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
-        // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
-        const cachedNetwork = RaftConfig.network;
-        RaftConfig.setNetwork(currentSavingsNetwork);
-        userSavings = new UserSavings(signer);
-        RaftConfig.setNetwork(cachedNetwork);
+        userSavings = new UserSavings(signer, currentSavingsNetwork);
 
         setManageSavingsStepsRequest(request);
       },
@@ -236,7 +222,7 @@ const distinctRequest$ = manageSavingsStepsRequest$.pipe(
 const stream$ = combineLatest([distinctRequest$, tokenAllowanceLoaded$]).pipe(
   filter(([, tokenMapsLoaded]) => tokenMapsLoaded),
   withLatestFrom(savingsTokenAllowance$, walletLabel$),
-  concatMap(([[request], savingsTokenAllowance]) => {
+  concatMap(async ([[request], savingsTokenAllowance]) => {
     const { amount } = request;
 
     const rTokenAllowance = savingsTokenAllowance ?? undefined;
@@ -244,11 +230,11 @@ const stream$ = combineLatest([distinctRequest$, tokenAllowanceLoaded$]).pipe(
     const rPermitSignature = isSignatureValid(rSignature || null) ? rSignature : undefined;
 
     if (amount.isZero() || !userSavings) {
-      return of({
+      return {
         request,
         result: null,
         generator: null,
-      } as ManageSavingsStepsResponse);
+      } as ManageSavingsStepsResponse;
     }
 
     try {
@@ -260,42 +246,29 @@ const stream$ = combineLatest([distinctRequest$, tokenAllowanceLoaded$]).pipe(
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
         approvalType: 'approve',
       });
-      const nextStep$ = from(steps.next());
+      const nextStep = await steps.next();
 
-      return nextStep$.pipe(
-        map(nextStep => {
-          if (nextStep.value) {
-            return {
-              request,
-              result: nextStep.value,
-              generator: steps,
-            } as ManageSavingsStepsResponse;
-          }
+      if (nextStep.value) {
+        return {
+          request,
+          result: nextStep.value,
+          generator: steps,
+        } as ManageSavingsStepsResponse;
+      }
 
-          return {
-            request,
-            result: null,
-            generator: steps,
-          } as ManageSavingsStepsResponse;
-        }),
-        catchError(error => {
-          console.error(`useManageSavingsSteps (catchError) - failed to get manage savings steps for!`, error);
-          return of({
-            request,
-            result: null,
-            generator: null,
-            error,
-          } as ManageSavingsStepsResponse);
-        }),
-      );
+      return {
+        request,
+        result: null,
+        generator: steps,
+      } as ManageSavingsStepsResponse;
     } catch (error) {
       console.error(`useManageSavingsSteps (catch) - failed to get manage savings steps for!`, error);
-      return of({
+      return {
         request,
         result: null,
         generator: null,
         error,
-      } as ManageSavingsStepsResponse);
+      } as ManageSavingsStepsResponse;
     }
   }),
   tap<ManageSavingsStepsResponse>(response => {

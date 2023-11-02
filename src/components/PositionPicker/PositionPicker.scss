@@ -19,16 +19,21 @@
 
   .raft__positionPickerItems {
     display: flex;
+    gap: 16px;
 
     .raft__positionPickerItem {
       &:hover {
         /* TODO: hardcode color as suggested */
         background-color: var(--raft-grey-100);
       }
+    }
+  }
+}
 
-      &:not(:first-child) {
-        margin-left: 16px;
-      }
+@media screen and (max-width: 768px) {
+  .raft__positionPicker {
+    .raft__positionPickerItems {
+      flex-direction: column;
     }
   }
 }

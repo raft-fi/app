@@ -48,3 +48,10 @@
     --externalLinkColor: var(--textAccent);
   }
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__leveragePositionAfter {
+    flex-direction: column;
+    gap: 24px;
+  }
+}

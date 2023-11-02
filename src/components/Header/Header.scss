@@ -1,7 +1,7 @@
 .raft__header {
   position: relative;
   width: 100%;
-  padding: var(--app-padding);
+  padding: var(--header-padding);
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -17,7 +17,8 @@
   }
 
   .raft__header__container {
-    width: var(--app-width);
+    position: relative;
+    width: var(--header-width);
 
     .common-ui__header {
       --headerLogoWidthMobile: initial;
@@ -31,6 +32,10 @@
         width: 120px;
 
         --headerLogoRightMargin: 0px;
+
+        .raft__logo-mobile {
+          display: none;
+        }
       }
 
       .raft__header__link-active {
@@ -159,15 +164,65 @@
         }
       }
     }
+
+    > .raft__wallet {
+      display: none;
+    }
+
+    &.raft__header__menu-opened {
+      > .raft__wallet {
+        display: none;
+      }
+    }
   }
 }
 
-.common-ui__header__menu {
-  /* TODO: no mobile menu for now */
-  display: none !important;
+.common-ui__header {
+  --headerMenuBackground: var(--surfaceTooltip);
+  --headerLogoHeightMobile: 42px;
+
+  .common-ui__header__nav-items {
+    --headerNavItemRightMargin: 32px;
+  }
 }
 
-.common-ui__header .common-ui__header__nav-items {
-  /* TODO: always show wallet button for now */
-  display: flex !important;
+@media screen and (max-width: 1024px) {
+  .raft__header {
+    .raft__header__container {
+      > .raft__wallet {
+        display: block;
+        position: absolute;
+        top: calc(50% - 20px);
+        right: 48px;
+        z-index: 4;
+      }
+
+      .common-ui__header {
+        .common-ui__header__logo {
+          .raft__logo {
+            display: none;
+          }
+
+          .raft__logo-mobile {
+            display: block;
+          }
+        }
+
+        .common-ui__header__nav-items {
+          display: none !important;
+        }
+
+        .common-ui__header__menu {
+          display: block !important;
+          z-index: 9999;
+
+          .common-ui__header__clickable-logo {
+            .raft__logo {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
 }

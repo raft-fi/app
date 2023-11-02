@@ -132,8 +132,9 @@
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
 
   /* TODO: hardly set app width to 856px for v1 */
-  --app-width: 1004px;
-  --app-padding: 0 32px;
+  --app-width: 856px;
+  --header-width: 1004px;
+  --header-padding: 0 32px;
 
   --onboard-link-color: var(--textAccent);
   --onboard-connect-sidebar-background: var(--raft-blue-100);
@@ -146,6 +147,12 @@
   --onboard-close-button-color: var(--raft-grey-700);
   --onboard-warning-100: var(--raft-orange-100);
   --onboard-warning-700: var(--raft-grey-800);
+
+  @media screen and (max-width: 1024px) {
+    --app-width: calc(100vw - 24px);
+    --header-width: calc(100% - 32px);
+    --header-padding: 0 16px;
+  }
 }
 
 @mixin w3o {
@@ -195,6 +202,6 @@ body.modal-open {
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
   padding: 32px;
-  width: 856px;
+  width: var(--app-width);
   box-sizing: border-box;
 }

@@ -141,7 +141,6 @@ const NoPositions: FC<NoPositionsProps> = ({
           <PeriodPicker
             deadline={deadline ?? undefined}
             periodInYear={periodInYear}
-            min={deadline ?? undefined}
             warnSameWeek
             onDeadlineChange={onDeadlineChange}
             onPeriodChange={onPeriodChange}

@@ -1,4 +1,4 @@
-@import "../../index.scss";
+@import '../../index.scss';
 
 .raft__openLeveragePosition {
   @include sectionBox;
@@ -30,6 +30,7 @@
 
   .raft__openLeveragePositionInputs {
     display: flex;
+    gap: 32px;
 
     .raft__currencyInput__errorContainer {
       height: initial;
@@ -37,8 +38,6 @@
     }
 
     .raft__sliderInput {
-      margin-left: 32px;
-
       .raft__sliderInputValue {
         > div:first-child {
           min-width: 44px;
@@ -52,5 +51,32 @@
 
   .raft__infoBox {
     margin-top: 8px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__openLeveragePosition {
+    padding: 16px;
+
+    .raft__openLeveragePositionHeader {
+      flex-wrap: wrap;
+      gap: 16px;
+      height: initial;
+
+      .raft__openLeveragePositionHeaderTitle {
+        .raft__openLeveragePositionHeaderBack {
+          display: none;
+        }
+      }
+
+      .raft__button {
+        width: 100%;
+      }
+    }
+
+    .raft__openLeveragePositionInputs {
+      flex-direction: column;
+      gap: 12px;
+    }
   }
 }

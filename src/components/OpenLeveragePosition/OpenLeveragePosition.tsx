@@ -324,14 +324,14 @@ const OpenLeveragePosition = () => {
       ),
     [
       openLeveragePositionDisabled,
-      errTxn,
-      hasEnoughCollateralTokenBalance,
       hasLeveraged,
       hasMinDeposit,
       hasNonEmptyInput,
+      hasEnoughCollateralTokenBalance,
       isPositionWithinCollateralPositionCap,
       isPositionWithinCollateralProtocolCap,
       isTotalSupplyWithinCollateralProtocolCap,
+      errTxn,
       isWrongNetwork,
     ],
   );
@@ -378,8 +378,8 @@ const OpenLeveragePosition = () => {
       return 'Leveraging disabled';
     }
 
-    if (leveragePositionStepsStatus.error?.message) {
-      return leveragePositionStepsStatus.error.message;
+    if (errTxn) {
+      return errTxn.message ?? 'Something has gone wrong, please try again';
     }
 
     if (!isTotalSupplyWithinCollateralProtocolCap && !leveragePositionStatus.pending) {
@@ -420,9 +420,9 @@ const OpenLeveragePosition = () => {
     // executionType is null but input non-empty, still loading
     return 'Loading';
   }, [
-    openLeveragePositionDisabled,
     walletConnected,
-    leveragePositionStepsStatus.error?.message,
+    openLeveragePositionDisabled,
+    errTxn,
     isTotalSupplyWithinCollateralProtocolCap,
     leveragePositionStatus.pending,
     executionSteps,
@@ -465,7 +465,7 @@ const OpenLeveragePosition = () => {
         !collateralAmountDecimal.isZero() &&
         !executionType &&
         !leveragePositionStatus.error &&
-        !leveragePositionStepsStatus.error)
+        !errTxn)
     ) {
       setActionButtonState('loading');
     } else if (leveragePositionStatus.success) {
@@ -475,6 +475,7 @@ const OpenLeveragePosition = () => {
     }
   }, [
     collateralAmountDecimal,
+    errTxn,
     executionType,
     leveragePositionStatus,
     leveragePositionStatus.pending,
@@ -587,7 +588,7 @@ const OpenLeveragePosition = () => {
 
       {openLeveragePositionDisabled ? (
         <InfoBox
-          text="New leverage positions are temporarily disabled as we prepare to launch interest-based vaults soon. You can close or reduce your position if you have one open."
+          text="New leverage positions are temporarily disabled. You can close or reduce your position if you have one open."
           variant="error"
         />
       ) : (

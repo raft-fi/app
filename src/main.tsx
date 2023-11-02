@@ -1,9 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import isMobile from 'is-mobile';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import 'tempus-ui/dist/index.css';
-import isMobile from 'is-mobile';
-import MobileBanner from './components/MobileBanner';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GenerateDashboard from './components/GenerateDashboard';
@@ -18,9 +17,10 @@ import PositionPicker from './components/PositionPicker';
 import LeverageDashboard from './components/LeverageDashboard';
 import Savings from './components/Savings';
 import Bridge from './components/Bridge';
+import Stake from './components/Stake';
+import MobileBanner from './components/MobileBanner';
 
 import './index.scss';
-import Stake from './components/Stake';
 
 const mobile = isMobile();
 
