@@ -429,7 +429,7 @@ const Savings = () => {
 
   return (
     <div className="raft__savings__container">
-      <div className="raft__savings__left">
+      <div className="raft__savings__main">
         <div className="raft__savings">
           <Typography variant="heading2" weight="medium">
             Earn
@@ -521,9 +521,12 @@ const Savings = () => {
           />
         </div>
       </div>
-      <div className="raft__savings__right">
+      <div className="raft__savings__sidebar">
         <Stats currentSavings={currentUserSavings} />
         <FAQ />
+      </div>
+      <div className="raft__savings__sidebar-mobile">
+        <Stats currentSavings={currentUserSavings} />
       </div>
     </div>
   );
