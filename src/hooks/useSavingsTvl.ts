@@ -14,7 +14,7 @@ import {
   Subscription,
   startWith,
 } from 'rxjs';
-import { RaftConfig, Savings, SupportedSavingsNetwork } from '@raft-fi/sdk';
+import { Savings, SupportedSavingsNetwork } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, NETWORK_RPC_URLS, POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
@@ -38,13 +38,8 @@ const fetchData = async (network: SupportedSavingsNetwork): Promise<Nullable<Dec
     const networkRpc = NETWORK_RPC_URLS[network];
 
     const provider = new JsonRpcProvider(networkRpc, 'any');
-    // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
-    // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
-    const cachedNetwork = RaftConfig.network;
-    RaftConfig.setNetwork(network);
-    const savings = new Savings(provider);
+    const savings = new Savings(provider, network);
     const result = await savings.getTvl();
-    RaftConfig.setNetwork(cachedNetwork);
 
     return result;
   } catch (error) {
