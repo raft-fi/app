@@ -8,14 +8,16 @@ import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../../sha
 import SavingsTvlBreakdownTooltip from './SavingsTvlBreakdownTooltip';
 
 import './Stats.scss';
+import SavingsYieldReserveBreakdownTooltip from './SavingsYieldReserveBreakdownTooltip';
 
 type StatsProps = {
   currentSavings: Nullable<Decimal>;
   currentYield: Nullable<Decimal>;
   tvl: Nullable<Decimal>;
+  yieldReserve: Nullable<Decimal>;
 };
 
-const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl }) => {
+const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, yieldReserve }) => {
   const currentSavingsFormatted = useMemo(() => {
     if (!currentSavings) {
       return null;
@@ -56,6 +58,20 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl }) => {
       pad: true,
     });
   }, [tvl]);
+
+  const currentYieldReserveMultiplier = useMemo(() => {
+    if (!yieldReserve) {
+      return null;
+    }
+
+    return DecimalFormat.format(yieldReserve, {
+      style: 'multiplier',
+      currency: R_TOKEN,
+      fractionDigits: R_TOKEN_UI_PRECISION,
+      lessThanFormat: true,
+      pad: true,
+    });
+  }, [yieldReserve]);
 
   const shouldShowSavings = useMemo(
     () => currentSavings && currentSavings.gt(Decimal.ZERO) && currentSavingsFormatted,
@@ -121,6 +137,24 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl }) => {
             <TokenLogo type="token-R" size="small" />
             {currentTvlMultiplier ? (
               <ValueLabel value={currentTvlMultiplier} valueSize="heading1" tickerSize="heading2" />
+            ) : (
+              '---'
+            )}
+          </div>
+        </div>
+        <div className="raft__savings__stats__item">
+          <div className="raft__savings__stats__item-title ">
+            <Typography variant="overline" weight="semi-bold" color="text-accent">
+              YIELD RESERVE
+            </Typography>
+            <TooltipWrapper tooltipContent={<SavingsYieldReserveBreakdownTooltip />} placement="bottom">
+              <Icon variant="info" size="tiny" />
+            </TooltipWrapper>
+          </div>
+          <div className="raft__savings__stats__item-token">
+            <TokenLogo type="token-R" size="small" />
+            {currentYieldReserveMultiplier ? (
+              <ValueLabel value={currentYieldReserveMultiplier} valueSize="heading1" tickerSize="heading2" />
             ) : (
               '---'
             )}

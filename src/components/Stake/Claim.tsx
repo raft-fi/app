@@ -101,7 +101,7 @@ const Claim = () => {
         </Button>
       </div>
       <div className="raft__stake__value raft__stake__inline">
-        <Typography variant="body2">Next weekly rewards available in </Typography>
+        <Typography variant="body2">Next weekly rewards available in&nbsp;</Typography>
         <Typography variant="body2" weight="bold">
           {remainingDay ?? '-'}d {remainingHour ?? '-'}h {remainingMinute ?? '-'}m
         </Typography>

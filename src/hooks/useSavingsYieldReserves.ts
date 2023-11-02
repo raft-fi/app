@@ -5,8 +5,6 @@ import {
   BehaviorSubject,
   Observable,
   mergeMap,
-  map,
-  from,
   merge,
   scan,
   debounce,
@@ -21,9 +19,9 @@ import { Nullable } from '../interfaces';
 import { SAVINGS_MAINNET_NETWORKS, SAVINGS_TESTNET_NETWORKS } from '../networks';
 import { appEvent$ } from './useAppEvent';
 
-export type SavingsTvlMap = { [network in SupportedSavingsNetwork]: Decimal | null };
+export type SavingsYieldReserveMap = { [network in SupportedSavingsNetwork]: Decimal | null };
 
-const DEFAULT_VALUE: SavingsTvlMap = {
+const DEFAULT_VALUE: SavingsYieldReserveMap = {
   mainnet: null,
   base: null,
   goerli: null,
@@ -31,7 +29,7 @@ const DEFAULT_VALUE: SavingsTvlMap = {
 
 const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
-export const savingsTvl$ = new BehaviorSubject<SavingsTvlMap>(DEFAULT_VALUE);
+export const savingsYieldReserves$ = new BehaviorSubject<SavingsYieldReserveMap>(DEFAULT_VALUE);
 
 const fetchData = async (network: SupportedSavingsNetwork): Promise<Nullable<Decimal>> => {
   try {
@@ -43,19 +41,19 @@ const fetchData = async (network: SupportedSavingsNetwork): Promise<Nullable<Dec
     const cachedNetwork = RaftConfig.network;
     RaftConfig.setNetwork(network);
     const savings = new Savings(provider);
-    const result = await savings.getTvl();
+    const result = await savings.getYieldReserve();
     RaftConfig.setNetwork(cachedNetwork);
 
     return result;
   } catch (error) {
-    console.error(`useSavingsTvl - Failed to get savings tvl for ${network}`, error);
+    console.error(`useSavingsYieldReserves - Failed to get savings yield reserves for ${network}`, error);
     return null;
   }
 };
 
 // Fetch data periodically
 const intervalStream$ = intervalBeat$.pipe(
-  mergeMap(() => {
+  mergeMap(async () => {
     let networks: SupportedSavingsNetwork[] = [];
     if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
       networks = SAVINGS_MAINNET_NETWORKS;
@@ -63,17 +61,21 @@ const intervalStream$ = intervalBeat$.pipe(
       networks = SAVINGS_TESTNET_NETWORKS;
     }
 
-    const savingsTvlMaps = networks.map(network => {
-      return from(fetchData(network)).pipe(map(balance => ({ [network]: balance } as SavingsTvlMap)));
-    });
+    const savingsYieldReservesMap = DEFAULT_VALUE;
 
-    return merge(...savingsTvlMaps);
+    // fetch data in sync
+    for (const network of networks) {
+      const yieldReserve = await fetchData(network);
+      savingsYieldReservesMap[network] = yieldReserve;
+    }
+
+    return savingsYieldReservesMap;
   }),
 );
 
 // fetch when app event fire
 const appEventsStream$ = appEvent$.pipe(
-  mergeMap(() => {
+  mergeMap(async () => {
     let networks: SupportedSavingsNetwork[] = [];
     if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
       networks = SAVINGS_MAINNET_NETWORKS;
@@ -81,36 +83,40 @@ const appEventsStream$ = appEvent$.pipe(
       networks = SAVINGS_TESTNET_NETWORKS;
     }
 
-    const savingsTvlMaps = networks.map(network => {
-      return from(fetchData(network)).pipe(map(balance => ({ [network]: balance } as SavingsTvlMap)));
-    });
+    const savingsYieldReservesMap = DEFAULT_VALUE;
 
-    return merge(...savingsTvlMaps);
+    // fetch data in sync
+    for (const network of networks) {
+      const yieldReserve = await fetchData(network);
+      savingsYieldReservesMap[network] = yieldReserve;
+    }
+
+    return savingsYieldReservesMap;
   }),
 );
 
 // merge all streams into one
 const stream$ = merge(intervalStream$, appEventsStream$).pipe(
   scan(
-    (allSavingsTvls, savingsTvls) => ({
-      ...allSavingsTvls,
-      ...savingsTvls,
+    (allSavingsYieldReservess, savingsYieldReservess) => ({
+      ...allSavingsYieldReservess,
+      ...savingsYieldReservess,
     }),
-    {} as SavingsTvlMap,
+    {} as SavingsYieldReserveMap,
   ),
-  debounce<SavingsTvlMap>(() => interval(DEBOUNCE_IN_MS)),
-  tap(allSavingsTvls => savingsTvl$.next(allSavingsTvls)),
+  debounce<SavingsYieldReserveMap>(() => interval(DEBOUNCE_IN_MS)),
+  tap(allSavingsYieldReservess => savingsYieldReserves$.next(allSavingsYieldReservess)),
 );
 
-export const [useSavingsTvl] = bind(savingsTvl$, DEFAULT_VALUE);
+export const [useSavingsYieldReserves] = bind(savingsYieldReserves$, DEFAULT_VALUE);
 
 let subscription: Subscription;
 
-export const subscribeSavingsTvl = (): void => {
-  unsubscribeSavingsTvl();
+export const subscribeSavingsYieldReserves = (): void => {
+  unsubscribeSavingsYieldReserves();
   subscription = stream$.subscribe();
 };
-export const unsubscribeSavingsTvl = (): void => subscription?.unsubscribe();
-export const resetSavingsTvl = (): void => savingsTvl$.next(DEFAULT_VALUE);
+export const unsubscribeSavingsYieldReserves = (): void => subscription?.unsubscribe();
+export const resetSavingsYieldReserves = (): void => savingsYieldReserves$.next(DEFAULT_VALUE);
 
-subscribeSavingsTvl();
+subscribeSavingsYieldReserves();
