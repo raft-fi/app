@@ -23,7 +23,7 @@
   "dependencies": {
     "@emotion/styled": "^11.10.6",
     "@mui/material": "^5.11.1",
-    "@raft-fi/sdk": "^0.6.3",
+    "@raft-fi/sdk": "^0.6.4",
     "@react-rxjs/core": "^0.10.4",
     "@react-rxjs/utils": "^0.9.5",
     "@safe-global/safe-apps-provider": "^0.18.0",
