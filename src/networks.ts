@@ -64,6 +64,9 @@ export const BRIDGE_MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['mainnet', 'ba
 export const SAVINGS_TESTNET_NETWORKS: SupportedSavingsNetwork[] = ['goerli'];
 export const SAVINGS_MAINNET_NETWORKS: SupportedSavingsNetwork[] = ['mainnet', 'base'];
 
+export const SUPPORTED_SAVINGS_NETWORKS: SupportedSavingsNetwork[] =
+  import.meta.env.VITE_ENVIRONMENT === 'mainnet' ? SAVINGS_MAINNET_NETWORKS : SAVINGS_TESTNET_NETWORKS;
+
 export const NETWORK_TO_BLOCK_EXPLORER: Record<SupportedBridgeNetwork | SupportedSavingsNetwork, string> = {
   mainnet: 'Etherscan',
   base: 'BaseScan',

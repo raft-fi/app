@@ -1,4 +1,4 @@
-.raft__savingsTvlBreakdownTooltip {
+.raft__savingsStatBreakdownTooltip {
   padding: 0 16px;
   width: 300px;
 
@@ -21,7 +21,7 @@
         margin-right: 8px;
       }
 
-      .raft__savingsTvlBreakdownTooltip__networkName {
+      .raft__savingsStatBreakdownTooltip__networkName {
         /* TODO: hardcode color as suggested */
         --textPrimary: var(--raft-grey-800);
         flex: 1;
@@ -29,7 +29,7 @@
         align-items: center;
       }
 
-      .raft__savingsTvlBreakdownTooltip__networkTvlValue {
+      .raft__savingsStatBreakdownTooltip__networkTvlValue {
         display: flex;
         flex-direction: column;
         align-items: flex-end;

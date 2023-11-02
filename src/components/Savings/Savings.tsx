@@ -13,9 +13,6 @@ import {
   useNetwork,
   useSavingsMaxDeposit,
   useSavingsTokenBalance,
-  useSavingsTvl,
-  useSavingsYield,
-  useSavingsYieldReserves,
   useWallet,
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
@@ -53,9 +50,6 @@ const Savings = () => {
   const savingsTokenBalance = useSavingsTokenBalance();
   const savingsMaxDeposit = useSavingsMaxDeposit();
   const currentUserSavings = useCurrentUserSavings();
-  const savingsTvl = useSavingsTvl();
-  const savingsYield = useSavingsYield();
-  const savingsYieldReserves = useSavingsYieldReserves();
   const selectedNetwork = useCurrentSavingsNetwork();
   const { manageSavingsStatus, manageSavings, manageSavingsStepsStatus, requestManageSavingsStep } = useManageSavings();
 
@@ -349,21 +343,6 @@ const Savings = () => {
     });
   }, [savingsAfter]);
 
-  const totalSavingsTvl = useMemo(
-    () =>
-      Object.values(savingsTvl).reduce((total, tvl) => (total ?? Decimal.ZERO).add(tvl ?? Decimal.ZERO), Decimal.ZERO),
-    [savingsTvl],
-  );
-
-  const totalSavingsYieldReserve = useMemo(
-    () =>
-      Object.values(savingsYieldReserves).reduce(
-        (total, yieldReserve) => (total ?? Decimal.ZERO).add(yieldReserve ?? Decimal.ZERO),
-        Decimal.ZERO,
-      ),
-    [savingsYieldReserves],
-  );
-
   const onMaxAmountClick = useCallback(() => {
     if (!inputMaxAmount) {
       return null;
@@ -543,12 +522,7 @@ const Savings = () => {
         </div>
       </div>
       <div className="raft__savings__right">
-        <Stats
-          currentSavings={currentUserSavings}
-          currentYield={savingsYield}
-          tvl={totalSavingsTvl}
-          yieldReserve={totalSavingsYieldReserve}
-        />
+        <Stats currentSavings={currentUserSavings} />
         <FAQ />
       </div>
     </div>

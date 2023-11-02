@@ -5,19 +5,32 @@ import { DecimalFormat, Decimal } from '@tempusfinance/decimal';
 import { R_TOKEN_UI_PRECISION } from '../../../constants';
 import { Nullable } from '../../../interfaces';
 import { Icon, Tooltip, TooltipWrapper, Typography, ValueLabel } from '../../shared';
-import SavingsTvlBreakdownTooltip from './SavingsTvlBreakdownTooltip';
+import { useCurrentSavingsNetwork, useSavingsStats } from '../../../hooks';
+import SavingsStatBreakdownTooltip from './SavingsStatBreakdownTooltip';
 
 import './Stats.scss';
-import SavingsYieldReserveBreakdownTooltip from './SavingsYieldReserveBreakdownTooltip';
 
 type StatsProps = {
   currentSavings: Nullable<Decimal>;
-  currentYield: Nullable<Decimal>;
-  tvl: Nullable<Decimal>;
-  yieldReserve: Nullable<Decimal>;
 };
 
-const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, yieldReserve }) => {
+const Stats: FC<StatsProps> = ({ currentSavings }) => {
+  const savingsStats = useSavingsStats();
+  const selectedNetwork = useCurrentSavingsNetwork();
+
+  const currentYield = useMemo(() => savingsStats[selectedNetwork].currentYield, [savingsStats, selectedNetwork]);
+
+  const totalSavingsTvl = useMemo(
+    () => Object.values(savingsStats).reduce((total, stat) => total.add(stat.tvl ?? Decimal.ZERO), Decimal.ZERO),
+    [savingsStats],
+  );
+
+  const totalSavingsYieldReserve = useMemo(
+    () =>
+      Object.values(savingsStats).reduce((total, stat) => total.add(stat.yieldReserve ?? Decimal.ZERO), Decimal.ZERO),
+    [savingsStats],
+  );
+
   const currentSavingsFormatted = useMemo(() => {
     if (!currentSavings) {
       return null;
@@ -45,33 +58,29 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, yieldReserve
     });
   }, [currentYield]);
 
-  const currentTvlMultiplier = useMemo(() => {
-    if (!tvl) {
-      return null;
-    }
+  const currentTvlMultiplier = useMemo(
+    () =>
+      DecimalFormat.format(totalSavingsTvl, {
+        style: 'multiplier',
+        currency: R_TOKEN,
+        fractionDigits: R_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+        pad: true,
+      }),
+    [totalSavingsTvl],
+  );
 
-    return DecimalFormat.format(tvl, {
-      style: 'multiplier',
-      currency: R_TOKEN,
-      fractionDigits: R_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-      pad: true,
-    });
-  }, [tvl]);
-
-  const currentYieldReserveMultiplier = useMemo(() => {
-    if (!yieldReserve) {
-      return null;
-    }
-
-    return DecimalFormat.format(yieldReserve, {
-      style: 'multiplier',
-      currency: R_TOKEN,
-      fractionDigits: R_TOKEN_UI_PRECISION,
-      lessThanFormat: true,
-      pad: true,
-    });
-  }, [yieldReserve]);
+  const currentYieldReserveMultiplier = useMemo(
+    () =>
+      DecimalFormat.format(totalSavingsYieldReserve, {
+        style: 'multiplier',
+        currency: R_TOKEN,
+        fractionDigits: R_TOKEN_UI_PRECISION,
+        lessThanFormat: true,
+        pad: true,
+      }),
+    [totalSavingsYieldReserve],
+  );
 
   const shouldShowSavings = useMemo(
     () => currentSavings && currentSavings.gt(Decimal.ZERO) && currentSavingsFormatted,
@@ -129,7 +138,10 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, yieldReserve
             <Typography variant="overline" weight="semi-bold" color="text-accent">
               TOTAL VALUE LOCKED
             </Typography>
-            <TooltipWrapper tooltipContent={<SavingsTvlBreakdownTooltip />} placement="bottom">
+            <TooltipWrapper
+              tooltipContent={<SavingsStatBreakdownTooltip stats={savingsStats} field="tvl" />}
+              placement="bottom"
+            >
               <Icon variant="info" size="tiny" />
             </TooltipWrapper>
           </div>
@@ -147,7 +159,10 @@ const Stats: FC<StatsProps> = ({ currentSavings, currentYield, tvl, yieldReserve
             <Typography variant="overline" weight="semi-bold" color="text-accent">
               YIELD RESERVE
             </Typography>
-            <TooltipWrapper tooltipContent={<SavingsYieldReserveBreakdownTooltip />} placement="bottom">
+            <TooltipWrapper
+              tooltipContent={<SavingsStatBreakdownTooltip stats={savingsStats} field="yieldReserve" />}
+              placement="bottom"
+            >
               <Icon variant="info" size="tiny" />
             </TooltipWrapper>
           </div>
