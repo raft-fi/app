@@ -2,28 +2,21 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  width: 100%;
+  width: var(--app-width);
   padding-top: 10px;
-
-  .raft__savings__left {
-    width: 500px;
-    margin-right: 16px;
-
-    .raft__savings__subheader {
-      margin-top: 16px;
-    }
-  }
-
-  .raft__savings__right {
-    width: 340px;
-  }
+  gap: 16px;
 
   .raft__savings {
+    width: 530px;
     padding: 32px;
     box-sizing: border-box;
     background: var(--surfacePrimary);
     border: 1px solid var(--borderPrimary);
     border-radius: 8px;
+
+    .raft__savings__subheader {
+      margin-top: 16px;
+    }
 
     .raft__savings__networkSelectorContainer {
       display: flex;
@@ -137,8 +130,16 @@
     }
   }
 
-  .raft__savings__stats {
-    margin-bottom: 16px;
+  .raft__savings__sidebar,
+  .raft__savings__sidebar-mobile {
+    width: 342px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .raft__savings__sidebar-mobile {
+    display: none;
   }
 }
 
@@ -151,5 +152,35 @@
 
   .raft__icon__externalLink {
     --externalLinkColor: var(--textAccent);
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__savings__container {
+    flex-direction: column;
+
+    .raft__savings__main {
+      order: 1;
+
+      .raft__savings {
+        width: 100%;
+        padding: 16px;
+      }
+    }
+
+    .raft__savings__sidebar {
+      width: 100%;
+      order: 2;
+
+      .raft__savings__stats {
+        display: none;
+      }
+    }
+
+    .raft__savings__sidebar-mobile {
+      display: block;
+      width: 100%;
+      order: 0;
+    }
   }
 }
