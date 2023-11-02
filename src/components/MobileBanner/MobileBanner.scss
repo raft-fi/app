@@ -1,0 +1,52 @@
+.raft__mobile-banner-container {
+  position: relative;
+  height: 100vh;
+
+  .raft__background-container {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    z-index: -1;
+
+    .raft__background {
+      position: absolute;
+      top: -250px;
+      right: -1000px;
+      width: 2000px;
+      z-index: -1;
+    }
+
+    .raft__background-overlay {
+      top: 0px;
+      height: 2000px;
+      z-index: -1;
+    }
+  }
+
+  .raft__mobile-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 8px 0px 8px;
+    z-index: 2;
+
+    .raft__mobile-banner__text-container {
+      border-radius: 4px;
+      padding: 32px 12px 24px 12px;
+      margin-top: 24px;
+
+      .raft__typography {
+        text-align: center;
+      }
+
+      .raft__mobile-banner__action {
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+}
