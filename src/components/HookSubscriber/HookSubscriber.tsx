@@ -29,8 +29,6 @@ import {
   subscribeManageSavingsStatus,
   subscribeSavingsMaxDeposit,
   subscribeCurrentUserSavings,
-  subscribeSavingsTvl,
-  subscribeSavingsYield,
   subscribeManageTransactions,
   subscribeSavingsTransactions,
   subscribeBridgeTokensStatus,
@@ -74,8 +72,6 @@ const HookSubscriber: FC = () => {
     subscribeWithdrawRaftBptStatus();
     subscribeSavingsMaxDeposit();
     subscribeCurrentUserSavings();
-    subscribeSavingsTvl();
-    subscribeSavingsYield();
     subscribeManageTransactions();
     subscribeSavingsTransactions();
     subscribeWaitForBridgeStatus();
