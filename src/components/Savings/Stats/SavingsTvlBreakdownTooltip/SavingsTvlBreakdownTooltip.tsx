@@ -27,10 +27,11 @@ const SavingsTvlBreakdownTooltip = () => {
       networksToShow.reduce(
         (map, network) => ({
           ...map,
-          [network]: formatCurrency(savingsTvl[network], {
-            fractionDigits: R_TOKEN_UI_PRECISION,
-            currency: R_TOKEN,
-          }),
+          [network]:
+            formatCurrency(savingsTvl[network], {
+              fractionDigits: R_TOKEN_UI_PRECISION,
+              currency: R_TOKEN,
+            }) ?? '---',
         }),
         {} as { [key in SupportedSavingsNetwork]: string },
       ),

@@ -1,11 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import {
-  ERC20PermitSignatureStruct,
-  RaftConfig,
-  SavingsStep,
-  SupportedSavingsNetwork,
-  UserSavings,
-} from '@raft-fi/sdk';
+import { ERC20PermitSignatureStruct, SavingsStep, SupportedSavingsNetwork, UserSavings } from '@raft-fi/sdk';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { Decimal } from '@tempusfinance/decimal';
@@ -205,12 +199,7 @@ const requestManageSavingsStep$ = combineLatest([walletSigner$, currentSavingsNe
           return;
         }
 
-        // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
-        // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
-        const cachedNetwork = RaftConfig.network;
-        RaftConfig.setNetwork(currentSavingsNetwork);
-        userSavings = new UserSavings(signer);
-        RaftConfig.setNetwork(cachedNetwork);
+        userSavings = new UserSavings(signer, currentSavingsNetwork);
 
         setManageSavingsStepsRequest(request);
       },

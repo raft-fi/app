@@ -12,7 +12,7 @@ import {
   filter,
   concatMap,
 } from 'rxjs';
-import { RaftConfig, SupportedSavingsNetwork, UserSavings } from '@raft-fi/sdk';
+import { SupportedSavingsNetwork, UserSavings } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { DEBOUNCE_IN_MS, SAVING_POSITION_BALANCE_THRESHOLD } from '../constants';
 import { Nullable } from '../interfaces';
@@ -27,12 +27,7 @@ export const currentUserSavings$ = new BehaviorSubject<Nullable<Decimal>>(DEFAUL
 
 const fetchData = async (signer: Signer, network: SupportedSavingsNetwork) => {
   try {
-    // TODO - This is a workaround to create savings instance for specific network - if we change network in RaftConfig globally
-    // and leave it like that some other parts of app will break. We need to refactor the app to correctly handle all possible networks
-    const cachedNetwork = RaftConfig.network;
-    RaftConfig.setNetwork(network);
-    const savings = new UserSavings(signer);
-    RaftConfig.setNetwork(cachedNetwork);
+    const savings = new UserSavings(signer, network);
 
     const currentSavings = await savings.currentSavings();
 
