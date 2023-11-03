@@ -34,11 +34,11 @@ import {
   Typography,
   ValueLabel,
 } from '../shared';
-import LoadingSavings from '../LoadingSavings';
 import FAQ from './FAQ';
 import Stats from './Stats';
 
 import './Savings.scss';
+import { LoadingSavings } from '../LoadingPage';
 
 const Savings = () => {
   const [, connect] = useConnectWallet();

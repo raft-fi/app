@@ -1,0 +1,268 @@
+.raft__loading-page__title {
+  width: 80px;
+  height: 10px;
+  border-radius: 5px;
+  opacity: 0.15;
+  background: var(--loadingText);
+}
+
+.raft__loading-page__desc {
+  width: 70%;
+  height: 10px;
+  border-radius: 5px;
+  opacity: 0.15;
+  background: var(--loadingText);
+}
+
+.raft__loading-page__value-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+}
+
+.raft__loading-page__icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--loadingText);
+  opacity: 0.15;
+}
+
+.raft__loading-page__value {
+  width: 100px;
+  height: 14px;
+  border-radius: 8px;
+  opacity: 0.15;
+  background: var(--loadingText);
+}
+
+.raft__loading-page__input {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.raft__loading-page__input-field {
+  height: 48px;
+  border-radius: 8px;
+  opacity: 0.07;
+  background: var(--loadingText);
+}
+
+.raft__loading-page__btn {
+  height: 48px;
+  border-radius: 8px;
+  opacity: 0.15;
+  background: var(--loadingText);
+}
+
+.raft__loading-generate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+  gap: 16px;
+
+  .raft__loading-generate__stat {
+    width: var(--app-width);
+    display: flex;
+    gap: 16px;
+    padding: 32px 0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(0, 54, 82, 0.08) 0%, rgba(0, 54, 82, 0.18) 100%);
+
+    .raft__loading-generate__stat-row {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 16px;
+      flex: 1;
+      padding: 0 32px;
+      height: 96px;
+    }
+  }
+
+  .raft__loading-generate__position {
+    display: flex;
+    width: var(--app-width);
+    padding: 32px;
+    gap: 32px;
+    flex-direction: column;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+
+    .raft__loading-generate__position-inputs,
+    .raft__loading-generate__position-status {
+      display: flex;
+      gap: 32px;
+    }
+
+    .raft__loading-generate__position-status-gas {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      width: 100%;
+    }
+
+    .raft__loading-generate__position-after,
+    .raft__loading-generate__gas-fee {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+  }
+}
+
+.raft__loading-savings {
+  position: relative;
+  display: flex;
+  padding-top: 10px;
+  gap: 16px;
+
+  .raft__loading-savings__position {
+    display: flex;
+    padding: 32px;
+    gap: 32px;
+    flex-direction: column;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+    width: 530px;
+
+    .raft__loading-savings__position-after,
+    .raft__loading-savings__gas-fee {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+  }
+
+  .raft__loading-savings__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 32px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+
+    .raft__loading-savings__stat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .raft__loading-page__input-field {
+        width: 200px;
+      }
+    }
+  }
+
+  .raft__loading-savings__sidebar-mobile {
+    display: none;
+    width: var(--app-width);
+  }
+
+  .raft__loading-savings__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 342px;
+
+    .raft__loading-savings__faq {
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+      padding: 24px 32px;
+      box-sizing: border-box;
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__loading-generate {
+    .raft__loading-generate__stat {
+      flex-direction: column;
+      padding: 16px 12px;
+
+      .raft__loading-generate__stat-row {
+        gap: 6px;
+        padding: 0;
+        height: initial;
+
+        > :last-child {
+          display: none;
+        }
+      }
+
+      .raft__loading-page__value-icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      .raft__loading-page__value-number {
+        width: 100px;
+        height: 16px;
+      }
+    }
+
+    .raft__loading-generate__position {
+      padding: 16px 12px;
+
+      .raft__loading-generate__position-inputs,
+      .raft__loading-generate__position-status {
+        flex-direction: column;
+      }
+    }
+  }
+
+  .raft__loading-savings {
+    flex-direction: column;
+    width: var(--app-width);
+
+    .raft__loading-savings__position {
+      padding: 24px 12px;
+      width: 100%;
+    }
+
+    .raft__loading-savings__stat {
+      padding: 24px 12px;
+    }
+
+    .raft__loading-savings__sidebar-mobile {
+      display: block;
+    }
+
+    .raft__loading-savings__sidebar {
+      width: 100%;
+
+      .raft__loading-savings__stat {
+        display: none;
+      }
+
+      .raft__loading-savings__faq {
+        padding: 24px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__loading-generate {
+    .raft__loading-generate__stat {
+      .raft__loading-page__value-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .raft__loading-page__value-number {
+        width: 100px;
+        height: 14px;
+      }
+    }
+  }
+}
