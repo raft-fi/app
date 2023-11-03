@@ -110,3 +110,9 @@
     }
   }
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__bridge {
+    width: var(--app-width);
+  }
+}
