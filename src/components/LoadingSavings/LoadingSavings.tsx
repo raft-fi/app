@@ -1,4 +1,5 @@
-// TODO update
+import { memo } from 'react';
+
 const LoadingSavings = () => (
   <div>
     <svg width="856" height="512" viewBox="0 0 802 480" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -66,4 +67,4 @@ const LoadingSavings = () => (
   </div>
 );
 
-export default LoadingSavings;
+export default memo(LoadingSavings);

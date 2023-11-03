@@ -1,11 +1,11 @@
 import { memo, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, usePosition, useVaultVersion, useConfig } from '../../hooks';
-import LoadingDashboard from '../LoadingDashboard';
 import ProtocolStats from '../ProtocolStats';
 import YourPosition from '../YourPosition';
 import OpenPosition from '../OpenPosition';
 import AdjustPosition from '../AdjustPosition';
+import { LoadingGenerate } from '../LoadingPage';
 
 import './GenerateDashboard.scss';
 
@@ -30,7 +30,7 @@ const GenerateDashboard = () => {
   }, [config.managePositionTokensV1, config.managePositionTokensV2, vaultVersion]);
 
   if (!appLoaded) {
-    return <LoadingDashboard />;
+    return <LoadingGenerate />;
   }
 
   // for now, we only allow user to have either normal position or leverage position

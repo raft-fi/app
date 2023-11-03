@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useNetwork, useAppLoaded, useWallet, useLeveragePosition } from '../../hooks';
 import AdjustLeveragePosition from '../AdjustLeveragePosition';
-import LoadingDashboard from '../LoadingDashboard';
+import { LoadingGenerate } from '../LoadingPage';
 import OpenLeveragePosition from '../OpenLeveragePosition';
 import YourLeveragePosition from '../YourLeveragePosition';
 import YourPositionPlaceholder from '../YourPositionPlaceholder';
@@ -18,7 +18,7 @@ const LeverageDashboard = () => {
   const shouldShowAdjustPosition = wallet && leveragePosition?.hasLeveragePosition && !isWrongNetwork;
 
   if (!appLoaded) {
-    return <LoadingDashboard />;
+    return <LoadingGenerate />;
   }
 
   // for now, we only allow user to have either normal position or leverage position
