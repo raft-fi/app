@@ -130,16 +130,11 @@
     }
   }
 
-  .raft__savings__sidebar,
-  .raft__savings__sidebar-mobile {
+  .raft__savings__sidebar {
     width: 342px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-  }
-
-  .raft__savings__sidebar-mobile {
-    display: none;
   }
 }
 
@@ -160,27 +155,18 @@
     flex-direction: column;
 
     .raft__savings__main {
-      order: 1;
-
       .raft__savings {
         width: 100%;
         padding: 16px;
+
+        .raft__savings__subheader {
+          display: none;
+        }
       }
     }
 
     .raft__savings__sidebar {
       width: 100%;
-      order: 2;
-
-      .raft__savings__stats {
-        display: none;
-      }
-    }
-
-    .raft__savings__sidebar-mobile {
-      display: block;
-      width: 100%;
-      order: 0;
     }
   }
 }

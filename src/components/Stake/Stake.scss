@@ -215,6 +215,7 @@
 
       .raft__stake__main__container {
         width: 100%;
+        padding: 16px;
 
         .raft__stake__period-container {
           flex-wrap: wrap;
@@ -227,6 +228,10 @@
             flex: 1;
           }
         }
+
+        .raft__stake__subtitle {
+          display: none;
+        }
       }
     }
 
@@ -238,6 +243,7 @@
       .raft__stake__current-position,
       .raft__stake__claim {
         width: 100%;
+        padding: 16px;
       }
     }
   }

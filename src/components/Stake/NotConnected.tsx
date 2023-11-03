@@ -1,6 +1,7 @@
 import { RAFT_TOKEN, VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
+import isMobile from 'is-mobile';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
@@ -11,6 +12,8 @@ import { Button, CurrencyInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
 import HowToLock from './HowToLock';
 import PeriodPicker from './PeriodPicker';
+
+const mobile = isMobile();
 
 interface NotConnectedProps {
   amountToLock: string;
@@ -163,8 +166,8 @@ const NotConnected: FC<NotConnectedProps> = ({
         </div>
       </div>
       <div className="raft__stake__sidebar">
-        <FAQ defaultOpen />
-        <HowToLock defaultOpen />
+        <FAQ defaultOpen={!mobile} />
+        <HowToLock defaultOpen={!mobile} />
       </div>
     </div>
   );
