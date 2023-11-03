@@ -525,9 +525,6 @@ const Savings = () => {
         <Stats currentSavings={currentUserSavings} />
         <FAQ />
       </div>
-      <div className="raft__savings__sidebar-mobile">
-        <Stats currentSavings={currentUserSavings} />
-      </div>
     </div>
   );
 };
