@@ -81,21 +81,31 @@
     justify-content: center;
     margin-top: 32px;
     width: 100%;
+    gap: 16px;
 
     .raft__bridgeModal__action {
-      margin: 0 8px;
       width: 100%;
-
-      &:first-child {
-        margin-left: 0;
-      }
-
-      &:last-child {
-        margin-right: 0;
-      }
 
       .raft__button {
         width: 100%;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .raft__modalWrapper__container {
+    align-items: flex-end;
+
+    .raft__modalWrapper {
+      width: 100%;
+
+      .raft__bridgeModal {
+        width: 100%;
+
+        .raft__bridgeModal__actions {
+          flex-direction: column;
+        }
       }
     }
   }
