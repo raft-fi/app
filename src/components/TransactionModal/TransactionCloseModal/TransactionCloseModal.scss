@@ -62,3 +62,21 @@
     }
   }
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__modalWrapper__container {
+    align-items: flex-end;
+
+    .raft__modalWrapper {
+      width: 100%;
+
+      .raft__transactionCloseModal {
+        width: 100%;
+
+        .raft__transactionCloseModal__actions {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
