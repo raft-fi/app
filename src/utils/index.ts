@@ -6,5 +6,6 @@ export * from './tokenMap';
 export * from './decimal';
 export * from './signature';
 export * from './transaction';
+export * from './wallet';
 
 export { shortenAddress, getTokenValues };

@@ -11,14 +11,12 @@ import {
 import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
-import { formatCurrency } from '../../utils';
+import { formatCurrency, switchNetwork } from '../../utils';
 import {
   BRIDGE_MAINNET_NETWORKS,
   NETWORK_IDS,
   NETWORK_LOGO_VARIANTS,
   NETWORK_NAMES,
-  NETWORK_WALLET_CURRENCIES,
-  NETWORK_WALLET_ENDPOINTS,
   BRIDGE_TESTNET_NETWORKS,
 } from '../../networks';
 import {
@@ -247,35 +245,10 @@ const Bridge = () => {
     connect();
   }, [connect]);
 
-  const onSwitchNetwork = useCallback(async () => {
-    if (eip1193Provider) {
-      try {
-        // https://eips.ethereum.org/EIPS/eip-3326
-        await eip1193Provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: `0x${NETWORK_IDS[fromNetwork].toString(16)}` }],
-        });
-      } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((error as any).code === 4902) {
-          // https://eips.ethereum.org/EIPS/eip-3085
-          await eip1193Provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: `0x${NETWORK_IDS[fromNetwork].toString(16)}`,
-                chainName: NETWORK_NAMES[fromNetwork],
-                rpcUrls: [NETWORK_WALLET_ENDPOINTS[fromNetwork]],
-                nativeCurrency: NETWORK_WALLET_CURRENCIES[fromNetwork],
-              },
-            ],
-          });
-        } else {
-          console.error(`Failed to switch network to ${fromNetwork}`);
-        }
-      }
-    }
-  }, [eip1193Provider, fromNetwork]);
+  const onSwitchNetwork = useCallback(
+    () => switchNetwork(eip1193Provider, fromNetwork),
+    [eip1193Provider, fromNetwork],
+  );
 
   const onAction = useCallback(() => {
     if (canExecute) {

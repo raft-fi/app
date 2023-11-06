@@ -16,14 +16,7 @@ import {
   useWallet,
 } from '../../hooks';
 import { R_TOKEN_UI_PRECISION } from '../../constants';
-import {
-  NETWORK_IDS,
-  NETWORK_NAMES,
-  NETWORK_WALLET_CURRENCIES,
-  NETWORK_WALLET_ENDPOINTS,
-  SAVINGS_MAINNET_NETWORKS,
-  SAVINGS_TESTNET_NETWORKS,
-} from '../../networks';
+import { NETWORK_IDS, NETWORK_NAMES, SAVINGS_MAINNET_NETWORKS, SAVINGS_TESTNET_NETWORKS } from '../../networks';
 import {
   CurrencyInput,
   ExecuteButton,
@@ -39,6 +32,7 @@ import Stats from './Stats';
 
 import './Savings.scss';
 import { LoadingSavings } from '../LoadingPage';
+import { switchNetwork } from '../../utils';
 
 const Savings = () => {
   const [, connect] = useConnectWallet();
@@ -351,35 +345,10 @@ const Savings = () => {
     setAmount(inputMaxAmount.toString());
   }, [inputMaxAmount]);
 
-  const onSwitchNetwork = useCallback(async () => {
-    if (eip1193Provider) {
-      try {
-        // https://eips.ethereum.org/EIPS/eip-3326
-        await eip1193Provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: `0x${NETWORK_IDS[selectedNetwork].toString(16)}` }],
-        });
-      } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((error as any).code === 4902) {
-          // https://eips.ethereum.org/EIPS/eip-3085
-          await eip1193Provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: `0x${NETWORK_IDS[selectedNetwork].toString(16)}`,
-                chainName: NETWORK_NAMES[selectedNetwork],
-                rpcUrls: [NETWORK_WALLET_ENDPOINTS[selectedNetwork]],
-                nativeCurrency: NETWORK_WALLET_CURRENCIES[selectedNetwork],
-              },
-            ],
-          });
-        } else {
-          console.error(`Failed to switch network to ${selectedNetwork}`);
-        }
-      }
-    }
-  }, [eip1193Provider, selectedNetwork]);
+  const onSwitchNetwork = useCallback(
+    () => switchNetwork(eip1193Provider, selectedNetwork),
+    [eip1193Provider, selectedNetwork],
+  );
 
   const onAction = useCallback(() => {
     if (isWrongNetwork) {

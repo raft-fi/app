@@ -163,11 +163,6 @@
     }
   }
 
-  .raft__loading-savings__sidebar-mobile {
-    display: none;
-    width: var(--app-width);
-  }
-
   .raft__loading-savings__sidebar {
     display: flex;
     flex-direction: column;
@@ -233,16 +228,8 @@
       padding: 24px 12px;
     }
 
-    .raft__loading-savings__sidebar-mobile {
-      display: block;
-    }
-
     .raft__loading-savings__sidebar {
       width: 100%;
-
-      .raft__loading-savings__stat {
-        display: none;
-      }
 
       .raft__loading-savings__faq {
         padding: 24px;

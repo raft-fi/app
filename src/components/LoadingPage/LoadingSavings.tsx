@@ -62,9 +62,6 @@ const FAQ = () => (
 
 const LoadingSavings = () => (
   <div className="raft__loading-savings">
-    <div className="raft__loading-savings__sidebar-mobile">
-      <Stat />
-    </div>
     <Position />
     <div className="raft__loading-savings__sidebar">
       <Stat />
