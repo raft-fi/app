@@ -4,9 +4,5 @@
   flex-direction: column;
   align-items: center;
   padding: 10px 0px 0px 0px;
-
-  .raft__openPosition,
-  .raft__adjustPosition {
-    margin-top: 16px;
-  }
+  gap: var(--app-gap);
 }

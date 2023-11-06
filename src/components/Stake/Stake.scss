@@ -1,6 +1,6 @@
 .raft__stake {
   display: flex;
-  gap: 16px;
+  gap: var(--app-gap);
   margin-top: 10px;
 
   .raft__stake__main__container {

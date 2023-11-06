@@ -135,6 +135,7 @@
 
   /* TODO: hardly set app width to 856px for v1 */
   --app-width: 856px;
+  --app-gap: 16px;
   --header-width: 1004px;
   --header-padding: 0 32px;
 
@@ -152,6 +153,7 @@
 
   @media screen and (max-width: 1024px) {
     --app-width: calc(100vw - 24px);
+    --app-gap: 8px;
     --header-width: 100%;
     --header-padding: 0 16px;
   }

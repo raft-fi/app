@@ -4,7 +4,7 @@
   justify-content: center;
   width: var(--app-width);
   padding-top: 10px;
-  gap: 16px;
+  gap: var(--app-gap);
 
   .raft__savings {
     width: 530px;
