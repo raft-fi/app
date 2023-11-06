@@ -204,3 +204,16 @@ export const PRETTIFY_TOKEN_NAME_MAP: { [token in SupportedCollateralToken]: str
   swETH: 'swETH',
   WBTC: 'WBTC',
 };
+
+export const TOKEN_LOGO_MAP: { [token in SupportedCollateralToken]: string } = {
+  stETH: 'stETH',
+  'wstETH-v1': 'wstETH',
+  rETH: 'rETH',
+  'wcrETH-v1': 'rETH',
+  WETH: 'WETH',
+  wstETH: 'wstETH',
+  'rETH-v1': 'rETH',
+  cbETH: 'cbETH',
+  swETH: 'swETH',
+  WBTC: 'WBTC',
+};

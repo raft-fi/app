@@ -1,7 +1,7 @@
 import { RaftConfig, Token } from '@raft-fi/sdk';
 import { memo, useCallback } from 'react';
 import { ButtonWrapper, Link, TokenLogo } from 'tempus-ui';
-import { SUPPORTED_COLLATERAL_TOKENS } from '../../constants';
+import { SUPPORTED_COLLATERAL_TOKENS, TOKEN_LOGO_MAP } from '../../constants';
 import { useConfig } from '../../hooks';
 import { shortenAddress } from '../../utils';
 import { Icon, Tooltip, Typography } from '../shared';
@@ -45,7 +45,9 @@ const TokenAddressTooltip = () => {
 
           return (
             <li key={`token-item-${token}`}>
-              <TokenLogo type={`token-${token}`} size={16} />
+              {<TokenLogo type={`token-${TOKEN_LOGO_MAP[token]}`} size={16} /> || (
+                <div className="raft__position-after__tokenAddressTooltip__token-placeholder" />
+              )}
               <Typography className="raft__position-after__tokenAddressTooltip__token" variant="body2">
                 {token}
               </Typography>
