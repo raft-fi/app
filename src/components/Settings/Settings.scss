@@ -11,6 +11,7 @@
     border: 1px solid var(--borderPrimary);
     transform: translateY(100%);
     border-radius: 8px;
+    box-sizing: border-box;
     z-index: 99999;
 
     .raft__settings__popup__options {
@@ -26,8 +27,6 @@
     }
 
     .raft__settings__popup__slippage {
-      margin-top: 36px;
-
       .raft__button {
         max-width: 25%;
       }
@@ -46,6 +45,9 @@
           background-color: var(--surfaceTooltip);
           outline: none;
           text-align: right;
+          font-family: inherit;
+          font-size: inherit;
+          font-weight: inherit;
         }
 
         &.selected {

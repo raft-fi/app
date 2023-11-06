@@ -1,4 +1,3 @@
-import { SwapRouter } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { DEFAULT_SLIPPAGE } from '../../constants';
@@ -9,12 +8,9 @@ import { BaseInput, Button, Icon, Typography } from '../shared';
 import './Settings.scss';
 
 const SLIPPAGE_OPTIONS = [new Decimal(0.0025), new Decimal(DEFAULT_SLIPPAGE), new Decimal(0.01)];
-const ROUTER_OPTIONS: Record<SwapRouter, string> = {
-  '1inch': '1inch',
-};
 
 const Settings = () => {
-  const [{ router, slippage }, setPartialOption] = useSettingOptions();
+  const [{ slippage }, setPartialOption] = useSettingOptions();
   const [open, setOpen] = useState<boolean>(false);
   const [customSlippage, setCustomSlippage] = useState<string>('');
   const [isCustomSlippageFocused, setIsCustomSlippageFocused] = useState<boolean>(false);
@@ -26,14 +22,6 @@ const Settings = () => {
 
   const onOpen = useCallback(() => setOpen(true), []);
   const onClose = useCallback(() => setOpen(false), []);
-  const onRouterSelected = useCallback(
-    (selected: SwapRouter) => {
-      if (selected !== router) {
-        setPartialOption({ router: selected });
-      }
-    },
-    [router, setPartialOption],
-  );
   const onSlippageSelected = useCallback(
     (selected: Decimal) => {
       if (!selected.equals(slippage)) {
@@ -65,21 +53,6 @@ const Settings = () => {
         <>
           <div id="setting-backdrop" className="raft__settings__backdrop" onClick={onClose} />
           <div className="raft__settings__popup">
-            <div className="raft__settings__popup__router">
-              <Typography variant="overline" weight="semi-bold">
-                ROUTER
-              </Typography>
-              <div className="raft__settings__popup__options">
-                {Object.entries(ROUTER_OPTIONS).map(([r, label]) => (
-                  <Button
-                    key={`router-${router}`}
-                    variant={router === r ? 'primary' : 'secondary'}
-                    onClick={() => onRouterSelected(r as SwapRouter)}
-                    text={label}
-                  />
-                ))}
-              </div>
-            </div>
             <div className="raft__settings__popup__slippage">
               <Typography variant="overline" weight="semi-bold">
                 SLIPPAGE
@@ -95,19 +68,25 @@ const Settings = () => {
                 ))}
                 <Typography
                   className={`raft__settings__popup__slippage__custom ${isCustomSlippageSelected ? 'selected' : ''}`}
-                  variant="overline"
+                  variant="button-label"
                   weight="medium"
-                  color={isCustomSlippageSelected ? 'text-primary-inverted' : 'text-primary'}
+                  color={isCustomSlippageSelected ? 'text-primary-inverted' : 'text-secondary'}
                 >
-                  <BaseInput
-                    value={customSlippage}
-                    placeholder={isCustomSlippageSelected ? undefined : 'Custom'}
-                    pattern="[0-9]{0,3}([.][0-9]{0,4})?"
-                    onChange={onCustomSlippageChange}
-                    onFocus={onCustomSlippageFocus}
-                    onBlur={onCustomSlippageBlur}
-                  />
-                  {customSlippage || isCustomSlippageSelected ? '%' : ''}
+                  {!isCustomSlippageSelected && (
+                    <div onClick={onCustomSlippageFocus}>{customSlippage ? `${customSlippage}%` : 'Custom'}</div>
+                  )}
+                  {isCustomSlippageSelected && (
+                    <>
+                      <BaseInput
+                        value={customSlippage}
+                        pattern="[0-9]{0,3}([.][0-9]{0,4})?"
+                        onChange={onCustomSlippageChange}
+                        onFocus={onCustomSlippageFocus}
+                        onBlur={onCustomSlippageBlur}
+                      />
+                      %
+                    </>
+                  )}
                 </Typography>
               </div>
             </div>
