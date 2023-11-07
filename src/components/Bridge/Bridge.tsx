@@ -27,7 +27,16 @@ import {
   useNetwork,
   useWallet,
 } from '../../hooks';
-import { CurrencyInput, ExecuteButton, Icon, Typography, ValueLabel, NetworkSelector } from '../shared';
+import {
+  CurrencyInput,
+  ExecuteButton,
+  Icon,
+  Typography,
+  ValueLabel,
+  NetworkSelector,
+  TooltipWrapper,
+  Tooltip,
+} from '../shared';
 import PoweredBy from './PoweredBy';
 
 import './Bridge.scss';
@@ -381,7 +390,18 @@ const Bridge = () => {
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
             TIME TO ARRIVAL
           </Typography>
-          <Icon variant="info" size="tiny" />
+          <TooltipWrapper
+            tooltipContent={
+              <Tooltip className="raft__bridge__infoTooltip">
+                <Typography variant="body2">
+                  Estimated time for your funds to arrive at the selected destination chain.
+                </Typography>
+              </Tooltip>
+            }
+            placement="top"
+          >
+            <Icon variant="info" size="tiny" />
+          </TooltipWrapper>
         </div>
         <Typography className="raft__bridge__time__value" variant="body" weight="medium">
           &lt;20 minutes
@@ -392,7 +412,16 @@ const Bridge = () => {
           <Typography variant="overline" weight="semi-bold" color="text-secondary">
             FEES
           </Typography>
-          <Icon variant="info" size="tiny" />
+          <TooltipWrapper
+            tooltipContent={
+              <Tooltip className="raft__bridge__infoTooltip">
+                <Typography variant="body2">Estimated bridging fee associated with your transaction.</Typography>
+              </Tooltip>
+            }
+            placement="top"
+          >
+            <Icon variant="info" size="tiny" />
+          </TooltipWrapper>
         </div>
         <div className="raft__bridge__fees__value">
           <Icon variant="gas" size="small" />
