@@ -157,6 +157,7 @@
 
   @media screen and (max-width: 1024px) {
     --app-width: calc(100vw - 24px);
+    --app2-width: calc(100vw - 24px);
     --app-gap: 8px;
     --header-width: 100%;
     --header-padding: 0 16px;
@@ -226,7 +227,7 @@ body.modal-open {
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
   padding: var(--section-padding);
-  width: var(--app-width);
+  width: var(--app2-width);
   box-sizing: border-box;
 }
 

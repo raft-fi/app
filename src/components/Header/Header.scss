@@ -199,8 +199,8 @@
       }
 
       .common-ui__header {
-        --headerHeightMobile: 74px;
-        --headerMenuBarPaddingMobile: 16px;
+        --headerHeight: 96px;
+        --headerMenuBarPadding: 16px;
 
         .common-ui__header__logo {
           .raft__logo {
@@ -240,6 +240,17 @@
             }
           }
         }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__header {
+    .raft__header__container {
+      .common-ui__header {
+        --headerHeightMobile: 74px;
+        --headerMenuBarPaddingMobile: 16px;
       }
     }
   }
