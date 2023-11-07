@@ -124,7 +124,7 @@ const Adjust: FC<AdjustProps> = ({
     <div className="raft__stake raft__stake__adjust">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
-          <Typography className="raft__stake__title" variant="heading1" weight="medium">
+          <Typography className="raft__stake__title" variant="heading2" weight="medium">
             Adjust stake
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">

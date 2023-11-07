@@ -1,11 +1,11 @@
+@import '../../../index.scss';
+
 .raft__savings__stats {
+  @include sectionSidebar;
+
   display: flex;
   justify-self: center;
   flex-direction: column;
-  background: var(--surfacePrimary);
-  border: 1px solid var(--borderPrimary);
-  border-radius: 8px;
-  padding: 16px;
   gap: 12px;
 
   &.raft__savings__stats-inverse {
@@ -21,7 +21,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 16px;
+    gap: var(--app-gap);
 
     .raft__savings__stats__item-title {
       display: flex;
@@ -70,17 +70,9 @@
   }
 }
 
-.raft__savings__tooltip {
-  max-width: 250px;
-}
-
 @media screen and (max-width: 768px) {
   .raft__savings__stats {
-    gap: 12px;
-
     .raft__savings__stats__item {
-      gap: 8px;
-
       &:not(:first-child) {
         padding-top: 0;
         border-top: none;
