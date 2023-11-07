@@ -1,38 +1,22 @@
-.raft__your-leverage-position {
-  /* TODO: hardcode color as suggested */
-  background: var(--raft-blue-900);
-  border-radius: 8px;
-  width: var(--app-width);
-  padding: 16px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
+@import '../../index.scss';
 
-  .raft__your-leverage-position__collateral,
-  .raft__your-leverage-position__leverage,
-  .raft__your-leverage-position__liquidation {
+.raft__your-leverage-position {
+  @include sectionStat;
+  /* TODO: hardcode color as suggested */
+  --surfacePrimary: var(--raft-blue-900);
+  --borderPrimary: var(--raft-grey-700);
+  --textPrimary: var(--raft-grey-100);
+  --textSecondary: var(--raft-grey-500);
+
+  .raft__your-leverage-position__collateral__title,
+  .raft__your-leverage-position__leverage__title,
+  .raft__your-leverage-position__liquidation__title {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-blue-500);
-
-    display: flex;
-    flex-direction: column;
-    padding: 16px 32px;
-    height: 128px;
-    box-sizing: border-box;
-    flex: 1;
-
-    &:not(:first-child) {
-      /* TODO: hardcode color as suggested */
-      border-left: 1px solid var(--raft-grey-700);
-    }
   }
 
   .raft__your-leverage-position__collateral__amount,
   .raft__your-leverage-position__leverage__amount {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-100);
-
     display: flex;
     align-items: center;
     margin-top: 16px;
@@ -58,33 +42,22 @@
   }
 
   .raft__your-leverage-position__collateral__value__number {
-    --textSecondary: var(--raft-grey-500);
-
     margin-top: 8px;
   }
 
   .raft__your-leverage-position__leverage__value__number {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-500);
-
     display: flex;
     align-items: baseline;
     margin-top: 8px;
   }
 
   .raft__your-leverage-position__liquidation__price {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-100);
-
     display: flex;
     align-items: baseline;
     margin-top: 16px;
   }
 
   .raft__your-leverage-position__liquidation__desc {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-500);
-
     display: flex;
     align-items: center;
     margin-top: 8px;
@@ -93,51 +66,19 @@
 
 @media screen and (max-width: 1024px) {
   .raft__your-leverage-position {
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
-
-    > div {
-      padding: 0;
-    }
-
-    .raft__your-leverage-position__collateral,
-    .raft__your-leverage-position__leverage,
-    .raft__your-leverage-position__liquidation {
-      width: 100%;
-      height: initial;
-
-      &:not(:first-child) {
-        border-left: none;
-        border-top: 1px solid var(--borderPrimary);
-      }
-    }
-
     .raft__your-leverage-position__leverage__title,
     .raft__your-leverage-position__liquidation__title {
       margin-top: 12px;
+    }
+
+    .raft__tooltip-wrapper-anchor {
+      justify-content: flex-start;
     }
   }
 }
 
 @media screen and (max-width: 768px) {
   .raft__your-leverage-position {
-    .raft__your-leverage-position__collateral,
-    .raft__your-leverage-position__leverage,
-    .raft__your-leverage-position__liquidation {
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 0;
-
-      &:not(:first-child) {
-        border: none;
-      }
-    }
-
     .raft__your-leverage-position__collateral__title,
     .raft__your-leverage-position__leverage__title,
     .raft__your-leverage-position__liquidation__title {
@@ -192,7 +133,7 @@
         font-style: normal;
         font-size: 16px;
         line-height: 24px;
-        color: var(--raft-grey-500);
+        color: var(--textSecondary);
         font-weight: 500;
         font-family: Work Sans, sans-serif;
       }
@@ -228,7 +169,7 @@
         font-style: normal;
         font-size: 16px;
         line-height: 24px;
-        color: var(--raft-grey-500);
+        color: var(--textSecondary);
         font-weight: 500;
         font-family: Work Sans, sans-serif;
       }

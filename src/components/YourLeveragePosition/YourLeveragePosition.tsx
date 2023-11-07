@@ -146,7 +146,7 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
           </div>
         </div>
         <div className="raft__your-leverage-position__leverage__value__number">
-          <Typography variant="body" weight="medium">
+          <Typography variant="body" weight="medium" color="text-secondary">
             {collateralTokenLeveragedAprFormatted ?? '---'} APR
           </Typography>
         </div>
@@ -162,7 +162,7 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
           </Typography>
         </div>
         <div className="raft__your-leverage-position__liquidation__desc">
-          <Typography variant="body" weight="medium">
+          <Typography variant="body" weight="medium" color="text-secondary">
             {liquidationPriceChangeFormatted ?? '---'} below current price
           </Typography>
         </div>
