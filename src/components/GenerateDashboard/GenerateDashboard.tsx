@@ -29,7 +29,7 @@ const GenerateDashboard = () => {
     return config.managePositionTokensV2[0];
   }, [config.managePositionTokensV1, config.managePositionTokensV2, vaultVersion]);
 
-  if (!appLoaded || true) {
+  if (!appLoaded) {
     return <LoadingGenerate />;
   }
 
