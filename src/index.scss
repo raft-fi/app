@@ -264,6 +264,7 @@ body.modal-open {
 
   @media screen and (max-width: 1024px) {
     @include sectionStatMobile;
+    width: var(--app2-width);
   }
 }
 

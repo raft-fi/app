@@ -71,3 +71,11 @@
   bottom: 0px;
   z-index: 99998;
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__settings {
+    .raft__settings__popup {
+      max-width: calc(100vw - 56px);
+    }
+  }
+}
