@@ -241,3 +241,54 @@ body.modal-open {
   width: var(--section-sidebar-width);
   padding: var(--section2-padding);
 }
+
+@mixin sectionStat {
+  @include sectionBox;
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  > div {
+    padding: 16px 32px;
+    height: 128px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    &:not(:first-child) {
+      border-left: 1px solid var(--borderPrimary);
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: var(--section-padding);
+    gap: 12px;
+
+    > div {
+      padding: 0;
+      width: 100%;
+
+      &:not(:first-child) {
+        border-left: none;
+        border-top: 1px solid var(--borderPrimary);
+      }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    > div {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      &:not(:first-child) {
+        border: none;
+      }
+    }
+  }
+}

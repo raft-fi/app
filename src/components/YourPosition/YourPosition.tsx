@@ -119,8 +119,10 @@ const YourPosition: FC<YourPositionProps> = ({ position }) => {
           </div>
         </div>
         <div className="raft__your-position__debt__value__number">
-          <Typography variant="caption">$</Typography>
-          <Typography variant="body" weight="medium">
+          <Typography variant="caption" color="text-secondary">
+            $
+          </Typography>
+          <Typography variant="body" weight="medium" color="text-secondary">
             {debtValueFormatted ?? '---'}
           </Typography>
         </div>
@@ -136,7 +138,7 @@ const YourPosition: FC<YourPositionProps> = ({ position }) => {
         </div>
         <div className="raft__your-position__ratio__status">
           <div className={`raft__your-position__ratio__status__color status-risk-${collateralRatioLevel}`} />
-          <Typography variant="body" weight="medium">
+          <Typography variant="body" weight="medium" color="text-secondary">
             {collateralRatioLabel ?? '---'}
           </Typography>
         </div>

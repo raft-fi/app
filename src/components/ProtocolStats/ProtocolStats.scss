@@ -1,33 +1,7 @@
 @import '../../index.scss';
 
 .raft__protocol-stats {
-  @include sectionBox;
-  padding: 16px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  > div {
-    padding: 16px 32px;
-    height: 128px;
-    box-sizing: border-box;
-    flex: 1;
-
-    .raft__tooltip-wrapper-anchor {
-      justify-content: flex-start;
-    }
-  }
-
-  .raft__protocol-stats__collateral,
-  .raft__protocol-stats__debt,
-  .raft__protocol-stats__ratio {
-    display: flex;
-    flex-direction: column;
-
-    &:not(:first-child) {
-      border-left: 1px solid var(--borderPrimary);
-    }
-  }
+  @include sectionStat;
 
   .raft__protocol-stats__collateral__amount,
   .raft__protocol-stats__debt__amount {
@@ -177,27 +151,6 @@
 
 @media screen and (max-width: 1024px) {
   .raft__protocol-stats {
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
-    padding: var(--section-padding);
-    gap: 12px;
-
-    > div {
-      padding: 0;
-    }
-
-    .raft__protocol-stats__collateral,
-    .raft__protocol-stats__debt,
-    .raft__protocol-stats__ratio {
-      width: 100%;
-
-      &:not(:first-child) {
-        border-left: none;
-        border-top: 1px solid var(--borderPrimary);
-      }
-    }
-
     .raft__protocol-stats__debt__title,
     .raft__protocol-stats__ratio__title {
       margin-top: 12px;
@@ -207,18 +160,6 @@
 
 @media screen and (max-width: 768px) {
   .raft__protocol-stats {
-    .raft__protocol-stats__collateral,
-    .raft__protocol-stats__debt,
-    .raft__protocol-stats__ratio {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 8px;
-
-      &:not(:first-child) {
-        border: none;
-      }
-    }
-
     .raft__protocol-stats__collateral {
       align-items: baseline;
     }

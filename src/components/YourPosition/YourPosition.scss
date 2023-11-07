@@ -1,38 +1,22 @@
-.raft__your-position {
-  /* TODO: hardcode color as suggested */
-  background: var(--raft-blue-900);
-  border-radius: 8px;
-  width: var(--app-width);
-  padding: 16px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
+@import '../../index.scss';
 
-  .raft__your-position__collateral,
-  .raft__your-position__debt,
-  .raft__your-position__ratio {
+.raft__your-position {
+  @include sectionStat;
+  /* TODO: hardcode color as suggested */
+  --surfacePrimary: var(--raft-blue-900);
+  --borderPrimary: var(--raft-grey-700);
+  --textPrimary: var(--raft-grey-100);
+  --textSecondary: var(--raft-grey-500);
+
+  .raft__your-position__collateral__title,
+  .raft__your-position__debt__title,
+  .raft__your-position__ratio__title {
     /* TODO: hardcode color as suggested */
     --textPrimary: var(--raft-blue-500);
-
-    display: flex;
-    flex-direction: column;
-    padding: 16px 32px;
-    height: 128px;
-    box-sizing: border-box;
-    flex: 1;
-
-    &:not(:first-child) {
-      /* TODO: hardcode color as suggested */
-      border-left: 1px solid var(--raft-grey-700);
-    }
   }
 
   .raft__your-position__collateral__amount,
   .raft__your-position__debt__amount {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-100);
-
     display: flex;
     align-items: center;
     margin-top: 16px;
@@ -58,24 +42,16 @@
   }
 
   .raft__your-position__collateral__value__number {
-    --textSecondary: var(--raft-grey-500);
-
     margin-top: 8px;
   }
 
   .raft__your-position__debt__value__number {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-500);
-
     display: flex;
     align-items: baseline;
     margin-top: 8px;
   }
 
   .raft__your-position__ratio__percent {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-100);
-
     display: flex;
     align-items: baseline;
     margin-top: 16px;
@@ -86,9 +62,6 @@
   }
 
   .raft__your-position__ratio__status {
-    /* TODO: hardcode color as suggested */
-    --textPrimary: var(--raft-grey-500);
-
     display: flex;
     align-items: center;
     margin-top: 8px;
@@ -116,27 +89,6 @@
 
 @media screen and (max-width: 1024px) {
   .raft__your-position {
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
-
-    > div {
-      padding: 0;
-    }
-
-    .raft__your-position__collateral,
-    .raft__your-position__debt,
-    .raft__your-position__ratio {
-      width: 100%;
-
-      &:not(:first-child) {
-        border-left: none;
-        border-top: 1px solid var(--borderPrimary);
-      }
-    }
-
     .raft__your-position__debt__title,
     .raft__your-position__ratio__title {
       margin-top: 12px;
@@ -146,20 +98,6 @@
 
 @media screen and (max-width: 768px) {
   .raft__your-position {
-    .raft__your-position__collateral,
-    .raft__your-position__debt,
-    .raft__your-position__ratio {
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 0;
-
-      &:not(:first-child) {
-        border: none;
-      }
-    }
-
     .raft__your-position__collateral__title,
     .raft__your-position__debt__title,
     .raft__your-position__ratio__title {
@@ -214,7 +152,7 @@
         font-style: normal;
         font-size: 16px;
         line-height: 24px;
-        color: var(--raft-grey-500);
+        color: var(--textSecondary);
         font-weight: 500;
         font-family: Work Sans, sans-serif;
       }
@@ -261,7 +199,7 @@
         font-style: normal;
         font-size: 16px;
         line-height: 24px;
-        color: var(--raft-grey-500);
+        color: var(--textSecondary);
         font-weight: 500;
         font-family: Work Sans, sans-serif;
       }
