@@ -57,3 +57,4 @@ export * from './useTotalVeRaftAnnualShare';
 export * from './useStakingTransactions';
 export * from './useSavingsStats';
 export * from './useSavingsLoaded';
+export * from './useBridgeLoaded';

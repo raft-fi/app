@@ -2,7 +2,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useConnectWallet } from '@web3-onboard/react';
 import {
   R_TOKEN,
-  SUPPORTED_BRIDGE_NETWORKS,
   BRIDGE_NETWORK_LANES,
   SupportedBridgeNetwork,
   BRIDGE_NETWORKS,
@@ -12,15 +11,10 @@ import { Decimal } from '@tempusfinance/decimal';
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency, switchNetwork } from '../../utils';
-import {
-  BRIDGE_MAINNET_NETWORKS,
-  NETWORK_IDS,
-  NETWORK_LOGO_VARIANTS,
-  NETWORK_NAMES,
-  BRIDGE_TESTNET_NETWORKS,
-} from '../../networks';
+import { NETWORK_IDS, NETWORK_LOGO_VARIANTS, NETWORK_NAMES, SUPPORTED_BRIDGE_NETWORKS } from '../../networks';
 import {
   useBridgeBalances,
+  useBridgeLoaded,
   useBridgeTokens,
   useEIP1193Provider,
   useEthPrice,
@@ -40,40 +34,22 @@ import {
 import PoweredBy from './PoweredBy';
 
 import './Bridge.scss';
+import { LoadingBridge } from '../LoadingPage';
 
 const Bridge = () => {
-  let defaultFromNetwork: SupportedBridgeNetwork;
-  let defaultToNetwork: SupportedBridgeNetwork;
-  if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
-    defaultFromNetwork = 'mainnet';
-    defaultToNetwork = 'base';
-  } else {
-    defaultFromNetwork = 'ethereumSepolia';
-    defaultToNetwork = 'arbitrumGoerli';
-  }
-
   const [, connect] = useConnectWallet();
   const wallet = useWallet();
   const { network } = useNetwork();
+  const bridgeLoaded = useBridgeLoaded();
   const eip1193Provider = useEIP1193Provider();
   const bridgeBalances = useBridgeBalances();
   const ethPrice = useEthPrice();
   const { bridgeTokensStatus, bridgeTokens, bridgeTokensStepsStatus, requestBridgeTokensStep } = useBridgeTokens();
 
-  const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetwork>(defaultFromNetwork);
-  const [toNetwork, setToNetwork] = useState<SupportedBridgeNetwork>(defaultToNetwork);
+  const [fromNetwork, setFromNetwork] = useState<SupportedBridgeNetwork>(SUPPORTED_BRIDGE_NETWORKS[0]);
+  const [toNetwork, setToNetwork] = useState<SupportedBridgeNetwork>(SUPPORTED_BRIDGE_NETWORKS[1]);
   const [amount, setAmount] = useState<string>('');
   const [actionButtonState, setActionButtonState] = useState<string>('default');
-
-  const availableBridgeNetworks = useMemo(() => {
-    return SUPPORTED_BRIDGE_NETWORKS.filter(network => {
-      if (import.meta.env.VITE_ENVIRONMENT === 'mainnet') {
-        return BRIDGE_MAINNET_NETWORKS.includes(network);
-      } else {
-        return BRIDGE_TESTNET_NETWORKS.includes(network);
-      }
-    });
-  }, []);
 
   const walletConnected = useMemo(() => Boolean(wallet), [wallet]);
 
@@ -321,6 +297,10 @@ const Bridge = () => {
     setToNetwork(BRIDGE_NETWORK_LANES[fromNetwork][0]);
   }, [fromNetwork]);
 
+  if (!bridgeLoaded) {
+    return <LoadingBridge />;
+  }
+
   return (
     <div className="raft__bridge">
       <div className="raft__bridge__title">
@@ -335,7 +315,7 @@ const Bridge = () => {
             FROM
           </Typography>
           <NetworkSelector
-            networks={availableBridgeNetworks}
+            networks={SUPPORTED_BRIDGE_NETWORKS}
             selectedNetwork={fromNetwork}
             onNetworkChange={handleFromNetworkChange}
           />

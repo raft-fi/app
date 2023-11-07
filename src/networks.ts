@@ -64,6 +64,9 @@ export const BRIDGE_MAINNET_NETWORKS: SupportedBridgeNetwork[] = ['mainnet', 'ba
 export const SAVINGS_TESTNET_NETWORKS: SupportedSavingsNetwork[] = ['goerli'];
 export const SAVINGS_MAINNET_NETWORKS: SupportedSavingsNetwork[] = ['mainnet', 'base'];
 
+export const SUPPORTED_BRIDGE_NETWORKS: SupportedBridgeNetwork[] =
+  import.meta.env.VITE_ENVIRONMENT === 'mainnet' ? BRIDGE_MAINNET_NETWORKS : BRIDGE_TESTNET_NETWORKS;
+
 export const SUPPORTED_SAVINGS_NETWORKS: SupportedSavingsNetwork[] =
   import.meta.env.VITE_ENVIRONMENT === 'mainnet' ? SAVINGS_MAINNET_NETWORKS : SAVINGS_TESTNET_NETWORKS;
 
