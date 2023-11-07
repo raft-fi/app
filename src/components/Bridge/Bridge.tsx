@@ -350,6 +350,7 @@ const Bridge = () => {
           <NetworkSelector
             networks={BRIDGE_NETWORK_LANES[fromNetwork]}
             selectedNetwork={toNetwork}
+            align="right"
             onNetworkChange={handleToNetworkChange}
           />
         </div>

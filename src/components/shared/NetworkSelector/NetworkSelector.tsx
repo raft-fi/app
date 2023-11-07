@@ -6,13 +6,16 @@ import { Icon, Menu, Typography } from '../';
 
 import './NetworkSelector.scss';
 
+type NetworkSelectorMenuAlignment = 'left' | 'right';
+
 type NetworkSelectorProps = {
   networks: (SupportedBridgeNetwork | SupportedSavingsNetwork)[];
   selectedNetwork: string;
+  align?: NetworkSelectorMenuAlignment;
   onNetworkChange: (network: string) => void;
 };
 
-const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, onNetworkChange }) => {
+const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, align = 'left', onNetworkChange }) => {
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const onOpenDropdown = useCallback(() => setDropdownOpen(true), []);
@@ -27,7 +30,7 @@ const NetworkSelector: FC<NetworkSelectorProps> = ({ networks, selectedNetwork, 
   );
 
   return (
-    <div className="raft__networkSelector">
+    <div className={`raft__networkSelector raft__networkSelector__align-${align}`}>
       <ButtonWrapper className="raft__networkSelector__dropdown" onClick={onOpenDropdown}>
         <TokenLogo type={NETWORK_LOGO_VARIANTS[selectedNetwork]} size={20} />
         <Typography className="raft__networkSelector__dropdownLabel" variant="button-label">
