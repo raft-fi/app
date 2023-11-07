@@ -159,6 +159,57 @@
   }
 }
 
+.raft__loading-bridge {
+  @include pageContainer;
+  justify-content: center;
+
+  .raft__loading-bridge-container {
+    @include loadingBox;
+    gap: 42px;
+    width: var(--section-main-width);
+
+    .raft__loading-bridge__network-selector-container {
+      display: flex;
+      gap: 12px;
+
+      .raft__loading-bridge__network-selector {
+        width: 100%;
+
+        .raft__loading-page__input-field {
+          margin-top: 12px;
+        }
+      }
+
+      .raft__loading-page__btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        align-self: end;
+        margin-bottom: 8px;
+      }
+    }
+
+    .raft__loading-bridge__receive {
+      .raft__loading-bridge__receive__text {
+        width: 200px;
+        height: 20px;
+        border-radius: 10px;
+        opacity: 0.15;
+        background: var(--loadingText);
+        margin-top: 20px;
+      }
+    }
+
+    .raft__loading-bridge__time-to-arrive,
+    .raft__loading-bridge__gas-fee {
+      .raft__loading-page__value {
+        width: 200px;
+        margin-top: 20px;
+      }
+    }
+  }
+}
+
 @media screen and (max-width: 1024px) {
   .raft__loading-generate {
     .raft__loading-generate__stat {
