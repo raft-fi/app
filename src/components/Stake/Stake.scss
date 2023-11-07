@@ -1,24 +1,19 @@
+@import '../../index.scss';
+
 .raft__stake {
-  display: flex;
-  gap: 16px;
-  margin-top: 10px;
+  @include pageContainer;
 
   .raft__stake__main__container {
-    background: var(--surfacePrimary);
-    border: 1px solid var(--borderPrimary);
-    border-radius: 8px;
-    padding: 32px;
-    width: 530px;
+    @include sectionMain;
   }
 
   .raft__stake__sidebar {
+    @include sidebarContainer;
+
     .raft__expandable {
-      width: 342px;
+      @include sectionSidebar;
 
       .raft__expandable__title {
-        /* TODO: hardcode color as suggested */
-        --textPrimary: var(--raft-grey-800);
-
         width: 100%;
         justify-content: space-between;
       }
@@ -28,6 +23,7 @@
           padding-left: 24px;
 
           li {
+            /* style for list marker */
             color: var(--text-secondary);
             font-family: Work Sans;
             font-size: 16px;
@@ -42,19 +38,11 @@
         color: var(--textAccent);
         font-weight: 500;
       }
-
-      &:not(:first-child) {
-        margin-top: 16px;
-      }
     }
 
     .raft__stake__current-position,
     .raft__stake__claim {
-      width: 342px;
-      background: var(--surfacePrimary);
-      border: 1px solid var(--borderPrimary);
-      border-radius: 8px;
-      padding: 24px;
+      @include sectionSidebar;
 
       .raft__stake__label:first-of-type {
         margin-top: 0;
@@ -67,10 +55,6 @@
         &.raft__stake__inline {
           gap: initial;
         }
-      }
-
-      &:not(:first-child) {
-        margin-top: 16px;
       }
     }
   }
@@ -179,7 +163,7 @@
     margin-top: 32px;
     display: flex;
     justify-content: center;
-    gap: 16px;
+    gap: var(--app-gap);
 
     .raft__button {
       width: 100%;
@@ -192,41 +176,12 @@
   }
 }
 
-.raft__stake__infoTooltip {
-  max-width: 230px;
-
-  a {
-    color: var(--textAccent);
-  }
-
-  .raft__icon__externalLink {
-    --externalLinkColor: var(--textAccent);
-  }
-}
-
 @media screen and (max-width: 1024px) {
   .raft__stake {
     flex-direction: column;
-    width: var(--app-width);
-    box-sizing: border-box;
 
     .raft__stake__main {
-      display: flex;
-
       .raft__stake__main__container {
-        width: 100%;
-        padding: 16px;
-
-        .raft__stake__input-container {
-          .raft__stake__input {
-            .raft__stake__input-amount {
-              .raft__baseInput {
-                text-align: center;
-              }
-            }
-          }
-        }
-
         .raft__stake__period-container {
           flex-wrap: wrap;
 
@@ -242,18 +197,6 @@
         .raft__stake__subtitle {
           display: none;
         }
-      }
-    }
-
-    .raft__stake__sidebar {
-      display: flex;
-      flex-wrap: wrap;
-
-      .raft__expandable,
-      .raft__stake__current-position,
-      .raft__stake__claim {
-        width: 100%;
-        padding: 16px;
       }
     }
   }

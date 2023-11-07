@@ -34,7 +34,8 @@ body > .MuiTooltip-popper {
     max-width: initial;
     z-index: 99998;
     padding: 0;
-    margin: 0;
+    /* margin for mobile when tooltip is on the edge of screen */
+    margin: 0 12px;
 
     .MuiTooltip-arrow {
       background: var(--borderPrimary);

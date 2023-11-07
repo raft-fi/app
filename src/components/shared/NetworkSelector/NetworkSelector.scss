@@ -22,6 +22,8 @@
       flex: 1;
       text-align: left;
       white-space: nowrap;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
     }
 
     svg {
@@ -31,6 +33,7 @@
 
   .raft__networkSelector__dropdownContainer {
     width: 100%;
+    min-width: 200px;
     background: var(--surfacePrimary);
     border: 1px solid var(--borderPrimary);
     border-radius: 8px;
@@ -64,6 +67,11 @@
 
   .raft__menu {
     box-shadow: initial;
-    width: 100%;
+  }
+
+  &.raft__networkSelector__align-left {
+    .raft__menu {
+      width: 100%;
+    }
   }
 }

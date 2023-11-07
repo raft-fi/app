@@ -56,3 +56,4 @@ export * from './useWalletAddress';
 export * from './useTotalVeRaftAnnualShare';
 export * from './useStakingTransactions';
 export * from './useSavingsStats';
+export * from './useSavingsLoaded';

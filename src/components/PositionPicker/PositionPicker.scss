@@ -2,13 +2,11 @@
 
 .raft__positionPicker {
   @include sectionBox;
-  padding-top: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 458px;
-  margin-top: 10px;
 
   .raft__positionPickerDescription {
     max-width: 360px;

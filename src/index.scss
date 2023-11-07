@@ -133,10 +133,16 @@
   --shadowPrimary: 0px 2px 4px rgba(0, 0, 0, 0.08);
   --shadowMenu: 0px 0px 40px rgba(15, 15, 15, 0.1), 0px 10px 10px rgba(31, 41, 55, 0.04);
 
-  /* TODO: hardly set app width to 856px for v1 */
-  --app-width: 856px;
+  --app-width: 1004px;
+  --app2-width: 856px;
+  --app-gap: 16px;
   --header-width: 1004px;
   --header-padding: 0 32px;
+  --section-padding: 24px 32px;
+  --section2-padding: 16px 24px;
+  --section-main-width: 596px;
+  --section-sidebar-width: 392px;
+  --loading-padding: 32px;
 
   --onboard-link-color: var(--textAccent);
   --onboard-connect-sidebar-background: var(--raft-blue-100);
@@ -152,8 +158,15 @@
 
   @media screen and (max-width: 1024px) {
     --app-width: calc(100vw - 24px);
-    --header-width: calc(100% - 32px);
+    --app2-width: calc(100vw - 24px);
+    --app-gap: 8px;
+    --header-width: 100%;
     --header-padding: 0 16px;
+    --section-padding: 16px;
+    --section2-padding: 16px;
+    --section-main-width: 100%;
+    --section-sidebar-width: 100%;
+    --loading-padding: 16px;
   }
 }
 
@@ -199,11 +212,100 @@ body.modal-open {
   align-items: center;
 }
 
+@mixin pageContainer {
+  display: flex;
+  width: var(--app-width);
+  gap: var(--app-gap);
+}
+
+@mixin sidebarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-gap);
+}
+
 @mixin sectionBox {
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
-  padding: 32px;
-  width: var(--app-width);
+  padding: var(--section-padding);
+  width: var(--app2-width);
   box-sizing: border-box;
+}
+
+@mixin sectionMain {
+  @include sectionBox;
+  width: var(--section-main-width);
+}
+
+@mixin sectionSidebar {
+  @include sectionBox;
+  width: var(--section-sidebar-width);
+  padding: var(--section2-padding);
+}
+
+@mixin sectionStat {
+  @include sectionBox;
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  > div {
+    padding: 16px 32px;
+    height: 128px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    &:not(:first-child) {
+      border-left: 1px solid var(--borderPrimary);
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    @include sectionStatMobile;
+    width: var(--app2-width);
+  }
+}
+
+@mixin sectionStatMobile {
+  @include sectionSidebar;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: var(--section2-padding);
+  gap: 16px;
+
+  > div {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    width: 100%;
+
+    &:not(:first-child) {
+      border-left: none;
+      border-top: 1px solid var(--borderPrimary);
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    > div {
+      &:not(:first-child) {
+        border: none;
+      }
+    }
+  }
+}
+
+@mixin loadingBox {
+  background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+  border-radius: 8px;
+  padding: var(--loading-padding);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }

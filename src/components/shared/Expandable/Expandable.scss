@@ -2,7 +2,7 @@
   background: var(--surfacePrimary);
   border: 1px solid var(--borderPrimary);
   border-radius: 8px;
-  padding: 16px 24px;
+  box-sizing: border-box;
 
   .raft__expandable__content {
     margin-top: 24px;

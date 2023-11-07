@@ -2,7 +2,6 @@
 
 .raft__openPosition {
   @include sectionBox;
-  padding-top: 24px;
 
   .raft__openPosition__header {
     display: flex;
@@ -40,12 +39,14 @@
       margin-right: 8px;
     }
   }
+
+  .raft__executeButton {
+    margin-top: 42px;
+  }
 }
 
 @media screen and (max-width: 1024px) {
   .raft__openPosition {
-    padding: 16px;
-
     .raft__openPosition__header {
       flex-direction: column;
       gap: 16px;

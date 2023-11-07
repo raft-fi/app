@@ -1,15 +1,10 @@
+@import '../../../index.scss';
+
 .raft__savings__stats {
-  display: flex;
-  justify-self: center;
-  flex-direction: column;
-  background: var(--surfacePrimary);
-  border: 1px solid var(--borderPrimary);
-  border-radius: 8px;
-  padding: 16px;
-  gap: 12px;
+  @include sectionStatMobile;
 
   &.raft__savings__stats-inverse {
-    background-color: var(--raft-blue-900);
+    --surfacePrimary: var(--raft-blue-900);
     border: none;
 
     .raft__icon__info {
@@ -18,10 +13,7 @@
   }
 
   .raft__savings__stats__item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 16px;
+    gap: 12px;
 
     .raft__savings__stats__item-title {
       display: flex;
@@ -32,13 +24,8 @@
       }
     }
 
-    &:first-child {
-      border-radius: 8px 8px 0 0;
-    }
-
     &:not(:first-child) {
       padding-top: 12px;
-      border-top: 1px solid var(--raft-grey-400);
     }
 
     > div {
@@ -70,20 +57,13 @@
   }
 }
 
-.raft__savings__tooltip {
-  max-width: 250px;
-}
-
 @media screen and (max-width: 768px) {
   .raft__savings__stats {
-    gap: 12px;
-
     .raft__savings__stats__item {
       gap: 8px;
 
       &:not(:first-child) {
         padding-top: 0;
-        border-top: none;
       }
 
       .raft__savings__stats__item-token {

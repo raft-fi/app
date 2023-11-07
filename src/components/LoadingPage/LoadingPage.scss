@@ -1,3 +1,5 @@
+@import '../../index.scss';
+
 .raft__loading-page__title {
   width: 80px;
   height: 10px;
@@ -59,20 +61,16 @@
 }
 
 .raft__loading-generate {
-  position: relative;
-  display: flex;
+  @include pageContainer;
   flex-direction: column;
   align-items: center;
-  padding-top: 10px;
-  gap: 16px;
 
   .raft__loading-generate__stat {
-    width: var(--app-width);
-    display: flex;
+    @include loadingBox;
+    flex-direction: row;
+    width: var(--app2-width);
     gap: 16px;
     padding: 32px 0;
-    border-radius: 8px;
-    box-sizing: border-box;
     background: linear-gradient(180deg, rgba(0, 54, 82, 0.08) 0%, rgba(0, 54, 82, 0.18) 100%);
 
     .raft__loading-generate__stat-row {
@@ -87,14 +85,9 @@
   }
 
   .raft__loading-generate__position {
-    display: flex;
-    width: var(--app-width);
-    padding: 32px;
+    @include loadingBox;
+    width: var(--app2-width);
     gap: 32px;
-    flex-direction: column;
-    border-radius: 8px;
-    box-sizing: border-box;
-    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
 
     .raft__loading-generate__position-inputs,
     .raft__loading-generate__position-status {
@@ -120,20 +113,12 @@
 }
 
 .raft__loading-savings {
-  position: relative;
-  display: flex;
-  padding-top: 10px;
-  gap: 16px;
+  @include pageContainer;
 
   .raft__loading-savings__position {
-    display: flex;
-    padding: 32px;
+    @include loadingBox;
     gap: 32px;
-    flex-direction: column;
-    border-radius: 8px;
-    box-sizing: border-box;
-    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
-    width: 530px;
+    width: var(--section-main-width);
 
     .raft__loading-savings__position-after,
     .raft__loading-savings__gas-fee {
@@ -145,12 +130,9 @@
   }
 
   .raft__loading-savings__stat {
-    display: flex;
-    flex-direction: column;
+    @include loadingBox;
     gap: 32px;
-    padding: 32px;
-    border-radius: 8px;
-    background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+    width: var(--section-sidebar-width);
 
     .raft__loading-savings__stat-row {
       display: flex;
@@ -167,13 +149,12 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 342px;
 
     .raft__loading-savings__faq {
-      border-radius: 8px;
-      background: linear-gradient(180deg, rgba(192, 202, 210, 0.12) 0%, rgba(159, 177, 193, 0.17) 100%);
+      @include loadingBox;
+      gap: 32px;
+      width: var(--section-sidebar-width);
       padding: 24px 32px;
-      box-sizing: border-box;
     }
   }
 }
@@ -182,7 +163,7 @@
   .raft__loading-generate {
     .raft__loading-generate__stat {
       flex-direction: column;
-      padding: 16px 12px;
+      padding: var(--loading-padding);
 
       .raft__loading-generate__stat-row {
         gap: 6px;
@@ -206,8 +187,6 @@
     }
 
     .raft__loading-generate__position {
-      padding: 16px 12px;
-
       .raft__loading-generate__position-inputs,
       .raft__loading-generate__position-status {
         flex-direction: column;
@@ -219,20 +198,11 @@
     flex-direction: column;
     width: var(--app-width);
 
-    .raft__loading-savings__position {
-      padding: 24px 12px;
-      width: 100%;
-    }
-
-    .raft__loading-savings__stat {
-      padding: 24px 12px;
-    }
-
     .raft__loading-savings__sidebar {
       width: 100%;
 
       .raft__loading-savings__faq {
-        padding: 24px;
+        padding: var(--loading-padding);
       }
     }
   }

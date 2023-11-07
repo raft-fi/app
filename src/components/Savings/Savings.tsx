@@ -5,12 +5,12 @@ import { R_TOKEN, SUPPORTED_SAVINGS_NETWORKS, isSupportedSavingsNetwork } from '
 import { ButtonWrapper, TokenLogo } from 'tempus-ui';
 import {
   setCurrentSavingsNetwork,
-  useAppLoaded,
   useCurrentSavingsNetwork,
   useCurrentUserSavings,
   useEIP1193Provider,
   useManageSavings,
   useNetwork,
+  useSavingsLoaded,
   useSavingsMaxDeposit,
   useSavingsTokenBalance,
   useWallet,
@@ -37,7 +37,7 @@ import { switchNetwork } from '../../utils';
 const Savings = () => {
   const [, connect] = useConnectWallet();
 
-  const appLoaded = useAppLoaded();
+  const savingsLoaded = useSavingsLoaded();
   const { network } = useNetwork();
   const eip1193Provider = useEIP1193Provider();
   const wallet = useWallet();
@@ -388,7 +388,7 @@ const Savings = () => {
     }
   }, [manageSavingsStatus.statusType, manageSavingsStatus.success]);
 
-  if (!appLoaded) {
+  if (!savingsLoaded) {
     return (
       <div className="raft__savings__container">
         <LoadingSavings />

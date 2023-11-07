@@ -148,7 +148,7 @@ const PreviewAdjust: FC<PreviewAdjustProps> = ({ amountToLock, deadline, goToPag
     <div className="raft__stake raft__stake__preview">
       <div className="raft__stake__main">
         <div className="raft__stake__main__container">
-          <Typography className="raft__stake__title" variant="heading1" weight="medium">
+          <Typography className="raft__stake__title" variant="heading2" weight="medium">
             {previewTitle}
           </Typography>
           <Typography className="raft__stake__subtitle" variant="body" color="text-secondary">

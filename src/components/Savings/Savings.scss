@@ -1,18 +1,10 @@
+@import '../../index.scss';
+
 .raft__savings__container {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  width: var(--app-width);
-  padding-top: 10px;
-  gap: 16px;
+  @include pageContainer;
 
   .raft__savings {
-    width: 530px;
-    padding: 32px;
-    box-sizing: border-box;
-    background: var(--surfacePrimary);
-    border: 1px solid var(--borderPrimary);
-    border-radius: 8px;
+    @include sectionMain;
 
     .raft__savings__subheader {
       margin-top: 16px;
@@ -128,25 +120,23 @@
         }
       }
     }
+
+    .raft__executeButton {
+      margin-top: 42px;
+    }
   }
 
   .raft__savings__sidebar {
-    width: 342px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-}
+    @include sidebarContainer;
 
-.raft__savings__infoTooltip {
-  max-width: 230px;
+    .raft__expandable {
+      @include sectionSidebar;
 
-  a {
-    color: var(--textAccent);
-  }
-
-  .raft__icon__externalLink {
-    --externalLinkColor: var(--textAccent);
+      .raft__expandable__title {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
   }
 }
 
@@ -156,17 +146,10 @@
 
     .raft__savings__main {
       .raft__savings {
-        width: 100%;
-        padding: 16px;
-
         .raft__savings__subheader {
           display: none;
         }
       }
-    }
-
-    .raft__savings__sidebar {
-      width: 100%;
     }
   }
 }

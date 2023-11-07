@@ -36,10 +36,10 @@ const ValueLabel: FC<ValueLabelProps> = ({ value, label = '', color, valueSize =
         <Typography variant={valueSize} color={color}>
           ~
         </Typography>
-        <Typography variant={tickerSize} color={color} weight="medium">
+        <Typography variant={tickerSize} color={color}>
           $
         </Typography>
-        <Typography variant={valueSize} color={color}>
+        <Typography variant={valueSize} color={color} weight="medium">
           {value.split('$')[1]}
         </Typography>
         {label && (

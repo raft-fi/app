@@ -6,6 +6,7 @@
   display: flex;
   justify-content: center;
   z-index: 3;
+  margin-bottom: 10px;
 
   .raft__header__nav-item a,
   .raft__header__menu-link {
@@ -198,6 +199,9 @@
       }
 
       .common-ui__header {
+        --headerHeight: 96px;
+        --headerMenuBarPadding: 16px;
+
         .common-ui__header__logo {
           .raft__logo {
             display: none;
@@ -216,12 +220,37 @@
           display: block !important;
           z-index: 9999;
 
+          .common-ui__header__menu-container {
+            .common-ui__header__menu-bar {
+              height: var(--headerHeightMobile);
+            }
+          }
+
           .common-ui__header__clickable-logo {
             .raft__logo {
               display: none;
             }
           }
+
+          .common-ui__menu-button__wrapper {
+            &.common-ui__menu-button__checked {
+              width: 24px;
+              height: 24px;
+              right: 16px;
+            }
+          }
         }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .raft__header {
+    .raft__header__container {
+      .common-ui__header {
+        --headerHeightMobile: 74px;
+        --headerMenuBarPaddingMobile: 16px;
       }
     }
   }

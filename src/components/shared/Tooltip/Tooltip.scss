@@ -2,4 +2,9 @@
   padding: 8px;
   display: flex;
   align-items: center;
+  max-width: 230px;
+
+  a {
+    color: var(--textAccent);
+  }
 }

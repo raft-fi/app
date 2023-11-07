@@ -86,9 +86,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
               <Tooltip className="raft__position-after__infoTooltip">
                 <Typography variant="body2">
                   Summary of your position after the transaction is executed.{' '}
-                  <Link href={HOW_IT_WORKS_DOCS_LINK}>
-                    Docs <Icon variant="external-link" size={10} />
-                  </Link>
+                  <Link href={HOW_IT_WORKS_DOCS_LINK}>Learn more</Link>
                 </Typography>
               </Tooltip>
             }
@@ -167,9 +165,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
                   <Tooltip className="raft__position-after__infoTooltip">
                     <Typography variant="body2">
                       Borrowing fees associated with your transaction. Read the docs for more information.{' '}
-                      <Link href="https://docs.raft.fi/how-it-works/borrowing">
-                        Docs <Icon variant="external-link" size={10} />
-                      </Link>
+                      <Link href="https://docs.raft.fi/how-it-works/borrowing">Learn more</Link>
                     </Typography>
                   </Tooltip>
                 }
@@ -212,7 +208,7 @@ export const PositionAfter: FC<PositionAfterProps> = ({
                       Annual borrowing fee associated with the total amount of R generated. Read the docs for more
                       information.{' '}
                       <Link href="https://docs.raft.fi/raft-protocol/how-is-r-backed/cdp-vaults/active-vaults/interest-rate-vaults-new">
-                        Docs
+                        Learn more
                       </Link>
                     </Typography>
                   </Tooltip>

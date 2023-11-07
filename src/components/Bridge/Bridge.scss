@@ -1,11 +1,11 @@
+@import '../../index.scss';
+
 .raft__bridge {
-  width: 560px;
-  padding: 24px 32px;
-  margin-top: 10px;
-  box-sizing: border-box;
-  background: var(--surfacePrimary);
-  border: 1px solid var(--borderPrimary);
-  border-radius: 8px;
+  @include sectionMain;
+
+  display: flex;
+  flex-direction: column;
+  gap: 42px;
 
   .raft__bridge__title {
     display: flex;
@@ -14,7 +14,6 @@
   }
 
   .raft__bridge__network {
-    margin-top: 42px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -30,13 +29,7 @@
     }
   }
 
-  .raft__bridge__send-amount {
-    margin-top: 42px;
-  }
-
   .raft__bridge__receive-amount {
-    margin-top: 42px;
-
     .raft__bridge__receive-amount__value {
       margin-top: 8px;
       display: flex;
@@ -75,8 +68,6 @@
   }
 
   .raft__bridge__time {
-    margin-top: 42px;
-
     .raft__bridge__time__label {
       display: flex;
       align-items: center;
@@ -89,8 +80,6 @@
   }
 
   .raft__bridge__fees {
-    margin-top: 42px;
-
     .raft__bridge__fees__label {
       display: flex;
       align-items: center;
