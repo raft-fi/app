@@ -161,11 +161,17 @@
 @media screen and (max-width: 768px) {
   .raft__protocol-stats {
     .raft__protocol-stats__collateral {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
       align-items: baseline;
     }
 
     .raft__protocol-stats__debt,
     .raft__protocol-stats__ratio {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
       align-items: center;
     }
 

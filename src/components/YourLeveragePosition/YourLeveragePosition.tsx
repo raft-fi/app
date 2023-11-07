@@ -141,9 +141,7 @@ const YourLeveragePosition: FC<YourLeveragePositionProps> = ({ position }) => {
           LEVERAGE
         </Typography>
         <div className="raft__your-leverage-position__leverage__amount">
-          <div className="raft__your-leverage-position__leverage__amount__number">
-            <Typography variant="heading1">{position.effectiveLeverage.toRounded(1)}x</Typography>
-          </div>
+          <Typography variant="heading1">{position.effectiveLeverage.toRounded(1)}x</Typography>
         </div>
         <div className="raft__your-leverage-position__leverage__value__number">
           <Typography variant="body" weight="medium" color="text-secondary">

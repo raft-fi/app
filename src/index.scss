@@ -263,29 +263,34 @@ body.modal-open {
   }
 
   @media screen and (max-width: 1024px) {
-    justify-content: flex-start;
-    align-items: flex-start;
+    @include sectionStatMobile;
+  }
+}
+
+@mixin sectionStatMobile {
+  @include sectionSidebar;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: var(--section2-padding);
+  gap: 16px;
+
+  > div {
+    box-sizing: border-box;
+    display: flex;
     flex-direction: column;
-    padding: var(--section-padding);
-    gap: 12px;
+    padding: 0;
+    width: 100%;
 
-    > div {
-      padding: 0;
-      width: 100%;
-
-      &:not(:first-child) {
-        border-left: none;
-        border-top: 1px solid var(--borderPrimary);
-      }
+    &:not(:first-child) {
+      border-left: none;
+      border-top: 1px solid var(--borderPrimary);
     }
   }
 
   @media screen and (max-width: 768px) {
     > div {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 8px;
-
       &:not(:first-child) {
         border: none;
       }

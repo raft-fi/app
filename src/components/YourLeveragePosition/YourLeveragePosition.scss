@@ -32,15 +32,6 @@
     }
   }
 
-  .raft__your-leverage-position__leverage__amount__number {
-    display: flex;
-    align-items: baseline;
-
-    :last-child {
-      margin-left: 4px;
-    }
-  }
-
   .raft__your-leverage-position__collateral__value__number {
     margin-top: 8px;
   }
@@ -79,6 +70,15 @@
 
 @media screen and (max-width: 768px) {
   .raft__your-leverage-position {
+    .raft__your-leverage-position__collateral,
+    .raft__your-leverage-position__leverage,
+    .raft__your-leverage-position__liquidation {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
     .raft__your-leverage-position__collateral__title,
     .raft__your-leverage-position__leverage__title,
     .raft__your-leverage-position__liquidation__title {
@@ -112,13 +112,8 @@
       display: flex;
     }
 
-    .raft__your-leverage-position__leverage__amount__number {
-      :first-child {
-        font-size: 12px !important;
-        line-height: 16px !important;
-      }
-
-      :last-child {
+    .raft__your-leverage-position__leverage__amount {
+      > div {
         font-size: 16px !important;
         line-height: 24px !important;
       }

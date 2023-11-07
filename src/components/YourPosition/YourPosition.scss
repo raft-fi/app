@@ -98,6 +98,14 @@
 
 @media screen and (max-width: 768px) {
   .raft__your-position {
+    .raft__your-position__collateral,
+    .raft__your-position__debt,
+    .raft__your-position__ratio {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
     .raft__your-position__collateral__title,
     .raft__your-position__debt__title,
     .raft__your-position__ratio__title {
