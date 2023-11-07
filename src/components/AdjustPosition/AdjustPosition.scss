@@ -2,7 +2,6 @@
 
 .raft__adjustPosition {
   @include sectionBox;
-  padding-top: 24px;
 
   .raft__adjustPosition__header {
     display: flex;
@@ -51,6 +50,10 @@
     }
   }
 
+  .raft__executeButton {
+    margin-top: 42px;
+  }
+
   .raft__adjustPosition__error {
     display: flex;
     align-items: center;
@@ -63,8 +66,6 @@
 
 @media screen and (max-width: 1024px) {
   .raft__adjustPosition {
-    padding: 16px;
-
     .raft__adjustPosition__header {
       flex-direction: column;
       align-items: flex-start;
