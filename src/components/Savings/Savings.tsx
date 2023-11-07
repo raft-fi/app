@@ -388,7 +388,7 @@ const Savings = () => {
     }
   }, [manageSavingsStatus.statusType, manageSavingsStatus.success]);
 
-  if (!appLoaded) {
+  if (!appLoaded || true) {
     return (
       <div className="raft__savings__container">
         <LoadingSavings />
