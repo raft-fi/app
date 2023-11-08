@@ -3,7 +3,6 @@ import { bind } from '@react-rxjs/core';
 import {
   interval,
   BehaviorSubject,
-  mergeMap,
   merge,
   debounce,
   tap,
@@ -11,6 +10,7 @@ import {
   withLatestFrom,
   filter,
   concatMap,
+  combineLatest,
 } from 'rxjs';
 import { SupportedSavingsNetwork, UserSavings } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
@@ -42,22 +42,10 @@ const fetchData = async (signer: Signer, network: SupportedSavingsNetwork) => {
   }
 };
 
-// Fetch current user savings data every time user changes network in UI
-const savingsNetworkChangeStream$ = currentSavingsNetwork$.pipe(
-  withLatestFrom(walletSigner$, isWrongSavingsNetwork$),
-  concatMap(async ([currentSavingsNetwork, signer, isWrongSavingsNetwork]) => {
-    if (!signer || isWrongSavingsNetwork) {
-      return DEFAULT_VALUE;
-    }
-
-    return fetchData(signer, currentSavingsNetwork);
-  }),
-);
-
-// Fetch current user savings data every time wallet changes
-const walletChangeStream$ = walletSigner$.pipe(
-  withLatestFrom(currentSavingsNetwork$, isWrongSavingsNetwork$),
-  concatMap(async ([signer, currentSavingsNetwork, isWrongSavingsNetwork]) => {
+// Fetch current user savings data every time wallet/network changes
+const changeStream$ = combineLatest([walletSigner$, currentSavingsNetwork$]).pipe(
+  withLatestFrom(isWrongSavingsNetwork$),
+  concatMap(async ([[signer, currentSavingsNetwork], isWrongSavingsNetwork]) => {
     if (!signer || isWrongSavingsNetwork) {
       return DEFAULT_VALUE;
     }
@@ -70,17 +58,17 @@ const walletChangeStream$ = walletSigner$.pipe(
 const appEventsStream$ = appEvent$.pipe(
   withLatestFrom(walletSigner$, currentSavingsNetwork$, isWrongSavingsNetwork$),
   filter((value): value is [AppEvent, JsonRpcSigner, SupportedSavingsNetwork, boolean] => {
-    const [, signer, , isWrongSavingsNetwork] = value;
+    const [appEvent, signer, , isWrongSavingsNetwork] = value;
 
-    return Boolean(signer) && !isWrongSavingsNetwork;
+    return appEvent?.eventType === 'manageSavings' && Boolean(signer) && !isWrongSavingsNetwork;
   }),
-  mergeMap(([, signer, currentSavingsNetwork]) => {
+  concatMap(([, signer, currentSavingsNetwork]) => {
     return fetchData(signer, currentSavingsNetwork);
   }),
 );
 
 // merge all stream$ into one, use merge() for multiple
-const stream$ = merge(walletChangeStream$, appEventsStream$, savingsNetworkChangeStream$).pipe(
+const stream$ = merge(changeStream$, appEventsStream$).pipe(
   debounce(() => interval(DEBOUNCE_IN_MS)),
   tap(currentUserSavings => currentUserSavings$.next(currentUserSavings)),
 );
