@@ -6,7 +6,12 @@ import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
 import { TokenLogo } from 'tempus-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
-import { useCalculateVeRaftAmount, useEstimateStakingApr, useRaftTokenAnnualGiveAway } from '../../hooks';
+import {
+  useCalculateVeRaftAmount,
+  useEstimateStakingApr,
+  useMaxStakingApr,
+  useRaftTokenAnnualGiveAway,
+} from '../../hooks';
 import { formatCurrency } from '../../utils';
 import { Button, CurrencyInput, Typography, ValueLabel } from '../shared';
 import FAQ from './FAQ';
@@ -36,6 +41,7 @@ const NotConnected: FC<NotConnectedProps> = ({
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
   const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
   const { calculateVeRaftAmountStatus, calculateVeRaftAmount } = useCalculateVeRaftAmount();
+  const maxStakingApr = useMaxStakingApr();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const veRaftAmount = useMemo(
@@ -64,7 +70,7 @@ const NotConnected: FC<NotConnectedProps> = ({
     [weeklyGiveaway],
   );
   const stakingAprFormatted = useMemo(() => {
-    const apr = estimateStakingAprStatus.result;
+    const apr = estimateStakingAprStatus.result ?? maxStakingApr;
 
     if (!apr) {
       return null;
@@ -74,7 +80,7 @@ const NotConnected: FC<NotConnectedProps> = ({
       style: 'percentage',
       fractionDigits: 2,
     });
-  }, [estimateStakingAprStatus.result]);
+  }, [estimateStakingAprStatus.result, maxStakingApr]);
   const bptAmountWithEllipse = useMemo(() => {
     const original = bptAmount.toString();
     const truncated = bptAmount.toTruncated(INPUT_PREVIEW_DIGITS);
@@ -149,9 +155,17 @@ const NotConnected: FC<NotConnectedProps> = ({
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             ESTIMATED APR
           </Typography>
-          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+          <Typography
+            className="raft__stake__value raft__stake__baseline"
+            variant="body"
+            weight="medium"
+            color="text-secondary"
+          >
             {stakingAprFormatted ? (
-              <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
+              <>
+                {!estimateStakingAprStatus.result && <Typography variant="body2">Up to</Typography>}
+                <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
+              </>
             ) : (
               'N/A'
             )}
