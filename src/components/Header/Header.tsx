@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Header as HeaderBase, Link } from 'tempus-ui';
+import { useLocation, Link } from 'react-router-dom';
+import { Header as HeaderBase } from 'tempus-ui';
 import { Nullable } from '../../interfaces';
 import { Icon, Typography } from '../shared';
 import RaftLogo from '../Logo/RaftLogo';
@@ -51,7 +51,7 @@ const Header = () => {
   const navItems = useMemo(
     () => [
       <div key="navitem-your-position" className="raft__header__nav-item">
-        <Link href="/">
+        <Link to="/">
           <Typography
             variant="menu-item"
             className={`${
@@ -63,7 +63,7 @@ const Header = () => {
         </Link>
       </div>,
       <div key="navitem-savings" className="raft__header__nav-item">
-        <Link href="/savings">
+        <Link to="/savings">
           <Typography
             variant="menu-item"
             className={`${currentPage === 'savings' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
@@ -73,7 +73,7 @@ const Header = () => {
         </Link>
       </div>,
       <div key="navitem-bridge" className="raft__header__nav-item">
-        <Link href="/bridge">
+        <Link to="/bridge">
           <Typography
             variant="menu-item"
             className={`${currentPage === 'bridge' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
@@ -83,7 +83,7 @@ const Header = () => {
         </Link>
       </div>,
       <div key="navitem-stake" className="raft__header__nav-item">
-        <Link href="/stake">
+        <Link to="/stake">
           <Typography
             variant="menu-item"
             className={`${currentPage === 'stake' ? 'raft__header__link-active' : 'raft__header__link-inactive'}`}
@@ -99,25 +99,25 @@ const Header = () => {
 
   const menuItems = useMemo(
     () => [
-      <Link key="navitem-your-position" className="raft__header__menu-link" href="/">
+      <Link key="navitem-your-position" className="raft__header__menu-link" to="/">
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Your Position
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
-      <Link key="navitem-savings" className="raft__header__menu-link" href="/savings">
+      <Link key="navitem-savings" className="raft__header__menu-link" to="/savings">
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Earn
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
-      <Link key="navitem-bridge" className="raft__header__menu-link" href="/bridge">
+      <Link key="navitem-bridge" className="raft__header__menu-link" to="/bridge">
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Bridge
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
-      <Link key="navitem-stake" className="raft__header__menu-link" href="/stake">
+      <Link key="navitem-stake" className="raft__header__menu-link" to="/stake">
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Stake
         </Typography>
