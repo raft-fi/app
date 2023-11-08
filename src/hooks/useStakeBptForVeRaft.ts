@@ -192,7 +192,7 @@ const stream$ = combineLatest([distinctRequest$, raftToken$, walletSigner$]).pip
     try {
       stakeBptForVeRaftStepsStatus$.next({ pending: true, request, result: null, generator: null });
 
-      const bptAllowance = await raftToken.getUserBptAllowance();
+      const bptAllowance = (await raftToken.getUserBptAllowance()) ?? Decimal.ZERO;
 
       const steps = raftToken.getStakeBptSteps(bptAmount, unlockTime, walletSigner, {
         bptAllowance,
