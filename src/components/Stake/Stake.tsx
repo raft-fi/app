@@ -1,7 +1,8 @@
 import { addMilliseconds, startOfDay } from 'date-fns';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { YEAR_IN_MS } from '../../constants';
-import { useUserVeRaftBalance, useWallet, useWalletAddress } from '../../hooks';
+import { useStakeLoaded, useUserVeRaftBalance, useWallet, useWalletAddress } from '../../hooks';
+import { LoadingStake } from '../LoadingPage';
 import Adjust from './Adjust';
 import HasPosition from './HasPosition';
 import NoPositions from './NoPositions';
@@ -14,6 +15,7 @@ import './Stake.scss';
 export type StakePage = 'default' | 'adjust' | 'preview';
 
 const Stake = () => {
+  const stakeLoaded = useStakeLoaded();
   const wallet = useWallet();
   const address = useWalletAddress();
   const userVeRaftBalance = useUserVeRaftBalance();
@@ -37,6 +39,10 @@ const Stake = () => {
   useEffect(() => {
     setStep('default');
   }, [address]);
+
+  if (!stakeLoaded) {
+    return <LoadingStake />;
+  }
 
   if (!wallet) {
     return (
