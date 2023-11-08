@@ -148,7 +148,7 @@
   .raft__loading-savings__sidebar {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--app-gap);
 
     .raft__loading-savings__faq {
       @include loadingBox;
@@ -210,6 +210,62 @@
   }
 }
 
+.raft__loading-stake {
+  @include pageContainer;
+
+  .raft__loading-stake__position {
+    @include loadingBox;
+    gap: 32px;
+    width: var(--section-main-width);
+
+    .raft__loading-stake__position__desc {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .raft__loading-stake__token-value {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .raft__loading-stake__period-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      > div {
+        width: 25%;
+      }
+
+      .raft__loading-page__btn {
+        height: 32px;
+      }
+    }
+
+    .raft__loading-stake__gas-fee {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+  }
+
+  .raft__loading-stake__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--app-gap);
+
+    .raft__loading-stake__faq {
+      @include loadingBox;
+      gap: 32px;
+      width: var(--section-sidebar-width);
+      padding: 24px 32px;
+    }
+  }
+}
+
 @media screen and (max-width: 1024px) {
   .raft__loading-generate {
     .raft__loading-generate__stat {
@@ -253,6 +309,39 @@
       width: 100%;
 
       .raft__loading-savings__faq {
+        padding: var(--loading-padding);
+      }
+    }
+  }
+
+  .raft__loading-stake {
+    flex-direction: column;
+    width: var(--app-width);
+
+    .raft__loading-stake__position {
+      .raft__loading-stake__position__desc {
+        display: none;
+      }
+
+      .raft__loading-stake__period-picker {
+        flex-wrap: wrap;
+
+        .raft__loading-page__title {
+          width: 160px;
+          margin-right: 60%;
+        }
+
+        .raft__loading-page__btn {
+          flex: 1 30%;
+          margin-top: 4px;
+        }
+      }
+    }
+
+    .raft__loading-stake__sidebar {
+      width: 100%;
+
+      .raft__loading-stake__faq {
         padding: var(--loading-padding);
       }
     }
