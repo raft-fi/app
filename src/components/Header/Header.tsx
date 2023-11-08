@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Header as HeaderBase } from 'tempus-ui';
 import { Nullable } from '../../interfaces';
@@ -16,6 +16,8 @@ const Header = () => {
 
   const [currentPage, setCurrentPage] = useState<Nullable<string>>(null);
   const [menuOpened, setMenuOpened] = useState(false);
+
+  const onClickMenuLink = useCallback(() => setTimeout(() => setMenuOpened(false), 200), []);
 
   useEffect(() => {
     const sanitizedPath = location.pathname.replace(/\/$/, '');
@@ -99,32 +101,32 @@ const Header = () => {
 
   const menuItems = useMemo(
     () => [
-      <Link key="navitem-your-position" className="raft__header__menu-link" to="/">
+      <Link key="navitem-your-position" className="raft__header__menu-link" to="/" onClick={onClickMenuLink}>
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Your Position
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
-      <Link key="navitem-savings" className="raft__header__menu-link" to="/savings">
+      <Link key="navitem-savings" className="raft__header__menu-link" to="/savings" onClick={onClickMenuLink}>
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Earn
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
-      <Link key="navitem-bridge" className="raft__header__menu-link" to="/bridge">
+      <Link key="navitem-bridge" className="raft__header__menu-link" to="/bridge" onClick={onClickMenuLink}>
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Bridge
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
-      <Link key="navitem-stake" className="raft__header__menu-link" to="/stake">
+      <Link key="navitem-stake" className="raft__header__menu-link" to="/stake" onClick={onClickMenuLink}>
         <Typography variant="menu-item" weight="medium" color="text-secondary">
           Stake
         </Typography>
         <Icon variant="arrow-right" />
       </Link>,
     ],
-    [],
+    [onClickMenuLink],
   );
 
   return (
