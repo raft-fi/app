@@ -1,5 +1,5 @@
 import { bind } from '@react-rxjs/core';
-import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rxjs';
+import { BehaviorSubject, Subscription, interval, map, tap, distinct, takeWhile } from 'rxjs';
 import { SUPPORTED_BRIDGE_NETWORKS } from '../networks';
 import { bridgeBalances$ } from './useBridgeBalances';
 import { ethPrice$ } from './useEthPrice';
@@ -10,6 +10,7 @@ const CHECK_INTERVAL = 1000;
 
 const bridgeLoaded$ = new BehaviorSubject<boolean>(DEFAULT_VALUE);
 
+// once app is loaded, unsubscribe the stream
 const stream$ = interval(CHECK_INTERVAL).pipe(
   map(count => {
     const wallet = wallet$.getValue();
@@ -33,4 +34,11 @@ export const subscribeBridgeLoaded = (): void => {
 export const unsubscribeBridgeLoaded = (): void => subscription?.unsubscribe();
 export const resetBridgeLoaded = (): void => bridgeLoaded$.next(DEFAULT_VALUE);
 
-subscribeBridgeLoaded();
+// whenever wallet changes, subscribe the stream again
+wallet$
+  .pipe(
+    map(wallet => Boolean(wallet)),
+    distinct(),
+    tap(subscribeBridgeLoaded),
+  )
+  .subscribe();
