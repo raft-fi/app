@@ -1,5 +1,5 @@
 import { bind } from '@react-rxjs/core';
-import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rxjs';
+import { BehaviorSubject, Subscription, interval, map, tap, distinct, takeWhile } from 'rxjs';
 import { wallet$ } from './useWallet';
 import { userVeRaftBalance$ } from './useUserVeRaftBalance';
 
@@ -8,6 +8,7 @@ const CHECK_INTERVAL = 1000;
 
 const stakeLoaded$ = new BehaviorSubject<boolean>(DEFAULT_VALUE);
 
+// once app is loaded, unsubscribe the stream
 const stream$ = interval(CHECK_INTERVAL).pipe(
   map(count => {
     const wallet = wallet$.getValue();
@@ -30,4 +31,11 @@ export const subscribeStakeLoaded = (): void => {
 export const unsubscribeStakeLoaded = (): void => subscription?.unsubscribe();
 export const resetStakeLoaded = (): void => stakeLoaded$.next(DEFAULT_VALUE);
 
-subscribeStakeLoaded();
+// whenever wallet changes, subscribe the stream again
+wallet$
+  .pipe(
+    map(wallet => Boolean(wallet)),
+    distinct(),
+    tap(subscribeStakeLoaded),
+  )
+  .subscribe();

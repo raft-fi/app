@@ -7,7 +7,6 @@ import {
   subscribeTransactionHistory,
   subscribeTokenAllowances,
   subscribeTokenWhitelists,
-  subscribeAppLoaded,
   subscribeCollateralBorrowingRates,
   subscribeCollateralConversionRates,
   subscribePosition,
@@ -41,7 +40,6 @@ const HookSubscriber: FC = () => {
 
   // subscribe for the steam$ of the polling hooks
   useEffect(() => {
-    subscribeAppLoaded();
     subscribeENS();
     subscribeTokenPrices();
     subscribeTokenBalances();

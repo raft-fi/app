@@ -1,5 +1,5 @@
 import { bind } from '@react-rxjs/core';
-import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rxjs';
+import { BehaviorSubject, Subscription, interval, map, tap, distinct, takeWhile } from 'rxjs';
 import { wallet$ } from './useWallet';
 import { collateralBorrowingRates$ } from './useCollateralBorrowingRates';
 import { protocolStats$ } from './useProtocolStats';
@@ -10,6 +10,7 @@ const CHECK_INTERVAL = 1000;
 
 const appLoaded$ = new BehaviorSubject<boolean>(DEFAULT_VALUE);
 
+// once app is loaded, unsubscribe the stream
 const stream$ = interval(CHECK_INTERVAL).pipe(
   map(count => {
     const wallet = wallet$.getValue();
@@ -33,3 +34,12 @@ export const subscribeAppLoaded = (): void => {
 };
 export const unsubscribeAppLoaded = (): void => subscription?.unsubscribe();
 export const resetAppLoaded = (): void => appLoaded$.next(DEFAULT_VALUE);
+
+// whenever wallet changes, subscribe the stream again
+wallet$
+  .pipe(
+    map(wallet => Boolean(wallet)),
+    distinct(),
+    tap(subscribeAppLoaded),
+  )
+  .subscribe();

@@ -1,5 +1,5 @@
 import { bind } from '@react-rxjs/core';
-import { BehaviorSubject, Subscription, interval, map, tap, takeWhile } from 'rxjs';
+import { BehaviorSubject, Subscription, interval, map, tap, distinct, takeWhile } from 'rxjs';
 import { wallet$ } from './useWallet';
 import { savingsMaxDeposit$ } from './useSavingsMaxDeposit';
 import { currentUserSavings$ } from './useCurrentUserSavings';
@@ -12,6 +12,7 @@ const CHECK_INTERVAL = 1000;
 
 const savingsLoaded$ = new BehaviorSubject<boolean>(DEFAULT_VALUE);
 
+// once app is loaded, unsubscribe the stream
 const stream$ = interval(CHECK_INTERVAL).pipe(
   map(count => {
     const wallet = wallet$.getValue();
@@ -45,4 +46,11 @@ export const subscribeSavingsLoaded = (): void => {
 export const unsubscribeSavingsLoaded = (): void => subscription?.unsubscribe();
 export const resetSavingsLoaded = (): void => savingsLoaded$.next(DEFAULT_VALUE);
 
-subscribeSavingsLoaded();
+// whenever wallet changes, subscribe the stream again
+wallet$
+  .pipe(
+    map(wallet => Boolean(wallet)),
+    distinct(),
+    tap(subscribeSavingsLoaded),
+  )
+  .subscribe();
