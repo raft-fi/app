@@ -17,14 +17,16 @@ import {
   BehaviorSubject,
   map,
   withLatestFrom,
+  startWith,
 } from 'rxjs';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { DEBOUNCE_IN_MS, LONG_POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { provider$ } from './useProvider';
 
 export const savingsMaxDeposit$ = new BehaviorSubject<Nullable<Decimal>>(null);
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS);
+// only poll once per hour
+const intervalBeat$: Observable<number> = interval(LONG_POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 const fetchData = (provider: JsonRpcProvider) => {
   try {

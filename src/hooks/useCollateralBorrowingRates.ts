@@ -17,7 +17,7 @@ import {
   mergeMap,
 } from 'rxjs';
 import { JsonRpcProvider } from 'ethers';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
+import { DEBOUNCE_IN_MS, LONG_POLLING_INTERVAL_IN_MS, SUPPORTED_UNDERLYING_TOKENS } from '../constants';
 import { SupportedUnderlyingCollateralToken, TokenDecimalMap } from '../interfaces';
 import { provider$ } from './useProvider';
 import { getNullTokenMap } from '../utils';
@@ -45,7 +45,8 @@ const fetchData = (provider: JsonRpcProvider) => {
   }
 };
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
+// only poll once per hour
+const intervalBeat$: Observable<number> = interval(LONG_POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<CollateralBorrowingRateMap> = intervalBeat$.pipe(
