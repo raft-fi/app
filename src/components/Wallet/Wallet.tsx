@@ -1,6 +1,5 @@
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import SafeAppsSDK, { SafeInfo } from '@safe-global/safe-apps-sdk';
-import { PositionTransaction, SavingsTransaction, StakingTransaction } from '@raft-fi/sdk';
 import { init, useConnectWallet, useWallets } from '@web3-onboard/react';
 import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
@@ -10,46 +9,21 @@ import { ButtonWrapper } from 'tempus-ui';
 import { shortenAddress } from '../../utils';
 import { Nullable } from '../../interfaces';
 import {
-  HistoryTransaction,
   updateWalletFromEIP1193Provider,
   useWalletLoaded,
   updateWalletLabel,
   useConfig,
   useENS,
   useNetwork,
-  useTransactionHistory,
+  useLastLiquidationTransaction,
 } from '../../hooks';
 import { Typography, Button, Icon, ModalWrapper } from '../shared';
 import NetworkErrorModal from '../NetworkErrorModal';
 import LiquidationModal from '../LiquidationModal';
-import {
-  BridgeRequestTransactionRow,
-  ManageTransactionRow,
-  SavingsTransactionRow,
-  StakingTransactionRow,
-} from './TransactionHistoryRow';
+import TransactionHistory from './TransactionHistory';
 import getStarted from './logo/get-started.svg';
 
 import './Wallet.scss';
-
-const isSavingsTransaction = (transaction: HistoryTransaction): transaction is SavingsTransaction => {
-  return transaction.type === 'DEPOSIT' || transaction.type === 'WITHDRAW';
-};
-
-const isStakingTransaction = (transaction: HistoryTransaction): transaction is StakingTransaction => {
-  return ['DEPOSIT_FOR', 'CREATE_LOCK', 'INCREASE_LOCK_AMOUNT', 'INCREASE_UNLOCK_TIME', 'WITHDRAW', 'CLAIM'].includes(
-    transaction.type,
-  );
-};
-
-const isManageTransaction = (transaction: HistoryTransaction): transaction is PositionTransaction => {
-  return (
-    transaction.type === 'ADJUST' ||
-    transaction.type === 'CLOSE' ||
-    transaction.type === 'OPEN' ||
-    transaction.type === 'LIQUIDATION'
-  );
-};
 
 const safeSdk = new SafeAppsSDK();
 const injected = injectedModule();
@@ -111,7 +85,7 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
   const { isWrongNetwork, switchToSupportedNetwork } = useNetwork();
   const connectedWallets = useWallets();
   const ens = useENS();
-  const transactionHistory = useTransactionHistory();
+  const lastLiquidationTransaction = useLastLiquidationTransaction();
 
   const [popupOpen, setPopupOpen] = useState(false);
   const [safeApp, setSafeApp] = useState<Nullable<SafeInfo>>(null);
@@ -223,14 +197,6 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
     return ens.name ?? shortenAddress(connectedAddress, 10, 8);
   }, [connectedAddress, ens.name, wallet]);
 
-  const lastLiquidation = useMemo(
-    () =>
-      (transactionHistory?.filter((transaction): transaction is PositionTransaction => {
-        return transaction.type === 'LIQUIDATION';
-      }) ?? [])[0],
-    [transactionHistory],
-  );
-
   const handlePopupOpen = useCallback(() => {
     setPopupOpen(true);
   }, []);
@@ -324,33 +290,7 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
               </Typography>
             </Button>
           </div>
-          <div className="raft__wallet_popupTransactions">
-            <div className="raft__wallet__popupTransactionsContainer">
-              {transactionHistory?.length ? (
-                transactionHistory.map(transaction => {
-                  if (isSavingsTransaction(transaction)) {
-                    return <SavingsTransactionRow key={transaction.id} transaction={transaction} />;
-                  }
-                  if (isStakingTransaction(transaction)) {
-                    return <StakingTransactionRow key={transaction.id} transaction={transaction} />;
-                  }
-                  if (isManageTransaction(transaction)) {
-                    return <ManageTransactionRow key={transaction.id} transaction={transaction} />;
-                  }
-                  return <BridgeRequestTransactionRow key={transaction.id} transaction={transaction} />;
-                })
-              ) : (
-                <Typography
-                  className="raft__wallet__popupTransactionsContainer__empty"
-                  variant="body"
-                  weight="medium"
-                  color="text-secondary"
-                >
-                  No transactions
-                </Typography>
-              )}
-            </div>
-          </div>
+          <TransactionHistory />
           <div className="raft__wallet__popupActions">
             <Button
               variant="secondary"
@@ -365,11 +305,11 @@ const Wallet: FC<WalletProps> = ({ skipNetworkChecking }) => {
       {wallet && (
         <>
           {!skipNetworkChecking && <NetworkErrorModal />}
-          {connectedAddress && lastLiquidation && (
+          {connectedAddress && lastLiquidationTransaction && (
             <LiquidationModal
-              key={`liquidation-modal-${lastLiquidation.id}`}
+              key={`liquidation-modal-${lastLiquidationTransaction.id}`}
               walletAddress={connectedAddress}
-              liquidationTransaction={lastLiquidation}
+              liquidationTransaction={lastLiquidationTransaction}
             />
           )}
         </>

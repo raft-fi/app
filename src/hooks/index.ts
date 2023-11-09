@@ -60,3 +60,4 @@ export * from './useSavingsLoaded';
 export * from './useBridgeLoaded';
 export * from './useStakeLoaded';
 export * from './useMaxStakingApr';
+export * from './useLastLiquidationTransaction';
