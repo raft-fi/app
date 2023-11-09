@@ -205,3 +205,11 @@
     }
   }
 }
+
+@media screen and (max-width: 768px) {
+  .raft__stake {
+    .raft__stake__btn-container {
+      flex-direction: column;
+    }
+  }
+}
