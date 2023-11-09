@@ -18,7 +18,7 @@ import {
   mergeMap,
 } from 'rxjs';
 import { JsonRpcProvider } from 'ethers';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_COLLATERAL_TOKENS } from '../constants';
+import { DEBOUNCE_IN_MS, LONG_POLLING_INTERVAL_IN_MS, SUPPORTED_COLLATERAL_TOKENS } from '../constants';
 import { Nullable, SupportedCollateralToken, TokenDecimalMap } from '../interfaces';
 import { provider$ } from './useProvider';
 import { Decimal } from '@tempusfinance/decimal';
@@ -45,7 +45,8 @@ const fetchData = (protocol: Protocol, collateralToken: SupportedCollateralToken
   }
 };
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
+// only poll once per hour
+const intervalBeat$: Observable<number> = interval(LONG_POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<CollateralPositionCapMap> = intervalBeat$.pipe(

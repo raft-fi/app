@@ -21,6 +21,7 @@ export const GITBOOK_URL = 'https://docs.raft.fi/';
 export const CCIP_EXPLORER_URL = 'https://ccip.chain.link/';
 export const DEBOUNCE_IN_MS = 500;
 export const POLLING_INTERVAL_IN_MS = 2 * 60 * 1000;
+export const LONG_POLLING_INTERVAL_IN_MS = 30 * POLLING_INTERVAL_IN_MS;
 export const NUMBER_OF_CONFIRMATIONS_FOR_TX = 1;
 export const MIN_BORROW_AMOUNT = 3000;
 export const HEALTHY_RATIO = 2.2;

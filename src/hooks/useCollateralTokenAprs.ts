@@ -14,7 +14,7 @@ import {
   mergeMap,
 } from 'rxjs';
 import { request, gql } from 'graphql-request';
-import { DEBOUNCE_IN_MS, POLLING_INTERVAL_IN_MS, SUPPORTED_COLLATERAL_TOKENS } from '../constants';
+import { DEBOUNCE_IN_MS, LONG_POLLING_INTERVAL_IN_MS, SUPPORTED_COLLATERAL_TOKENS } from '../constants';
 import { Nullable, SupportedCollateralToken, TokenDecimalMap } from '../interfaces';
 import { Decimal } from '@tempusfinance/decimal';
 import { getNullTokenMap } from '../utils';
@@ -127,7 +127,8 @@ const fetchData = async (collateralToken: SupportedCollateralToken): Promise<Nul
   }
 };
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
+// only poll once per hour
+const intervalBeat$: Observable<number> = interval(LONG_POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<CollateralAprMap> = intervalBeat$.pipe(

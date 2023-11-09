@@ -15,7 +15,7 @@ import {
   mergeMap,
 } from 'rxjs';
 import { JsonRpcProvider } from 'ethers';
-import { POLLING_INTERVAL_IN_MS } from '../constants';
+import { LONG_POLLING_INTERVAL_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { provider$ } from './useProvider';
 
@@ -39,7 +39,8 @@ const fetchData = (provider: JsonRpcProvider) => {
   }
 };
 
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS).pipe(startWith(0));
+// only poll once per hour
+const intervalBeat$: Observable<number> = interval(LONG_POLLING_INTERVAL_IN_MS).pipe(startWith(0));
 
 // stream$ for periodic polling to fetch data
 const periodicStream$: Observable<Nullable<Decimal>> = intervalBeat$.pipe(
