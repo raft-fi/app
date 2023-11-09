@@ -4,7 +4,6 @@ import {
   subscribeTokenBalances,
   subscribeTokenPrices,
   subscribeEIP1193Provider,
-  subscribeTransactionHistory,
   subscribeTokenAllowances,
   subscribeTokenWhitelists,
   subscribeCollateralBorrowingRates,
@@ -28,8 +27,6 @@ import {
   subscribeManageSavingsStatus,
   subscribeSavingsMaxDeposit,
   subscribeCurrentUserSavings,
-  subscribeManageTransactions,
-  subscribeSavingsTransactions,
   subscribeBridgeTokensStatus,
   subscribeWaitForBridgeStatus,
 } from '../../hooks';
@@ -44,7 +41,6 @@ const HookSubscriber: FC = () => {
     subscribeTokenPrices();
     subscribeTokenBalances();
     subscribeEIP1193Provider();
-    subscribeTransactionHistory();
     subscribeTokenAllowances();
     subscribeLeverageTokenAllowances();
     subscribeTokenWhitelists();
@@ -70,8 +66,6 @@ const HookSubscriber: FC = () => {
     subscribeWithdrawRaftBptStatus();
     subscribeSavingsMaxDeposit();
     subscribeCurrentUserSavings();
-    subscribeManageTransactions();
-    subscribeSavingsTransactions();
     subscribeWaitForBridgeStatus();
   }, []);
 

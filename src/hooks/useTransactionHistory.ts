@@ -1,6 +1,6 @@
 import { bind } from '@react-rxjs/core';
 import { BridgeRequestTransaction, PositionTransaction, SavingsTransaction, StakingTransaction } from '@raft-fi/sdk';
-import { tap, filter, debounce, interval, Subscription, BehaviorSubject, combineLatest } from 'rxjs';
+import { map, tap, merge, filter, debounce, interval, BehaviorSubject, combineLatest } from 'rxjs';
 import { DEBOUNCE_IN_MS } from '../constants';
 import { Nullable } from '../interfaces';
 import { manageTransactions$ } from './useManageTransactions';
@@ -40,7 +40,7 @@ const stream$ = combineLatest([
   debounce<[PositionTransaction[], SavingsTransaction[], BridgeRequestTransaction[], StakingTransaction[]]>(() =>
     interval(DEBOUNCE_IN_MS),
   ),
-  tap(transactions => {
+  map(transactions => {
     const manageTransactions = transactions[0];
     const savingsTransactions = transactions[1];
     const bridgeRequestTransactions = transactions[2];
@@ -51,23 +51,15 @@ const stream$ = combineLatest([
       ...savingsTransactions,
       ...bridgeRequestTransactions,
       ...stakingTransactions,
-    ].sort((a, b) => {
-      return b.timestamp.getTime() - a.timestamp.getTime();
-    });
+    ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-    transactionHistory$.next(result);
+    return result;
   }),
+  tap(transactions => transactionHistory$.next(transactions)),
 );
 
-export const [useTransactionHistory] = bind(transactionHistory$, null);
+// serve last cached data, and meanwhile request to fetch new
+const hook$ = merge(transactionHistory$, stream$);
 
-let subscription: Subscription;
-
-export const subscribeTransactionHistory = (): void => {
-  unsubscribeTransactionHistory();
-  subscription = stream$.subscribe();
-};
-export const unsubscribeTransactionHistory = (): void => subscription?.unsubscribe();
-export const resetTransactionHistory = (): void => {
-  transactionHistory$.next(null);
-};
+// only fetch data when hook is used
+export const [useTransactionHistory] = bind(hook$, null);

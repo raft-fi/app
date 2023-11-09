@@ -1,27 +1,11 @@
 import { JsonRpcSigner } from 'ethers';
-import { bind } from '@react-rxjs/core';
 import { Bridge, BridgeRequestTransaction, SUPPORTED_BRIDGE_NETWORKS } from '@raft-fi/sdk';
-import {
-  from,
-  merge,
-  tap,
-  filter,
-  Observable,
-  debounce,
-  interval,
-  Subscription,
-  concatMap,
-  BehaviorSubject,
-  withLatestFrom,
-} from 'rxjs';
-import { DEBOUNCE_IN_MS, NETWORK_SUBGRAPH_URLS, POLLING_INTERVAL_IN_MS } from '../constants';
+import { merge, tap, filter, concatMap, distinctUntilChanged, BehaviorSubject } from 'rxjs';
+import { NETWORK_SUBGRAPH_URLS } from '../constants';
 import { Nullable } from '../interfaces';
-import { appEvent$ } from './useAppEvent';
 import { walletSigner$ } from './useWalletSigner';
 
-export const bridgeRequestTransactions$ = new BehaviorSubject<BridgeRequestTransaction[]>([]);
-
-const intervalBeat$: Observable<number> = interval(POLLING_INTERVAL_IN_MS);
+const rawBridgeRequestTransactions$ = new BehaviorSubject<BridgeRequestTransaction[]>([]);
 
 const fetchData = async (walletSigner: Nullable<JsonRpcSigner>) => {
   if (!walletSigner) {
@@ -54,40 +38,13 @@ const fetchData = async (walletSigner: Nullable<JsonRpcSigner>) => {
 // Stream that fetches on wallet change
 const walletChangeStream$ = walletSigner$.pipe(concatMap(walletSigner => fetchData(walletSigner)));
 
-// Stream that fetches transaction history periodically
-const intervalStream$ = intervalBeat$.pipe(
-  withLatestFrom(walletSigner$),
-  concatMap<[number, Nullable<JsonRpcSigner>], Observable<BridgeRequestTransaction[]>>(([, walletSigner]) =>
-    from(fetchData(walletSigner)),
-  ),
-);
-
-// fetch when app event fire
-const appEventsStream$ = appEvent$.pipe(
-  withLatestFrom(walletSigner$),
-  concatMap(([, walletSigner]) => fetchData(walletSigner)),
-);
-
 // merge all stream$ into one if there are multiple
-const stream$ = merge(intervalStream$, appEventsStream$, walletChangeStream$).pipe(
+const stream$ = merge(walletChangeStream$).pipe(
   filter((transactions): transactions is BridgeRequestTransaction[] => Boolean(transactions)),
-  debounce<BridgeRequestTransaction[]>(() => interval(DEBOUNCE_IN_MS)),
-  tap(transactions => {
-    bridgeRequestTransactions$.next(transactions);
-  }),
+  tap(transactions => rawBridgeRequestTransactions$.next(transactions)),
 );
 
-export const [useBridgeRequestTransactions] = bind(bridgeRequestTransactions$, null);
-
-let subscription: Subscription;
-
-export const subscribeBridgeRequestTransactions = (): void => {
-  unsubscribeBridgeRequestTransactions();
-  subscription = stream$.subscribe();
-};
-export const unsubscribeBridgeRequestTransactions = (): void => subscription?.unsubscribe();
-export const resetBridgeRequestTransactions = (): void => {
-  bridgeRequestTransactions$.next([]);
-};
-
-subscribeBridgeRequestTransactions();
+// serve last cached data, and meanwhile request to fetch new
+export const bridgeRequestTransactions$ = merge(rawBridgeRequestTransactions$, stream$).pipe(
+  distinctUntilChanged((prev, curr) => prev[0]?.id === curr[0]?.id),
+);
