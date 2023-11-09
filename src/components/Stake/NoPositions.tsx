@@ -7,6 +7,7 @@ import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, NUMBER_OF_WEEK_IN_
 import {
   useCalculateVeRaftAmount,
   useEstimateStakingApr,
+  useMaxStakingApr,
   useRaftTokenAnnualGiveAway,
   useUserRaftBptBalance,
 } from '../../hooks';
@@ -38,6 +39,7 @@ const NoPositions: FC<NoPositionsProps> = ({
 }) => {
   const userRaftBptBalance = useUserRaftBptBalance();
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
+  const maxStakingApr = useMaxStakingApr();
   const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
   const { calculateVeRaftAmountStatus, calculateVeRaftAmount } = useCalculateVeRaftAmount();
 
@@ -76,7 +78,7 @@ const NoPositions: FC<NoPositionsProps> = ({
     [weeklyGiveaway],
   );
   const stakingAprFormatted = useMemo(() => {
-    const apr = estimateStakingAprStatus.result;
+    const apr = estimateStakingAprStatus.result ?? maxStakingApr;
 
     if (!apr) {
       return null;
@@ -86,7 +88,7 @@ const NoPositions: FC<NoPositionsProps> = ({
       style: 'percentage',
       fractionDigits: 2,
     });
-  }, [estimateStakingAprStatus.result]);
+  }, [estimateStakingAprStatus.result, maxStakingApr]);
   const bptAmountWithEllipse = useMemo(() => {
     const original = bptAmount.toString();
     const truncated = bptAmount.toTruncated(INPUT_PREVIEW_DIGITS);
@@ -174,9 +176,17 @@ const NoPositions: FC<NoPositionsProps> = ({
           <Typography className="raft__stake__label" variant="overline" weight="semi-bold" color="text-secondary">
             ESTIMATED APR
           </Typography>
-          <Typography className="raft__stake__value" variant="body" weight="medium" color="text-secondary">
+          <Typography
+            className="raft__stake__value raft__stake__baseline"
+            variant="body"
+            weight="medium"
+            color="text-secondary"
+          >
             {stakingAprFormatted ? (
-              <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
+              <>
+                {!estimateStakingAprStatus.result && <Typography variant="body2">Up to</Typography>}
+                <ValueLabel value={stakingAprFormatted} valueSize="body" tickerSize="body2" />
+              </>
             ) : (
               'N/A'
             )}

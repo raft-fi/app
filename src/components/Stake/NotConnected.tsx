@@ -39,9 +39,9 @@ const NotConnected: FC<NotConnectedProps> = ({
 }) => {
   const [, connect] = useConnectWallet();
   const raftTokenAnnualGiveAway = useRaftTokenAnnualGiveAway();
+  const maxStakingApr = useMaxStakingApr();
   const { estimateStakingAprStatus, estimateStakingApr } = useEstimateStakingApr();
   const { calculateVeRaftAmountStatus, calculateVeRaftAmount } = useCalculateVeRaftAmount();
-  const maxStakingApr = useMaxStakingApr();
 
   const bptAmount = useMemo(() => Decimal.parse(amountToLock, 0), [amountToLock]);
   const veRaftAmount = useMemo(
