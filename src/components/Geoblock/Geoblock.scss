@@ -29,3 +29,11 @@
     }
   }
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__geoblock {
+    .raft__geoblock__modal {
+      padding: var(--section-padding);
+    }
+  }
+}

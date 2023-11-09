@@ -40,3 +40,10 @@
     }
   }
 }
+
+@media screen and (max-width: 1024px) {
+  .raft__noticePopup {
+    width: 100%;
+    padding: var(--section-padding);
+  }
+}

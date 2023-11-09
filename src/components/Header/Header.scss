@@ -217,9 +217,6 @@
         }
 
         .common-ui__header__menu {
-          display: block !important;
-          z-index: 9999;
-
           .common-ui__header__menu-container {
             .common-ui__header__menu-bar {
               height: var(--headerHeightMobile);
@@ -236,7 +233,6 @@
             &.common-ui__menu-button__checked {
               width: 24px;
               height: 24px;
-              right: 16px;
             }
           }
         }
