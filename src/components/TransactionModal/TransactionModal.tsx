@@ -49,16 +49,16 @@ const TransactionModal = () => {
   const [failedModalOpened, setFailedModalOpened] = useState<boolean>(false);
 
   const currentStatus = useMemo(() => {
-    if (managePositionStatus.statusType === 'manage') {
+    if (['approve', 'manage'].includes(managePositionStatus.statusType as string)) {
       return managePositionStatus;
     }
-    if (leveragePositionStatus.statusType === 'leverage') {
+    if (['approve', 'leverage'].includes(leveragePositionStatus.statusType as string)) {
       return leveragePositionStatus;
     }
-    if (manageSavingsStatus.statusType === 'manageSavings') {
+    if (['approve', 'manageSavings'].includes(manageSavingsStatus.statusType as string)) {
       return manageSavingsStatus;
     }
-    if (bridgeTokensStatus.statusType === 'bridge') {
+    if (['approve', 'bridge'].includes(bridgeTokensStatus.statusType as string)) {
       if (waitForBridgeStatus.pending || waitForBridgeStatus.success || waitForBridgeStatus.error) {
         return waitForBridgeStatus;
       }
@@ -66,7 +66,7 @@ const TransactionModal = () => {
       return bridgeTokensStatus;
     }
     if (
-      ['stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(
+      ['approve', 'stake-new', 'stake-increase', 'stake-extend', 'stake-increase-extend'].includes(
         stakeBptForVeRaftStatus.statusType as string,
       )
     ) {
@@ -120,7 +120,20 @@ const TransactionModal = () => {
     }
 
     // By resetting the status we can close the modal
-    if (currentStatus.statusType === 'manage') {
+    if (currentStatus.statusType === 'approve') {
+      if (managePositionStatus.statusType === 'approve') {
+        resetManageStatus();
+      } else if (leveragePositionStatus.statusType === 'approve') {
+        resetLeverageStatus();
+      } else if (stakeBptForVeRaftStatus.statusType === 'approve') {
+        resetStakeBptForVeRaftStatus();
+      } else if (manageSavingsStatus.statusType === 'approve') {
+        resetManageSavingsStatus();
+      } else if (bridgeTokensStatus.statusType === 'approve') {
+        resetBridgeTokensStatus();
+        resetWaitForBridgeStatus();
+      }
+    } else if (currentStatus.statusType === 'manage') {
       resetManageStatus();
     } else if (currentStatus.statusType === 'leverage') {
       resetLeverageStatus();
@@ -138,7 +151,14 @@ const TransactionModal = () => {
       resetBridgeTokensStatus();
       resetWaitForBridgeStatus();
     }
-  }, [currentStatus?.statusType]);
+  }, [
+    bridgeTokensStatus.statusType,
+    currentStatus?.statusType,
+    leveragePositionStatus.statusType,
+    managePositionStatus.statusType,
+    manageSavingsStatus.statusType,
+    stakeBptForVeRaftStatus.statusType,
+  ]);
 
   const onRetryTransaction = useCallback(() => {
     if (!currentStatus?.statusType) {
@@ -147,7 +167,19 @@ const TransactionModal = () => {
 
     setFailedModalOpened(false);
 
-    if (currentStatus.statusType === 'manage') {
+    if (currentStatus.statusType === 'approve') {
+      if (managePositionStatus.statusType === 'approve') {
+        managePosition?.();
+      } else if (leveragePositionStatus.statusType === 'approve') {
+        leveragePosition?.();
+      } else if (stakeBptForVeRaftStatus.statusType === 'approve') {
+        stakeBptForVeRaft?.();
+      } else if (manageSavingsStatus.statusType === 'approve') {
+        manageSavings?.();
+      } else if (bridgeTokensStatus.statusType === 'approve') {
+        bridgeTokens?.();
+      }
+    } else if (currentStatus.statusType === 'manage') {
       managePosition?.();
     } else if (currentStatus.statusType === 'leverage') {
       leveragePosition?.();
@@ -166,13 +198,18 @@ const TransactionModal = () => {
     }
   }, [
     bridgeTokens,
+    bridgeTokensStatus.statusType,
     claimRaftFromStakedBpt,
     currentStatus?.request,
     currentStatus?.statusType,
     leveragePosition,
+    leveragePositionStatus.statusType,
     managePosition,
+    managePositionStatus.statusType,
     manageSavings,
+    manageSavingsStatus.statusType,
     stakeBptForVeRaft,
+    stakeBptForVeRaftStatus.statusType,
     withdrawRaftBpt,
   ]);
 
