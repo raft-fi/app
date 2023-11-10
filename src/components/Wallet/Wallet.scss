@@ -181,6 +181,12 @@
       .raft__wallet__popupActions {
         flex-direction: column;
       }
+
+      .raft__wallet_popupTransactions {
+        .raft__wallet__popupTransactionsContainer {
+          height: 110px;
+        }
+      }
     }
 
     .raft__modalWrapper {

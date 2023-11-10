@@ -73,6 +73,13 @@
       .raft__transactionCloseModal {
         width: 100%;
 
+        .raft__transactionCloseModal__icon {
+          svg {
+            width: 80px;
+            height: 80px;
+          }
+        }
+
         .raft__transactionCloseModal__actions {
           width: 100%;
         }

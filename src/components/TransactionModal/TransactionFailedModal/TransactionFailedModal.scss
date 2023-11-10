@@ -75,6 +75,21 @@
       .raft__transactionFailedModal {
         width: 100%;
 
+        .raft__transactionFailedModal__icon {
+          margin-top: 0;
+
+          svg {
+            width: 80px;
+            height: 80px;
+          }
+        }
+
+        .raft__transactionFailedModal__errorMessage {
+          .raft__transactionFailedModal__errorMessage__content {
+            max-height: 160px;
+          }
+        }
+
         .raft__transactionFailedModal__actions {
           flex-direction: column;
         }
