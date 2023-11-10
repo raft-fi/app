@@ -69,6 +69,15 @@
       .raft__transactionSuccessModal {
         width: 100%;
 
+        .raft__transactionSuccessModal__icon {
+          margin-top: 0;
+
+          svg {
+            width: 80px;
+            height: 80px;
+          }
+        }
+
         .raft__transactionSuccessModal__actions {
           flex-direction: column;
         }
