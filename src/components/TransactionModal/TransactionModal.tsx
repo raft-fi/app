@@ -103,7 +103,10 @@ const TransactionModal = () => {
     }
 
     if (currentStatus.success) {
-      setSuccessModalOpened(true);
+      // we skip txn success modal for approve
+      if (currentStatus.statusType !== 'approve') {
+        setSuccessModalOpened(true);
+      }
     }
     if (currentStatus.error) {
       // error code ACTION_REJECTED means rejected by metamask user (not sure for other wallets)
