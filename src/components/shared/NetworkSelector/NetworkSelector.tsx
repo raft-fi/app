@@ -1,6 +1,6 @@
 import { MouseEvent, FC, useCallback, useState, memo } from 'react';
 import { SupportedBridgeNetwork, SupportedSavingsNetwork } from '@raft-fi/sdk';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from '@tempusfinance/common-ui';
 import { NETWORK_LOGO_VARIANTS, NETWORK_NAMES } from '../../../networks';
 import { Icon, Menu, Typography } from '../';
 

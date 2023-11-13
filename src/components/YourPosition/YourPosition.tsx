@@ -1,6 +1,6 @@
 import { R_TOKEN } from '@raft-fi/sdk';
 import { FC, memo, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { R_TOKEN_UI_PRECISION, SUPPORTED_COLLATERAL_TOKEN_SETTINGS, USD_UI_PRECISION } from '../../constants';
 import { useCollateralConversionRates, useTokenPrices } from '../../hooks';
 import { Position, SupportedUnderlyingCollateralToken } from '../../interfaces';

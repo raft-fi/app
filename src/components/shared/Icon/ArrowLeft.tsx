@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { InnerIconProps, withIcon } from 'tempus-ui';
+import { InnerIconProps, withIcon } from '@tempusfinance/common-ui';
 
 const ArrowLeft: FC<InnerIconProps> = ({ size }) => {
   const color = 'var(--arrowLeftColor, #5B6776)';

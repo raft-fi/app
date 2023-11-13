@@ -1,5 +1,5 @@
 import { MouseEvent, FC, useCallback, useState, useMemo } from 'react';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from '@tempusfinance/common-ui';
 import Typography from '../Typography';
 import Icon from '../Icon';
 import Menu from '../Menu';

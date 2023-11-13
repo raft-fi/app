@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Header as HeaderBase } from 'tempus-ui';
+import { Header as HeaderBase } from '@tempusfinance/common-ui';
 import { Nullable } from '../../interfaces';
 import { Icon, Typography } from '../shared';
 import RaftLogo from '../Logo/RaftLogo';

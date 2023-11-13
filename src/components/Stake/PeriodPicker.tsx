@@ -1,7 +1,7 @@
 import { RaftToken } from '@raft-fi/sdk';
 import { addMilliseconds, startOfDay } from 'date-fns';
 import { FC, memo, useCallback, useMemo, useRef } from 'react';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper } from '@tempusfinance/common-ui';
 import { DAY_IN_MS, YEAR_IN_MS } from '../../constants';
 import { DateInput, Typography } from '../shared';
 

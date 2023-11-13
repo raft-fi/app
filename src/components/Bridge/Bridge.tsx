@@ -8,7 +8,7 @@ import {
   isSupportedBridgeNetwork,
 } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from '@tempusfinance/common-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, USD_UI_PRECISION } from '../../constants';
 import { formatCurrency, switchNetwork } from '../../utils';
 import { NETWORK_IDS, NETWORK_LOGO_VARIANTS, NETWORK_NAMES, SUPPORTED_BRIDGE_NETWORKS } from '../../networks';

@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useCallback, useMemo } from 'react';
-import { ButtonWrapper, ButtonWrapperProps } from 'tempus-ui';
+import { ButtonWrapper, ButtonWrapperProps } from '@tempusfinance/common-ui';
 import Icon from '../Icon';
 import Typography from '../Typography';
 

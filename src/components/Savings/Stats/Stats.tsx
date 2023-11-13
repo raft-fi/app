@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react';
 import { R_TOKEN } from '@raft-fi/sdk';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { DecimalFormat, Decimal } from '@tempusfinance/decimal';
 import { R_TOKEN_UI_PRECISION } from '../../../constants';
 import { Nullable } from '../../../interfaces';

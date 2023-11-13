@@ -1,6 +1,6 @@
 import { SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { FC, memo } from 'react';
-import { Link, TokenLogo } from 'tempus-ui';
+import { Link, TokenLogo } from '@tempusfinance/common-ui';
 import { CCIP_EXPLORER_URL } from '../../../constants';
 import { NETWORK_LOGO_VARIANTS } from '../../../networks';
 import { Button, Icon, ModalWrapper, Typography } from '../../shared';

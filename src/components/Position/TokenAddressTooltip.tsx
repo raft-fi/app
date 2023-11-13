@@ -1,6 +1,6 @@
 import { RaftConfig, Token } from '@raft-fi/sdk';
 import { memo, useCallback } from 'react';
-import { ButtonWrapper, Link, TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, Link, TokenLogo } from '@tempusfinance/common-ui';
 import { SUPPORTED_COLLATERAL_TOKENS, TOKEN_LOGO_MAP } from '../../constants';
 import { useConfig } from '../../hooks';
 import { shortenAddress } from '../../utils';

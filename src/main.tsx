@@ -1,7 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import 'tempus-ui/dist/index.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GenerateDashboard from './components/GenerateDashboard';
@@ -19,6 +18,7 @@ import Bridge from './components/Bridge';
 import Stake from './components/Stake';
 
 import './index.scss';
+import '@tempusfinance/common-ui/dist/index.css';
 
 const root = createRoot(document.getElementById('root') as HTMLDivElement);
 

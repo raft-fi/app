@@ -1,7 +1,7 @@
 import { PositionTransaction, R_TOKEN } from '@raft-fi/sdk';
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { FC, useCallback, useMemo, useState } from 'react';
-import { Link } from 'tempus-ui';
+import { Link } from '@tempusfinance/common-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, R_TOKEN_UI_PRECISION } from '../../constants';
 import { useConfig } from '../../hooks';
 import { Button, Icon, ModalWrapper, Typography, ValuesBox } from '../shared';
