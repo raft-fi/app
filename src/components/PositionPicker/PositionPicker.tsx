@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { Icon, Typography } from '../shared';
 import PositionPickerItem from './PositionPickerItem';
 import { usePosition } from '../../hooks';

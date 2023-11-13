@@ -1,6 +1,6 @@
 import { createRef, FC, memo, useCallback, useState, FocusEvent, useMemo, ReactNode } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper } from '@tempusfinance/common-ui';
 import { Nullable } from '../../../interfaces';
 import BaseInput, { BaseInputProps } from '../BaseInput';
 import Typography from '../Typography';

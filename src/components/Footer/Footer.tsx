@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Link as ExternalLink } from 'tempus-ui';
+import { Link as ExternalLink } from '@tempusfinance/common-ui';
 import { Link } from 'react-router-dom';
 import { DISCORD_INVITE_URL, GITBOOK_URL, GITHUB_URL, TWITTER_URL } from '../../constants';
 import { Icon, Typography } from '../shared';

@@ -1,5 +1,5 @@
 import { FC, memo, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { R_TOKEN, SupportedSavingsNetwork } from '@raft-fi/sdk';
 import { formatCurrency } from '../../../../utils';
 import { SavingsStatMap } from '../../../../hooks';

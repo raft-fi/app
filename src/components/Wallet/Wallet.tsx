@@ -5,7 +5,7 @@ import injectedModule from '@web3-onboard/injected-wallets';
 import ledgerModule from '@web3-onboard/ledger';
 import WalletConnectModule from '@web3-onboard/walletconnect';
 import gnosisModule from '@web3-onboard/gnosis';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper } from '@tempusfinance/common-ui';
 import { shortenAddress } from '../../utils';
 import { Nullable } from '../../interfaces';
 import {

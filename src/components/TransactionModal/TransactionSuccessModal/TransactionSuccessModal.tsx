@@ -1,5 +1,5 @@
 import { FC, ReactNode, useCallback } from 'react';
-import { Link } from 'tempus-ui';
+import { Link } from '@tempusfinance/common-ui';
 import { useConfig, useEIP1193Provider } from '../../../hooks';
 import { Nullable } from '../../../interfaces';
 import { Button, Icon, ModalWrapper, Typography } from '../../shared';

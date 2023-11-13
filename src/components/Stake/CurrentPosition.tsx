@@ -2,7 +2,7 @@ import { VERAFT_TOKEN } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { format } from 'date-fns';
 import { memo, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION } from '../../constants';
 import { useUserVeRaftBalance } from '../../hooks';
 import { formatCurrency } from '../../utils';

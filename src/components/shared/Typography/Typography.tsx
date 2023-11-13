@@ -7,7 +7,7 @@ import {
   TypographyVariantMap,
   TypographyColorMap,
   TypographyWeightMap,
-} from 'tempus-ui';
+} from '@tempusfinance/common-ui';
 
 export type TypographyVariant =
   | 'heading1'

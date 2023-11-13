@@ -1,6 +1,6 @@
 import { RaftConfig, RAFT_BPT_TOKEN } from '@raft-fi/sdk';
 import { FC, memo, useCallback, useState } from 'react';
-import { Link } from 'tempus-ui';
+import { Link } from '@tempusfinance/common-ui';
 import { Expandable, Typography } from '../shared';
 
 interface HowToLockProps {

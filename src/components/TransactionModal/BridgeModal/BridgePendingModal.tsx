@@ -1,7 +1,7 @@
 import { R_TOKEN, SupportedBridgeNetwork } from '@raft-fi/sdk';
 import { Decimal } from '@tempusfinance/decimal';
 import { FC, memo, useCallback, useMemo } from 'react';
-import { Link, TokenLogo } from 'tempus-ui';
+import { Link, TokenLogo } from '@tempusfinance/common-ui';
 import { CCIP_EXPLORER_URL, USD_UI_PRECISION } from '../../../constants';
 import { useEIP1193Provider } from '../../../hooks';
 import { Nullable } from '../../../interfaces';

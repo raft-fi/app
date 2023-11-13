@@ -4,7 +4,7 @@ import { useConnectWallet } from '@web3-onboard/react';
 import isMobile from 'is-mobile';
 import { isValid } from 'date-fns';
 import { FC, memo, useCallback, useEffect, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, INPUT_PREVIEW_DIGITS, NUMBER_OF_WEEK_IN_YEAR } from '../../constants';
 import {
   useCalculateVeRaftAmount,

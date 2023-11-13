@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { RAFT_TOKEN } from '@raft-fi/sdk';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { COLLATERAL_TOKEN_UI_PRECISION, WEEK_IN_MS } from '../../constants';
 import { useClaimableRaftFromStakedBpt, useClaimRaftFromStakedBpt } from '../../hooks';
 import { formatCurrency } from '../../utils';

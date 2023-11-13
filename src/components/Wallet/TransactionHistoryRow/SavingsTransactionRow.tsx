@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react';
-import { Link } from 'tempus-ui';
+import { Link } from '@tempusfinance/common-ui';
 import { R_TOKEN, SavingsTransaction } from '@raft-fi/sdk';
 import { DecimalFormat } from '@tempusfinance/decimal';
 import { R_TOKEN_UI_PRECISION } from '../../../constants';

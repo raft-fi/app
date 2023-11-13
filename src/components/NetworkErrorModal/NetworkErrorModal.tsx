@@ -1,6 +1,6 @@
 import { useConnectWallet } from '@web3-onboard/react';
 import { FC, memo, useCallback, useEffect, useState } from 'react';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper } from '@tempusfinance/common-ui';
 import { useConfig, useNetwork } from '../../hooks';
 import { Button, Icon, ModalWrapper, Typography } from '../shared';
 

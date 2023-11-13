@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
-import { Link, TokenLogo } from 'tempus-ui';
+import { Link, TokenLogo } from '@tempusfinance/common-ui';
 import { R_TOKEN, Token } from '@raft-fi/sdk';
 import { COLLATERAL_TOKEN_UI_PRECISION, USD_UI_PRECISION } from '../../constants';
 import { getCollateralRatioLevel, getCollateralRatioLabel, formatPercentage, formatCurrency } from '../../utils';

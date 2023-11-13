@@ -1,6 +1,6 @@
 import { Decimal } from '@tempusfinance/decimal';
 import { memo, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import { R_TOKEN } from '@raft-fi/sdk';
 import { useProtocolStats, useTokenPrices } from '../../hooks';
 import {

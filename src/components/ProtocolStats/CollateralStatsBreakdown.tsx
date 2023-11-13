@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { TokenLogo } from 'tempus-ui';
+import { TokenLogo } from '@tempusfinance/common-ui';
 import {
   COLLATERAL_TOKEN_UI_PRECISION,
   SUPPORTED_COLLATERAL_TOKEN_SETTINGS,

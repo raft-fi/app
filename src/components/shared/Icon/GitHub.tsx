@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { InnerIconProps, withIcon } from 'tempus-ui';
+import { InnerIconProps, withIcon } from '@tempusfinance/common-ui';
 
 const GitHub: FC<InnerIconProps> = ({ size }) => {
   const color = 'var(--githubColor, var(--textSecondary))';

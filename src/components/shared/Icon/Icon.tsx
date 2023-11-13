@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { Icon as IconBase, IconMap, IconProps } from 'tempus-ui';
+import { Icon as IconBase, IconMap, IconProps } from '@tempusfinance/common-ui';
 import ArrowRight from './ArrowRight';
 import Discord from './Discord';
 import ExternalLink from './ExternalLink';

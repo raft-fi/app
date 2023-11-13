@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Decimal } from '@tempusfinance/decimal';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper } from '@tempusfinance/common-ui';
 import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import {
   useCollateralBorrowingRates,

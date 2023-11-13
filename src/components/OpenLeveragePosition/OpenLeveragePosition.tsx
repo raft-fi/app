@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { MIN_COLLATERAL_RATIO, R_TOKEN } from '@raft-fi/sdk';
 import { useConnectWallet } from '@web3-onboard/react';
 import { Link } from 'react-router-dom';
-import { Link as ExternalLink } from 'tempus-ui';
+import { Link as ExternalLink } from '@tempusfinance/common-ui';
 import { Decimal } from '@tempusfinance/decimal';
 import { CurrencyInput, Icon, SliderInput, Typography, InfoBox } from '../shared';
 import {

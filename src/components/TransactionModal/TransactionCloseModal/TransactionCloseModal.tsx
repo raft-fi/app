@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react';
-import { Link } from 'tempus-ui';
+import { Link } from '@tempusfinance/common-ui';
 import { ZERO_ADDRESS } from '../../../constants';
 import { useConfig } from '../../../hooks';
 import { Button, Icon, ModalWrapper, Typography } from '../../shared';

@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ButtonWrapper } from 'tempus-ui';
+import { ButtonWrapper } from '@tempusfinance/common-ui';
 import { useLocale } from '../../hooks';
 import { SupportedLocale, SUPPORTED_LOCALES } from '../../i18n';
 import { Icon, Typography } from '../shared';

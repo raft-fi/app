@@ -2,7 +2,7 @@ import { MouseEvent, memo, useCallback, useEffect, useMemo, useState } from 'rea
 import { Decimal, DecimalFormat } from '@tempusfinance/decimal';
 import { useConnectWallet } from '@web3-onboard/react';
 import { R_TOKEN, SUPPORTED_SAVINGS_NETWORKS, isSupportedSavingsNetwork } from '@raft-fi/sdk';
-import { ButtonWrapper, TokenLogo } from 'tempus-ui';
+import { ButtonWrapper, TokenLogo } from '@tempusfinance/common-ui';
 import {
   setCurrentSavingsNetwork,
   useCurrentSavingsNetwork,

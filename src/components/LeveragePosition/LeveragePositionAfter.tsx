@@ -5,7 +5,7 @@ import { Decimal } from '@tempusfinance/decimal';
 import { USD_UI_PRECISION } from '../../constants';
 import { Nullable } from '../../interfaces';
 import { formatCurrency, formatPercentage } from '../../utils';
-import { Link } from 'tempus-ui';
+import { Link } from '@tempusfinance/common-ui';
 
 interface LeveragePositionAfterProps {
   liquidationPrice: Nullable<Decimal>;
