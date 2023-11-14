@@ -19,6 +19,7 @@ import Stake from './components/Stake';
 
 import './index.scss';
 import '@tempusfinance/common-ui/dist/index.css';
+import TopBanner from './components/TopBanner';
 
 const root = createRoot(document.getElementById('root') as HTMLDivElement);
 
@@ -28,6 +29,7 @@ root.render(
       <div className="raft__app__root">
         <HookSubscriber />
         <Header />
+        <TopBanner />
         <NoticePopup />
         <TransactionModal />
         <Routes>
