@@ -267,7 +267,8 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
 
     const isDelegateWhitelisted = tokenWhitelistMap[collateralToken] ?? undefined;
     const collateralTokenAllowance = tokenAllowanceMap[collateralToken] ?? undefined;
-    const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
+    // R token allowance is fetched for base position manager only - which is not good for collateral that uses other position managers
+    // const rTokenAllowance = tokenAllowanceMap[R_TOKEN] ?? undefined;
     const collateralPermitSignature = isSignatureValid(signatureMap[collateralToken])
       ? (signatureMap[collateralToken] as ERC20PermitSignatureStruct)
       : undefined;
@@ -296,7 +297,6 @@ const stream$ = combineLatest([distinctRequest$, tokenMapsLoaded$]).pipe(
         collateralToken,
         isDelegateWhitelisted,
         collateralTokenAllowance,
-        rTokenAllowance,
         collateralPermitSignature,
         rPermitSignature,
         gasLimitMultiplier: GAS_LIMIT_MULTIPLIER,
