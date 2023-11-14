@@ -60,7 +60,15 @@ const AdjustPosition: FC<AdjustPositionProps> = ({ position }) => {
   const underlyingCollateralToken = position.underlyingCollateralToken as SupportedUnderlyingCollateralToken;
   const displayBaseToken = SUPPORTED_COLLATERAL_TOKEN_SETTINGS[underlyingCollateralToken].displayBaseToken;
 
-  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(displayBaseToken);
+  let parsedToken = displayBaseToken;
+  if (vaultVersion === 'v1' && displayBaseToken === 'wstETH') {
+    parsedToken = 'wstETH-v1';
+  }
+  if (vaultVersion === 'v1' && displayBaseToken === 'rETH') {
+    parsedToken = 'rETH-v1';
+  }
+
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<SupportedCollateralToken>(parsedToken);
   const [collateralAmount, setCollateralAmount] = useState<string>('');
   const [borrowAmount, setBorrowAmount] = useState<string>('');
   const [isAddCollateral, setIsAddCollateral] = useState<boolean>(true);
