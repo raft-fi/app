@@ -19,12 +19,14 @@ import Stake from './components/Stake';
 
 import './index.scss';
 import '@tempusfinance/common-ui/dist/index.css';
+import TopBanner from './components/TopBanner';
 
 const root = createRoot(document.getElementById('root') as HTMLDivElement);
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+      <TopBanner />
       <div className="raft__app__root">
         <HookSubscriber />
         <Header />

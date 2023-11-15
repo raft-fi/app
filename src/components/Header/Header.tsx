@@ -129,6 +129,14 @@ const Header = () => {
     [onClickMenuLink],
   );
 
+  // quick hack to show/hide top banner when menu open on mobile
+  useEffect(() => {
+    const topBanner = document.querySelector('.raft__top-banner');
+    if (topBanner) {
+      (topBanner as HTMLDivElement).style.display = menuOpened ? 'none' : 'block';
+    }
+  }, [menuOpened]);
+
   return (
     <div className="raft__header">
       <div className={`raft__header__container ${menuOpened ? 'raft__header__menu-opened' : ''}`}>
