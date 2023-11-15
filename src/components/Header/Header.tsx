@@ -133,7 +133,7 @@ const Header = () => {
   useEffect(() => {
     const topBanner = document.querySelector('.raft__top-banner');
     if (topBanner) {
-      topBanner.style.display = menuOpened ? 'none' : 'block';
+      (topBanner as HTMLDivElement).style.display = menuOpened ? 'none' : 'block';
     }
   }, [menuOpened]);
 
