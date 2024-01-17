@@ -44,7 +44,7 @@ const fetchData = (provider: JsonRpcProvider) => {
         if (
           !stats.collateralSupply ||
           !stats.debtSupply ||
-          !stats.openPositionCount ||
+          (!stats.openPositionCount && stats.openPositionCount !== 0) ||
           !totalRSupply ||
           !stats.psmTvl ||
           !stats.interestRate
